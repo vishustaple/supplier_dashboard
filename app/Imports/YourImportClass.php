@@ -18,16 +18,20 @@ class YourImportClass implements ToCollection, WithHeadingRow
     public function collection(Collection $collection)
 
     { 
-          echo "<pre>";
-    //     print_r($collection);
-         // Get the sheet from the collection
-         $sheet = $collection->getDelegate();
+        echo "<pre>";
+        print_r($collection);
+        dd("here");
+            // Initialize the maximum column count
+            $maxColumn = 0;
 
-         // Determine the maximum column in the Excel file
-         $maxColumn = $sheet->getHighestColumn();
- 
-         // You can now use $maxColumn as needed, for example, to display the maximum column in your application
-         dd('Maximum Column:', $maxColumn);
+            // Iterate over the rows to find the maximum column count
+            $collection->each(function ($row) use (&$maxColumn) {
+                $currentColumnCount = count($row);
+                $maxColumn = max($maxColumn, $currentColumnCount);
+            });
+    
+            // Output the highest column value
+            dd('Highest Column:', $maxColumn);
         
         
         $skip = 1;

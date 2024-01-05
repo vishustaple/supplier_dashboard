@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', function () {
     if(Auth::check()){
         return view('admin.index');
-       
     }
     else{
         return view('auth.login');
@@ -28,7 +27,7 @@ Route::get('/', function () {
   Route::post('/user-login' , [HomeController::class,'userLogin'])->name('user.login');
   Route::get('/user-logout' , [HomeController::class,'userLogout'])->name('user.logout');
   
-// Auth::routes();
+
 Route::prefix('admin')->group(function () {
     // Routes under the 'admin' prefix
     Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
@@ -36,12 +35,4 @@ Route::prefix('admin')->group(function () {
     // ...
 });
 
-
-
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-// Route::get('/import-excel' , [ExcelImportController::class,'index']);
 Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
-//Route::post('/import-excel', 'ExcelImportController@import');

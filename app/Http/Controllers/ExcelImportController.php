@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use Excel;
+
 use Illuminate\Http\Request;
 use Validator;
 use App\Imports\YourImportClass;
@@ -43,20 +44,21 @@ class ExcelImportController extends Controller
         $fileName= $file->getClientOriginalName();
         // Define the folder where you want to save the file
         $destinationPath = public_path('/excel_sheets');
-        // dd( $destinationPath);
-        $file->move($destinationPath, $file->getClientOriginalName());
-        // $path = $file->store('uploads');
-        // dd($path);
-        // $fullPath = storage_path("app/{$path}");
    
-        // $folderPath = public_path('/excel_files'); // You can change this path as needed
-        // // dd($folderPath);
-        // // Move the file to the specified folder
-        // $filePath = $file->storeAs($folderPath, $file->getClientOriginalName());
+        $file->move($destinationPath, $file->getClientOriginalName());
+     
+         // Specify the chunk size (number of rows per chunk)
+         $chunkSize = 100; // Adjust this based on your needs
+
+         // Use the chunk method to process the file in chunks
+         Excel::filter('chunk')->load($destinationPath . '/' . $fileName)->chunk($chunkSize, function ($results) {
+             // Process each chunk using the import class
+             Excel::import(new YourImport, $results);
+         });
      
         // Process the Excel file
  
-    Excel::import(new YourImportClass, $destinationPath . '/' . $fileName);
+    // Excel::import(new YourImportClass, $destinationPath . '/' . $fileName);
     return redirect()->back()->with('success', 'Excel file imported successfully!');
 
     }
