@@ -83,7 +83,7 @@ class HomeController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             Auth::logoutOtherDevices($request->password);
             // Authentication passed...
-            return redirect()->intended('/admin/dashboard');
+            return redirect()->intended('/admin/upload-sheet');
         } else {
             
             // Authentication failed...
