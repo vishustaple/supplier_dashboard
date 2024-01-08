@@ -56,12 +56,12 @@ class ExcelImportController extends Controller
         $file->move($destinationPath, $fileName);
 
         // $fileName now contains the timestamped file name
-        dd($fileName);
+        // dd($fileName);
         // $path = $file->store('uploads');
         // dd($path);
         // $fullPath = storage_path("app/{$path}");
    
-        $file->move($destinationPath, $file->getClientOriginalName());
+        // $file->move($destinationPath, $file->getClientOriginalName());
         
         Excel::import(new YourImportClass($suppliername, $fileName, $destinationPath), $destinationPath . '/' . $fileName);
    

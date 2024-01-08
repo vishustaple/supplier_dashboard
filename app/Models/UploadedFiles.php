@@ -14,7 +14,7 @@ class UploadedFiles extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_id',
+        'supplier_id',
         'file_name',
         'file_path',
         'cron',
