@@ -40,11 +40,24 @@ class ExcelImportController extends Controller
 
         // Get the uploaded file
         $file = $request->file('file');
-        $fileName= $file->getClientOriginalName();
+
+        // Generate a timestamp to append to the file name
+        $timestamp = now()->format('YmdHis');
+
+        // Original file name
+        $originalFileName = $file->getClientOriginalName();
+
+        // Append timestamp to the file name
+        $fileName = $timestamp . '_' . $originalFileName;
+
         // Define the folder where you want to save the file
         $destinationPath = public_path('/excel_sheets');
-        // dd( $destinationPath);
-        $file->move($destinationPath, $file->getClientOriginalName());
+
+        // Move the file with the new name
+        $file->move($destinationPath, $fileName);
+
+        // $fileName now contains the timestamped file name
+        dd($fileName);
         // $path = $file->store('uploads');
         // dd($path);
         // $fullPath = storage_path("app/{$path}");
