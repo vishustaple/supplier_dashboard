@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{ExcelImportController,HomeController};
+use App\Http\Controllers\{ExcelImportController,HomeController,CategorySupplierController};
 use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +32,10 @@ Route::prefix('admin')->group(function () {
     // Routes under the 'admin' prefix
     Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
     Route::get('/upload-sheet' , [ExcelImportController::class,'index'])->name('upload.sheets');
+   
     // ...
 });
+
+
 
 Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');

@@ -26,16 +26,15 @@
             </ul>
             </div>
             @endif
+           
             <form action="{{ route('import.excel') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
                 <label for="selectBox">Select Supplier:</label>
-                <select id="selectBox" name="supplierselect" class="form-control">
-                <option value="enterprise">Enterprise</option>
-                <option value="grainer">Grainer</option>
-                <option value="office_depot">Office Depot</option>
-                <option value="staples">Staples</option>
-                <option value="wb_mason">WB Mason</option>
+                <select id="selectBox" name="supplierselect" class="form-control"> 
+                @foreach($categorySuppliers as $categorySupplier)
+                <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                @endforeach
                 </select>
             </div><br>
             <div class="form-group">

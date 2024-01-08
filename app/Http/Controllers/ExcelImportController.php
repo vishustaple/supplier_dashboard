@@ -2,40 +2,38 @@
 
 namespace App\Http\Controllers;
 use Excel;
-
 use Illuminate\Http\Request;
 use Validator;
 use App\Imports\YourImportClass;
+use App\Models\CategorySupplier;
 
 
 
 class ExcelImportController extends Controller
 {
     public function index(){
-       
-        return view('admin.export');
+        $categorySuppliers = CategorySupplier::all();
+        return view('admin.export',compact('categorySuppliers'));
     }
     public function import(Request $request)
     {
-        
+        $suppliername=$request->supplierselect;
         // Validate the uploaded file
         $validator = Validator::make(
             [
+                'supplierselect'=>$request->supplierselect,
                 'file'      => $request->file,
                 'extension' => strtolower($request->file->getClientOriginalExtension()),
             ],
             [
+                'supplierselect'=>'required',
                 // 'file'          => 'required',
                 'extension'      => 'required|in:xlsx,xls',
             ]
-          
           );
           if( $validator->fails() )
           {  
-           
-              
               return view('admin.export')->withErrors($validator); 
-              
           }
 
 
@@ -46,19 +44,9 @@ class ExcelImportController extends Controller
         $destinationPath = public_path('/excel_sheets');
    
         $file->move($destinationPath, $file->getClientOriginalName());
-     
-         // Specify the chunk size (number of rows per chunk)
-         $chunkSize = 100; // Adjust this based on your needs
-
-         // Use the chunk method to process the file in chunks
-         Excel::filter('chunk')->load($destinationPath . '/' . $fileName)->chunk($chunkSize, function ($results) {
-             // Process each chunk using the import class
-             Excel::import(new YourImport, $results);
-         });
-     
-        // Process the Excel file
- 
-    // Excel::import(new YourImportClass, $destinationPath . '/' . $fileName);
+        
+        Excel::import(new YourImportClass($suppliername,$fileName), $destinationPath . '/' . $fileName);
+   
     return redirect()->back()->with('success', 'Excel file imported successfully!');
 
     }
