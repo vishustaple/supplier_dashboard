@@ -18,6 +18,10 @@ class ExcelImportController extends Controller
     }
     public function import(Request $request)
     {
+
+        
+        $supplierId=$request->supplierselect;
+
         // Validate the uploaded file
         $validator = Validator::make(
             [
@@ -58,19 +62,13 @@ class ExcelImportController extends Controller
       
         // Move the file with the new name
         $file->move($destinationPath, $fileName);
-       
-          //test the file 
-          Excel::import(new YourImportClass($supplierId, $fileName, $destinationPath), $destinationPath . '/' . $fileName);
 
-        // $fileName now contains the timestamped file name
-        // dd($fileName);
-        // $path = $file->store('uploads');
-        // dd($path);
-        // $fullPath = storage_path("app/{$path}");
-   
-        // $file->move($destinationPath, $file->getClientOriginalName());
-     
-   
+        
+        /** Handle excel headers for validation 
+         * YourImportClass($supplier_id, $fileName, $destinationPath) this are the parameters
+        */
+        Excel::import(new YourImportClass($request->supplierselect, $fileName, $destinationPath), $destinationPath . '/' . $fileName);
+
     return redirect()->back()->with('success', 'Excel file imported successfully!');
 
     }
