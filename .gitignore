@@ -2,6 +2,7 @@
 /node_modules
 /public/build
 /public/hot
+/public/excel_sheets
 /public/storage
 /storage/*.key
 /vendor
