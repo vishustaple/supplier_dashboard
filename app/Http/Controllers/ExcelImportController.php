@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use Excel;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Validator;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +55,7 @@ class ExcelImportController extends Controller
          * YourImportClass($supplier_id, $fileName, $destinationPath) this are the parameters
         */
         Excel::import(new YourImportClass($request->supplierselect, $fileName, $destinationPath), $destinationPath . '/' . $fileName);
-        
+
     return redirect()->back()->with('success', 'Excel file imported successfully!');
 
     }
