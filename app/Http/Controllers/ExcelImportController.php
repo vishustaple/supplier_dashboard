@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Imports\YourImportClass;
 use App\Models\CategorySupplier;
-
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 
 
 class ExcelImportController extends Controller
@@ -17,26 +17,34 @@ class ExcelImportController extends Controller
     }
     public function import(Request $request)
     {
-        $suppliername=$request->supplierselect;
+        
+        $supplierId=$request->supplierselect;
+      
         // Validate the uploaded file
         $validator = Validator::make(
             [
                 'supplierselect'=>$request->supplierselect,
-                'file'      => $request->file,
-                'extension' => strtolower($request->file->getClientOriginalExtension()),
+                'file'      =>  $request->file('file'),
             ],
             [
                 'supplierselect'=>'required',
-                // 'file'          => 'required',
-                'extension'      => 'required|in:xlsx,xls',
+                'file'          => 'required|file|mimes:xlsx,xls',
+            ],
+            [
+                'supplierselect.required' => 'Please select a supplier. It is a required field.',
             ]
           );
           if( $validator->fails() )
           {  
-              return view('admin.export')->withErrors($validator); 
+            $categorySuppliers = CategorySupplier::all();
+              return view('admin.export',compact('categorySuppliers'))->withErrors($validator); 
           }
 
-
+          $reader = new Xlsx(); 
+          $spreadsheet = $reader->load($request->file('file')); 
+          $worksheet = $spreadsheet->getActiveSheet();  
+          dd($worksheet);
+          $worksheet_arr = $worksheet->toArray(); 
         // Get the uploaded file
         $file = $request->file('file');
 
@@ -52,8 +60,12 @@ class ExcelImportController extends Controller
         // Define the folder where you want to save the file
         $destinationPath = public_path('/excel_sheets');
 
+      
         // Move the file with the new name
         $file->move($destinationPath, $fileName);
+       
+          //test the file 
+          Excel::import(new YourImportClass($supplierId, $fileName, $destinationPath), $destinationPath . '/' . $fileName);
 
         // $fileName now contains the timestamped file name
         // dd($fileName);
@@ -62,8 +74,7 @@ class ExcelImportController extends Controller
         // $fullPath = storage_path("app/{$path}");
    
         // $file->move($destinationPath, $file->getClientOriginalName());
-        
-        Excel::import(new YourImportClass($suppliername, $fileName, $destinationPath), $destinationPath . '/' . $fileName);
+     
    
     return redirect()->back()->with('success', 'Excel file imported successfully!');
 
