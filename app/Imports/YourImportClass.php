@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Imports;
+use App\Models\ExcelData;
 use App\Models\UploadedFiles;
 
 use Illuminate\Support\Facades\DB;
@@ -22,10 +23,11 @@ class YourImportClass implements ToCollection //, WithHeadingRow , WithStartRow
     private $fileName;
     private $destinationPath;
 
-    public function __construct($suppliername, $fileName, $destinationPath)
+    public function __construct($supplier_id, $fileName, $destinationPath, $cron_check = false)
     {
-        $this->suppliername = $suppliername;
         $this->fileName = $fileName;
+        $this->cron_check = $cron_check;
+        $this->supplier_id = $supplier_id;
         $this->destinationPath = $destinationPath;
     }
 
@@ -46,10 +48,51 @@ class YourImportClass implements ToCollection //, WithHeadingRow , WithStartRow
     */
     public function collection(Collection $collection)
     {
-        UploadedFiles::create(['supplier_id' => $this->suppliername,
-        'file_name' => $this->fileName,
-        'file_path' => $this->destinationPath,
-        'cron' => 1,]); 
+        /** Definig the variable for loop use */
+        $start_index_value_array = $maxNonEmptyCount = 0;
+        foreach ($collection as $key=>$value) {
+            /** Checking not empty columns */
+            $nonEmptyCount = $value->filter(function ($item) {
+                return !empty($item);
+            })->count();
+            
+            /** if column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+            if ($nonEmptyCount > $maxNonEmptyCount) {
+                $maxNonEmptyvalue = $value; 
+                $start_index_value_array = $key; 
+                $maxNonEmptyCount = $nonEmptyCount;
+            }
+        }
+
+        $excel_column_name_array = $maxNonEmptyvalue->toArray();
+        $maxNonEmptyvalue = null;
+
+        if($this->cron_check == false){
+            UploadedFiles::create(['supplier_id' => $this->supplier_id,
+            'file_name' => $this->fileName,
+            'file_path' => $this->destinationPath,
+            'cron' => 1,]); 
+        }
+
+        /** Here we slice the collection of excel by using the key last row index of heading of excel collection. 
+         * Because we need to select the data column of the excel */
+        $collection = $collection->slice($start_index_value_array+2);
+        $yourArray = ['Bill Date', 'Shipped Date'];
+        foreach ($collection as $key => $row) 
+        {
+            foreach($row as $key1 => $value){
+                if(!empty($value)){
+                    // $final_value_array[$value_array_key]['key'] = $excel_column_name_array[$key1];
+                    // $final_value_array[$value_array_key]['value'] = $value;
+                    // $value_array_key++;
+                    
+                    ExcelData::create(['supplier_id' => $this->supplier_id,
+                    'key' => $excel_column_name_array[$key1],
+                    'value' => (in_array($excel_column_name_array[$key1], $yourArray)) ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value)->format('Y-m-d') : $value,
+                    'file_name' => $this->fileName,]);
+                }        
+            }
+        } 
     }
     
     protected function calculateMaxColumn(array $row)
