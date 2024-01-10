@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('product_details_id')->references('id')->on('order_product_details');
-            // Add other foreign key constraints if needed
+            /** Add other foreign key constraints if needed */
         });
     }
 

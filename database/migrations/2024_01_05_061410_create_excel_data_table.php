@@ -19,8 +19,8 @@ return new class extends Migration
             $table->text('value')->nullable();
             $table->timestamps();
             
-            $table->foreign('supplier_id')->references('id')->on('category_suppliers'); // Assuming 'category_suppliers' table exists
-            // Add other foreign key constraints if needed
+            $table->foreign('supplier_id')->references('id')->on('suppliers'); /** Assuming 'suppliers' table exists */
+            /** Add other foreign key constraints if needed */
 
             $table->index('file_name');
             $table->index('key');

@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->foreign('parent_id')->references('id')->on('accounts');
             $table->foreign('created_by')->references('id')->on('users');
-            // Add other foreign key constraints if needed 
+            /** Add other foreign key constraints if needed */
         });
     }
 

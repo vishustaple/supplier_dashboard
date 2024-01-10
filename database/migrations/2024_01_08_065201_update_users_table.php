@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-         // Revert the changes if needed
+         /** Revert the changes if needed */
          Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('user_type');
             $table->enum('user_type', ['admin', 'supplier'])->default('admin')->comment("admin => it will be admin")->after('password');

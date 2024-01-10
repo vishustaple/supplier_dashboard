@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('category_suppliers', function (Blueprint $table) {
+        Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
             $table->string('supplier_name', 255);
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 
-            $table->foreign('created_by')->references('id')->on('users'); // Assuming 'users' table exists
-            // Add other foreign key constraints if needed
+            $table->foreign('created_by')->references('id')->on('users'); /** Assuming 'users' table exists */
+            /** Add other foreign key constraints if needed */
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('category_suppliers');
+        Schema::dropIfExists('suppliers');
     }
 };
