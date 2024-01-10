@@ -107,7 +107,7 @@ class YourImportClass implements ToCollection //, WithHeadingRow , WithStartRow
        }
        $excel_column_name_array = $maxNonEmptyvalue->toArray();
        if($supplierValues == $excel_column_name_array){
-            dd("you have uploaded right file  ");
+            dd("you have uploaded right file ");
        }
        else{
         dd("you have uploaded wrong file  ");

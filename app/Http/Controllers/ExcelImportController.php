@@ -43,7 +43,28 @@ class ExcelImportController extends Controller
           $reader = new Xlsx(); 
           $spreadsheet = $reader->load($request->file('file')); 
           $worksheet = $spreadsheet->getActiveSheet();  
-          dd($worksheet);
+          
+          $highestRow = $worksheet->getHighestRow();
+          $highestColumn = $worksheet->getHighestColumn();
+          $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
+
+          // Get data from the row with the highest index
+          $lastRowData = [];
+
+          for ($col = 1; $col <= $highestColumnIndex; $col++) {
+          $cellValue = $worksheet->getCellByColumnAndRow($col, $highestRow)->getValue();
+          dd($cellValue);
+          // Store the cell value in the $lastRowData array
+          $lastRowData[] = $cellValue;
+          }
+
+          // Now $lastRowData contains the data from the row with the highest index
+          // You can use or manipulate this data as needed
+          print_r($lastRowData);
+
+        //   dd($highestColumnIndex);
+          // Array to store headers with values
+        //   dd($highestColumn);
           $worksheet_arr = $worksheet->toArray(); 
         // Get the uploaded file
         $file = $request->file('file');
@@ -67,15 +88,7 @@ class ExcelImportController extends Controller
           //test the file 
           Excel::import(new YourImportClass($supplierId, $fileName, $destinationPath), $destinationPath . '/' . $fileName);
 
-        // $fileName now contains the timestamped file name
-        // dd($fileName);
-        // $path = $file->store('uploads');
-        // dd($path);
-        // $fullPath = storage_path("app/{$path}");
-   
-        // $file->move($destinationPath, $file->getClientOriginalName());
-     
-   
+    
     return redirect()->back()->with('success', 'Excel file imported successfully!');
 
     }
