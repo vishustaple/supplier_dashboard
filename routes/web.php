@@ -28,14 +28,18 @@ Route::get('/', function () {
   Route::get('/user-logout' , [HomeController::class,'userLogout'])->name('user.logout');
   
 
-Route::prefix('admin')->group(function () {
+
+  Route::group(['prefix' => 'admin'], function () {
+    Route::middleware([
+        'auth'])->group(function () {
     // Routes under the 'admin' prefix
     Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
     Route::get('/upload-sheet' , [ExcelImportController::class,'index'])->name('upload.sheets');
-   
+    Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
     // ...
+});
 });
 
 
 
-Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
+// Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
