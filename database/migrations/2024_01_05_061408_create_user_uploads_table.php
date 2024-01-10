@@ -17,8 +17,8 @@ return new class extends Migration
             $table->boolean('file_uploaded')->default(0);
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users'); // Assuming 'users' table exists
-            // Add other foreign key constraints if needed
+            $table->foreign('user_id')->references('id')->on('users'); /** Assuming 'users' table exists */
+            /** Add other foreign key constraints if needed */
         });
     }
 
