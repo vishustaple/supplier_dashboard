@@ -37,7 +37,7 @@ class ExcelImportController extends Controller
           if( $validator->fails() )
           {  
             $categorySuppliers = CategorySupplier::all();
-              return view('admin.export',compact('categorySuppliers'))->withErrors($validator); 
+            return view('admin.export',compact('categorySuppliers'))->withErrors($validator); 
           }
 
           $reader = new Xlsx(); 
