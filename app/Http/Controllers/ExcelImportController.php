@@ -17,7 +17,7 @@ class ExcelImportController extends Controller
     public function import(Request $request)
     {
         $supplierId=$request->supplierselect;
-
+    
         // Validate the uploaded file
         $validator = Validator::make(
             [
@@ -82,22 +82,24 @@ class ExcelImportController extends Controller
             $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
                 return !empty($item);
             }, ARRAY_FILTER_USE_BOTH));
-            echo"<pre>";
-            print_r($finalExcelKeyArray);
-            die;
+           
+            // print_r($finalExcelKeyArray);
+            // Clean up the values
+            $cleanedArray = array_map(function ($value) {
+            // Remove line breaks and trim whitespace
+            return str_replace(["\r", "\n"], '', $value);
+            }, $finalExcelKeyArray);
+
+            // Output the cleaned array
+            // echo"<pre>";
+            // print_r($cleanedArray);
+            // die;
             $suppliers=[
                       '1'=>[],
                       '2' => [
-                          'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name',
-                          'Account Number', 'Account Name', 'Material', 'Material Description',
-                          'Material Segment', 'Brand Name', 'Bill Date', 'Billing Document',
-                          'Purchase Order Number', 'Sales Document', 'Name of Orderer', 'Sales Office',
-                          'Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty',
-                          'Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price',
-                          'Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $',
-                          'Discount %', 'Invoice Number'
+                          'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name','Account Number', 'Account Name', 'Material', 'Material Description','Material Segment', 'Brand Name', 'Bill Date', 'Billing Document','Purchase Order Number', 'Sales Document', 'Name of Orderer', 'Sales Office','Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty','Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price','Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $','Discount %', 'Invoice Number'
                       ],
-                      '3'=>['CUSTOMER GRANDPARENT ID','CUSTOMER GRANDPARENT NM','CUSTOMER PARENT ID','CUSTOMER PARENT NM','CUSTOMER ID','CUSTOMER NM','DEPT','CLASS','SUBCLASS','SKU','Manufacture Item#','Manufacture Name','Product Description','Core Flag','Maxi Catalog/Wholesale Flag','UOM','PRIVATE BRAND','GREEN SHADE','QTY Shipped','Unit Net Price','(Unit) Web Price','Total Spend','Shipto Location','Contact Name','Shipped Date','Invoice #','Payment Method'],
+                      '3'=>['CUSTOMER GRANDPARENT ID','CUSTOMER GRANDPARENT NM','CUSTOMER PARENT ID','CUSTOMER PARENT NM','CUSTOMER ID','CUSTOMER NM','DEPT','CLASS','SUBCLASS','SKU','Manufacture Item#','Manufacture Name','Product Description','Core Flag','Maxi Catalog/WholesaleFlag','UOM','PRIVATE BRAND','GREEN SHADE','QTY Shipped','Unit Net Price','(Unit) Web Price','Total Spend','Shipto Location','Contact Name','Shipped Date','Invoice #','Payment Method'],
           
                       '4' => [
                           'MASTER_CUSTOMER', 'MASTER_NAME', 'BILLTONUMBER', 'BILLTONAME', 'SHIPTONUMBER', 'SHIPTONAME',
@@ -112,15 +114,28 @@ class ExcelImportController extends Controller
                           'ITEMFREQUENCY', 'NUMBERORDERSSHIPPED', 'QTY', 'ADJGROSSSALES', 'AVGSELLPRICE'
                       ],
                       '5' => [
-                          'Customer Num', 'Customer Name', 'Item Num', 'Item Name',
-                          'Category', 'Category Umbrella', 'Price Method', 'Uo M',
-                          'Current List', 'Qty', 'Ext Price', null
+                        'Sales ID','Customer Num','Customer Name','Invoice Num','Invoice Date','PONumber','Cost Center Code','Cost Center Value','Dlv Name','Dlv Street','Dlv City','Dlv State','Dlv Zip','Item Num','Item Name','Category','Category Umbrella','Price Method','Uo M','Current List','Qty','Price','Ext Price','Line Tax','Line Total',
                       ],
                   ];
-       
+                  //check supllier upload right file or not   
+                  if (isset($suppliers[$supplierId])) {
+                  
+                    $supplierValues = $suppliers[$supplierId];
+
+                    if(array_values($supplierValues) === array_values($finalExcelKeyArray)){
+                  
+                      return redirect()->back()->with('success', 'Excel file imported successfully!');
+                    }
+                    else{
+                      
+                      return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
+                    }
+                } else {
+                    echo "Supplier ID $this->supplierId not found in the array.";
+                }
      
 
-    return redirect()->back()->with('success', 'Excel file imported successfully!');
+    // return redirect()->back()->with('success', 'Excel file imported successfully!');
 
     }
 }
