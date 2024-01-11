@@ -19,5 +19,3 @@ yarn-error.log
 /.idea
 /.vscode
 *.xlsx
-composer.json
-composer.lock
