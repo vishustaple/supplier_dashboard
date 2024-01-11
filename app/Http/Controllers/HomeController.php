@@ -63,7 +63,7 @@ class HomeController extends Controller
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'password' => bcrypt($request->password), // Hash the password before saving
-                'user_type'=>'admin',
+                'user_type'=> USER::USER_TYPE,
             ]);
             // Validation passed, so set a success message
             session()->flash('success_message', 'Registration successful! Please log in.');
@@ -76,7 +76,10 @@ class HomeController extends Controller
     
         public function userLogin(Request $request)
     {
-    
+        $request->validate([
+            "email" => "required|email",
+            "password" => "required",
+        ]);
         $credentials = $request->only('email', 'password');
         $remember = $request->has('remember');
 
@@ -93,8 +96,8 @@ class HomeController extends Controller
 
         public function userLogout()
         {
-        Auth::logout();
+            Auth::logout();
 
-        return redirect('/');
+            return redirect('/');
         }
 }

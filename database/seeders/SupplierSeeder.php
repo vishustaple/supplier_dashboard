@@ -17,7 +17,7 @@ class SupplierSeeder extends Seeder
         $timestamp = now();
         DB::table('category_suppliers')->insert([
         [
-            'supplier_name' => 'Enterprise',
+            'supplier_name' => 'G&T-Laboratories Charles River ',
             'created_by' => '1',
             'created_at' => $timestamp,
             'updated_at' => $timestamp,
@@ -47,7 +47,7 @@ class SupplierSeeder extends Seeder
             'updated_at' => $timestamp,
         ],
         [
-            'supplier_name' => 'Unknown',
+            'supplier_name' => 'Lyreco',
             'created_by' => '1',
             'created_at' => $timestamp,
             'updated_at' => $timestamp,

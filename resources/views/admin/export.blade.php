@@ -17,6 +17,11 @@
             {{ session('success') }}
             </div>
             @endif
+            @if(session('error'))
+            <div class="alert alert-danger">
+            {{ session('error') }}
+            </div>
+            @endif
             @if ($errors->any())
             <div class="alert alert-danger">
             <ul>
@@ -33,9 +38,11 @@
                 <label for="selectBox">Select Supplier:</label>
                 <select id="selectBox" name="supplierselect" class="form-control"> 
                 <option value="" selected>--Select--</option>
+                @if(isset($categorySuppliers))
                 @foreach($categorySuppliers as $categorySupplier)
                 <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
                 @endforeach
+                @endif
                 </select>
             </div><br>
             <div class="form-group">
