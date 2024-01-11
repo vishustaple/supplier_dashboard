@@ -19,4 +19,8 @@ class UploadedFiles extends Model
         'file_path',
         'cron',
     ];
+    public function getsupplier()
+    {
+        return $this->hasOne(CategorySupplier::class, 'supplier_id', 'id');
+    }
 }
