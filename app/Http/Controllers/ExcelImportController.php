@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Validator;
-use App\Models\CategorySupplier;
+use App\Models\{CategorySupplier,UploadedFiles};
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Settings;
@@ -24,6 +24,7 @@ class ExcelImportController extends Controller
         $validator = Validator::make(['supplierselect' => $request->supplierselect,'file' => $request->file('file')],
             ['supplierselect'=>'required', 'file' => 'required|file|mimes:xlsx,xls'],
             ['supplierselect.required' => 'Please select a supplier. It is a required field.']
+
         );
 
         if( $validator->fails() ){  
@@ -32,10 +33,10 @@ class ExcelImportController extends Controller
         }
         
         $reader = new Xlsx(); 
-        // $spreadsheet = IOFactory::load($excelFilePath, 'Xlsx', ['setReadDataOnly' => true]);
-        $spreadSheet = $reader->load($request->file('file'), 2); 
+        $spreadSheet = $reader->load($request->file('file'), 2);
+      
         $sheetCount = $spreadSheet->getSheetCount();
-        // print_r($sheetCount);die;
+   
         $workSheet = $spreadSheet->getActiveSheet();
 
        
@@ -52,7 +53,7 @@ class ExcelImportController extends Controller
     
         /** Variables to store information about the row with the highest number of columns */
         $workSheetArray = $workSheet->toArray(); 
-
+        
         $startIndexValueArray = $valueArrayKey = $maxNonEmptyCount = 0;
         foreach ($workSheetArray as $key=>$value) {
             /**Checking not empty columns */
@@ -87,12 +88,12 @@ class ExcelImportController extends Controller
 
             // Output the cleaned array
             // echo"<pre>";
-            // dd($cleanedArray);
+            // print_r($cleanedArray);
             // die;
             $suppliers=[
                       '1'=>[ ],
                       '2' => [
-                          'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name','Account Number', 'Account Name', 'Material', 'Material Description','Material Segment', 'Brand Name', 'Bill Date', 'Billing Document','Purchase Order Number', 'Sales Document', 'Name of Orderer', 'Sales Office','Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty','Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price','Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $','Discount %', 'Invoice Number'
+                          'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name','Account Number', 'Account Name', 'Material', 'Material Description','Material Segment', 'Brand Name', 'Bill Date', 'Billing Document','Purchase Order Number', 'Sales Document', 'Name of Orderer', ' Sales Office','Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty','Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price','Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $','Discount %', 'Invoice Number'
                       ],
                       '3'=>['CUSTOMER GRANDPARENT ID','CUSTOMER GRANDPARENT NM','CUSTOMER PARENT ID','CUSTOMER PARENT NM','CUSTOMER ID','CUSTOMER NM','DEPT','CLASS','SUBCLASS','SKU','Manufacture Item#','Manufacture Name','Product Description','Core Flag','Maxi Catalog/WholesaleFlag','UOM','PRIVATE BRAND','GREEN SHADE','QTY Shipped','Unit Net Price','(Unit) Web Price','Total Spend','Shipto Location','Contact Name','Shipped Date','Invoice #','Payment Method'],
           
@@ -109,7 +110,7 @@ class ExcelImportController extends Controller
                           'ITEMFREQUENCY', 'NUMBERORDERSSHIPPED', 'QTY', 'ADJGROSSSALES', 'AVGSELLPRICE'
                       ],
                       '5' => [
-                        'Sales ID','Customer Num','Customer Name','Invoice Num','Invoice Date','PONumber','Cost Center Code','Cost Center Value','Dlv Name','Dlv Street','Dlv City','Dlv State','Dlv Zip','Item Num','Item Name','Category','Category Umbrella','Price Method','Uo M','Current List','Qty','Price','Ext Price','Line Tax','Line Total',
+                       'Customer Num','Customer Name','Item Num','Item Name','Category','Category Umbrella','Price Method','Uo M','Current List','Qty','Ext Price',
                       ],
                       '6'=>[  'Payer', 'Name Payer', 'Sold-to pt', 'Name Sold-to party',
                       'Ship-to', 'Name Ship-to', 'Name 3 + Name 4 - Ship-to',
@@ -127,29 +128,47 @@ class ExcelImportController extends Controller
                       'PO number', 'BPO number', 'Invoice list', 'Billing Document',
                       'Billing Date', 'CAC number', 'CAC description', 'Billing month - P'],
                   ];
+                                // Get the uploaded file
+                    $file = $request->file('file');
+
+                    // Generate a timestamp to append to the file name
+                    $timestamp = now()->format('YmdHis');
+
+                    // Append timestamp to the file name
+                    $fileName = $timestamp . '_' . $file->getClientOriginalName();
+
+                    // Define the folder where you want to save the file
+                    $destinationPath = public_path('/excel_sheets');
+
+
+                    // Move the file with the new name
+                    $file->move($destinationPath, $fileName);
+
+
                   //check supllier upload right file or not   
                 if (isset($suppliers[$supplierId])) {
                   
                     $supplierValues = $suppliers[$supplierId];
-
-
-
-                    
-                    if(array_values($supplierValues) === array_values($finalExcelKeyArray)){
+                //    dd(array_diff($supplierValues,$cleanedArray));
+                    // dd($supplierValues);
+  
+                    if(array_values($supplierValues) === array_values($cleanedArray)){
                         
-                        return redirect()->back()->with('success', 'Excel file Uploaded successfully. System take 30 minute to process it.');
-                    //   return redirect()->back()->with('success', 'Excel file imported successfully!');
+                        UploadedFiles::create(['supplier_id' => $supplierId,
+                        'file_name' => $fileName,
+                        'cron' => 1,]); 
+                      return redirect()->back()->with('success', 'Excel file imported successfully!');
                     }
                     else{
                       
                       return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
                     }
                 } else {
-                    echo "Supplier ID $this->supplierId not found in the array.";
+                    echo "Supplier ID ".$supplierId." not found in the array.";
                 }
      
 
-    // return redirect()->back()->with('success', 'Excel file imported successfully!');
+   
 
 
     }
