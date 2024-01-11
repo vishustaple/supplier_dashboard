@@ -18,19 +18,10 @@ class ExcelImportController extends Controller
     {
         $supplierId=$request->supplierselect;
 
-        // Validate the uploaded file
-        $validator = Validator::make(
-            [
-                'supplierselect'=>$request->supplierselect,
-                'file'      =>  $request->file('file'),
-            ],
-            [
-                'supplierselect'=>'required',
-                'file'          => 'required|file|mimes:xlsx,xls',
-            ],
-            [
-                'supplierselect.required' => 'Please select a supplier. It is a required field.',
-            ]
+        /** Validate the uploaded file */
+        $validator = Validator::make(['supplierselect' => $request->supplierselect,'file' => $request->file('file')],
+            ['supplierselect'=>'required', 'file' => 'required|file|mimes:xlsx,xls'],
+            ['supplierselect.required' => 'Please select a supplier. It is a required field.']
         );
 
         if( $validator->fails() ){  
@@ -40,26 +31,13 @@ class ExcelImportController extends Controller
         
         $reader = new Xlsx(); 
         $spreadSheet = $reader->load($request->file('file')); 
-        $sheetCount = $spreadSheet->getSheetCount();
-        // print_r($sheetCount);die;
         $workSheet = $spreadSheet->getActiveSheet();
-        
-        // // Get the highest row and column numbers
-        // $highestRow = $workSheet->getHighestRow();
-        // $highestColumn = $workSheet->getHighestColumn();
-        
-        // // Convert the column letter to a number
-        // // if(in_array($supplierId, [1,2])){
-        // //     $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn)-1;
-        // // }else{
-        // //     $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
-        // // }
     
         /** Variables to store information about the row with the highest number of columns */
-        $workSheet_arr = $workSheet->toArray(); 
+        $workSheetArray = $workSheet->toArray(); 
 
         $startIndexValueArray = $valueArrayKey = $maxNonEmptyCount = 0;
-        foreach ($workSheet_arr as $key=>$value) {
+        foreach ($workSheetArray as $key=>$value) {
             /**Checking not empty columns */
             $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
                 return !empty($item);
@@ -83,12 +61,10 @@ class ExcelImportController extends Controller
             return !empty($item);
         }, ARRAY_FILTER_USE_BOTH));
 
-        echo"<pre>";
-        print_r($finalExcelKeyArray);
-        die;
-     
-
-    return redirect()->back()->with('success', 'Excel file imported successfully!');
+        // echo"<pre>";
+        // print_r($finalExcelKeyArray);
+        // die;
+        return redirect()->back()->with('success', 'Excel file Uploaded successfully. System take 30 minute to process it.');
 
     }
 }
