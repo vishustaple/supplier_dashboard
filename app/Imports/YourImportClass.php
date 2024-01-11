@@ -24,7 +24,6 @@ class YourImportClass implements ToCollection //, WithHeadingRow , WithStartRow
 
     public function __construct($supplierId, $fileName, $destinationPath, $cronCheck = false)
     {
-
         $this->fileName = $fileName;
         $this->cronCheck = $cronCheck;
         $this->supplierId = $supplierId;
@@ -48,72 +47,92 @@ class YourImportClass implements ToCollection //, WithHeadingRow , WithStartRow
     */
     public function collection(Collection $collection)
     {
-
         
-        $suppliers=[
-            '1'=>['invoicenumber','dsdjs'],
-            '2' => [
-                'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name',
-                'Account Number', 'Account Name', 'Material', 'Material Description',
-                'Material Segment', 'Brand Name', 'Bill Date', 'Billing Document',
-                'Purchase Order Number', 'Sales Document', 'Name of Orderer', 'Sales Office',
-                'Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty',
-                'Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price',
-                'Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $',
-                'Discount %', 'Invoice Number', null
-            ],
-            '3'=>['CUSTOMER GRANDPARENT ID','CUSTOMER GRANDPARENT NM','CUSTOMER PARENT ID','CUSTOMER PARENT NM','CUSTOMER ID','CUSTOMER NM','DEPT','CLASS','SUBCLASS','SKU','Manufacture Item#','Manufacture Name','Product Description','Core Flag','Maxi Catalog/Wholesale Flag','UOM','PRIVATE BRAND','GREEN SHADE','QTY Shipped','Unit Net Price','(Unit) Web Price','Total Spend','Shipto Location','Contact Name','Shipped Date','Invoice #','Payment Method'],
+    //     $suppliers=[
+    //         '1'=>['invoicenumber','dsdjs'],
+    //         '2' => [
+    //             'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name',
+    //             'Account Number', 'Account Name', 'Material', 'Material Description',
+    //             'Material Segment', 'Brand Name', 'Bill Date', 'Billing Document',
+    //             'Purchase Order Number', 'Sales Document', 'Name of Orderer', 'Sales Office',
+    //             'Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty',
+    //             'Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price',
+    //             'Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $',
+    //             'Discount %', 'Invoice Number', null
+    //         ],
+    //         '3'=>['CUSTOMER GRANDPARENT ID','CUSTOMER GRANDPARENT NM','CUSTOMER PARENT ID','CUSTOMER PARENT NM','CUSTOMER ID','CUSTOMER NM','DEPT','CLASS','SUBCLASS','SKU','Manufacture Item#','Manufacture Name','Product Description','Core Flag','Maxi Catalog/Wholesale Flag','UOM','PRIVATE BRAND','GREEN SHADE','QTY Shipped','Unit Net Price','(Unit) Web Price','Total Spend','Shipto Location','Contact Name','Shipped Date','Invoice #','Payment Method'],
 
-            '4' => [
-                'MASTER_CUSTOMER', 'MASTER_NAME', 'BILLTONUMBER', 'BILLTONAME', 'SHIPTONUMBER', 'SHIPTONAME',
-                'SHIPTOADDRESSLINE1', 'SHIPTOADDRESSLINE2', 'SHIPTOADDRESSLINE3', 'SHIPTOCITY', 'SHIPTOSTATE',
-                'SHIPTOZIPCODE', 'LASTSHIPDATE', 'SHIPTOCREATEDATE', 'SHIPTOSTATUS', 'LINEITEMBUDGETCENTER',
-                'CUSTPOREL', 'CUSTPO', 'ORDERCONTACT', 'ORDERCONTACTPHONE', 'SHIPTOCONTACT', 'ORDERNUMBER',
-                'ORDERDATE', 'SHIPPEDDATE', 'TRANSSHIPTOLINE3', 'SHIPMENTNUMBER', 'TRANSTYPECODE',
-                'ORDERMETHODDESC', 'PYMTTYPE', 'PYMTMETHODDESC', 'INVOICENUMBER', 'SUMMARYINVOICENUMBER',
-                'INVOICEDATE', 'CVNCECARDFLAG', 'SKUNUMBER', 'ITEMDESCRIPTION', 'STAPLESADVANTAGEITEMDESCRIPTION',
-                'SELLUOM', 'QTYINSELLUOM', 'STAPLESOWNBRAND', 'DIVERSITYCD', 'DIVERSITY', 'DIVERSITYSUBTYPECD',
-                'DIVERSITYSUBTYPE', 'CONTRACTFLAG', 'SKUTYPE', 'TRANSSOURCESYSCD', 'TRANSACTIONSOURCESYSTEM',
-                'ITEMFREQUENCY', 'NUMBERORDERSSHIPPED', 'QTY', 'ADJGROSSSALES', 'AVGSELLPRICE'
-            ],
-            '5' => [
-                'Customer Num', 'Customer Name', 'Item Num', 'Item Name',
-                'Category', 'Category Umbrella', 'Price Method', 'Uo M',
-                'Current List', 'Qty', 'Ext Price', null
-            ],
-        ];
+    //         '4' => [
+    //             'MASTER_CUSTOMER', 'MASTER_NAME', 'BILLTONUMBER', 'BILLTONAME', 'SHIPTONUMBER', 'SHIPTONAME',
+    //             'SHIPTOADDRESSLINE1', 'SHIPTOADDRESSLINE2', 'SHIPTOADDRESSLINE3', 'SHIPTOCITY', 'SHIPTOSTATE',
+    //             'SHIPTOZIPCODE', 'LASTSHIPDATE', 'SHIPTOCREATEDATE', 'SHIPTOSTATUS', 'LINEITEMBUDGETCENTER',
+    //             'CUSTPOREL', 'CUSTPO', 'ORDERCONTACT', 'ORDERCONTACTPHONE', 'SHIPTOCONTACT', 'ORDERNUMBER',
+    //             'ORDERDATE', 'SHIPPEDDATE', 'TRANSSHIPTOLINE3', 'SHIPMENTNUMBER', 'TRANSTYPECODE',
+    //             'ORDERMETHODDESC', 'PYMTTYPE', 'PYMTMETHODDESC', 'INVOICENUMBER', 'SUMMARYINVOICENUMBER',
+    //             'INVOICEDATE', 'CVNCECARDFLAG', 'SKUNUMBER', 'ITEMDESCRIPTION', 'STAPLESADVANTAGEITEMDESCRIPTION',
+    //             'SELLUOM', 'QTYINSELLUOM', 'STAPLESOWNBRAND', 'DIVERSITYCD', 'DIVERSITY', 'DIVERSITYSUBTYPECD',
+    //             'DIVERSITYSUBTYPE', 'CONTRACTFLAG', 'SKUTYPE', 'TRANSSOURCESYSCD', 'TRANSACTIONSOURCESYSTEM',
+    //             'ITEMFREQUENCY', 'NUMBERORDERSSHIPPED', 'QTY', 'ADJGROSSSALES', 'AVGSELLPRICE'
+    //         ],
+    //         '5' => [
+    //             'Customer Num', 'Customer Name', 'Item Num', 'Item Name',
+    //             'Category', 'Category Umbrella', 'Price Method', 'Uo M',
+    //             'Current List', 'Qty', 'Ext Price', null
+    //         ],
+    //     ];
 
-        // Replace this with the desired supplier ID
+    //     // Replace this with the desired supplier ID
 
-        if (isset($suppliers[$this->supplierId])) {
-            $supplierValues = $suppliers[$this->supplierId];
-            // print_r($supplierValues);
-        } else {
-            echo "Supplier ID $this->supplierId not found in the array.";
-        }
+    //     if (isset($suppliers[$this->supplierId])) {
+    //         $supplierValues = $suppliers[$this->supplierId];
+    //         // print_r($supplierValues);
+    //     } else {
+    //         echo "Supplier ID $this->supplierId not found in the array.";
+    //     }
       
         
-         // Definig the variable for loop use
-         $start_index_value_array = $value_array_key = $maxNonEmptyCount = 0;
-         foreach ($collection as $key=>$value) {
-            //Checking not empty columns
-           $nonEmptyCount = $value->filter(function ($item) {
-               return !empty($item);
-           })->count();
-          // if column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue'
-           if ($nonEmptyCount > $maxNonEmptyCount) {
-               $maxNonEmptyCount = $nonEmptyCount;
-               $maxNonEmptyvalue = $value;
-               $start_index_value_array = $key;
-           }
-       }
-       $excel_column_name_array = $maxNonEmptyvalue->toArray();
-       if($supplierValues == $excel_column_name_array){
-            dd("you have uploaded right file  ");
-       }
-       else{
-        dd("you have uploaded wrong file  ");
-       }
+    //      // Definig the variable for loop use
+    //      $start_index_value_array = $value_array_key = $maxNonEmptyCount = 0;
+    //      foreach ($collection as $key=>$value) {
+    //         //Checking not empty columns
+    //        $nonEmptyCount = $value->filter(function ($item) {
+    //            return !empty($item);
+    //        })->count();
+    //       // if column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue'
+    //        if ($nonEmptyCount > $maxNonEmptyCount) {
+    //            $maxNonEmptyCount = $nonEmptyCount;
+    //            $maxNonEmptyvalue = $value;
+    //            $start_index_value_array = $key;
+    //        }
+    //    }
+    //    $excel_column_name_array = $maxNonEmptyvalue->toArray();
+    //    if($supplierValues == $excel_column_name_array){
+    //         dd("you have uploaded right file  ");
+    //    }
+    //    else{
+    //     dd("you have uploaded wrong file  ");
+    //    }
+
+    //     UploadedFiles::create(['supplier_id' => $this->supplierId,
+    //     'file_name' => $this->fileName,
+    //     'file_path' => $this->destinationPath,
+    //     'cron' => 1,]); 
+
+        //  /** Definig the variable for loop use */
+        //  $start_index_value_array = $maxNonEmptyCount = 0;
+        //  foreach ($collection as $key=>$value) {
+        //      /** Checking not empty columns */
+        //      $nonEmptyCount = $value->filter(function ($item) {
+        //          return !empty($item);
+        //      })->count();
+             
+        //      /** if column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+        //      if ($nonEmptyCount > $maxNonEmptyCount) {
+        //          $maxNonEmptyvalue = $value; 
+        //          $start_index_value_array = $key; 
+        //          $maxNonEmptyCount = $nonEmptyCount;
+        //      }
+        //  }
 
         UploadedFiles::create(['supplier_id' => $this->supplierId,
         'file_name' => $this->fileName,
@@ -165,7 +184,6 @@ class YourImportClass implements ToCollection //, WithHeadingRow , WithStartRow
                 }
             } 
         }
-
     }
     
     protected function calculateMaxColumn(array $row)

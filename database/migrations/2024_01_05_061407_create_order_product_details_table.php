@@ -21,8 +21,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('record_type_id')->references('id')->on('record_types');
-            $table->foreign('category_supplier_id')->references('id')->on('category_suppliers');
-            // Add other foreign key constraints if needed
+            $table->foreign('category_supplier_id')->references('id')->on('suppliers');
+            /** Add other foreign key constraints if needed */
         });
     }
 
