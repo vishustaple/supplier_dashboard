@@ -38,9 +38,11 @@
                 <label for="selectBox">Select Supplier:</label>
                 <select id="selectBox" name="supplierselect" class="form-control"> 
                 <option value="" selected>--Select--</option>
+                @if(isset($categorySuppliers))
                 @foreach($categorySuppliers as $categorySupplier)
                 <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
                 @endforeach
+                @endif
                 </select>
             </div><br>
             <div class="form-group">
