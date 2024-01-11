@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\CategorySupplier;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
-
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
+use PhpOffice\PhpSpreadsheet\Settings;
 
 class ExcelImportController extends Controller
 {
@@ -39,11 +40,13 @@ class ExcelImportController extends Controller
         }
         
         $reader = new Xlsx(); 
-        $spreadSheet = $reader->load($request->file('file')); 
+        // $spreadsheet = IOFactory::load($excelFilePath, 'Xlsx', ['setReadDataOnly' => true]);
+        $spreadSheet = $reader->load($request->file('file'),'Xlsx', ['setReadDataOnly' => true]); 
         $sheetCount = $spreadSheet->getSheetCount();
         // print_r($sheetCount);die;
         $workSheet = $spreadSheet->getActiveSheet();
-        
+
+       
         // // Get the highest row and column numbers
         // $highestRow = $workSheet->getHighestRow();
         // $highestColumn = $workSheet->getHighestColumn();
@@ -77,7 +80,7 @@ class ExcelImportController extends Controller
                 break;
             }
         }
-
+            
             /** Remove empty key from the array of excel sheet column name */
             $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
                 return !empty($item);
@@ -92,10 +95,10 @@ class ExcelImportController extends Controller
 
             // Output the cleaned array
             // echo"<pre>";
-            // print_r($cleanedArray);
+            // dd($cleanedArray);
             // die;
             $suppliers=[
-                      '1'=>[],
+                      '1'=>[ ],
                       '2' => [
                           'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name','Account Number', 'Account Name', 'Material', 'Material Description','Material Segment', 'Brand Name', 'Bill Date', 'Billing Document','Purchase Order Number', 'Sales Document', 'Name of Orderer', 'Sales Office','Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty','Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price','Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $','Discount %', 'Invoice Number'
                       ],
@@ -116,11 +119,27 @@ class ExcelImportController extends Controller
                       '5' => [
                         'Sales ID','Customer Num','Customer Name','Invoice Num','Invoice Date','PONumber','Cost Center Code','Cost Center Value','Dlv Name','Dlv Street','Dlv City','Dlv State','Dlv Zip','Item Num','Item Name','Category','Category Umbrella','Price Method','Uo M','Current List','Qty','Price','Ext Price','Line Tax','Line Total',
                       ],
+                      '6'=>[  'Payer', 'Name Payer', 'Sold-to pt', 'Name Sold-to party',
+                      'Ship-to', 'Name Ship-to', 'Name 3 + Name 4 - Ship-to',
+                      'Street - Ship-to', 'District - Ship-to', 'PostalCode - Ship-to',
+                      'City - Ship-to', 'Country - Ship-to', 'Leader customer 1',
+                      'Leader customer 2', 'Leader customer 3', 'Leader customer 4',
+                      'Leader customer 5', 'Leader customer 6', 'Product hierarchy',
+                      'Section', 'Family', 'Category', 'Sub Category', 'Material',
+                      'Material Description', 'Ownbrand', 'Green product', 'NBS',
+                      'Customer Material', 'Customer description', 'Sales unit',
+                      'Qty. in SKU', 'Sales deal', 'Purchase order type',
+                      'Qty in Sales Unit - P', 'Quantity in SKU - P', 'Number of orders - P',
+                      'Sales Amount - P', 'Tax amount - P', 'Net sales - P',
+                      'Avg Selling Price - P', 'Document Date', 'Sales Document',
+                      'PO number', 'BPO number', 'Invoice list', 'Billing Document',
+                      'Billing Date', 'CAC number', 'CAC description', 'Billing month - P'],
                   ];
                   //check supllier upload right file or not   
                   if (isset($suppliers[$supplierId])) {
                   
                     $supplierValues = $suppliers[$supplierId];
+
 
                     if(array_values($supplierValues) === array_values($finalExcelKeyArray)){
                   
