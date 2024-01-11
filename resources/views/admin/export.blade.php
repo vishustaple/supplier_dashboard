@@ -55,9 +55,47 @@
             </div>
                @include('layout.footer')
             </div>
-        </div>
+          
+            <table id="example" class="display" style="width:100%">
+            <!-- Your table content goes here -->
+            </table>
+
+
+    </div>
     
     </body>
+    <script>
+    $(document).ready(function() {
+        $.ajax({
+                url: 'your/api/endpoint',  // Replace with your actual API endpoint
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Initialize DataTables with the received data
+                    $('#example').DataTable({
+                        data: data,
+                        columns: [
+                            { title: 'First Name' },
+                            { title: 'Last Name' },
+                            { title: 'Email' }
+                            // Add more columns as needed
+                        ]
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching data:', status, error);
+                }
+            });
+        // $('#example').DataTable(
+        //  {
+        // "paging": true,  // Enable pagination
+        // "ordering": true,  // Enable sorting
+        // "searching": true  // Enable search
+        //  }
+
+        // );
+    });
+</script>
 </html>
 
 @endsection
