@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\CategorySupplier;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
-use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use PhpOffice\PhpSpreadsheet\Settings;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 
 class ExcelImportController extends Controller
 {
@@ -40,24 +40,21 @@ class ExcelImportController extends Controller
         }
         
         $reader = new Xlsx(); 
-        // $spreadsheet = IOFactory::load($excelFilePath, 'Xlsx', ['setReadDataOnly' => true]);
-        $spreadSheet = $reader->load($request->file('file'),'Xlsx', ['setReadDataOnly' => true]); 
+        // $excelFilePath = $request->file('file')->getPathname();
+        $spreadSheet = $reader->load($request->file('file'), 2);
+        // $spreadsheet = IOFactory::load( $excelFilePath);
+        // $spreadsheet->setReadDataOnly(true);
+        // try {
+        //     $spreadsheet = IOFactory::load($excelFilePath);
+        //     $spreadsheet->setReadDataOnly(true);
+        // } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+        //     die('Error loading the Excel file: ' . $e->getMessage());
+        // }
+        // $spreadSheet = $reader->load($request->file('file')); 
         $sheetCount = $spreadSheet->getSheetCount();
         // print_r($sheetCount);die;
         $workSheet = $spreadSheet->getActiveSheet();
 
-       
-        // // Get the highest row and column numbers
-        // $highestRow = $workSheet->getHighestRow();
-        // $highestColumn = $workSheet->getHighestColumn();
-        
-        // // Convert the column letter to a number
-        // // if(in_array($supplierId, [1,2])){
-        // //     $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn)-1;
-        // // }else{
-        // //     $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
-        // // }
-    
         /** Variables to store information about the row with the highest number of columns */
         $workSheet_arr = $workSheet->toArray(); 
 
@@ -98,7 +95,8 @@ class ExcelImportController extends Controller
             // dd($cleanedArray);
             // die;
             $suppliers=[
-                      '1'=>[ ],
+                      '1'=>[  
+                      'SOLD TOACCOUNT','SOLD TO NAME','SHIP TOACCOUNT','SHIP TO NAME','SHIP TO ADDRESS','CATEGORIES','SUB GROUP 1','PRODUCT','DESCRIPTION','GREEN (Y/N)','QUANTITYSHIPPED','ON-CORESPEND','OFF-CORESPEND'],
                       '2' => [
                           'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name','Account Number', 'Account Name', 'Material', 'Material Description','Material Segment', 'Brand Name', 'Bill Date', 'Billing Document','Purchase Order Number', 'Sales Document', 'Name of Orderer', 'Sales Office','Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty','Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price','Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $','Discount %', 'Invoice Number'
                       ],
