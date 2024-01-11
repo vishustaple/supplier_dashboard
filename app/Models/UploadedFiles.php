@@ -16,7 +16,6 @@ class UploadedFiles extends Model
     protected $fillable = [
         'supplier_id',
         'file_name',
-        'file_path',
         'cron',
     ];
     public function getsupplier()
