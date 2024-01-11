@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\ExcelData;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 class ProcessUploadedFiles extends Command
@@ -46,16 +47,24 @@ class ProcessUploadedFiles extends Command
                
                 $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
 
-                $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount; /** Handle case if sheet count is one */
+                if(in_array($fileValue->supplier_id, [3, 4])){
+                    $sheetCount = ($sheetCount > 1) ? $sheetCount - 2 : $sheetCount; /** Handle case if sheet count is one */
+                }else{
+                    $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
+                }
+                
                 print_r($sheetCount);
 
-                for ($i = 1; $i <= $sheetCount; $i++) {
-                    $finalInsertArray = $workSheetArray1 = $finalInsertArray = $maxNonEmptyValue = []; 
+                for ($i = 0; $i < $sheetCount; $i++) {
+                    $finalInsertArray = $workSheetArray1 = $finalInsertArray = []; 
+                    if($fileValue->supplier_id == 5){
+                        $i = 1;
+                    }
                     $workSheet = $spreadSheet->getSheet($i); /** Getting worksheet using index */
                     
                     /** Variables to store information about the row with the highest number of columns */
                     $workSheetArray = $workSheet->toArray(); 
-                    $workSheet = null;
+                    // $workSheet = null;
                     foreach ($workSheetArray as $key=>$values) {
                         /** Checking not empty columns */
                         $nonEmptyCount = count(array_filter(array_values($values), function ($item) {
@@ -79,7 +88,7 @@ class ProcessUploadedFiles extends Command
 
                     /** In case of GRAINGER */
                     if($fileValue->supplier_id == 1){
-                        $startIndex = $startIndexValueArray; /** Specify the starting index for get the excel column value */
+                        $startIndex = $startIndexValueArray + 1; /** Specify the starting index for get the excel column value */
                     }
                     
                     foreach ($workSheetArray as $key => $row) {
@@ -87,7 +96,7 @@ class ProcessUploadedFiles extends Command
                             $workSheetArray1[] = $row;
                         }
                     }
-                    $workSheetArray = [];
+                    // $workSheetArray = [];
                     // print_r($workSheetArray1);
                     // die;
                     /** For insert data into the database */
@@ -95,32 +104,32 @@ class ProcessUploadedFiles extends Command
                     {
                         foreach($row as $key1 => $value){
                             if(!empty($maxNonEmptyValue[$key1])){
-                                // $final_value_array[$value_array_key]['key'] = $excel_column_name_array[$key1];
-                                // $final_value_array[$value_array_key]['value'] = $value;
-                                // $value_array_key++;
-
                                 $finalInsertArray[] = ['supplier_id' => $fileValue->supplier_id,
                                 'key' => $maxNonEmptyValue[$key1],
                                 'value' => $value,
                                 'file_name' => $fileValue->file_name];
-
-                                // ExcelData::create(['supplier_id' => $fileValue->supplier_id,
-                                // 'key' => $finalExcelKeyArray[$key1],
-                                // 'value' => $value,
-                                // 'file_name' => $fileValue->file_name]);
                             }    
                         }
 
-                        if($count == 100){
+                        if($count == 50){
                             $count = 0;
-                            DB::table('excel_data')->insert($finalInsertArray);
+                            try{
+                                DB::table('excel_data')->insert($finalInsertArray);
+                            } catch (QueryException $e) {   
+                                echo "Database insertion failed: " . $e->getMessage();
+                            }
+                            
                             $finalInsertArray = [];
                         }
                         $count++; 
                     }
 
                     if(!empty($finalInsertArray)){
-                        DB::table('excel_data')->insert($finalInsertArray);
+                        try{
+                            DB::table('excel_data')->insert($finalInsertArray);
+                        } catch (QueryException $e) {   
+                            echo "Database insertion failed: " . $e->getMessage();
+                        }
                     } 
                 }
             }
@@ -129,7 +138,11 @@ class ProcessUploadedFiles extends Command
         }
 
         /** Optionally, update the 'cron' field after processing */
-        DB::table('uploaded_files')->where('cron', 1)->update(['cron' => 0]);
+        try{
+            DB::table('uploaded_files')->where('cron', 1)->update(['cron' => 0]);
+        } catch (QueryException $e) {   
+            echo "Database updation failed: " . $e->getMessage();
+        }
 
         $this->info('Uploaded files processed successfully.');
     }
