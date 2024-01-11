@@ -33,7 +33,7 @@ class ExcelImportController extends Controller
         
         $reader = new Xlsx(); 
         // $spreadsheet = IOFactory::load($excelFilePath, 'Xlsx', ['setReadDataOnly' => true]);
-        $spreadSheet = $reader->load($request->file('file'), true); 
+        $spreadSheet = $reader->load($request->file('file'), 2); 
         $sheetCount = $spreadSheet->getSheetCount();
         // print_r($sheetCount);die;
         $workSheet = $spreadSheet->getActiveSheet();
