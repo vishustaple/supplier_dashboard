@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class UploadedFiles extends Model
 {
     use HasFactory;
@@ -18,8 +19,5 @@ class UploadedFiles extends Model
         'file_name',
         'cron',
     ];
-    public function getsupplier()
-    {
-        return $this->hasOne(CategorySupplier::class, 'supplier_id', 'id');
-    }
+
 }
