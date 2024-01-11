@@ -14,7 +14,23 @@
 
         <!-- DataTables CSS -->
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
-
+ <style>
+    div#example_wrapper {
+  overflow: auto;
+}
+div#example_wrapper table#example thead tr th:nth-child(3){
+    width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  overflow: hidden;
+}
+div#example_wrapper table#example tbody tr td:nth-child(3) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  overflow: hidden;
+}
+ </style>
         <!-- DataTables JS -->
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
     </head>

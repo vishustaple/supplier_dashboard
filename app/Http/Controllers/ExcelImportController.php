@@ -14,14 +14,42 @@ class ExcelImportController extends Controller
 {
     public function index(){
         $categorySuppliers = CategorySupplier::all();
-        return view('admin.export',compact('categorySuppliers'));
+        $uploaddata=UploadedFiles::all();
+        $formattedData = [];
+        
+        foreach ($uploaddata as $item) {
+            $cronString = $item->cron == 1 ? 'Uploaded' : 'Pending';
+            $formattedData[] = [
+                $item->id,
+                getsuppliername($item->supplier_id),
+                $item->file_name,
+                $cronString,
+                $item->created_at->format('m/d/Y'),
+                // $item->updated_at->format('m/d/Y'),
+            ];
+        }
+        $data=json_encode($formattedData);
+    
+        return view('admin.export',compact('categorySuppliers','data'));
     }
     public function import(Request $request)
     {
-        /** Validate the uploaded file */
-        $validator = Validator::make(['supplierselect' => $request->supplierselect,'file' => $request->file('file')],
-            ['supplierselect'=>'required', 'file' => 'required|file|mimes:xlsx,xls'],
-            ['supplierselect.required' => 'Please select a supplier. It is a required field.']
+
+        $supplierId=$request->supplierselect;
+        
+        // Validate the uploaded file
+        $validator = Validator::make(
+            [
+                'supplierselect'=>$request->supplierselect,
+                'file'      =>  $request->file('file'),
+            ],
+            [
+                'supplierselect'=>'required',
+                'file'          => 'required|file|mimes:xlsx,xls',
+            ],
+            [
+                'supplierselect.required' => 'Please select a supplier. It is a required field.',
+            ]
         );
 
         if( $validator->fails() ){  
