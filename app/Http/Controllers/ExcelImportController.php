@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\CategorySupplier;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
-
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
+use PhpOffice\PhpSpreadsheet\Settings;
 
 class ExcelImportController extends Controller
 {
@@ -17,6 +18,7 @@ class ExcelImportController extends Controller
     public function import(Request $request)
     {
         $supplierId=$request->supplierselect;
+
 
         /** Validate the uploaded file */
         $validator = Validator::make(['supplierselect' => $request->supplierselect,'file' => $request->file('file')],
@@ -30,8 +32,23 @@ class ExcelImportController extends Controller
         }
         
         $reader = new Xlsx(); 
-        $spreadSheet = $reader->load($request->file('file')); 
+        // $spreadsheet = IOFactory::load($excelFilePath, 'Xlsx', ['setReadDataOnly' => true]);
+        $spreadSheet = $reader->load($request->file('file'), true); 
+        $sheetCount = $spreadSheet->getSheetCount();
+        // print_r($sheetCount);die;
         $workSheet = $spreadSheet->getActiveSheet();
+
+       
+        // // Get the highest row and column numbers
+        // $highestRow = $workSheet->getHighestRow();
+        // $highestColumn = $workSheet->getHighestColumn();
+        
+        // // Convert the column letter to a number
+        // // if(in_array($supplierId, [1,2])){
+        // //     $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn)-1;
+        // // }else{
+        // //     $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
+        // // }
     
         /** Variables to store information about the row with the highest number of columns */
         $workSheetArray = $workSheet->toArray(); 
@@ -55,16 +72,85 @@ class ExcelImportController extends Controller
                 break;
             }
         }
+            
+            /** Remove empty key from the array of excel sheet column name */
+            $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
+                return !empty($item);
+            }, ARRAY_FILTER_USE_BOTH));
+           
+            // print_r($finalExcelKeyArray);
+            // Clean up the values
+            $cleanedArray = array_map(function ($value) {
+            // Remove line breaks and trim whitespace
+            return str_replace(["\r", "\n"], '', $value);
+            }, $finalExcelKeyArray);
 
-        /** Remove empty key from the array of excel sheet column name */
-        $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
-            return !empty($item);
-        }, ARRAY_FILTER_USE_BOTH));
+            // Output the cleaned array
+            // echo"<pre>";
+            // dd($cleanedArray);
+            // die;
+            $suppliers=[
+                      '1'=>[ ],
+                      '2' => [
+                          'Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name','Account Number', 'Account Name', 'Material', 'Material Description','Material Segment', 'Brand Name', 'Bill Date', 'Billing Document','Purchase Order Number', 'Sales Document', 'Name of Orderer', 'Sales Office','Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty','Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price','Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $','Discount %', 'Invoice Number'
+                      ],
+                      '3'=>['CUSTOMER GRANDPARENT ID','CUSTOMER GRANDPARENT NM','CUSTOMER PARENT ID','CUSTOMER PARENT NM','CUSTOMER ID','CUSTOMER NM','DEPT','CLASS','SUBCLASS','SKU','Manufacture Item#','Manufacture Name','Product Description','Core Flag','Maxi Catalog/WholesaleFlag','UOM','PRIVATE BRAND','GREEN SHADE','QTY Shipped','Unit Net Price','(Unit) Web Price','Total Spend','Shipto Location','Contact Name','Shipped Date','Invoice #','Payment Method'],
+          
+                      '4' => [
+                          'MASTER_CUSTOMER', 'MASTER_NAME', 'BILLTONUMBER', 'BILLTONAME', 'SHIPTONUMBER', 'SHIPTONAME',
+                          'SHIPTOADDRESSLINE1', 'SHIPTOADDRESSLINE2', 'SHIPTOADDRESSLINE3', 'SHIPTOCITY', 'SHIPTOSTATE',
+                          'SHIPTOZIPCODE', 'LASTSHIPDATE', 'SHIPTOCREATEDATE', 'SHIPTOSTATUS', 'LINEITEMBUDGETCENTER',
+                          'CUSTPOREL', 'CUSTPO', 'ORDERCONTACT', 'ORDERCONTACTPHONE', 'SHIPTOCONTACT', 'ORDERNUMBER',
+                          'ORDERDATE', 'SHIPPEDDATE', 'TRANSSHIPTOLINE3', 'SHIPMENTNUMBER', 'TRANSTYPECODE',
+                          'ORDERMETHODDESC', 'PYMTTYPE', 'PYMTMETHODDESC', 'INVOICENUMBER', 'SUMMARYINVOICENUMBER',
+                          'INVOICEDATE', 'CVNCECARDFLAG', 'SKUNUMBER', 'ITEMDESCRIPTION', 'STAPLESADVANTAGEITEMDESCRIPTION',
+                          'SELLUOM', 'QTYINSELLUOM', 'STAPLESOWNBRAND', 'DIVERSITYCD', 'DIVERSITY', 'DIVERSITYSUBTYPECD',
+                          'DIVERSITYSUBTYPE', 'CONTRACTFLAG', 'SKUTYPE', 'TRANSSOURCESYSCD', 'TRANSACTIONSOURCESYSTEM',
+                          'ITEMFREQUENCY', 'NUMBERORDERSSHIPPED', 'QTY', 'ADJGROSSSALES', 'AVGSELLPRICE'
+                      ],
+                      '5' => [
+                        'Sales ID','Customer Num','Customer Name','Invoice Num','Invoice Date','PONumber','Cost Center Code','Cost Center Value','Dlv Name','Dlv Street','Dlv City','Dlv State','Dlv Zip','Item Num','Item Name','Category','Category Umbrella','Price Method','Uo M','Current List','Qty','Price','Ext Price','Line Tax','Line Total',
+                      ],
+                      '6'=>[  'Payer', 'Name Payer', 'Sold-to pt', 'Name Sold-to party',
+                      'Ship-to', 'Name Ship-to', 'Name 3 + Name 4 - Ship-to',
+                      'Street - Ship-to', 'District - Ship-to', 'PostalCode - Ship-to',
+                      'City - Ship-to', 'Country - Ship-to', 'Leader customer 1',
+                      'Leader customer 2', 'Leader customer 3', 'Leader customer 4',
+                      'Leader customer 5', 'Leader customer 6', 'Product hierarchy',
+                      'Section', 'Family', 'Category', 'Sub Category', 'Material',
+                      'Material Description', 'Ownbrand', 'Green product', 'NBS',
+                      'Customer Material', 'Customer description', 'Sales unit',
+                      'Qty. in SKU', 'Sales deal', 'Purchase order type',
+                      'Qty in Sales Unit - P', 'Quantity in SKU - P', 'Number of orders - P',
+                      'Sales Amount - P', 'Tax amount - P', 'Net sales - P',
+                      'Avg Selling Price - P', 'Document Date', 'Sales Document',
+                      'PO number', 'BPO number', 'Invoice list', 'Billing Document',
+                      'Billing Date', 'CAC number', 'CAC description', 'Billing month - P'],
+                  ];
+                  //check supllier upload right file or not   
+                if (isset($suppliers[$supplierId])) {
+                  
+                    $supplierValues = $suppliers[$supplierId];
 
-        // echo"<pre>";
-        // print_r($finalExcelKeyArray);
-        // die;
-        return redirect()->back()->with('success', 'Excel file Uploaded successfully. System take 30 minute to process it.');
+
+
+                    
+                    if(array_values($supplierValues) === array_values($finalExcelKeyArray)){
+                        
+                        return redirect()->back()->with('success', 'Excel file Uploaded successfully. System take 30 minute to process it.');
+                    //   return redirect()->back()->with('success', 'Excel file imported successfully!');
+                    }
+                    else{
+                      
+                      return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
+                    }
+                } else {
+                    echo "Supplier ID $this->supplierId not found in the array.";
+                }
+     
+
+    // return redirect()->back()->with('success', 'Excel file imported successfully!');
+
 
     }
 }
