@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Excel;
+use App\Models\ExcelData;
 use Illuminate\Console\Command;
-use App\Imports\YourImportClass;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 class ProcessUploadedFiles extends Command
 {
@@ -28,22 +29,129 @@ class ProcessUploadedFiles extends Command
      */
     public function handle()
     {
-        /** this is the folder path where we save the file */
+        /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
 
         /** Select those file name where cron is one */
-        $file_for_process = DB::table('uploaded_files')->select('supplier_id', 'file_name', 'file_path')->where('cron', '=', 1)->get();
+        try{
+            $fileForProcess = DB::table('uploaded_files')->select('supplier_id', 'file_name')->where('cron', '=', 1)->get();
+            
+            if(!$fileForProcess->isEmpty()){
+                $startIndexValueArray = $count = $maxNonEmptyCount = 0;
+                $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
+                try {
+                    /** Inserting files data into the database after doing excel import */
+                    foreach ($fileForProcess as $fileKey => $fileValue){
+                        $reader = new Xlsx(); /** Creating object of php excel library class */ 
+                        
+                        /** Loading excel file using path and name of file from table "uploaded_file" */
+                        $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
+                        
+                        $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
 
-        /** Inserting files data into the database after doing excel import */
-        foreach ($file_for_process as $file_key => $file_value){
-            Excel::import(new YourImportClass($file_value->supplier_id, $file_value->file_name, $destinationPath, true), $destinationPath . '/' . $file_value->file_name);
-        }
+                        if(in_array($fileValue->supplier_id, [3, 4])){
+                            $sheetCount = ($sheetCount > 1) ? $sheetCount - 2 : $sheetCount; /** Handle case if sheet count is one */
+                        }else{
+                            $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
+                        }
+                        
+                        // print_r($sheetCount);
 
-        /** Optionally, update the 'cron' field after processing */
-        DB::table('uploaded_files')
-            ->where('cron', 1)
-            ->update(['cron' => 0]);
+                        for ($i = 0; $i < $sheetCount; $i++) {
+                            $finalInsertArray = $workSheetArray1 = $finalInsertArray = []; 
+                            
+                            if($fileValue->supplier_id == 5){
+                                $i = 1;
+                            }
 
-        $this->info('Uploaded files processed successfully.');
+                            $workSheet = $spreadSheet->getSheet($i); /** Getting worksheet using index */
+                            
+                            /** Variables to store information about the row with the highest number of columns */
+                            $workSheetArray = $workSheet->toArray(); 
+                            
+                            foreach ($workSheetArray as $key=>$values) {
+                                /** Checking not empty columns */
+                                $nonEmptyCount = count(array_filter(array_values($values), function ($item) {
+                                    return !empty($item);
+                                }));
+                                
+                                /** if column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+                                if ($nonEmptyCount > $maxNonEmptyCount) {
+                                    $maxNonEmptyValue = $values;
+                                    $startIndexValueArray = $key;
+                                    $maxNonEmptyCount = $nonEmptyCount;
+                                } 
+                                
+                                /** Stop loop after reading 31 rows from excel file */
+                                if($key > 30){
+                                    break;
+                                }
+                            }
+
+                            print_r($maxNonEmptyValue);
+
+                            $startIndex = $startIndexValueArray; /** Specify the starting index for get the excel column value */
+
+                            foreach ($workSheetArray as $key => $row) {
+                                if($key > $startIndex){
+                                    $workSheetArray1[] = $row;
+                                }
+                            }
+                            
+                            /** For insert data into the database */
+                            foreach ($workSheetArray1 as $key => $row) 
+                            {
+                                if (count(array_intersect($skipRowArray, $row)) <= 0) {
+                                    foreach($row as $key1 => $value){
+                                        if(!empty($maxNonEmptyValue[$key1])){
+                                            $finalInsertArray[] = ['supplier_id' => $fileValue->supplier_id,
+                                            'key' => $maxNonEmptyValue[$key1],
+                                            'value' => $value,
+                                            'file_name' => $fileValue->file_name];
+                                        }
+                                    }
+    
+                                    if($count == 50){
+                                        $count = 0;
+                                        try{
+                                            DB::table('excel_data')->insert($finalInsertArray);
+                                        } catch (QueryException $e) {   
+                                            echo "Database insertion failed: " . $e->getMessage();
+                                        }
+                                        
+                                        $finalInsertArray = [];
+                                    }
+                                    $count++; 
+                                }else{
+                                    continue;
+                                }
+                                // print_r($row);die;
+                            }
+
+                            if(!empty($finalInsertArray)){
+                                try{
+                                    DB::table('excel_data')->insert($finalInsertArray);
+                                } catch (QueryException $e) {   
+                                    echo "Database insertion failed: " . $e->getMessage();
+                                }
+                            } 
+                        }
+                    }
+                } catch (\Exception $e) {
+                    echo "Error loading spreadsheet: " . $e->getMessage();
+                }
+
+                try{
+                    /** Optionally, update the 'cron' field after processing */
+                    DB::table('uploaded_files')->where('cron', 1)->update(['cron' => 0]);
+
+                    $this->info('Uploaded files processed successfully.');
+                } catch (QueryException $e) {   
+                    echo "Database updation failed: " . $e->getMessage();
+                }
+            }
+        } catch (QueryException $e) {   
+            echo "Database table uploaded_files select query failed: " . $e->getMessage();
+        }  
     }
 }

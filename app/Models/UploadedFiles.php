@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class UploadedFiles extends Model
 {
     use HasFactory;
@@ -16,7 +17,7 @@ class UploadedFiles extends Model
     protected $fillable = [
         'supplier_id',
         'file_name',
-        'file_path',
         'cron',
     ];
+
 }
