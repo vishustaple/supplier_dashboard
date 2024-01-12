@@ -14,22 +14,47 @@
 
         <!-- DataTables CSS -->
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+
+        <!-- Custom css -->
+        <link rel="stylesheet" href="{{asset('css/custom.css')}}">
  <style>
-    div#example_wrapper {
-  overflow: auto;
-}
-div#example_wrapper table#example thead tr th:nth-child(3){
-    width: 150px !important;
-  min-width: 150px !important;
-  max-width: 150px !important;
-  overflow: hidden;
-}
-div#example_wrapper table#example tbody tr td:nth-child(3) {
-  width: 150px !important;
-  min-width: 150px !important;
-  max-width: 150px !important;
-  overflow: hidden;
-}
+      div#example_wrapper {
+      overflow: auto;
+      }
+      div#example_wrapper table#example thead tr th:nth-child(3){
+      width: 150px !important;
+      min-width: 150px !important;
+      max-width: 150px !important;
+      overflow: hidden;
+      }
+      div#example_wrapper table#example tbody tr td:nth-child(3) {
+      width: 150px !important;
+      min-width: 150px !important;
+      max-width: 150px !important;
+      overflow: hidden;
+      }
+      /* Apply border to the table */
+      table.dataTable {
+      border-collapse: collapse;
+      width: 100%;
+      }
+
+      /* Apply border to table cells */
+      table.dataTable td,
+      table.dataTable th {
+      border: 1px solid #ddd; /* Set the border color and style */
+      padding: 8px; /* Adjust the cell padding */
+      }
+
+      /* Optional: Style the table header */
+      table.dataTable thead th {
+      background-color: #f2f2f2; /* Set a background color for the header */
+      }
+
+      /* Optional: Style the table hover effect */
+      table.dataTable tr:hover {
+      background-color: #f5f5f5; /* Set a background color for the hover effect */
+      }
  </style>
         <!-- DataTables JS -->
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
