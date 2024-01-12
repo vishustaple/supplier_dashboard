@@ -28,7 +28,7 @@ class ExcelImportController extends Controller
             ];
         }
         $data=json_encode($formattedData);
-    
+       
         return view('admin.export',compact('categorySuppliers','data'));
     }
     public function import(Request $request)
@@ -52,7 +52,8 @@ class ExcelImportController extends Controller
 
         if( $validator->fails() ){  
             $categorySuppliers = CategorySupplier::all();
-            return view('admin.export',compact('categorySuppliers'))->withErrors($validator); 
+            return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
+
         }
         
         $reader = new Xlsx(); 
