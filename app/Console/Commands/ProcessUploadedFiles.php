@@ -37,18 +37,22 @@ class ProcessUploadedFiles extends Command
             $fileForProcess = DB::table('uploaded_files')->select('supplier_id', 'file_name')->where('cron', '=', 1)->get();
             
             if(!$fileForProcess->isEmpty()){
-                $startIndexValueArray = $count = $maxNonEmptyCount = 0;
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
                 try {
+                    /** Increasing the memory limit becouse memory limit issue */
+                    ini_set('memory_limit', '1024M');
+
                     /** Inserting files data into the database after doing excel import */
-                    foreach ($fileForProcess as $fileKey => $fileValue){
-                        $reader = new Xlsx(); /** Creating object of php excel library class */ 
+                    foreach ($fileForProcess as $fileKey => $fileValue){    
+                        unset($spreadSheet, $reader);
                         
+                        $reader = new Xlsx(); /** Creating object of php excel library class */ 
+
                         /** Loading excel file using path and name of file from table "uploaded_file" */
                         $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
                         
                         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
-
+                        
                         if(in_array($fileValue->supplier_id, [3, 4])){
                             $sheetCount = ($sheetCount > 1) ? $sheetCount - 2 : $sheetCount; /** Handle case if sheet count is one */
                         }else{
@@ -56,18 +60,15 @@ class ProcessUploadedFiles extends Command
                         }
                         
                         // print_r($sheetCount);
-
+                        
                         for ($i = 0; $i < $sheetCount; $i++) {
-                            $finalInsertArray = $workSheetArray1 = $finalInsertArray = []; 
+                            $count = $maxNonEmptyCount = 0;
                             
-                            if($fileValue->supplier_id == 5){
-                                $i = 1;
+                            if($fileValue->supplier_id == 5 || $i==1){
+                                continue;
                             }
 
-                            $workSheet = $spreadSheet->getSheet($i); /** Getting worksheet using index */
-                            
-                            /** Variables to store information about the row with the highest number of columns */
-                            $workSheetArray = $workSheet->toArray(); 
+                            $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
                             
                             foreach ($workSheetArray as $key=>$values) {
                                 /** Checking not empty columns */
@@ -83,15 +84,16 @@ class ProcessUploadedFiles extends Command
                                 } 
                                 
                                 /** Stop loop after reading 31 rows from excel file */
-                                if($key > 30){
+                                if($key > 20){
                                     break;
                                 }
                             }
+                            unset($maxNonEmptyCount);
 
-                            print_r($maxNonEmptyValue);
+                            // print_r($maxNonEmptyValue);
 
                             $startIndex = $startIndexValueArray; /** Specify the starting index for get the excel column value */
-
+                            unset($startIndexValueArray);
                             foreach ($workSheetArray as $key => $row) {
                                 if($key > $startIndex){
                                     $workSheetArray1[] = $row;
@@ -111,7 +113,7 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
     
-                                    if($count == 50){
+                                    if($count == 100){
                                         $count = 0;
                                         try{
                                             DB::table('excel_data')->insert($finalInsertArray);
@@ -119,14 +121,15 @@ class ProcessUploadedFiles extends Command
                                             echo "Database insertion failed: " . $e->getMessage();
                                         }
                                         
-                                        $finalInsertArray = [];
+                                        unset($finalInsertArray);
                                     }
                                     $count++; 
                                 }else{
                                     continue;
                                 }
-                                // print_r($row);die;
                             }
+
+                            unset($workSheetArray1, $count, $maxNonEmptyValue);
 
                             if(!empty($finalInsertArray)){
                                 try{
@@ -134,7 +137,9 @@ class ProcessUploadedFiles extends Command
                                 } catch (QueryException $e) {   
                                     echo "Database insertion failed: " . $e->getMessage();
                                 }
-                            } 
+                            }
+
+                            unset($finalInsertArray);
                         }
                     }
                 } catch (\Exception $e) {
