@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('file_name', 255);
             $table->tinyInteger('cron')->default(0); // Assuming TINYINT(2) is used for cron
             $table->timestamps(); // This will automatically create 'created_at' and 'updated_at' columns
-            $table->foreign('supplier_id')->references('id')->on('category_suppliers');
+            $table->foreign('supplier_id')->references('id')->on('suppliers');
         });
     }
 

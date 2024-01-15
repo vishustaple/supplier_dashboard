@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('excel_data', function (Blueprint $table) {
+        Schema::create('order_product_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('supplier_id');
             $table->string('file_name', 255);
