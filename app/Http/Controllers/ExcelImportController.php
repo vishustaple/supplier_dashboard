@@ -18,7 +18,7 @@ class ExcelImportController extends Controller
         $formattedData = [];
         
         foreach ($uploaddata as $item) {
-            $cronString = $item->cron == 1 ? 'Uploaded' : 'Pending';
+            $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
             $formattedData[] = [
                 $item->id,
                 getsuppliername($item->supplier_id),
@@ -29,7 +29,7 @@ class ExcelImportController extends Controller
             ];
         }
         $data=json_encode($formattedData);
-    
+       
         return view('admin.export',compact('categorySuppliers','data'));
     }
     public function import(Request $request)
@@ -54,7 +54,8 @@ class ExcelImportController extends Controller
 
         if( $validator->fails() ){  
             $categorySuppliers = CategorySupplier::all();
-            return view('admin.export',compact('categorySuppliers'))->withErrors($validator); 
+            return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
+
         }
 
         try{
