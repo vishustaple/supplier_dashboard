@@ -44,12 +44,13 @@ class HomeController extends Controller
                 'confirm_password' => $request->confirm_password,
             ],
             [
-            'first_name'=>'required|string|max:255',
-            'last_name'=>'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'confirm_password' => 'required|string|min:8|same:password',
-        ]);
+                'first_name'=>'required|string|max:255',
+                'last_name'=>'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8',
+                'confirm_password' => 'required|string|min:8|same:password',
+            ]
+        );
         if( $validator->fails() )
         {  
             
