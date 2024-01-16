@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_product_details', function (Blueprint $table) {
-            $table->id();
-            $table->string('product_name', 255);
-            $table->string('product_brand', 255)->nullable();
-            $table->unsignedBigInteger('record_type_id')->nullable();
-            $table->unsignedBigInteger('category_supplier_id')->nullable();
-            $table->text('product_description')->nullable();
-            $table->timestamps();
+        // Schema::create('order_product_details', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('product_name', 255);
+        //     $table->string('product_brand', 255)->nullable();
+        //     $table->unsignedBigInteger('record_type_id')->nullable();
+        //     $table->unsignedBigInteger('category_supplier_id')->nullable();
+        //     $table->text('product_description')->nullable();
+        //     $table->timestamps();
 
-            $table->foreign('record_type_id')->references('id')->on('record_types');
-            $table->foreign('category_supplier_id')->references('id')->on('suppliers');
-            /** Add other foreign key constraints if needed */
-        });
+        //     $table->foreign('record_type_id')->references('id')->on('record_types');
+        //     $table->foreign('category_supplier_id')->references('id')->on('suppliers');
+        //     /** Add other foreign key constraints if needed */
+        // });
     }
 
     /**
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_product_details');
+        // Schema::dropIfExists('order_product_details');
     }
 };

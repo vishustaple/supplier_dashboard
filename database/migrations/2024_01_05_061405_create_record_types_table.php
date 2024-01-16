@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('record_types', function (Blueprint $table) {
-            $table->id();
-            $table->string('record_type_name', 255);
-            $table->unsignedBigInteger('created_by');
-            $table->timestamps();
+        // Schema::create('record_types', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('record_type_name', 255);
+        //     $table->unsignedBigInteger('created_by');
+        //     $table->timestamps();
 
-            $table->foreign('created_by')->references('id')->on('users'); /** Assuming 'users' table exists */
-            /** Add other foreign key constraints if needed */
-        });
+        //     $table->foreign('created_by')->references('id')->on('users'); /** Assuming 'users' table exists */
+        //     /** Add other foreign key constraints if needed */
+        // });
     }
 
     /**
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('record_types');
+        // Schema::dropIfExists('record_types');
     }
 };
