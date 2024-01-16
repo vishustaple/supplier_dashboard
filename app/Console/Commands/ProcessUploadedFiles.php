@@ -285,7 +285,7 @@ class ProcessUploadedFiles extends Command
 
                 try{
                     /** Optionally, update the 'cron' field after processing */
-                    // DB::table('uploaded_files')->where('cron', 1)->update(['cron' => 0]);
+                    DB::table('uploaded_files')->where('cron', 1)->update(['cron' => 0]);
 
                     $this->info('Uploaded files processed successfully.');
                 } catch (QueryException $e) {   

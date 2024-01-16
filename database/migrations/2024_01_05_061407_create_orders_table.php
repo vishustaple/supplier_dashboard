@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('amount');
             // $table->unsignedBigInteger('record_type_id')->nullable();
             $table->unsignedBigInteger('supplier_id')->nullable();
-            $table->string('invoice_no');
+            $table->string('invoice_no')->unique();
             $table->datetime('invoice_date');
             $table->unsignedBigInteger('created_by');
             $table->timestamps();

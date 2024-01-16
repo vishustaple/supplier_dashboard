@@ -8,6 +8,10 @@ use App\Console\Commands\ProcessUploadedFiles;
 
 class Kernel extends ConsoleKernel
 {
+
+    protected $commands = [
+        \App\Console\Commands\MailSend::class,
+    ];
     /**
      * Define the application's command schedule.  
      */
@@ -20,6 +24,7 @@ class Kernel extends ConsoleKernel
 
         // Schedule the ProcessUploadedFiles command to run daily
         $schedule->command(ProcessUploadedFiles::class)->daily();
+        $schedule->command(MailSend::class)->everyMinute();
     }
 
 

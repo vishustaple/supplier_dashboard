@@ -34,10 +34,10 @@
                                                 <input class="form-control" id="inputPassword" name="password" type="password" placeholder="Password" />
                                                 <label for="inputPassword">Password</label>
                                             </div>
-                                            <div class="form-check mb-3">
+                                            <!-- <div class="form-check mb-3">
                                                 <input class="form-check-input" id="inputRememberPassword" name="remember" type="checkbox" value="1" />
                                                 <label class="form-check-label" for="inputRememberPassword">Remember Password</label>
-                                            </div>
+                                            </div> -->
                                             <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
                                                 <!-- <a class="small" href="password.html">Forgot Password?</a> -->
                                                 <!-- <a class="btn btn-primary" href="index.html">Login</a> -->

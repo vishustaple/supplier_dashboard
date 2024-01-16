@@ -72,9 +72,9 @@
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
             "searching": true, // Enable search
-            "data": <?php echo $data; ?>,
+            "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
-                { title: 'S. No' },
+                { title: 'SR. No' },
                 { title: 'Supplier Name' },
                 { title: 'File Name' },
                 { title: 'Processing' },
