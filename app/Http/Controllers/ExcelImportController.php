@@ -18,7 +18,7 @@ class ExcelImportController extends Controller
         $formattedData = [];
         
         foreach ($uploaddata as $item) {
-            $cronString = $item->cron == 1 ? 'Uploaded' : 'Pending';
+            $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
             $formattedData[] = [
                 $item->id,
                 getsuppliername($item->supplier_id),

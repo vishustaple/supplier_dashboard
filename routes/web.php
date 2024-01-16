@@ -42,4 +42,4 @@ Route::get('/', function () {
 
 
 
-// Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
+Route::get('/random-function' , [CategorySupplierController::class,'index'])->name('random.number');
