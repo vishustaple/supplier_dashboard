@@ -17,16 +17,16 @@ return new class extends Migration
             // $table->string('product_sku', 255)->nullable();
             // $table->unsignedBigInteger('product_details_id')->nullable();
             $table->integer('amount');
-            $table->unsignedBigInteger('record_type_id')->nullable();
+            // $table->unsignedBigInteger('record_type_id')->nullable();
             $table->unsignedBigInteger('supplier_id')->nullable();
             $table->string('invoice_no');
             $table->datetime('invoice_date');
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 
-            $table->foreign('record_type_id')->references('id')->on('record_types');
+            $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('supplier_id')->references('id')->on('suppliers');
-            // $table->foreign('product_details_id')->references('id')->on('order_product_details');
+            // $table->foreign('record_type_id')->references('id')->on('record_types');
             /** Add other foreign key constraints if needed */
         });
     }

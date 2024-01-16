@@ -18,6 +18,7 @@ class UploadedFiles extends Model
         'supplier_id',
         'file_name',
         'cron',
+        'created_by',
     ];
 
 }

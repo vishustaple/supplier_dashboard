@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class OrderProductDetail extends Model
+class Account extends Model
 {
     use HasFactory;
+
+    protected $table = 'accounts';
 
      /**
      * The attributes that are mass assignable.
@@ -15,10 +17,9 @@ class OrderProductDetail extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'product_name',
-        'product_brand',
-        'record_type_id',
-        'category_supplier_id',
-        'product_description',
+        'customer_number',
+        'customer_name',
+        'parent_id',
+        'created_by',
     ];
 }
