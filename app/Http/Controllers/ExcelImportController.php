@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Validator;
 use Illuminate\Http\Request;
-// use PhpOffice\PhpSpreadsheet\Settings;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
@@ -77,7 +77,7 @@ class ExcelImportController extends Controller
                 return !empty($item);
             }));
             
-            /** if column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+            /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
             if ($nonEmptyCount > $maxNonEmptyCount) {
                 $maxNonEmptyvalue = $value;
                 $startIndexValueArray = $key;
@@ -166,10 +166,17 @@ class ExcelImportController extends Controller
             // dd($supplierValues);
             
             if(array_values($supplierValues) === array_values($cleanedArray)){
+
+                // Get the authenticated user
+                $user = Auth::user();
+                // dd($user);
+
                 try{
                     UploadedFiles::create(['supplier_id' => $request->supplierselect,
-                    'file_name' => $fileName,
-                    'cron' => 1,]); 
+                        'file_name' => $fileName,
+                        'cron' => 1,
+                        'created_by' => $user->id,
+                    ]); 
 
                     /** Move the file with the new name */
                     $file->move($destinationPath, $fileName);

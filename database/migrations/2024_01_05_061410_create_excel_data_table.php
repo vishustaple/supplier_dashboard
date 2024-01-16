@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('excel_data', function (Blueprint $table) {
+        Schema::create('order_product_details', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('supplier_id');
+            $table->string('invoice_number');
             $table->string('file_name', 255);
             $table->string('key', 255);
             $table->text('value')->nullable();
             $table->timestamps();
             
-            $table->foreign('supplier_id')->references('id')->on('suppliers'); /** Assuming 'suppliers' table exists */
+            // $table->foreign('supplier_id')->references('id')->on('suppliers'); /** Assuming 'suppliers' table exists */
             /** Add other foreign key constraints if needed */
 
             $table->index('file_name');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('excel_data');
+        Schema::dropIfExists('order_product_details');
     }
 };
