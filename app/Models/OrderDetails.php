@@ -5,22 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
-class UploadedFiles extends Model
+class OrderDetails extends Model
 {
     use HasFactory;
-     /**
+
+    protected $table = 'order_details';
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'supplier_id',
-        'file_name',
-        'cron',
+        'invoice_number',
+        'invoice_date',
         'created_by',
-        'start_date',
-        'end_date',
     ];
-
 }
