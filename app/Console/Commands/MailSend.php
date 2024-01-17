@@ -69,11 +69,11 @@ class MailSend extends Command
 
 
             if($id == 1 || $id == 2 || $id == 3|| $id == 4){
-
                 if($id == 4){
                     $currentDay = Carbon::now()->day;
                     // dd($currentDay);
                     $currentWeek = ceil($currentDay / 7); 
+                    
                     if ($currentWeek % 2 == 1) {
                         /** Odd week */
                         $startDate = Carbon::now()->startOfWeek();
@@ -148,7 +148,7 @@ class MailSend extends Command
             });
 
             $this->info('Email sent successfully');
-            
+
         } catch (\Exception $e) {
             /** Handle the exception here */
             $this->error('Email sending failed: ' . $e->getMessage());
