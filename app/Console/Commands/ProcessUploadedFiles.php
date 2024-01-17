@@ -274,7 +274,7 @@ class ProcessUploadedFiles extends Command
                                                     'value' => $value,
                                                     'file_name' => $fileValue->file_name,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ];  
                                             }
 
@@ -285,7 +285,7 @@ class ProcessUploadedFiles extends Command
                                                     'value' => $value,
                                                     'file_name' => $fileValue->file_name,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ]; 
                                             }
 
@@ -296,7 +296,7 @@ class ProcessUploadedFiles extends Command
                                                     'value' => $value,
                                                     'file_name' => $fileValue->file_name,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ]; 
                                             }
 
@@ -307,7 +307,7 @@ class ProcessUploadedFiles extends Command
                                                     'value' => $value,
                                                     'file_name' => $fileValue->file_name,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ]; 
                                             }
 
@@ -360,7 +360,7 @@ class ProcessUploadedFiles extends Command
                                             'supplier_id' => $fileValue->supplier_id,
                                             'amount' => $finalOrderInsertArray['amount'],
                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                         ]);
 
                                         OrderDetails::create([
@@ -374,7 +374,7 @@ class ProcessUploadedFiles extends Command
                                             $order->update([
                                                 'created_by' => $fileValue->created_by,
                                                 'amount' => $order->amount + $finalOrderInsertArray['amount'],
-                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                             ]);
                                         } else {
                                             Order::create([
@@ -385,7 +385,7 @@ class ProcessUploadedFiles extends Command
                                                 'supplier_id' => $fileValue->supplier_id,
                                                 'amount' => $finalOrderInsertArray['amount'],
                                                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                             ]);
                                         }
                                     }
