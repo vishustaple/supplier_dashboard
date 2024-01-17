@@ -19,6 +19,8 @@ class UploadedFiles extends Model
         'file_name',
         'cron',
         'created_by',
+        'start_date',
+        'end_date',
     ];
 
 }

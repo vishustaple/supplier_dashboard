@@ -173,8 +173,10 @@ class ExcelImportController extends Controller
 
                 try{
                     UploadedFiles::create(['supplier_id' => $request->supplierselect,
-                        'file_name' => $fileName,
                         'cron' => 1,
+                        // 'start_date' => ,
+                        // 'end_date' => ,
+                        'file_name' => $fileName,
                         'created_by' => $user->id,
                     ]); 
 
