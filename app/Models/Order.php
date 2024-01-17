@@ -22,10 +22,8 @@ class Order extends Model
         'invoice_date',
         'created_by',
     ];
-    
 
-     public function random_invoice_num()
-    {
+    public function random_invoice_num(){
         $min = 1000000000;  // Minimum 10-digit number
         $max = 9999999999;  // Maximum 10-digit number
         $number=mt_rand($min, $max);
@@ -37,7 +35,5 @@ class Order extends Model
         }
 
         return $number;
-        
     }
-
 }
