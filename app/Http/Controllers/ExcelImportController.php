@@ -62,7 +62,9 @@ class ExcelImportController extends Controller
             $reader = new Xlsx(); 
             $spreadSheet = $reader->load($request->file('file'), 2);
             $workSheet = $spreadSheet->getActiveSheet();
-                    
+            $sheetName = $workSheet->getTitle();
+            $sheetCount = $spreadSheet->getSheetCount(); 
+        
             /** Variables to store information about the row with the highest number of columns */
             $workSheetArray = $workSheet->toArray();
         } catch (\Exception $e) {
@@ -161,6 +163,7 @@ class ExcelImportController extends Controller
 
         /** check supllier upload right file or not */
         if (isset($suppliers[$request->supplierselect])) {
+          
             $supplierValues = $suppliers[$request->supplierselect];
             // dd(array_diff($supplierValues,$cleanedArray));
             // dd($supplierValues);

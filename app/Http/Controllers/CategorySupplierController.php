@@ -10,7 +10,7 @@ class CategorySupplierController extends Controller
     {
       
         $model = new Order();
-        dd($model->random_invoice_num());
+        // dd($model->random_invoice_num());
         // $categorySuppliers = CategorySupplier::all();
         //  dd($categorySuppliers);
         // return view('admin.export', compact('categorySuppliers'));
