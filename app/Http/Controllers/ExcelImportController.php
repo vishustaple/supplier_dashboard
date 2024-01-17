@@ -14,10 +14,10 @@ class ExcelImportController extends Controller
 {
     public function index(){
         $categorySuppliers = CategorySupplier::all();
-        $uploaddata=UploadedFiles::all();
+        $uploadData=UploadedFiles::all();
         $formattedData = [];
         
-        foreach ($uploaddata as $item) {
+        foreach ($uploadData as $item) {
             $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
             $formattedData[] = [
                 $item->id,
@@ -167,9 +167,8 @@ class ExcelImportController extends Controller
             
             if(array_values($supplierValues) === array_values($cleanedArray)){
 
-                // Get the authenticated user
+                /** Get the authenticated user */
                 $user = Auth::user();
-                // dd($user);
 
                 try{
                     UploadedFiles::create(['supplier_id' => $request->supplierselect,

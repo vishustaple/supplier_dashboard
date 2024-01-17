@@ -313,10 +313,14 @@ class ProcessUploadedFiles extends Command
 
                                             if(!empty($columnArray[$fileValue->supplier_id]['customer_number']) && $columnArray[$fileValue->supplier_id]['customer_number'] == $maxNonEmptyValue[$key1]){
                                                 $finalOrderInsertArray['customer_number'] = $value;
+                                            } else {
+                                                $finalOrderInsertArray['customer_number'] = '';
                                             }
 
                                             if(!empty($columnArray[$fileValue->supplier_id]['amount']) && $columnArray[$fileValue->supplier_id]['amount'] == $maxNonEmptyValue[$key1]){
                                                 $finalOrderInsertArray['amount'] = $value;
+                                            } else {
+                                                $finalOrderInsertArray['amount'] = '';
                                             }
 
                                             if(!empty($columnArray[$fileValue->supplier_id]['invoice_no']) && $columnArray[$fileValue->supplier_id]['invoice_no'] == $maxNonEmptyValue[$key1]){
@@ -325,6 +329,8 @@ class ProcessUploadedFiles extends Command
                                                 } else {
                                                     $finalOrderInsertArray['invoice_no'] = $value;
                                                 }
+                                            } else {
+                                                $finalOrderInsertArray['invoice_no'] = '';
                                             }
 
                                             if(!empty($columnArray[$fileValue->supplier_id]['invoice_date']) && $columnArray[$fileValue->supplier_id]['invoice_date'] == $maxNonEmptyValue[$key1]){
@@ -337,6 +343,8 @@ class ProcessUploadedFiles extends Command
                                                         $finalOrderInsertArray['invoice_date'] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
                                                     }
                                                 }  
+                                            } else {
+                                                $finalOrderInsertArray['invoice_date'] = '';
                                             }
                                         }
                                     }
