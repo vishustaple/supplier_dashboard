@@ -345,9 +345,7 @@ class ProcessUploadedFiles extends Command
 
                                     if ($order) {
                                         $order->update([
-                                            'customer_number' => $finalOrderInsertArray['customer_number'],
                                             'created_by' => $fileValue->created_by,
-                                            'supplier_id' => $fileValue->supplier_id,
                                             'amount' => $order->amount + $finalOrderInsertArray['amount'],
                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                                         ]);
