@@ -88,6 +88,7 @@
             }
             var selectedSupplier = $(this).val();
         });
+
         
         $('#enddate').daterangepicker({  
             showDropdowns: false,
@@ -103,6 +104,7 @@
             startDateInput.prop('disabled', true);
             }
         });
+
 
 
             $('#example').DataTable({
