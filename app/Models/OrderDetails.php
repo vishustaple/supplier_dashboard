@@ -16,8 +16,10 @@ class OrderDetails extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'order_file_name',
         'invoice_number',
         'invoice_date',
         'created_by',
+        'order_id',
     ];
 }

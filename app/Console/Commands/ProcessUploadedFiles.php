@@ -38,6 +38,22 @@ class ProcessUploadedFiles extends Command
             /** Select those file name where cron is one */
             $fileForProcess = DB::table('uploaded_files')->select('supplier_id', 'file_name', 'created_by')->where('cron', '=', 1)->get();
             
+            $date1 = $fileForProcess->start_date;
+            $date2 = $fileForProcess->end_date;
+
+            /** Calculate the difference between the two dates */
+            $interval = $date1->diff($date2);
+
+            /** Access the difference in days, months, and years */
+            $daysDifference = $interval->days;
+
+            if($daysDifference <= 7){
+                $weeklyCheck = true;
+            }
+
+            // $monthsDifference = $interval->m;
+            // $yearsDifference = $interval->y;
+
             if (!$fileForProcess->isEmpty()) {
                 /** Add column name here those row you want to skip */
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
@@ -352,7 +368,7 @@ class ProcessUploadedFiles extends Command
                                     $order = Order::where('invoice_no', $finalOrderInsertArray['invoice_no'])->where('invoice_date', $finalOrderInsertArray['invoice_date'])->first();
                                     if (isset($finalOrderInsertArray['invoice_no']) && empty($finalOrderInsertArray['invoice_no'])) {
                                         $systemCreatedInvoice = Order::random_invoice_num();
-                                        Order::create([
+                                        $orderLastInsertId = Order::create([
                                             'invoice_no' => $systemCreatedInvoice,
                                             'invoice_date' => $fileValue->start_date,
                                             'customer_number' => $finalOrderInsertArray['customer_number'],
@@ -362,13 +378,28 @@ class ProcessUploadedFiles extends Command
                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                         ]);
+                                        
+                                        if ($weeklyCheck) {
+                                            OrderDetails::create([
+                                                'order_id' => $orderLastInsertId->id,
+                                                'invoice_number' => $systemCreatedInvoice,
+                                                'invoice_date' => $fileValue->start_date,
+                                                'order_file_name' => $fileValue->supplier_id."_".$fileValue->file_name."_weekly_".Carbon::createFromFormat('m_Y', $fileValue->start_date),
+                                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            ]);
 
-                                        OrderDetails::create([
-                                            'invoice_number' => $systemCreatedInvoice,
-                                            'invoice_date' => $fileValue->start_date,
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                        ]);
+                                        } else {
+                                            OrderDetails::create([
+                                                'order_id' => $orderLastInsertId->id,
+                                                'invoice_number' => $systemCreatedInvoice,
+                                                'invoice_date' => $fileValue->start_date,
+                                                'order_file_name' => $fileValue->supplier_id."_".$fileValue->file_name."_monthly_".Carbon::createFromFormat('m_Y', $fileValue->start_date),
+                                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            ]);
+                                        }
+
                                     } else {    
                                         if ($order) {
                                             $order->update([

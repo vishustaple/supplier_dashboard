@@ -14,13 +14,9 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('customer_number', 255);
-            // $table->string('product_sku', 255)->nullable();
-            // $table->unsignedBigInteger('product_details_id')->nullable();
             $table->integer('amount');
-            // $table->unsignedBigInteger('record_type_id')->nullable();
             $table->unsignedBigInteger('supplier_id')->nullable();
-            $table->string('invoice_no')->unique();
-            $table->datetime('invoice_date');
+            $table->datetime('date');
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 
