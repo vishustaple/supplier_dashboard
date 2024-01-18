@@ -42,10 +42,15 @@ class ExcelImportController extends Controller
             [
                 'supplierselect'=>$request->supplierselect,
                 'file'      =>  $request->file('file'),
+                'startdate' => $request->startdate,
+                'enddate' => $request->enddate,
             ],
             [
                 'supplierselect'=>'required',
                 'file'          => 'required|file|mimes:xlsx,xls',
+                'startdate'=>'required',
+                'enddate'=>'required'
+
             ],
             [
                 'supplierselect.required' => 'Please select a supplier. It is a required field.',
@@ -61,7 +66,9 @@ class ExcelImportController extends Controller
             $reader = new Xlsx(); 
             $spreadSheet = $reader->load($request->file('file'), 2);
             $workSheet = $spreadSheet->getActiveSheet();
-                    
+            $sheetName = $workSheet->getTitle();
+            $sheetCount = $spreadSheet->getSheetCount(); 
+        
             /** Variables to store information about the row with the highest number of columns */
             $workSheetArray = $workSheet->toArray();
             
@@ -136,6 +143,7 @@ class ExcelImportController extends Controller
 
         /** check supllier upload right file or not */
         if (isset($suppliers[$request->supplierselect])) {
+          
             $supplierValues = $suppliers[$request->supplierselect];
             // dd(array_diff($supplierValues,$cleanedArray));
             // dd($supplierValues);
