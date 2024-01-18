@@ -78,6 +78,7 @@
     </body>
     <script>
     $(document).ready(function() {
+        $('#selectBox').val('');
         $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
             var startDateInput = $('#enddate');
