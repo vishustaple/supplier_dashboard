@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('order_details', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('order_id');
             $table->string('invoice_number')->unique();
             $table->datetime('invoice_date');
+            $table->string('order_file_name');
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 
-            $table->foreign('invoice_number')->references('invoice_no')->on('orders');
+            $table->foreign('order_id')->references('id')->on('orders');
             $table->foreign('created_by')->references('id')->on('users');
         });
     }
