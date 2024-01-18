@@ -88,31 +88,24 @@
             }
             var selectedSupplier = $(this).val();
         });
-        // var startDate = moment().startOf('month');
-        // var endDate = moment(startDate).add(1, 'month');
-      
-        $('#enddate').daterangepicker({
-            // minDate: startDate, // set minimum date to today
-            // maxDate: endDate, 
-            // startDate: startDate,
-            // endDate: endDate,
-            // isInvalidDate: function(date) {
-            //     // Disable dates outside the current month
-            //     return !(date.isSameOrAfter(startDate) && date.isSameOrBefore(endDate));
-            // },
-           // autoApply: true, // Set to false to disable automatic input update
+
+        
+        $('#enddate').daterangepicker({  
             showDropdowns: false,
             linkedCalendars: false,
         });
-        $('#enddate').on('apply.daterangepicker', function(ev, picker) {
-        // When the user selects a start date, update the end date to be one month later
-        var startDate = picker.startDate;
-        var endDate = moment(startDate).add(1, 'month');
+        $('#enddate').val('');
+        $('#enddate').on('change', function() {
+            var startDateInput = $('#file');  // Assuming you want to check the value of #file
 
-        // Set the end date in the date range picker
-        $('#enddate').data('daterangepicker').setEndDate(endDate);
+            if ($(this).val().trim() !== '') {
+            startDateInput.prop('disabled', false);
+            } else {
+            startDateInput.prop('disabled', true);
+            }
         });
-          
+
+
 
             $('#example').DataTable({
             "paging": true,   // Enable pagination
