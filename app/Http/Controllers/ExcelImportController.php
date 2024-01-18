@@ -9,6 +9,8 @@ use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use App\Models\{CategorySupplier,UploadedFiles};
+use Carbon\Carbon;
+
 
 class ExcelImportController extends Controller
 {
@@ -34,6 +36,14 @@ class ExcelImportController extends Controller
     }
     public function import(Request $request)
     {
+        // dd($request->all());
+        $endDateRange = $request->input('enddate');
+
+        // Split the date range string into start and end dates
+        list($startDate, $endDate) = explode(' - ', $endDateRange);
+        // Convert the date strings to the 'YYYY-MM-DD' format
+        $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
+        $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
 
         $supplierId = $request->supplierselect;
         
@@ -42,8 +52,8 @@ class ExcelImportController extends Controller
             [
                 'supplierselect'=>$request->supplierselect,
                 'file'      =>  $request->file('file'),
-                'startdate' => $request->startdate,
-                'enddate' => $request->enddate,
+                'startdate' => $formattedStartDate,
+                'enddate' => $formattedEndDate,
             ],
             [
                 'supplierselect'=>'required',
@@ -156,8 +166,8 @@ class ExcelImportController extends Controller
                 try{
                     UploadedFiles::create(['supplier_id' => $request->supplierselect,
                         'cron' => 1,
-                        'start_date' => $request->startdate,
-                        'end_date' => $request->enddate,
+                        'start_date' => $formattedStartDate,
+                        'end_date' => $formattedEndDate,
                         'file_name' => $fileName,
                         'created_by' => $user->id,
                     ]); 
