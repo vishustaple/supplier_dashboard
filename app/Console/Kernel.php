@@ -4,14 +4,10 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Console\Commands\ProcessUploadedFiles;
+use App\Console\Commands\{ProcessUploadedFiles, MailSend};
 
 class Kernel extends ConsoleKernel
 {
-
-    protected $commands = [
-        \App\Console\Commands\MailSend::class,
-    ];
     /**
      * Define the application's command schedule.  
      */
@@ -26,8 +22,6 @@ class Kernel extends ConsoleKernel
         $schedule->command(ProcessUploadedFiles::class)->daily();
         $schedule->command(MailSend::class)->everyMinute();
     }
-
-
 
     /**
      * Register the commands for the application.
