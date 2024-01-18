@@ -36,20 +36,7 @@ class ProcessUploadedFiles extends Command
 
         try{
             /** Select those file name where cron is one */
-            $fileForProcess = DB::table('uploaded_files')->select('supplier_id', 'file_name', 'created_by')->where('cron', '=', 1)->get();
-            
-            $date1 = $fileForProcess->start_date;
-            $date2 = $fileForProcess->end_date;
-
-            /** Calculate the difference between the two dates */
-            $interval = $date1->diff($date2);
-
-            /** Access the difference in days, months, and years */
-            $daysDifference = $interval->days;
-
-            if($daysDifference <= 7){
-                $weeklyCheck = true;
-            }
+            $fileForProcess = DB::table('uploaded_files')->select('supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->get();
 
             // $monthsDifference = $interval->m;
             // $yearsDifference = $interval->y;
@@ -127,7 +114,21 @@ class ProcessUploadedFiles extends Command
                     ini_set('memory_limit', '1024M');
 
                     /** Inserting files data into the database after doing excel import */
-                    foreach ($fileForProcess as $fileKey => $fileValue){    
+                    foreach ($fileForProcess as $fileKey => $fileValue){
+                        // dd($fileForProcess);
+                        $date1 = $fileValue->start_date;
+                        $date2 = $fileValue->end_date;
+
+                        /** Calculate the difference between the two dates */
+                        $interval = $date1->diff($date2);
+
+                        /** Access the difference in days, months, and years */
+                        $daysDifference = $interval->days;
+
+                        if($daysDifference <= 7){
+                            $weeklyCheck = true;
+                        }   
+
                         unset($spreadSheet, $reader);
                         // print_r($fileValue->created_by);die;
                         $reader = new Xlsx(); /** Creating object of php excel library class */ 
