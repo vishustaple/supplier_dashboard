@@ -274,7 +274,7 @@ class ProcessUploadedFiles extends Command
                                                     'value' => $value,
                                                     'file_name' => $fileValue->file_name,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ];  
                                             }
 
@@ -285,7 +285,7 @@ class ProcessUploadedFiles extends Command
                                                     'value' => $value,
                                                     'file_name' => $fileValue->file_name,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ]; 
                                             }
 
@@ -296,7 +296,7 @@ class ProcessUploadedFiles extends Command
                                                     'value' => $value,
                                                     'file_name' => $fileValue->file_name,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ]; 
                                             }
 
@@ -307,16 +307,20 @@ class ProcessUploadedFiles extends Command
                                                     'value' => $value,
                                                     'file_name' => $fileValue->file_name,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ]; 
                                             }
 
                                             if(!empty($columnArray[$fileValue->supplier_id]['customer_number']) && $columnArray[$fileValue->supplier_id]['customer_number'] == $maxNonEmptyValue[$key1]){
                                                 $finalOrderInsertArray['customer_number'] = $value;
+                                            } else {
+                                                $finalOrderInsertArray['customer_number'] = '';
                                             }
 
                                             if(!empty($columnArray[$fileValue->supplier_id]['amount']) && $columnArray[$fileValue->supplier_id]['amount'] == $maxNonEmptyValue[$key1]){
                                                 $finalOrderInsertArray['amount'] = $value;
+                                            } else {
+                                                $finalOrderInsertArray['amount'] = '';
                                             }
 
                                             if(!empty($columnArray[$fileValue->supplier_id]['invoice_no']) && $columnArray[$fileValue->supplier_id]['invoice_no'] == $maxNonEmptyValue[$key1]){
@@ -325,6 +329,8 @@ class ProcessUploadedFiles extends Command
                                                 } else {
                                                     $finalOrderInsertArray['invoice_no'] = $value;
                                                 }
+                                            } else {
+                                                $finalOrderInsertArray['invoice_no'] = '';
                                             }
 
                                             if(!empty($columnArray[$fileValue->supplier_id]['invoice_date']) && $columnArray[$fileValue->supplier_id]['invoice_date'] == $maxNonEmptyValue[$key1]){
@@ -337,6 +343,8 @@ class ProcessUploadedFiles extends Command
                                                         $finalOrderInsertArray['invoice_date'] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
                                                     }
                                                 }  
+                                            } else {
+                                                $finalOrderInsertArray['invoice_date'] = '';
                                             }
                                         }
                                     }
@@ -352,7 +360,7 @@ class ProcessUploadedFiles extends Command
                                             'supplier_id' => $fileValue->supplier_id,
                                             'amount' => $finalOrderInsertArray['amount'],
                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                         ]);
 
                                         OrderDetails::create([
@@ -366,7 +374,7 @@ class ProcessUploadedFiles extends Command
                                             $order->update([
                                                 'created_by' => $fileValue->created_by,
                                                 'amount' => $order->amount + $finalOrderInsertArray['amount'],
-                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                             ]);
                                         } else {
                                             Order::create([
@@ -377,7 +385,7 @@ class ProcessUploadedFiles extends Command
                                                 'supplier_id' => $fileValue->supplier_id,
                                                 'amount' => $finalOrderInsertArray['amount'],
                                                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                             ]);
                                         }
                                     }
