@@ -42,10 +42,15 @@ class ExcelImportController extends Controller
             [
                 'supplierselect'=>$request->supplierselect,
                 'file'      =>  $request->file('file'),
+                'startdate' => $request->startdate,
+                'enddate' => $request->enddate,
             ],
             [
                 'supplierselect'=>'required',
                 'file'          => 'required|file|mimes:xlsx,xls',
+                'startdate'=>'required',
+                'enddate'=>'required'
+
             ],
             [
                 'supplierselect.required' => 'Please select a supplier. It is a required field.',
