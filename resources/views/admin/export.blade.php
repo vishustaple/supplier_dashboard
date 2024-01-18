@@ -46,6 +46,15 @@
                 </select>
             </div><br>
             <div class="form-group">
+            <!-- <label for="startdate">Start Date</label>
+            <input  class="form-control" id="startdate" name="startdate"
+                placeholder="Enter Your Start Date ">
+</div><br> -->
+            <label for="enddate">Select Date</label>
+            <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date ">                
+            </div>
+            <br>
+            <div class="form-group">
             <label for="file">Choose Excel File</label>
             <input type="file" name="file" id="file" class="form-control">
             </div>
@@ -63,10 +72,40 @@
 
 
     </div>
-    
+ <!-- Include Date Range Picker JavaScript -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
     </body>
     <script>
     $(document).ready(function() {
+        $('#startdate,#enddate,#file').prop('disabled', true);     
+        $('#selectBox').on('change', function() {
+            var startDateInput = $('#enddate');
+            if ($(this).val().trim() !== '') {
+                startDateInput.prop('disabled', false);
+            } else {
+                startDateInput.prop('disabled', true);
+            }
+            var selectedSupplier = $(this).val();
+        });
+
+        
+        $('#enddate').daterangepicker({  
+            showDropdowns: false,
+            linkedCalendars: false,
+        });
+        $('#enddate').val('');
+        $('#enddate').on('change', function() {
+            var startDateInput = $('#file');  // Assuming you want to check the value of #file
+
+            if ($(this).val().trim() !== '') {
+            startDateInput.prop('disabled', false);
+            } else {
+            startDateInput.prop('disabled', true);
+            }
+        });
+
+
 
             $('#example').DataTable({
             "paging": true,   // Enable pagination
@@ -86,5 +125,5 @@
     });
 </script>
 </html>
-
+daterangepicker
 @endsection
