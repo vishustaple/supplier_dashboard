@@ -46,6 +46,15 @@
                 </select>
             </div><br>
             <div class="form-group">
+            <!-- <label for="startdate">Start Date</label>
+            <input  class="form-control" id="startdate" name="startdate"
+                placeholder="Enter Your Start Date ">
+</div><br> -->
+            <label for="enddate">Select Date</label>
+            <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date ">                
+            </div>
+            <br>
+            <div class="form-group">
             <label for="file">Choose Excel File</label>
             <input type="file" name="file" id="file" class="form-control">
             </div>
@@ -63,10 +72,47 @@
 
 
     </div>
-    
+ <!-- Include Date Range Picker JavaScript -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
     </body>
     <script>
     $(document).ready(function() {
+        $('#startdate,#enddate,#file').prop('disabled', true);     
+        $('#selectBox').on('change', function() {
+            var startDateInput = $('#enddate');
+            if ($(this).val().trim() !== '') {
+                startDateInput.prop('disabled', false);
+            } else {
+                startDateInput.prop('disabled', true);
+            }
+            var selectedSupplier = $(this).val();
+        });
+        // var startDate = moment().startOf('month');
+        // var endDate = moment(startDate).add(1, 'month');
+      
+        $('#enddate').daterangepicker({
+            // minDate: startDate, // set minimum date to today
+            // maxDate: endDate, 
+            // startDate: startDate,
+            // endDate: endDate,
+            // isInvalidDate: function(date) {
+            //     // Disable dates outside the current month
+            //     return !(date.isSameOrAfter(startDate) && date.isSameOrBefore(endDate));
+            // },
+           // autoApply: true, // Set to false to disable automatic input update
+            showDropdowns: false,
+            linkedCalendars: false,
+        });
+        $('#enddate').on('apply.daterangepicker', function(ev, picker) {
+        // When the user selects a start date, update the end date to be one month later
+        var startDate = picker.startDate;
+        var endDate = moment(startDate).add(1, 'month');
+
+        // Set the end date in the date range picker
+        $('#enddate').data('daterangepicker').setEndDate(endDate);
+        });
+          
 
             $('#example').DataTable({
             "paging": true,   // Enable pagination
@@ -86,5 +132,5 @@
     });
 </script>
 </html>
-
+daterangepicker
 @endsection

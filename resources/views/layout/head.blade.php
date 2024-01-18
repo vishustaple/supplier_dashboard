@@ -19,4 +19,5 @@
         <link rel="stylesheet" href="{{asset('css/custom.css')}}">
         <!-- DataTables JS -->
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css" />
     </head>
