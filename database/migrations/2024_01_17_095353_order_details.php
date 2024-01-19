@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('order_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('order_id');
-            $table->string('invoice_number')->unique();
+            $table->string('invoice_number');
             $table->datetime('invoice_date');
             $table->string('order_file_name');
             $table->unsignedBigInteger('created_by');
