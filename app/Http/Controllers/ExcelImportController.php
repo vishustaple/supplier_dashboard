@@ -37,33 +37,28 @@ class ExcelImportController extends Controller
     public function import(Request $request)
     {
         // dd($request->all());
-        $endDateRange = $request->input('enddate');
-
-        // Split the date range string into start and end dates
-        list($startDate, $endDate) = explode(' - ', $endDateRange);
-        // Convert the date strings to the 'YYYY-MM-DD' format
-        $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
-        $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-
+     
         $supplierId = $request->supplierselect;
         
         // Validate the uploaded file
         $validator = Validator::make(
             [
                 'supplierselect'=>$request->supplierselect,
+                // 'startdate' => $formattedStartDate,
+                'enddate' => $request->input('enddate'),
                 'file'      =>  $request->file('file'),
-                'startdate' => $formattedStartDate,
-                'enddate' => $formattedEndDate,
             ],
             [
                 'supplierselect'=>'required',
-                'file'          => 'required|file|mimes:xlsx,xls',
-                'startdate'=>'required',
-                'enddate'=>'required'
+                // 'startdate'=>'required',
+                'enddate'=>'required',
+                'file' => 'required|file|mimes:xlsx,xls',
 
             ],
             [
+                'enddate.required' => 'The Date field is required. ',
                 'supplierselect.required' => 'Please select a supplier. It is a required field.',
+               
             ]
         );
 
@@ -71,7 +66,7 @@ class ExcelImportController extends Controller
             $categorySuppliers = CategorySupplier::all();
             return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
         }
-
+        
         try{
             $reader = new Xlsx(); 
             $spreadSheet = $reader->load($request->file('file'), 2);
@@ -162,7 +157,14 @@ class ExcelImportController extends Controller
 
                 /** Get the authenticated user */
                 $user = Auth::user();
+                $endDateRange = $request->input('enddate');
 
+                // Split the date range string into start and end dates
+                list($startDate, $endDate) = explode(' - ', $endDateRange);
+                // Convert the date strings to the 'YYYY-MM-DD' format
+                $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
+                $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
+        
                 try{
                     UploadedFiles::create(['supplier_id' => $request->supplierselect,
                         'cron' => 1,

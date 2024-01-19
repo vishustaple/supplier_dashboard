@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Auth;
 */
 Route::get('/', function () {
     if(Auth::check()){
-        return view('admin.index');
+        // return view('admin.export');
+        return redirect()->intended('/admin/upload-sheet');
     }
     else{
         return view('auth.login');
@@ -39,7 +40,5 @@ Route::get('/', function () {
     // ...
 });
 });
-
-
 
 Route::get('/random-function' , [CategorySupplierController::class,'index'])->name('random.number');
