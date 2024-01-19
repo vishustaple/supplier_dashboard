@@ -48,16 +48,20 @@
                 @endif
                 </select>
             </div><br>
-            <div class="form-group">
+            <div class="form-group relative">
             <!-- <label for="startdate">Start Date</label>
             <input  class="form-control" id="startdate" name="startdate"
             placeholder="Enter Your Start Date ">
             </div><br> -->
-            <div id="wrapper">
+            
             <label for="enddate">Select Date</label>
-            <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >                
+            <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
+            <div class="input-overlay"></div>             
             </div>
-            </div>
+           
+           
+              <!-- Transparent overlay on top of the disabled input -->
+ 
             <br>
             <div class="form-group">
             <label for="file">Choose Excel File</label>
@@ -85,39 +89,29 @@
     $(document).ready(function() {
         $('#startdate,#enddate,#file').prop('disabled', true);   
         var endDateInput = document.getElementById('enddate');
-        
         console.log(endDateInput);
-        $('#wrapper').on('click', function () {
-        console.log('Click event triggered!');
-        //     alert("here");
-        // if (endDateInput.disabled) {
-            if ($('#enddate').prop('disabled')) {
+            // Event handler for click on the overlay
+        $(".input-overlay").click(function() {
         // Your custom error message
         var customErrorMessage = "Please Select Supplier First.";
-
         // Find the ul element within the error container
         var errorList = $('#errorContainer');
         errorList.text(customErrorMessage);
         errorList.css('display', 'block');
-        // Create a new li element with the custom error message
-        // var newLi = $('<li>').text(customErrorMessage);
 
-        // // Append the new li element to the ul
-        // errorList.append(newLi);
-        //     $().get();
-        // $('.alert .alert-danger').html("Please Select Supplier First.");
-        console.log('The "Select Date" input is disabled.');
-        } else {
-        console.log('The "Select Date" input is not disabled.');
-        }
-        });
+        setTimeout(function () {
+        errorList.css('display', 'none');
+        }, 2000);
+      });
         $('#selectBox').val('');
        // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
             var startDateInput = $('#enddate');
             if ($(this).val().trim() !== '') {
+                $(".input-overlay").css("position","unset");
                 startDateInput.prop('disabled', false);
             } else {
+                $(".input-overlay").css("position","absolute");
                 startDateInput.prop('disabled', true);
             }
             var selectedSupplier = $(this).val();
