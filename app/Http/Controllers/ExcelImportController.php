@@ -37,10 +37,18 @@ class ExcelImportController extends Controller
     public function import(Request $request)
     {
         // dd($request->all());
-     
+        $endDateRange = $request->input('enddate');
+
+        /** Split the date range string into start and end dates */
+        list($startDate, $endDate) = explode(' - ', $endDateRange);
+        
+        /** Convert the date strings to the 'YYYY-MM-DD' format */
+        $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
+        $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
+
         $supplierId = $request->supplierselect;
         
-        // Validate the uploaded file
+        /** Validate the uploaded file */
         $validator = Validator::make(
             [
                 'supplierselect'=>$request->supplierselect,

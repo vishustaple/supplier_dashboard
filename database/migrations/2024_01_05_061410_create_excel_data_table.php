@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('order_product_details', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice_number');
+            $table->unsignedBigInteger('order_id');
             $table->string('file_name', 255);
             $table->string('key', 255);
             $table->text('value')->nullable();
             $table->timestamps();
             
-            // $table->foreign('supplier_id')->references('id')->on('suppliers'); /** Assuming 'suppliers' table exists */
+            $table->foreign('order_id')->references('id')->on('orders'); /** Assuming 'orders' table exists */
             /** Add other foreign key constraints if needed */
 
             $table->index('file_name');
