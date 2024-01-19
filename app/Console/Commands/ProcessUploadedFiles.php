@@ -36,77 +36,29 @@ class ProcessUploadedFiles extends Command
 
         try{
             /** Select those file name where cron is one */
-            $fileForProcess = DB::table('uploaded_files')->select('supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->get();
+            $fileValue = DB::table('uploaded_files')->select('supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->first();
 
             // $monthsDifference = $interval->m;
             // $yearsDifference = $interval->y;
 
-            if (!$fileForProcess->isEmpty()) {
+            if ($fileValue !== null) {
                 /** Add column name here those row you want to skip */
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
                  
                 /** This array for dynmically get column name for save data into tables */
                 $columnArray = [ 
-                    1 => [
-                        'product_name' => 'PRODUCT',
-                        'product_brand' => '',
-                        'product_description' => 'DESCRIPTION',
-                        'customer_number' => 'SOLD TOACCOUNT',
-                        'product_sku' => '',
-                        'amount' => 'ON-CORESPEND',
-                        'invoice_no' => '',
-                        'invoice_date' => '',   
+                    1 => ['customer_number' => 'SOLD TOACCOUNT','amount' => 'ON-CORESPEND','invoice_no' => '','invoice_date' => ''   
                     ],
-                    2 => [
-                        'product_name' => 'Material',
-                        'product_brand' => 'Brand Name',
-                        'product_description' => 'Material Description',
-                        'customer_number' => 'Account Number',
-                        'product_sku' => '',
-                        'amount' => 'Actual Price Paid',
-                        'invoice_no' => 'Invoice Number',
-                        'invoice_date' => 'Bill Date',
-                    ],
-                    3 => [
-                        'product_name' => 'Manufacture Item#',
-                        'product_brand' => 'Manufacture Name',
-                        'product_description' => 'Product Description',
-                        'customer_number' => 'CUSTOMER ID',
-                        'product_sku' => 'SKU',
-                        'amount' => 'Total Spend',
-                        'invoice_no' => 'Invoice #',
-                        'invoice_date' => 'Shipped Date',
-                    ],
-                    4 => [
-                        'product_name' => 'ITEMDESCRIPTION',
-                        'product_brand' => 'STAPLESOWNBRAND',
-                        'product_description' => 'STAPLESADVANTAGEITEMDESCRIPTION',
-                        'customer_number' => 'MASTER_CUSTOMER',
-                        'product_sku' => 'SKUNUMBER',
-                        'amount' => 'ADJGROSSSALES',
-                        'invoice_no' => 'INVOICENUMBER',
-                        'invoice_date' => 'INVOICEDATE',
-                    ],
-                    5 => [
-                        'product_name' => 'Item Name',
-                        'product_brand' => '',
-                        'product_description' => '',
-                        'customer_number' => 'Customer Num',
-                        'product_sku' => 'Item Num',
-                        'amount' => 'Current List',
-                        'invoice_no' => 'Invoice Num',
-                        'invoice_date' => 'Invoice Date',
-                    ],
-                    6 => [
-                        'product_name' => 'Material',
-                        'product_brand' => 'Ownbrand',
-                        'product_description' => 'Material Description',
-                        'customer_number' => 'Leader customer 1',
-                        'product_sku' => 'Qty. in SKU',
-                        'amount' => 'Sales Amount - P',
-                        'invoice_no' => 'Invoice list',
-                        'invoice_date' => 'Billing Date',
-                    ],
+
+                    2 => ['customer_number' => 'Account Number','amount' => 'Actual Price Paid','invoice_no' => 'Invoice Number','invoice_date' => 'Bill Date'],
+
+                    3 => ['customer_number' => 'CUSTOMER ID','amount' => 'Total Spend','invoice_no' => 'Invoice #','invoice_date' => 'Shipped Date'],
+
+                    4 => ['customer_number' => 'MASTER_CUSTOMER','amount' => 'ADJGROSSSALES','invoice_no' => 'INVOICENUMBER','invoice_date' => 'INVOICEDATE'],
+
+                    5 => ['customer_number' => 'Customer Num','amount' => 'Current List','invoice_no' => 'Invoice Num','invoice_date' => 'Invoice Date'],
+
+                    6 => ['customer_number' => 'Leader customer 1','amount' => 'Sales Amount - P','invoice_no' => 'Billing Document','invoice_date' => 'Billing Date'],
                 ];
 
                 try {
@@ -114,8 +66,8 @@ class ProcessUploadedFiles extends Command
                     ini_set('memory_limit', '1024M');
 
                     /** Inserting files data into the database after doing excel import */
-                    foreach ($fileForProcess as $fileKey => $fileValue) {
-                        // dd($fileForProcess);
+                    // foreach ($fileValue as $fileKey => $fileValue) {
+                        // dd($fileValue);
                         $date1 = Carbon::parse($fileValue->start_date);
                         $date2 = Carbon::parse($fileValue->end_date);
 
@@ -129,6 +81,13 @@ class ProcessUploadedFiles extends Command
                             $weeklyCheck = true;
                         } else {
                             $weeklyCheck = false;
+                            $ordersData = DB::table('order_details')->select('order_id')->where('order_file_name', $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"))->get();
+
+                            OrderDetails::where('order_file_name', $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"))->delete();
+
+                            foreach ($ordersData as $order) {
+                                Order::destroy($order->order_id);
+                            }
                         }   
 
                         unset($spreadSheet, $reader);
@@ -235,6 +194,65 @@ class ProcessUploadedFiles extends Command
 
                                         } elseif (!empty($gdPerent) && empty($perent)) {
                                             $lastInsertPerentId = Account::create(['customer_number' => $row[2], 'customer_name' => $row[3], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
+
+                                        } else {
+                                            // echo "hello";
+                                        }
+                                    }
+
+                                    if ($fileValue->supplier_id == 6) {
+                                        /** Exploding the "$row" get this  */ 
+                                        $c1 = explode(" ", $row[12]);
+                                        $c2 = explode(" ", $row[13]);
+                                        $c3 = explode(" ", $row[14]);
+                                        $c4 = explode(" ", $row[15]);
+                                        $c5 = explode(" ", $row[16]);
+                                        $c6 = explode(" ", $row[17]);
+
+                                        $customerName = $lc1 = Account::where('customer_number', $c1[0])->first();
+                                        $customerName = $lc2 = Account::where('customer_number', $c2[0])->first();
+                                        $customerName = $lc3 = Account::where('customer_number', $c3[0])->first();
+                                        $customerName = $lc4 = Account::where('customer_number', $c4[0])->first();
+                                        $customerName = $lc5 = Account::where('customer_number', $c5[0])->first();
+                                        $customerName = $lc6 = Account::where('customer_number', $c6[0])->first();
+                                        
+                                        if (empty($lc1) && empty($lc2) && empty($lc3) && empty($lc4) && empty($lc5) && empty($lc6)) {
+                                            $li1 = Account::create(['customer_number' => $c1[0], 'customer_name' => $c1[1], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                            $li2 = Account::create(['customer_number' => $c2[0], 'customer_name' => $c2[1], 'parent_id' => $li1->id, 'created_by' => $fileValue->created_by]);
+                                            $li3 = Account::create(['customer_number' => $c3[0], 'customer_name' => $c3[1], 'parent_id' => $li2->id, 'created_by' => $fileValue->created_by]);
+                                            $li4 = Account::create(['customer_number' => $c4[0], 'customer_name' => $c4[1], 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $c5[1], 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
+
+                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $c6[1], 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+
+                                        } elseif (!empty($lc1) && empty($lc2) && empty($lc3) && empty($lc4) && empty($lc5) && empty($lc6)) {
+                                            $li2 = Account::create(['customer_number' => $c2[0], 'customer_name' => $c2[1], 'parent_id' => $lc1->id, 'created_by' => $fileValue->created_by]);
+                                            $li3 = Account::create(['customer_number' => $c3[0], 'customer_name' => $c3[1], 'parent_id' => $li2->id, 'created_by' => $fileValue->created_by]);
+                                            $li4 = Account::create(['customer_number' => $c4[0], 'customer_name' => $c4[1], 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $c5[1], 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
+
+                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $c6[1], 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+
+                                        } elseif (!empty($lc1) && !empty($lc2) && empty($lc3) && empty($lc4) && empty($lc5) && empty($lc6)) {
+                                            $li3 = Account::create(['customer_number' => $c3[0], 'customer_name' => $c3[1], 'parent_id' => $lc2->id, 'created_by' => $fileValue->created_by]);
+                                            $li4 = Account::create(['customer_number' => $c4[0], 'customer_name' => $c4[1], 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $c5[1], 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
+
+                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $c6[1], 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+
+                                        }elseif (!empty($lc1) && !empty($lc2) && !empty($lc3) && empty($lc4) && empty($lc5) && empty($lc6)) {
+                                            $li4 = Account::create(['customer_number' => $c4[0], 'customer_name' => $c4[1], 'parent_id' => $lc3->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $c5[1], 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
+                                            
+                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $c6[1], 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+
+                                        } elseif (!empty($lc1) && !empty($lc2) && !empty($lc3) && !empty($lc4) && empty($lc5) && empty($lc6)) {
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $c5[1], 'parent_id' => $lc4->id, 'created_by' => $fileValue->created_by]);
+
+                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $c6[1], 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+
+                                        } elseif (!empty($lc1) && !empty($lc2) && !empty($lc3) && !empty($lc4) && empty($lc5) && empty($lc6)) {
+                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $c6[1], 'parent_id' => $lc5->id, 'created_by' => $fileValue->created_by]);
 
                                         } else {
                                             // echo "hello";
@@ -354,24 +372,7 @@ class ProcessUploadedFiles extends Command
                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                         ]);
                                     } else {
-                                        $ordersData = OrderDetails::where('order_file_name', $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"))->get();
-
-                                        foreach ($ordersData as $order) {
-                                            $orders = Order::find($order->id);
-                                            
-                                            if ($orders) {
-                                                $orders->delete();
-                                                if ($order) {
-                                                    $order->delete();
-                                                    /** Record with ID $orderId is deleted */
-                                                } else {
-                                                    /** Record not found */
-                                                }
-                                                /** Record with ID $orderId is deleted */
-                                            } else {
-                                                /** Record not found */
-                                            }
-                                        }
+                                       
                                        
                                         OrderDetails::create([
                                             'order_id' => $orderLastInsertId->id,
@@ -419,7 +420,7 @@ class ProcessUploadedFiles extends Command
 
                             unset($finalInsertArray, $finalOrderInsertArray);
                         }
-                    }
+                    // }
                 } catch (\Exception $e) {
                     echo "Error loading spreadsheet: " . $e->getMessage();
                 }
