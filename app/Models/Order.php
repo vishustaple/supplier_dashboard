@@ -15,12 +15,13 @@ class Order extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'customer_number',
-        'supplier_id',
+        'date',
         'amount',
         'invoice_no',
-        'invoice_date',
         'created_by',
+        'supplier_id',
+        'invoice_date',
+        'customer_number',
     ];
 
     public function random_invoice_num(){
