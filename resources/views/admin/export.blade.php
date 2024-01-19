@@ -17,8 +17,11 @@
             {{ session('success') }}
             </div>
             @endif
+            <div class="alert alert-danger" id="errorContainer" style="display:none;">
+         
+            </div>
             @if(session('error'))
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" >
             {{ session('error') }}
             </div>
             @endif
@@ -48,10 +51,12 @@
             <div class="form-group">
             <!-- <label for="startdate">Start Date</label>
             <input  class="form-control" id="startdate" name="startdate"
-                placeholder="Enter Your Start Date ">
-</div><br> -->
+            placeholder="Enter Your Start Date ">
+            </div><br> -->
+            <div id="wrapper">
             <label for="enddate">Select Date</label>
-            <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date ">                
+            <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >                
+            </div>
             </div>
             <br>
             <div class="form-group">
@@ -78,8 +83,36 @@
     </body>
     <script>
     $(document).ready(function() {
+        $('#startdate,#enddate,#file').prop('disabled', true);   
+        var endDateInput = document.getElementById('enddate');
+        
+        console.log(endDateInput);
+        $('#wrapper').on('click', function () {
+        console.log('Click event triggered!');
+        //     alert("here");
+        // if (endDateInput.disabled) {
+            if ($('#enddate').prop('disabled')) {
+        // Your custom error message
+        var customErrorMessage = "Please Select Supplier First.";
+
+        // Find the ul element within the error container
+        var errorList = $('#errorContainer');
+        errorList.text(customErrorMessage);
+        errorList.css('display', 'block');
+        // Create a new li element with the custom error message
+        // var newLi = $('<li>').text(customErrorMessage);
+
+        // // Append the new li element to the ul
+        // errorList.append(newLi);
+        //     $().get();
+        // $('.alert .alert-danger').html("Please Select Supplier First.");
+        console.log('The "Select Date" input is disabled.');
+        } else {
+        console.log('The "Select Date" input is not disabled.');
+        }
+        });
         $('#selectBox').val('');
-        $('#startdate,#enddate,#file').prop('disabled', true);     
+       // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
             var startDateInput = $('#enddate');
             if ($(this).val().trim() !== '') {
@@ -94,20 +127,30 @@
         $('#enddate').daterangepicker({  
             showDropdowns: false,
             linkedCalendars: false,
+            isInvalidDate: function(date) {
+            // Disable dates more than one month from the selected start date
+            var startDate = $('#enddate').data('daterangepicker').startDate;
+            var endDateLimit = moment(startDate).add(1, 'month');
+            return date.isAfter(endDateLimit);
+        }
         });
         $('#enddate').val('');
         $('#enddate').on('change', function() {
             var startDateInput = $('#file');  // Assuming you want to check the value of #file
-
+            
             if ($(this).val().trim() !== '') {
             startDateInput.prop('disabled', false);
             } else {
             startDateInput.prop('disabled', true);
             }
         });
-
-
-
+        $('#enddate').on('apply.daterangepicker', function(ev, picker) {
+        var startDate = picker.startDate;
+        var endDate = startDate.clone().add(1, 'month');
+          console.log(endDate);
+        // Set the end date in the date range picker
+        $('#enddate').data('daterangepicker').setEndDate(endDate);
+        });
             $('#example').DataTable({
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
