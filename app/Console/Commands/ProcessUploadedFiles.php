@@ -202,20 +202,30 @@ class ProcessUploadedFiles extends Command
 
                                     if ($fileValue->supplier_id == 6) {
                                         /** Exploding the "$row" get this  */ 
-                                        $c1 = explode(" ", $row[12]);
-                                        $c2 = explode(" ", $row[13]);
-                                        $c3 = explode(" ", $row[14]);
-                                        $c4 = explode(" ", $row[15]);
-                                        $c5 = explode(" ", $row[16]);
-                                        $c6 = explode(" ", $row[17]);
+                                        $customerName1 = $c1 = explode(" ", $row[12]);
+                                        $customerName2 = $c2 = explode(" ", $row[13]);
+                                        $customerName3 = $c3 = explode(" ", $row[14]);
+                                        $customerName4 = $c4 = explode(" ", $row[15]);
+                                        $customerName5 = $c5 = explode(" ", $row[16]);
+                                        $customerName6 = $c6 = explode(" ", $row[17]);
 
-                                        $customerName1 = $lc1 = Account::where('customer_number', $c1[0])->first();
-                                        $customerName2 = $lc2 = Account::where('customer_number', $c2[0])->first();
-                                        $customerName3 = $lc3 = Account::where('customer_number', $c3[0])->first();
-                                        $customerName4 = $lc4 = Account::where('customer_number', $c4[0])->first();
-                                        $customerName5 = $lc5 = Account::where('customer_number', $c5[0])->first();
-                                        $customerName6 = $lc6 = Account::where('customer_number', $c6[0])->first();
+                                        $lc1 = Account::where('customer_number', $c1[0])->first();
+                                        $lc2 = Account::where('customer_number', $c2[0])->first();
+                                        $lc3 = Account::where('customer_number', $c3[0])->first();
+                                        $lc4 = Account::where('customer_number', $c4[0])->first();
+                                        $lc5 = Account::where('customer_number', $c5[0])->first();
+                                        $lc6 = Account::where('customer_number', $c6[0])->first();
 
+                                        /** Here we unsetting the zero index because we need full name of customer */
+                                        unset(
+                                            $customerName1[0], 
+                                            $customerName2[0], 
+                                            $customerName3[0], 
+                                            $customerName4[0], 
+                                            $customerName5[0],
+                                            $customerName6[0]
+                                        );
+ 
                                         $customerName1 = implode(" ", $customerName1);
                                         $customerName2 = implode(" ", $customerName2);
                                         $customerName3 = implode(" ", $customerName3);
