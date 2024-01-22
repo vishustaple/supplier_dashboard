@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 class UploadedFiles extends Model
 {
     use HasFactory;
+    const UPLOAD = 1;
+    const CRON = 2;
+    const PROCESSED = 3;
+    
      /**
      * The attributes that are mass assignable.
      *

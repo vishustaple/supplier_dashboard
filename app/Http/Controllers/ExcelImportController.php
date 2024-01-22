@@ -18,11 +18,18 @@ class ExcelImportController extends Controller
         $categorySuppliers = CategorySupplier::all();
         $uploadData = UploadedFiles::all();
         $formattedData = [];
-        
+        $cronString=''; 
         foreach ($uploadData as $item) {
-            $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
+            if ($item->cron == 1) {
+                $cronString = 'Pending';
+            } elseif ($item->cron == 3) {
+                $cronString = 'Uploaded';
+            } else {
+                // If you don't want to set a default value, you can leave this block empty or skip it.
+            }
+            // $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
             $formattedData[] = [
-                $item->id,
+                $item->id, 
                 getSupplierName($item->supplier_id),
                 $item->file_name,
                 $cronString,
@@ -175,7 +182,7 @@ class ExcelImportController extends Controller
         
                 try{
                     UploadedFiles::create(['supplier_id' => $request->supplierselect,
-                        'cron' => 1,
+                        'cron' => UploadedFiles::UPLOAD,
                         'start_date' => $formattedStartDate,
                         'end_date' => $formattedEndDate,
                         'file_name' => $fileName,
