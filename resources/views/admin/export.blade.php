@@ -108,7 +108,7 @@
         $('#selectBox').on('change', function() {
             var startDateInput = $('#enddate');
             if ($(this).val().trim() !== '') {
-                $(".input-overlay").css("position","unset");
+                $(".input-overlay").css("display","none");
                 startDateInput.prop('disabled', false);
             } else {
                 $(".input-overlay").css("position","absolute");

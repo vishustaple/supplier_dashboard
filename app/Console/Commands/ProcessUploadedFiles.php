@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{Account, Order, OrderDetails};
+use App\Models\{Account, Order, OrderDetails,UploadedFiles};
 
 class ProcessUploadedFiles extends Command
 {
@@ -36,8 +36,13 @@ class ProcessUploadedFiles extends Command
 
         try{
             /** Select those file name where cron is one */
-            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->first();
-
+            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', UploadedFiles::UPLOAD)->first();
+            // dd($fileValue);
+            DB::table('uploaded_files')
+            ->where('cron', '=', UploadedFiles::UPLOAD)
+            ->update([
+            'cron' => UploadedFiles::CRON
+            ]);
             // $monthsDifference = $interval->m;
             // $yearsDifference = $interval->y;
 
@@ -432,7 +437,7 @@ class ProcessUploadedFiles extends Command
 
                 try {
                     /** Optionally, update the 'cron' field after processing */
-                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 0]);
+                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => UploadedFiles::PROCESSED]);
 
                     $this->info('Uploaded files processed successfully.');
                 } catch (QueryException $e) {   
