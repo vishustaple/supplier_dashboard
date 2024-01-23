@@ -38,15 +38,17 @@ class ProcessUploadedFiles extends Command
             /** Select those file name where cron is one */
             $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', UploadedFiles::UPLOAD)->first();
             // dd($fileValue);
-            DB::table('uploaded_files')
-            ->where('cron', '=', UploadedFiles::UPLOAD)
-            ->update([
-            'cron' => UploadedFiles::CRON
-            ]);
+
             // $monthsDifference = $interval->m;
             // $yearsDifference = $interval->y;
-
+            
             if ($fileValue !== null) {
+
+                DB::table('uploaded_files')->where('id', $fileValue->id)
+                ->update([
+                'cron' => UploadedFiles::CRON
+                ]);
+
                 /** Add column name here those row you want to skip */
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
                  
@@ -316,6 +318,7 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
 
+                            $finalOrderInsertArray = [];
                             /** For insert data into the database */
                             foreach ($workSheetArray1 as $key => $row) {
                                 if (count(array_intersect($skipRowArray, $row)) <= 0) {
@@ -339,7 +342,7 @@ class ProcessUploadedFiles extends Command
 
                                             if (!empty($columnArray[$fileValue->supplier_id]['invoice_no']) && $columnArray[$fileValue->supplier_id]['invoice_no'] == $maxNonEmptyValue[$key1]) {
                                                 if (empty($value)) {
-                                                    $finalOrderInsertArray['invoice_no'] = 1;
+                                                    $finalOrderInsertArray['invoice_no'] = OrderDetails::random_invoice_num();
                                                 } else {
                                                     $finalOrderInsertArray['invoice_no'] = $value;
                                                 }
@@ -359,14 +362,14 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
                                     
-                                    if (isset($finalOrderInsertArray['invoice_no']) && empty($finalOrderInsertArray['invoice_no'])) { 
-                                        $systemCreatedInvoice = Order::random_invoice_num();
+                                    if (!isset($finalOrderInsertArray['invoice_no']) && empty($finalOrderInsertArray['invoice_no'])) { 
+                                        $systemCreatedInvoice = OrderDetails::random_invoice_num();
                                         $orderLastInsertId = Order::create([
                                             'date' => $fileValue->start_date,
-                                            'customer_number' => $finalOrderInsertArray['customer_number'],
+                                            'customer_number' => (isset($finalOrderInsertArray['customer_number']) && !empty($finalOrderInsertArray['customer_number'])) ? ($finalOrderInsertArray['customer_number']) : ('0'),
                                             'created_by' => $fileValue->created_by,
                                             'supplier_id' => $fileValue->supplier_id,
-                                            'amount' => $finalOrderInsertArray['amount'],
+                                            'amount' => (isset($finalOrderInsertArray['amount']) && !empty($finalOrderInsertArray['amount'])) ? ($finalOrderInsertArray['amount']) : ('0.0'),
                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                         ]);
@@ -374,10 +377,10 @@ class ProcessUploadedFiles extends Command
                                         $systemCreatedInvoice = $finalOrderInsertArray['invoice_no'];
                                         $orderLastInsertId = Order::create([
                                             'date' => $finalOrderInsertArray['invoice_date'],
-                                            'customer_number' => $finalOrderInsertArray['customer_number'],
+                                            'customer_number' => (isset($finalOrderInsertArray['customer_number']) && !empty($finalOrderInsertArray['customer_number'])) ? ($finalOrderInsertArray['customer_number']) : ('0'),
                                             'created_by' => $fileValue->created_by,
                                             'supplier_id' => $fileValue->supplier_id,
-                                            'amount' => $finalOrderInsertArray['amount'],
+                                            'amount' => (isset($finalOrderInsertArray['amount']) && !empty($finalOrderInsertArray['amount'])) ? ($finalOrderInsertArray['amount']) : ('0.0'),
                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                         ]);
