@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{Account, Order, OrderDetails};
+use App\Models\{Account, Order, OrderDetails,UploadedFiles};
 
 class ProcessUploadedFiles extends Command
 {
@@ -36,11 +36,21 @@ class ProcessUploadedFiles extends Command
 
         try{
             /** Select those file name where cron is one */
-            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->first();
+
+            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', UploadedFiles::UPLOAD)->first();
+            // dd($fileValue);
+
+            // $monthsDifference = $interval->m;
+            // $yearsDifference = $interval->y;
             
             if ($fileValue !== null) {
-                /** Optionally, update the 'cron' field to processing */
-                DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 2]);
+
+                DB::table('uploaded_files')->where('id', $fileValue->id)
+                ->update([
+                'cron' => UploadedFiles::CRON
+                ]);
+
+
 
                 /** Add column name here those row you want to skip */
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
@@ -309,6 +319,7 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
 
+                            $finalOrderInsertArray = [];
                             /** For insert data into the database */
                             foreach ($workSheetArray1 as $key => $row) {
                                 if (count(array_intersect($skipRowArray, $row)) <= 0) {
@@ -336,7 +347,9 @@ class ProcessUploadedFiles extends Command
 
                                             if (!empty($columnArray[$fileValue->supplier_id]['invoice_no']) && $columnArray[$fileValue->supplier_id]['invoice_no'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
                                                 if (empty($value)) {
+
                                                     $finalOrderInsertArray['invoice_no'] = OrderDetails::randomInvoiceNum();
+
                                                 } else {
                                                     $finalOrderInsertArray['invoice_no'] = $value;
                                                 }
@@ -354,6 +367,7 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
                                     
+
                                     if (isset($finalOrderInsertArray['customer_number']) && !empty($finalOrderInsertArray['customer_number'])) {
                                         if (!isset($finalOrderInsertArray['invoice_date']) && empty($finalOrderInsertArray['invoice_date'])) { 
                                             $finalOrderInsertArray['invoice_no'] = OrderDetails::randomInvoiceNum();
@@ -400,6 +414,7 @@ class ProcessUploadedFiles extends Command
                                             ]);
                                         }
                                         
+
                                     }
 
                                     foreach ($finalInsertArray as &$item) {
@@ -444,7 +459,8 @@ class ProcessUploadedFiles extends Command
 
                 try {
                     /** Optionally, update the 'cron' field after processing */
-                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 3]);
+
+                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => UploadedFiles::PROCESSED]);
 
                     $this->info('Uploaded files processed successfully.');
                 } catch (QueryException $e) {   

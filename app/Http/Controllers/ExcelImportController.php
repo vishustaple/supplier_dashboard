@@ -18,11 +18,18 @@ class ExcelImportController extends Controller
         $categorySuppliers = CategorySupplier::all();
         $uploadData = UploadedFiles::all();
         $formattedData = [];
-        
+        $cronString=''; 
         foreach ($uploadData as $item) {
-            $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
+            if ($item->cron == 1) {
+                $cronString = 'Pending';
+            } elseif ($item->cron == 3) {
+                $cronString = 'Uploaded';
+            } else {
+                // If you don't want to set a default value, you can leave this block empty or skip it.
+            }
+            // $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
             $formattedData[] = [
-                $item->id,
+                $item->id, 
                 getSupplierName($item->supplier_id),
                 $item->file_name,
                 $cronString,
@@ -52,19 +59,21 @@ class ExcelImportController extends Controller
         $validator = Validator::make(
             [
                 'supplierselect'=>$request->supplierselect,
+                // 'startdate' => $formattedStartDate,
+                'enddate' => $request->input('enddate'),
                 'file'      =>  $request->file('file'),
-                'startdate' => $formattedStartDate,
-                'enddate' => $formattedEndDate,
             ],
             [
                 'supplierselect'=>'required',
-                'file'          => 'required|file|mimes:xlsx,xls',
-                'startdate'=>'required',
-                'enddate'=>'required'
+                // 'startdate'=>'required',
+                'enddate'=>'required',
+                'file' => 'required|file|mimes:xlsx,xls',
 
             ],
             [
+                'enddate.required' => 'The Date field is required. ',
                 'supplierselect.required' => 'Please select a supplier. It is a required field.',
+               
             ]
         );
 
@@ -72,7 +81,7 @@ class ExcelImportController extends Controller
             $categorySuppliers = CategorySupplier::all();
             return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
         }
-
+        
         try{
             $reader = new Xlsx(); 
             $spreadSheet = $reader->load($request->file('file'), 2);
@@ -163,10 +172,18 @@ class ExcelImportController extends Controller
 
                 /** Get the authenticated user */
                 $user = Auth::user();
+                $endDateRange = $request->input('enddate');
 
+                // Split the date range string into start and end dates
+                list($startDate, $endDate) = explode(' - ', $endDateRange);
+                // Convert the date strings to the 'YYYY-MM-DD' format
+                $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
+                $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
+        
                 try{
-                    UploadedFiles::create(['supplier_id' => $request->supplierselect,
-                        'cron' => 1,
+                    UploadedFiles::create([
+                        'supplier_id' => $request->supplierselect,
+                        'cron' => UploadedFiles::UPLOAD,
                         'start_date' => $formattedStartDate,
                         'end_date' => $formattedEndDate,
                         'file_name' => $fileName,
