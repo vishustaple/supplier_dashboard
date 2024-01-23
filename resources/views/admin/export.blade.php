@@ -6,103 +6,202 @@
  @section('content')
 
  <div id="layoutSidenav">
-           @include('layout.sidenavbar')
-            <div id="layoutSidenav_content">
-            <div class="mx-auto py-4">
-            <h2 class="mb-0">Upload Sheets</h2> 
+    @include('layout.sidenavbar')
+    <div id="layoutSidenav_content">
+        <div class="mx-auto py-4">
+        <h2 class="mb-0">Upload Sheets</h2> 
+        </div>
+        <div class="container">
+            <div class="alert alert-success" id="successMessage" style="display:none;">
             </div>
-            <div class="container">
-            @if(session('success'))
-            <div class="alert alert-success" id="successMessage">
-            {{ session('success') }}
+            <div class="alert alert-danger" id="errorMessage" style="display:none;">
             </div>
-            @endif
-            <div class="alert alert-danger" id="errorContainer" style="display:none;">
-         
-            </div>
-            @if(session('error'))
-            <div class="alert alert-danger" >
-            {{ session('error') }}
-            </div>
-            @endif
-            @if ($errors->any())
-            <div class="alert alert-danger">
-            <ul>
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-            </ul>
-            </div>
-            @endif
-           
-            <form action="{{ route('import.excel') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="form-group">
-                <label for="selectBox">Select Supplier:</label>
-                <select id="selectBox" name="supplierselect" class="form-control"> 
-                <option value="" selected>--Select--</option>
-                @if(isset($categorySuppliers))
-                @foreach($categorySuppliers as $categorySupplier)
-                <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
-                @endforeach
-                @endif
-                </select>
-            </div><br>
-            <div class="form-group relative">
-            <!-- <label for="startdate">Start Date</label>
-            <input  class="form-control" id="startdate" name="startdate"
-            placeholder="Enter Your Start Date ">
-            </div><br> -->
+        
+        
+            <form  id="import_form"  enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label for="selectBox">Select Supplier:</label>
+                    <select id="selectBox" name="supplierselect" class="form-control"> 
+                    <option value="" selected>--Select--</option>
+                    @if(isset($categorySuppliers))
+                    @foreach($categorySuppliers as $categorySupplier)
+                    <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                    @endforeach
+                    @endif
+                    </select>
+                </div><br>
+                <div class="form-group relative">
+                
+                    <label for="enddate">Select Date</label>
+                    <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
+                    <div class="input-overlay"></div>             
+                </div>
             
-            <label for="enddate">Select Date</label>
-            <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
-            <div class="input-overlay"></div>             
-            </div>
-           
-           
-              <!-- Transparent overlay on top of the disabled input -->
- 
-            <br>
-            <div class="form-group">
-            <label for="file">Choose Excel File</label>
-            <input type="file" name="file" id="file" class="form-control">
-            </div>
-            <br>
-            <button type="submit" class="btn btn-primary">Import</button>
+            
+                <!-- Transparent overlay on top of the disabled input -->
+
+                <br>
+                <div class="form-group relative">
+                    <label for="file">Choose Excel File</label>
+                    <input type="file" name="file" id="file" class="form-control">
+                    <div class="input-overlay-file"></div>  
+                </div>
+                <br>
+            
+                <div class="relative imprt_wrapper">
+                    <button type="submit" class="btn btn-primary" id="importBtn">Import</button>
+                    <div class="overlay" id="overlay"></div>
+                </div>
             </form>
             <table id="example" class="display:block;">
             <!-- Your table content goes here -->
             </table>
-            </div>
-               @include('layout.footer')
-            </div>
-          
-          
-
-
+        </div>
+        @include('layout.footer')
     </div>
+</div>
+<div id="page-loader">
+      <div id="page-loader-wrap">
+        <div class="spinner-grow text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-success" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-danger" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-warning" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-info" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-light" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </div>
+    <style>
+      div#page-loader {
+        top: 0;
+        left: 0;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: #00000080;
+        z-index: 999999;
+    }
+    div#page-loader-wrap {
+        text-align: center;
+        /* vertical-align: center !important; */
+        margin-top: 20%;
+    }
+
+    </style>
  <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
     </body>
     <script>
     $(document).ready(function() {
-        $('#startdate,#enddate,#file').prop('disabled', true);   
+        $('#page-loader').hide();
+        $( '#importBtn' ).on( "click", function( event ) {
+            event.preventDefault();
+            $('#page-loader').show();
+            var formData = new FormData($('#import_form')[0]);
+            console.log(formData);
+            
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('import.excel') }}', // Replace with your actual route name
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+                    if(response.error){
+                        $('#page-loader').hide();
+                        $('#errorMessage').text(response.error);
+                        $('#errorMessage').css('display','block');
+                        setTimeout(function () {
+                        $('#errorMessage').fadeOut();
+                        }, 5000);
+                      
+                    }
+                    if(response.success){
+                        $('#page-loader').hide();
+                        $('#successMessage').text(response.success);
+                        $('#successMessage').css('display','block');
+                        $("form")[0].reset();
+                        //disable all field 
+                       $('#enddate,#file,#importBtn').prop('disabled', true);
+                        setTimeout(function () {
+                        $('#successMessage').fadeOut();
+                        }, 5000); 
+                    }
+                    // Handle success response
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+   
+        //disable all field 
+        $('#enddate,#file,#importBtn').prop('disabled', true); 
         var endDateInput = document.getElementById('enddate');
-        console.log(endDateInput);
             // Event handler for click on the overlay
+
+        //check if supplier not select
         $(".input-overlay").click(function() {
-        // Your custom error message
         var customErrorMessage = "Please Select Supplier First.";
-        // Find the ul element within the error container
         var errorList = $('#errorContainer');
         errorList.text(customErrorMessage);
         errorList.css('display', 'block');
-
         setTimeout(function () {
-        errorList.css('display', 'none');
+        errorList.fadeOut();
+        // errorList.css('display', 'none');
         }, 2000);
       });
+       //check if date is not selected
+      $(".input-overlay-file").click(function() {
+        var customErrorMessage2 = "Please Select date First.";
+        var errorList2 = $('#errorContainer');
+        errorList2.text(customErrorMessage2);
+        errorList2.css('display', 'block');
+        setTimeout(function () {
+            errorList2.fadeOut();
+        // errorList2.css('display', 'none');
+        }, 2000);
+      });
+        //check for all fields 
+        $(".overlay").click(function() {
+        var customErrorMessage3 = "Please Select all mandatory field.";
+        console.log(customErrorMessage3);
+        var errorList3 = $('#errorContainer');
+        errorList3.text(customErrorMessage3);
+        errorList3.css('display', 'block');
+        setTimeout(function () {
+        errorList3.fadeOut();
+        // errorList2.css('display', 'none');
+        }, 2000);
+        });
+        //add rangepicker on field 
+        $('#enddate').daterangepicker({  
+        showDropdowns: false,
+        linkedCalendars: false,
+        isInvalidDate: function(date) {
+        // Disable dates more than one month from the selected start date
+        var startDate = $('#enddate').data('daterangepicker').startDate;
+        var endDateLimit = moment(startDate).add(1, 'month');
+        return date.isAfter(endDateLimit);
+        }
+        });
+
         $('#selectBox').val('');
        // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
@@ -117,34 +216,37 @@
             var selectedSupplier = $(this).val();
         });
 
-        
-        $('#enddate').daterangepicker({  
-            showDropdowns: false,
-            linkedCalendars: false,
-            isInvalidDate: function(date) {
-            // Disable dates more than one month from the selected start date
-            var startDate = $('#enddate').data('daterangepicker').startDate;
-            var endDateLimit = moment(startDate).add(1, 'month');
-            return date.isAfter(endDateLimit);
-        }
-        });
+       
         $('#enddate').val('');
         $('#enddate').on('change', function() {
-            var startDateInput = $('#file');  // Assuming you want to check the value of #file
+            var EndDateInput = $('#file');  // Assuming you want to check the value of #file
             
             if ($(this).val().trim() !== '') {
-            startDateInput.prop('disabled', false);
+                $(".input-overlay-file").css("display","none");
+                EndDateInput.prop('disabled', false);
             } else {
-            startDateInput.prop('disabled', true);
+                $(".input-overlay-file").css("position","absolute");
+                EndDateInput.prop('disabled', true);
             }
         });
-        $('#enddate').on('apply.daterangepicker', function(ev, picker) {
-        var startDate = picker.startDate;
-        var endDate = startDate.clone().add(1, 'month');
-          console.log(endDate);
-        // Set the end date in the date range picker
-        $('#enddate').data('daterangepicker').setEndDate(endDate);
+        $('#file').on('change', function() {
+            var ImportInput = $('#importBtn');  // Assuming you want to check the value of #file
+            
+            if ($(this).val().trim() !== '') {
+                $(".overlay").css("display","none");
+                ImportInput.prop('disabled', false);
+            } else {
+                $(".overlay").css("position","absolute");
+                ImportInput.prop('disabled', true);
+            }
         });
+        // $('#enddate').on('apply.daterangepicker', function(ev, picker) {
+        // var startDate = picker.startDate;
+        // var endDate = startDate.clone().add(1, 'month');
+        //   console.log(endDate);
+        // // Set the end date in the date range picker
+        // $('#enddate').data('daterangepicker').setEndDate(endDate);
+        // });
             $('#example').DataTable({
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting

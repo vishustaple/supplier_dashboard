@@ -79,7 +79,9 @@ class ExcelImportController extends Controller
 
         if( $validator->fails() ){  
             $categorySuppliers = CategorySupplier::all();
-            return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
+            return response()->json(['success' => true]);
+            // return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
+            return response()->json(['errors' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }
         
         try{
@@ -194,12 +196,14 @@ class ExcelImportController extends Controller
                     $file->move($destinationPath, $fileName);
 
                 } catch (QueryException $e) {   
-                    return redirect()->back()->with('error', $e->getMessage());
+                    return response()->json(['errors' => $e->getMessage()], 200);
+                    // return redirect()->back()->with('error', $e->getMessage());
                 }
-
-                return redirect()->back()->with('success', 'Excel file imported successfully!');
+                return response()->json(['success' => 'Excel file imported successfully!'], 200);
+                // return redirect()->back()->with('success', 'Excel file imported successfully!');
             } else {
-                return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
+                return response()->json(['error' => 'Please upload a file that corresponds to the selected supplier.'], 200);
+                // return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
             }
         } else {
             echo "Supplier ID ".$request->supplierselect." not found in the array.";
