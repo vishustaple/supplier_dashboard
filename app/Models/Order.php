@@ -24,5 +24,5 @@ class Order extends Model
         'customer_number',
     ];
 
-  
+
 }
