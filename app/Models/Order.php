@@ -24,17 +24,5 @@ class Order extends Model
         'customer_number',
     ];
 
-    public function random_invoice_num(){
-        $min = 1000000000;  // Minimum 10-digit number
-        $max = 9999999999;  // Maximum 10-digit number
-        $number=mt_rand($min, $max);
-
-        // Check if the generated number already exists in the orders table
-        $existingNumber = $this->where('invoice_no', $number)->exists();
-        if(isset($existingNumber)){
-            $number = mt_rand($min, $max);
-        }
-
-        return $number;
-    }
+  
 }

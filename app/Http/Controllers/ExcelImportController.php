@@ -181,7 +181,8 @@ class ExcelImportController extends Controller
                 $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
         
                 try{
-                    UploadedFiles::create(['supplier_id' => $request->supplierselect,
+                    UploadedFiles::create([
+                        'supplier_id' => $request->supplierselect,
                         'cron' => UploadedFiles::UPLOAD,
                         'start_date' => $formattedStartDate,
                         'end_date' => $formattedEndDate,
