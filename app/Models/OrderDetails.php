@@ -23,7 +23,9 @@ class OrderDetails extends Model
         'order_id',
     ];
 
-    public static function random_invoice_num(){
+
+    public static function randomInvoiceNum(){
+
         $min = 1000000000;  // Minimum 10-digit number
         $max = 9999999999;  // Maximum 10-digit number
         $number=mt_rand($min, $max);
