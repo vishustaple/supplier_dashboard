@@ -22,4 +22,18 @@ class OrderDetails extends Model
         'created_by',
         'order_id',
     ];
+
+    public static function randomInvoiceNum(){
+        $min = 1000000000;  // Minimum 10-digit number
+        $max = 9999999999;  // Maximum 10-digit number
+        $number=mt_rand($min, $max);
+
+        // Check if the generated number already exists in the orders table
+        $existingNumber = self::where('invoice_number', $number)->exists();
+        if(isset($existingNumber)){
+            $number = mt_rand($min, $max);
+        }
+
+        return $number;
+    }
 }
