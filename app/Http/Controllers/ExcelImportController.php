@@ -38,6 +38,7 @@ class ExcelImportController extends Controller
             ];
         }
         $data=json_encode($formattedData);
+      
        
         return view('admin.export',compact('categorySuppliers','data'));
     }
@@ -79,7 +80,9 @@ class ExcelImportController extends Controller
 
         if( $validator->fails() ){  
             $categorySuppliers = CategorySupplier::all();
-            return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
+            return response()->json(['success' => true]);
+            // return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
+            return response()->json(['errors' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }
         
         try{
@@ -123,7 +126,7 @@ class ExcelImportController extends Controller
         }, ARRAY_FILTER_USE_BOTH));
                     
         // print_r($finalExcelKeyArray);
-        
+        // die();
         /** Clean up the values */
         $cleanedArray = array_map(function ($value) {
             /** Remove line breaks and trim whitespace */
@@ -147,6 +150,8 @@ class ExcelImportController extends Controller
             '5' => ['Customer Num','Customer Name','Item Num','Item Name','Category','Category Umbrella','Price Method','Uo M','Current List','Qty','Ext Price',],
             
             '6' => ['Payer', 'Name Payer', 'Sold-to pt', 'Name Sold-to party', 'Ship-to', 'Name Ship-to', 'Name 3 + Name 4 - Ship-to', 'Street - Ship-to', 'District - Ship-to', 'PostalCode - Ship-to', 'City - Ship-to', 'Country - Ship-to', 'Leader customer 1', 'Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Product hierarchy', 'Section', 'Family', 'Category', 'Sub Category', 'Material', 'Material Description', 'Ownbrand', 'Green product', 'NBS', 'Customer Material', 'Customer description', 'Sales unit', 'Qty. in SKU', 'Sales deal', 'Purchase order type', 'Qty in Sales Unit - P', 'Quantity in SKU - P', 'Number of orders - P', 'Sales Amount - P', 'Tax amount - P', 'Net sales - P', 'Avg Selling Price - P', 'Document Date', 'Sales Document', 'PO number', 'BPO number', 'Invoice list', 'Billing Document', 'Billing Date', 'CAC number', 'CAC description', 'Billing month - P'],
+
+            '7'=>['GP ID','GP Name','202301','202302','202303','202304','202305','202306','202307','202308','202309','202310','202311','202312','202313','202314','202315','202316','202317','202318','202319','202320','202321','202322','202323','202324','202325','202326','2023027','202328','202329','202330','202331','202332','202333','202334','202335','202336','202337','202338','202339','202340','202341','202342','202343','202344','202345','202346','202347','202348','202349','202350','202351','202352'],
         ];
 
         /** Get the uploaded file */
@@ -194,12 +199,14 @@ class ExcelImportController extends Controller
                     $file->move($destinationPath, $fileName);
 
                 } catch (QueryException $e) {   
-                    return redirect()->back()->with('error', $e->getMessage());
+                    return response()->json(['errors' => $e->getMessage()], 200);
+                    // return redirect()->back()->with('error', $e->getMessage());
                 }
-
-                return redirect()->back()->with('success', 'Excel file imported successfully!');
+                return response()->json(['success' => 'Excel file imported successfully!'], 200);
+                // return redirect()->back()->with('success', 'Excel file imported successfully!');
             } else {
-                return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
+                return response()->json(['error' => 'Please upload a file that corresponds to the selected supplier.'], 200);
+                // return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
             }
         } else {
             echo "Supplier ID ".$request->supplierselect." not found in the array.";
