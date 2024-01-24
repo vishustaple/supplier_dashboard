@@ -24,18 +24,26 @@ class OrderDetails extends Model
     ];
 
 
-    public static function randomInvoiceNum(){
-
+    public static function randomInvoiceNum($array = []){
+        
         $min = 1000000000;  // Minimum 10-digit number
         $max = 9999999999;  // Maximum 10-digit number
         $number=mt_rand($min, $max);
-
+       
+        // Check if the generated number already exists in the provided array
+        if (in_array($number, $array)) {
+        // If it exists, recursively call the function with the same array
+        $number = self::randomInvoiceNum();
+        }
+       
         // Check if the generated number already exists in the orders table
         $existingNumber = self::where('invoice_number', $number)->exists();
-        if(isset($existingNumber)){
-            $number = mt_rand($min, $max);
+        if(!empty($existingNumber)){
+        $number = self::randomInvoiceNum();
         }
 
         return $number;
     }
+
+  
 }
