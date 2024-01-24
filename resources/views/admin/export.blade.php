@@ -17,7 +17,6 @@
             <div class="alert alert-danger" id="errorMessage" style="display:none;">
             </div>
         
-        
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
@@ -159,7 +158,7 @@
         //check if supplier not select
         $(".input-overlay").click(function() {
         var customErrorMessage = "Please Select Supplier First.";
-        var errorList = $('#errorContainer');
+        var errorList = $('#errorMessage');
         errorList.text(customErrorMessage);
         errorList.css('display', 'block');
         setTimeout(function () {
@@ -170,7 +169,7 @@
        //check if date is not selected
       $(".input-overlay-file").click(function() {
         var customErrorMessage2 = "Please Select date First.";
-        var errorList2 = $('#errorContainer');
+        var errorList2 = $('#errorMessage');
         errorList2.text(customErrorMessage2);
         errorList2.css('display', 'block');
         setTimeout(function () {
@@ -182,7 +181,7 @@
         $(".overlay").click(function() {
         var customErrorMessage3 = "Please Select all mandatory field.";
         console.log(customErrorMessage3);
-        var errorList3 = $('#errorContainer');
+        var errorList3 = $('#errorMessage');
         errorList3.text(customErrorMessage3);
         errorList3.css('display', 'block');
         setTimeout(function () {
