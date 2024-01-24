@@ -52,6 +52,12 @@ class SupplierSeeder extends Seeder
             'created_at' => $timestamp,
             'updated_at' => $timestamp,
         ],
+        [
+            'supplier_name' => 'ODP',
+            'created_by' => '1',
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
+        ],
     
     
     ]);

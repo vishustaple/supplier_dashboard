@@ -49,10 +49,30 @@ div#example_wrapper {
       .relative{
         position: relative;
       }
-      .input-overlay {
+      .input-overlay{
         width: 100% !important;
         height: 38px !important;
         bottom: 0px;
         position: absolute;
         z-index: 34;
     }
+    .input-overlay-file{
+
+      width: 100% !important;
+      height: 38px !important;
+      bottom: 0px;
+      position: absolute;
+      z-index: 34;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* display: none; */
+  }
+  .imprt_wrapper .overlay{
+     width: 77px;
+     left: 0px;
+  }
