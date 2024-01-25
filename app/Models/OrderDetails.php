@@ -30,10 +30,20 @@ class OrderDetails extends Model
         $max = 9999999999;  // Maximum 10-digit number
         $number=mt_rand($min, $max);
        
-        // Check if the generated number already exists in the provided array
-        if (in_array($number, $array)) {
-        // If it exists, recursively call the function with the same array
-        $number = self::randomInvoiceNum();
+      
+        foreach ($array as $index => $innerArray) {
+            // echo "Index: $index\n";
+            
+            foreach ($innerArray as $property => $value) {
+                // echo "  $property: $value\n";
+                // Check if the generated number already exists in the provided array
+            if ($number == $value ) {
+            // If it exists, recursively call the function with the same array
+            $number = self::randomInvoiceNum();
+            }
+            }
+            
+            // echo "\n";
         }
        
         // Check if the generated number already exists in the orders table

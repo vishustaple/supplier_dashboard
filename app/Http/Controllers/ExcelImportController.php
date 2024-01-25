@@ -18,10 +18,20 @@ class ExcelImportController extends Controller
       
         $categorySuppliers = CategorySupplier::all();
         $uploadData = UploadedFiles::all();
-        $arry=['234','345','565'];
-        $num= OrderDetails::randomInvoiceNum($arry);
-        dd($num);
-     
+        // $objectLikeArray = [
+        //     0 => [
+        //         'property1' => '8596840447',
+        //         'property2' => '8596840447',
+        //         'property3' => '8596840445',
+        //     ],
+        //     1 => [
+        //         'property1' => 'value1',
+        //         'property2' => 'value2',
+        //         'property3' => 'value3',
+        //     ],
+        // ];
+        // $num = OrderDetails::randomInvoiceNum($objectLikeArray);
+        // dd($num);
         $formattedData = [];
         $cronString=''; 
         foreach ($uploadData as $item) {
