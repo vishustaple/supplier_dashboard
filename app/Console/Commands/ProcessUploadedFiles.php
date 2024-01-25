@@ -110,7 +110,7 @@ class ProcessUploadedFiles extends Command
                         
                         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
                         
-                        if ($fileValue->supplier_id == 4) {
+                        if ($fileValue->supplier_id == 4 || $fileValue->supplier_id == 3) {
                             $sheetCount = ($sheetCount > 1) ? $sheetCount - 2 : $sheetCount; /** Handle case if sheet count is one */
                         } else {
                             $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
@@ -124,7 +124,7 @@ class ProcessUploadedFiles extends Command
 
                             // print_r($i);
                             
-                            if ($sheetCount == 1 && $i == 1 || ($fileValue->supplier_id == 7 && in_array($i, [0, 1, 3, 4, 5, 6, 7]))) {
+                            if (($sheetCount == 1 && $i == 1 && $fileValue->supplier_id != 5) || ($fileValue->supplier_id == 5 && $i == 0) || ($fileValue->supplier_id == 7 && in_array($i, [0, 1, 3, 4, 5, 6, 7]))) {
                                 continue;
                             }
 
