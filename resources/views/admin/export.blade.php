@@ -135,7 +135,7 @@
                         $('#successMessage').css('display','block');
                         $("form")[0].reset();
                         //disable all field 
-                       $('#enddate,#file,#importBtn').prop('disabled', true);
+                        $('#enddate,#file,#importBtn').prop('disabled', true);
                         setTimeout(function () {
                         $('#successMessage').fadeOut();
                         }, 5000); 
