@@ -8,15 +8,30 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use App\Models\{CategorySupplier,UploadedFiles};
+use App\Models\{CategorySupplier,UploadedFiles,OrderDetails};
 use Carbon\Carbon;
 
 
 class ExcelImportController extends Controller
 {
     public function index(){
+      
         $categorySuppliers = CategorySupplier::all();
         $uploadData = UploadedFiles::all();
+        // $objectLikeArray = [
+        //     0 => [
+        //         'property1' => '8596840447',
+        //         'property2' => '8596840447',
+        //         'property3' => '8596840445',
+        //     ],
+        //     1 => [
+        //         'property1' => 'value1',
+        //         'property2' => 'value2',
+        //         'property3' => 'value3',
+        //     ],
+        // ];
+        // $num = OrderDetails::randomInvoiceNum($objectLikeArray);
+        // dd($num);
         $formattedData = [];
         $cronString=''; 
         foreach ($uploadData as $item) {
