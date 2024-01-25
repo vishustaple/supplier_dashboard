@@ -42,4 +42,6 @@ class OrderDetails extends Model
         }        
         return $number;
     }
+
+  
 }
