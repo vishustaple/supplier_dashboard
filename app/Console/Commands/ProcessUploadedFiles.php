@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
@@ -37,7 +38,6 @@ class ProcessUploadedFiles extends Command
         try{
             /** Select those file name where cron is one */
             $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', UploadedFiles::UPLOAD)->first();
-            // dd($fileValue);
 
             // $monthsDifference = $interval->m;
             // $yearsDifference = $interval->y;
@@ -45,10 +45,10 @@ class ProcessUploadedFiles extends Command
             if ($fileValue !== null) {
 
                 /** Update cron two means start processing data into excel */
-                DB::table('uploaded_files')->where('id', $fileValue->id)
-                ->update([
-                'cron' => UploadedFiles::CRON
-                ]);
+                // DB::table('uploaded_files')->where('id', $fileValue->id)
+                // ->update([
+                // 'cron' => UploadedFiles::CRON
+                // ]);
 
 
 
@@ -57,7 +57,7 @@ class ProcessUploadedFiles extends Command
                  
                 /** This array for dynmically get column name for save data into tables */
                 $columnArray = [ 
-                    1 => ['customer_number' => 'SOLD TO ACCOUNT', 'amount' => 'ON-CORE SPEND', 'invoice_no' => '', 'invoice_date' => ''],
+                    1 => ['customer_number' => 'SOLD TOACCOUNT', 'amount' => 'ON-CORESPEND', 'invoice_no' => '', 'invoice_date' => ''],
 
                     2 => ['customer_number' => 'Account Number', 'amount' => 'Actual Price Paid', 'invoice_no' => 'Invoice Number', 'invoice_date' => 'Bill Date'],
 
@@ -69,7 +69,7 @@ class ProcessUploadedFiles extends Command
 
                     6 => ['customer_number' => 'Leader customer 1', 'amount' => 'Sales Amount - P', 'invoice_no' => 'Billing Document', 'invoice_date' => 'Billing Date'],
 
-                    7 => ['customer_number' => 'Account Name', 'amount' => '', 'invoice_no' => '', 'invoice_date' => ''],
+                    7 => ['customer_number' => 'Account ID', 'amount' => '', 'invoice_no' => '', 'invoice_date' => ''],
                 ];
 
                 try {
@@ -124,7 +124,7 @@ class ProcessUploadedFiles extends Command
 
                             // print_r($i);
                             
-                            if ($sheetCount == 1 && $i == 1) {
+                            if ($sheetCount == 1 && $i == 1 || ($fileValue->supplier_id == 7 && in_array($i, [0, 1, 3, 4, 5, 6, 7]))) {
                                 continue;
                             }
 
@@ -147,7 +147,13 @@ class ProcessUploadedFiles extends Command
                                     break;
                                 }
                             }
-                            
+
+                            /** Clean up the values */
+                            $maxNonEmptyValue = array_map(function ($value) {
+                                /** Remove line breaks and trim whitespace */
+                                return str_replace(["\r", "\n"], '', $value);
+                            }, $maxNonEmptyValue);
+
                             // print_r($maxNonEmptyValue);
                             // die;
 
@@ -176,7 +182,7 @@ class ProcessUploadedFiles extends Command
                             foreach ($workSheetArray as $key => $row) {
                                 if($key > $startIndex){
                                     $workSheetArray1[] = $row;
-                                    if (($key > $graingerCount && $fileValue->supplier_id == 2) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
+                                    if (($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
                                         $gdPerent = Account::where('customer_number', $row[0])->first();
                                         $perent = Account::where('customer_number', $row[2])->first();
                                         $customer = Account::where('customer_number', $row[4])->first();
@@ -299,130 +305,140 @@ class ProcessUploadedFiles extends Command
                             /** For insert data into the database */
                             foreach ($workSheetArray1 as $key => $row) {
                                 if (count(array_intersect($skipRowArray, $row)) <= 0) {
-                                    // if (!empty($columnArray[$fileValue->supplier_id]['customer_number'])) {
-                                    //     $keyCustomerNumber = array_search($columnArray[$fileValue->supplier_id]['customer_number'], $maxNonEmptyValue);
-                                    // }
+                                    if (!empty($columnArray[$fileValue->supplier_id]['customer_number'])) {
+                                        $keyCustomerNumber = array_search($columnArray[$fileValue->supplier_id]['customer_number'], $maxNonEmptyValue);
+                                    }
 
-                                    // if (!empty($columnArray[$fileValue->supplier_id]['amount'])) {
-                                    //     if ($fileValue->supplier_id == 1) {
-                                    //         $keyOffCoreAmount = array_search('OFF-CORE SPEND', $maxNonEmptyValue);
-                                    //     }
+                                    if (!empty($columnArray[$fileValue->supplier_id]['amount'])) {
+                                        if ($fileValue->supplier_id == 1) {
+                                            $keyOffCoreAmount = array_search('OFF-CORESPEND', $maxNonEmptyValue);
+                                        }
 
-                                    //     $keyAmount = array_search($columnArray[$fileValue->supplier_id]['amount'], $maxNonEmptyValue);
-                                    // }
+                                        $keyAmount = array_search($columnArray[$fileValue->supplier_id]['amount'], $maxNonEmptyValue);
+                                    }
 
-                                    // if (!empty($columnArray[$fileValue->supplier_id]['invoice_no'])) {
-                                    //     $keyInvoiceNumber = array_search($columnArray[$fileValue->supplier_id]['invoice_no'], $maxNonEmptyValue);
-                                    // }
+                                    if (!empty($columnArray[$fileValue->supplier_id]['invoice_no'])) {
+                                        $keyInvoiceNumber = array_search($columnArray[$fileValue->supplier_id]['invoice_no'], $maxNonEmptyValue);
+                                    }
 
-                                    // if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
-                                    //     $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $maxNonEmptyValue);
-                                    // }
-                                    
-                                    // if ($fileValue->supplier_id == 7) {
+                                    if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
+                                        $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $maxNonEmptyValue);
+                                    }
+ 
+                                    if (isset($keyCustomerNumber) && !empty($row[$keyCustomerNumber])) {
+                                        foreach ($row as $key1 => $value) {
+                                            if(!empty($maxNonEmptyValue[$key1])) {
+                                                $finalInsertArray[] = [
+                                                    'value' => $value,
+                                                    'key' => $maxNonEmptyValue[$key1],
+                                                    'file_name' => $fileValue->file_name,
+                                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                ];  
 
-                                    // }
+                                                // if (!empty($columnArray[$fileValue->supplier_id]['customer_number']) && $columnArray[$fileValue->supplier_id]['customer_number'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
+                                                //     $finalOrderInsertArray['customer_number'] = $value;
+                                                // }
 
-                                    foreach ($row as $key1 => $value) {
-                                        if(!empty($maxNonEmptyValue[$key1])) {
-                                            $finalInsertArray[] = [
-                                                'value' => $value,
-                                                'file_name' => $fileValue->file_name,
-                                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                'key' => preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1]),
-                                            ];  
+                                                // if (!empty($columnArray[$fileValue->supplier_id]['amount']) && $columnArray[$fileValue->supplier_id]['amount'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
+                                                //     $finalOrderInsertArray['amount'] = $value;
+                                                // } elseif ($fileValue->supplier_id == 1 && "OFF-CORE SPEND" == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1]) && !empty($value)) {
+                                                //     if (!empty($value)) {
+                                                //         $finalOrderInsertArray['amount'] = str_replace(",", "", number_format($value, 2, '.'));
+                                                //     } else {
+                                                //         $finalOrderInsertArray['amount'] = '0.0';
+                                                //     }
+                                                // } else {
+                                                //     $finalOrderInsertArray['amount'] = '0.0';
+                                                // }
 
-                                            if (!empty($columnArray[$fileValue->supplier_id]['customer_number']) && $columnArray[$fileValue->supplier_id]['customer_number'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
-                                                $finalOrderInsertArray['customer_number'] = $value;
-                                            }
+                                                // if (!empty($columnArray[$fileValue->supplier_id]['invoice_no']) && $columnArray[$fileValue->supplier_id]['invoice_no'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
+                                                //     if (empty($value)) {
+                                                //         $finalOrderInsertArray['invoice_no'] = OrderDetails::randomInvoiceNum();
+                                                //     } else {
+                                                //         $finalOrderInsertArray['invoice_no'] = $value;
+                                                //     }
+                                                // } else {
+                                                //     $finalOrderInsertArray['invoice_no'] = OrderDetails::randomInvoiceNum();
+                                                // }
 
-                                            if (!empty($columnArray[$fileValue->supplier_id]['amount']) && $columnArray[$fileValue->supplier_id]['amount'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
-                                                $finalOrderInsertArray['amount'] = $value;
-                                            } elseif ($fileValue->supplier_id == 1 && "OFF-CORE SPEND" == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1]) && !empty($value)) {
-                                                if (!empty($value)) {
-                                                    $finalOrderInsertArray['amount'] = number_format($value, 2, '.', ',');
-                                                } else {
-                                                    $finalOrderInsertArray['amount'] = '0.0';
-                                                }
-                                            } else {
-                                                $finalOrderInsertArray['amount'] = '0.0';
-                                            }
-
-                                            if (!empty($columnArray[$fileValue->supplier_id]['invoice_no']) && $columnArray[$fileValue->supplier_id]['invoice_no'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
-                                                if (empty($value)) {
-                                                    $finalOrderInsertArray['invoice_no'] = OrderDetails::randomInvoiceNum();
-                                                } else {
-                                                    $finalOrderInsertArray['invoice_no'] = $value;
-                                                }
-                                            } else {
-                                                $finalOrderInsertArray['invoice_no'] = OrderDetails::randomInvoiceNum();
-                                            }
-
-                                            if (!empty($columnArray[$fileValue->supplier_id]['invoice_date']) && $columnArray[$fileValue->supplier_id]['invoice_date'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
-                                                if (!empty($value)) {
-                                                    if ($fileValue->supplier_id == 4) {
-                                                        $finalOrderInsertArray['invoice_date'] = Carbon::createFromFormat('Y-m-d H:i:s', $value);
-                                                    } else {
-                                                        $finalOrderInsertArray['invoice_date'] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
-                                                    }
-                                                } else { 
-                                                    $finalOrderInsertArray['invoice_date'] = $fileValue->start_date;                                                    
-                                                }
-                                            } else {
-                                                $finalOrderInsertArray['invoice_date'] = $fileValue->start_date;                                                
+                                                // if (!empty($columnArray[$fileValue->supplier_id]['invoice_date']) && $columnArray[$fileValue->supplier_id]['invoice_date'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
+                                                //     if (!empty($value)) {
+                                                //         if ($fileValue->supplier_id == 4) {
+                                                //             $finalOrderInsertArray['invoice_date'] = Carbon::createFromFormat('Y-m-d H:i:s', $value);
+                                                //         } else {
+                                                //             $finalOrderInsertArray['invoice_date'] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
+                                                //         }
+                                                //     } else { 
+                                                //         $finalOrderInsertArray['invoice_date'] = $fileValue->start_date;                                                    
+                                                //     }
+                                                // } else {
+                                                //     $finalOrderInsertArray['invoice_date'] = $fileValue->start_date;                                                
+                                                // }
                                             }
                                         }
-                                    }
-                                    
-                                    if (isset($finalOrderInsertArray['customer_number']) && !empty($finalOrderInsertArray['customer_number'])) {
+
                                         if ($fileValue->supplier_id == 7) {
                                             foreach ($weeklyPriceColumnArray as $key => $value) {
-                                                if (!empty($row[$key])) {
-                                                    $date = explode("-", $workSheetArray1[6][$key]);
+                                                if (!empty($row[$key])) {                                                    
+                                                    $date = explode("-", $workSheetArray[7][$key]);
+
                                                     $orderLastInsertId = Order::create([
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => $fileValue->supplier_id,
-                                                        'amount' => number_format($row[$key], 2, '.', ','),
-                                                        'date' =>  date('Y-m-d H:i:s', strtotime($date[0])),
+                                                        'amount' => str_replace(",", "", number_format($row[$key], 2, '.')),
+                                                        'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                        'customer_number' => $finalOrderInsertArray['customer_number'],
+                                                        'customer_number' => (!empty($keyCustomerNumber) && !empty($row[$keyCustomerNumber])) ? ($row[$keyCustomerNumber]) : (''),
                                                     ]);
 
                                                     if ($weeklyCheck) {
-                                                        $orderDetailsArray[] = [
+                                                        OrderDetails::create([
                                                             'order_id' => $orderLastInsertId->id,
                                                             'created_by' => $fileValue->created_by,
                                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                            'invoice_number' => $finalOrderInsertArray['invoice_no'],
-                                                            'invoice_date' => date('Y-m-d H:i:s', strtotime($workSheetArray1[6][$key])),
+                                                            'invoice_date' => (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
+                                                            'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (OrderDetails::randomInvoiceNum()),
                                                             'order_file_name' => $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"),
-                                                        ];
+                                                        ]);
                                                     } else {
-                                                        $orderDetailsArray[] = [
+                                                        OrderDetails::create([
                                                             'order_id' => $orderLastInsertId->id,
                                                             'created_by' => $fileValue->created_by,
                                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                            'invoice_number' => $finalOrderInsertArray['invoice_no'],
-                                                            'invoice_date' => $finalOrderInsertArray['invoice_date'],
+                                                            'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (OrderDetails::randomInvoiceNum()),
+                                                            'invoice_date' => (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                             'order_file_name' => $fileValue->supplier_id."_monthly_".date_format(date_create($fileValue->start_date),"Y/m"),
-                                                        ];
+                                                        ]);
                                                     }
                                                 }
                                             }
                                         } else {
-                                            $orderLastInsertId = Order::create([
-                                                'created_by' => $fileValue->created_by,
-                                                'supplier_id' => $fileValue->supplier_id,
-                                                'amount' => $finalOrderInsertArray['amount'],
-                                                'date' =>  $finalOrderInsertArray['invoice_date'],
-                                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                'customer_number' => $finalOrderInsertArray['customer_number'],
-                                            ]);
+                                            if ($fileValue->supplier_id == 6) {
+                                                $customerNumber = explode(" ", $row[$keyCustomerNumber]);
+                                                $orderLastInsertId = Order::create([
+                                                    'created_by' => $fileValue->created_by,
+                                                    'supplier_id' => $fileValue->supplier_id,
+                                                    'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? ($row[$keyAmount]) : ((!empty($keyOffCoreAmount) && !empty($row[$keyOffCoreAmount]) && $fileValue->supplier_id) ? ($row[$keyOffCoreAmount]) : ('0.0')),
+                                                    'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
+                                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'customer_number' => $customerNumber[0],
+                                                ]);
+                                            } else {
+                                                $orderLastInsertId = Order::create([
+                                                    'created_by' => $fileValue->created_by,
+                                                    'supplier_id' => $fileValue->supplier_id,
+                                                    'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? ($row[$keyAmount]) : ((!empty($keyOffCoreAmount) && !empty($row[$keyOffCoreAmount]) && $fileValue->supplier_id) ? ($row[$keyOffCoreAmount]) : ('0.0')),
+                                                    'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
+                                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'customer_number' => $row[$keyCustomerNumber],
+                                                ]);
+                                            }
 
                                             if ($weeklyCheck) {
                                                 $orderDetailsArray[] = [
@@ -430,8 +446,9 @@ class ProcessUploadedFiles extends Command
                                                     'created_by' => $fileValue->created_by,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'invoice_date' => $finalOrderInsertArray['invoice_date'],
-                                                    'invoice_number' => $finalOrderInsertArray['invoice_no'],
+                                                    'invoice_date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
+                                                    // 'invoice_number' => (isset($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (OrderDetails::randomInvoiceNum((isset($orderDetailsArray) ? ($orderDetailsArray) : ([])))),
+                                                    'invoice_number' => (isset($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (OrderDetails::randomInvoiceNum()),
                                                     'order_file_name' => $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"),
                                                 ];
                                             } else {
@@ -440,27 +457,34 @@ class ProcessUploadedFiles extends Command
                                                     'created_by' => $fileValue->created_by,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    'invoice_number' => $finalOrderInsertArray['invoice_no'],
-                                                    'invoice_date' => $finalOrderInsertArray['invoice_date'],
+                                                    // 'invoice_number' => (isset($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (OrderDetails::randomInvoiceNum((isset($orderDetailsArray) ? ($orderDetailsArray) : ([])))),
+                                                    'invoice_number' => (isset($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (OrderDetails::randomInvoiceNum()),
+                                                    'invoice_date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                     'order_file_name' => $fileValue->supplier_id."_monthly_".date_format(date_create($fileValue->start_date),"Y/m"),
                                                 ];
                                             }
                                         }
-                                    }
+                                    // }
 
-                                    foreach ($finalInsertArray as &$item) {
-                                        if (!isset($item['order_id']) && empty($item['order_id'])) {
-                                            $item['order_id'] = $orderLastInsertId->id;
+                                        foreach ($finalInsertArray as &$item) {
+                                            if (!isset($item['order_id']) && empty($item['order_id'])) {
+                                                $item['order_id'] = $orderLastInsertId->id;
+                                            }
                                         }
                                     }
                                     
-                                    if ($count == 100) {
+                                    if ($count == 70) {
                                         $count = 0;
                                         try {
-                                            DB::table('order_details')->insert($orderDetailsArray);
+                                            if ($fileValue->supplier_id != 7) {
+                                                DB::table('order_details')->insert($orderDetailsArray);
+                                            }
                                             DB::table('order_product_details')->insert($finalInsertArray);
                                         } catch (QueryException $e) {   
+                                            Log::error('Error in YourScheduledTask: ' . $e->getMessage());
                                             echo "Database insertion failed: " . $e->getMessage();
+                                            echo $e->getTraceAsString();
+                                            die;
                                         }
                                         
                                         unset($finalInsertArray, $orderDetailsArray);
@@ -476,8 +500,12 @@ class ProcessUploadedFiles extends Command
 
                             if (!empty($finalInsertArray)) {
                                 try {
+                                    if ($fileValue->supplier_id != 7) {
+                                        DB::table('order_details')->insert($orderDetailsArray);
+                                    }
                                     DB::table('order_product_details')->insert($finalInsertArray);
                                 } catch (QueryException $e) {   
+                                    Log::error('Error in YourScheduledTask: ' . $e->getMessage());
                                     echo "Database insertion failed: " . $e->getMessage();
                                 }
                             }
@@ -491,19 +519,22 @@ class ProcessUploadedFiles extends Command
 
                 try {
                     /** Update the 'cron' field three after processing */
-                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => UploadedFiles::PROCESSED]);
+                    // DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => UploadedFiles::PROCESSED]);
 
                     $this->info('Uploaded files processed successfully.');
                 } catch (QueryException $e) {   
                     echo "Database updation failed: " . $e->getMessage();
+                    die;
                 }
             } else {
                 echo "No file left to upload.";
             }
         } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
             echo "Error loading spreadsheet: " . $e->getMessage();
+            die;
         } catch (QueryException $e) {   
             echo "Database table uploaded_files select query failed: " . $e->getMessage();
+            die;
         }  
     }
 }
