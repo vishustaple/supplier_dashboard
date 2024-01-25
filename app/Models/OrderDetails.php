@@ -39,7 +39,7 @@ class OrderDetails extends Model
                 // Check if the generated number already exists in the provided array
             if ($number == $value ) {
             // If it exists, recursively call the function with the same array
-            $number = self::randomInvoiceNum();
+            $number = self::randomInvoiceNum($array);
             }
             }
             
@@ -49,7 +49,7 @@ class OrderDetails extends Model
         // Check if the generated number already exists in the orders table
         $existingNumber = self::where('invoice_number', $number)->exists();
         if(!empty($existingNumber)){
-        $number = self::randomInvoiceNum();
+        $number = self::randomInvoiceNum($array);
         }
 
         return $number;
