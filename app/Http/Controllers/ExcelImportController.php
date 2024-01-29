@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use App\Models\{CategorySupplier,UploadedFiles,OrderDetails};
+use App\Models\{CategorySupplier, UploadedFiles, OrderDetails, Account};
 use Carbon\Carbon;
 
 
@@ -235,8 +235,9 @@ class ExcelImportController extends Controller
         foreach ($categorySuppliers as $suppliers) {
             # code...
             $formattedData[] = [
-                $categorySuppliers->id, 
-                $categorySuppliers->name,
+                $suppliers->id, 
+                $suppliers->supplier_name,
+                $suppliers->created_at->format('m/d/Y'),
             ];
         }
      
@@ -244,4 +245,42 @@ class ExcelImportController extends Controller
         $data=json_encode($formattedData);
         return view('admin.supplier',compact('data'));
     }
+     public function allAccount(){
+       
+
+        $accounts = Account::with('parent.parent') // Eager load relationships
+        ->select('accounts.id', 'accounts.customer_name', 
+        \DB::raw("CONCAT(parent.customer_name, '(', parent.id, ')') as Parent_Name"),
+        \DB::raw("CONCAT(grandparent.customer_name, '(', grandparent.id, ')') as Grand_Parent_Name"))
+        ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
+        ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
+        ->orderBy('grandparent.id')
+        ->orderBy('parent.id')
+        ->orderBy('accounts.id')
+        ->get();
+
+
+        // ->toSql();
+         // Print the SQL query
+//         echo $accounts->toSql();
+// die();
+        $formattedAccountData = [];
+        $i=1;
+        foreach ($accounts as $account) {
+            # code...
+            $formattedAccountData[] = [
+                $i, 
+                $account->customer_name,
+                $account->Parent_Name??'-',
+                $account->Grand_Parent_Name??'-',
+            ];
+            $i++;
+        }
+     
+     
+        $accountsdata=json_encode($formattedAccountData);
+        $grandparent = Account::whereNull('parent_id')->get();
+        
+        return view('admin.account',compact('accountsdata','grandparent'));
+     }
 }

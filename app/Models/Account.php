@@ -22,4 +22,8 @@ class Account extends Model
         'parent_id',
         'created_by',
     ];
+    
+    public function parent(){
+        return $this->belongsTo(Account::class, 'parent_id');
+    }
 }
