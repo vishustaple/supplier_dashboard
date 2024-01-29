@@ -139,6 +139,7 @@
                         setTimeout(function () {
                         $('#successMessage').fadeOut();
                         }, 5000); 
+                        window.reload();
                     }
                     // Handle success response
                     console.log(response);
