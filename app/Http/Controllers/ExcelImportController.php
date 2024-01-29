@@ -227,4 +227,21 @@ class ExcelImportController extends Controller
             echo "Supplier ID ".$request->supplierselect." not found in the array.";
         }
     }
+    public function allSupplier(){
+
+        // dd("here");
+        $categorySuppliers = CategorySupplier::all();
+        $formattedData = [];
+        foreach ($categorySuppliers as $suppliers) {
+            # code...
+            $formattedData[] = [
+                $categorySuppliers->id, 
+                $categorySuppliers->name,
+            ];
+        }
+     
+       
+        $data=json_encode($formattedData);
+        return view('admin.supplier',compact('data'));
+    }
 }

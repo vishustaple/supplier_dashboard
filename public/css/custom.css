@@ -1,6 +1,6 @@
-div#example_wrapper {
+/* div#example_wrapper {
     overflow: auto;
-    }
+    } */
     div#example_wrapper table#example thead tr th:nth-child(3){
     width: 150px !important;
     min-width: 150px !important;
@@ -76,3 +76,72 @@ div#example_wrapper {
      width: 77px;
      left: 0px;
   }
+  /*login bg class*/
+
+  .yellow{
+    background-color: #fdb91d!important;
+  }
+  .blue {
+    background-color:#1a4175 !important;
+  }
+  .data_table_files {
+    width: 100% !important;
+  }
+.data_table_files thead tr th:first-child {
+    width: 50px !important;
+    min-width: 50px;
+    max-width: 50px;
+    box-sizing: border-box;
+}
+.data_table_files tbody tr td:last-child{
+    width: 70px !important;
+    min-width: 70px;
+    max-width: 70px;
+    box-sizing: border-box;
+}
+div#example_filter {
+  padding-bottom: 10px;
+}
+.brand_logo {
+  padding: 20px;
+  text-align: center;
+}
+
+.brand_logo .logo_link img {
+  max-width: 250px;
+}
+.card .card-header{
+  background-color: transparent;
+}
+.card .card-header h3{
+  margin: 10px 0px !important;
+}
+button.btn.blue {
+  color: #fff;
+}
+
+.admin_header_logo.brand_logo .logo_link img {
+  max-width: 190px;
+}
+.sb-nav-fixed .sb-topnav {
+  z-index: 1039;
+  background: #fff !important;
+  box-shadow: 0 0 3px;
+}
+.sb-topnav.navbar-dark #sidebarToggle {
+  color: #000;
+}
+#layoutSidenav{
+  width: 99%;
+}
+div#example_paginate{
+  padding: 20px 0px;
+}
+a#navbarDropdown {
+  color: #000!important;
+}
+@media (max-width:992px) {
+  div#example_wrapper {
+    overflow: auto;
+    }
+}

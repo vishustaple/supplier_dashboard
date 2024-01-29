@@ -7,14 +7,18 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Dashboard
                             </a> -->
-                            <div class="sb-sidenav-menu-heading">Addons</div>
+                            <!-- <div class="sb-sidenav-menu-heading">Addons</div> -->
                             <a class="nav-link" href="{{route('upload.sheets')}}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Upload Sheets
                             </a>
-                            <a class="nav-link" href="tables.html">
+                            <a class="nav-link" href="#">
                                 <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                                Monthly Reporting
+                                Manage Accounts
+                            </a>
+                            <a class="nav-link" href="{{route('supplier')}}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                Manage Supplier
                             </a>
                             <a class="nav-link" href="{{route('user.logout')}}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
@@ -22,7 +26,7 @@
                             </a>
                         </div>
                     </div>
-                    <div class="sb-sidenav-footer">
+                    <div class="sb-sidenav-footer text-center">
                        
                             @if(auth()->check())
                             <div class="small">Logged in as: {{ auth()->user()->first_name  . ' ' . auth()->user()->last_name}}!</div>
@@ -30,7 +34,7 @@
                             <div class="small">Logged in as: </div>
 
                             @endif
-                        Start Bootstrap
+                    <span class="text-white">CenterPoint Group</span>
                     </div>
                 </nav>
 </div>
