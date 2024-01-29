@@ -9,7 +9,7 @@
     @include('layout.sidenavbar')
     <div id="layoutSidenav_content">
         <div class="mx-auto py-4">
-        <h2 class="mb-0">Supplier</h2> 
+        <h2 class="mb-0">Supplier Data</h2> 
         </div>
         <div class="container">
          
@@ -22,7 +22,7 @@
 </div>
 <script>
      $(document).ready(function() {
-     $('#supplier_data').DataTable({a
+     $('#supplier_data').DataTable({
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
             "searching": true, // Enable search
@@ -32,7 +32,7 @@
                 { title: 'Supplier Name' },
                 // { title: 'File Name' },
                 // { title: 'Processing' },
-                // { title: 'Created At' },
+                { title: 'Created At' },
                 // { title: 'Updated At' },
                 // Add more columns as needed
             ]

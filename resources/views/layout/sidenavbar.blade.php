@@ -12,7 +12,7 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Upload Sheets
                             </a>
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="{{route('account')}}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                                 Manage Accounts
                             </a>
