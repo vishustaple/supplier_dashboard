@@ -19,7 +19,8 @@
         
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
-                <div class="form-group">
+                <div class="row py-4">
+                <div class="form-group col-md-4">
                     <label for="selectBox">Select Supplier:</label>
                     <select id="selectBox" name="supplierselect" class="form-control"> 
                     <option value="" selected>--Select--</option>
@@ -29,31 +30,32 @@
                     @endforeach
                     @endif
                     </select>
-                </div><br>
-                <div class="form-group relative">
+                </div>
+                <div class="form-group relative col-md-4">
                 
                     <label for="enddate">Select Date</label>
                     <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
                     <div class="input-overlay"></div>             
                 </div>
-            
-            
-                <!-- Transparent overlay on top of the disabled input -->
-
-                <br>
-                <div class="form-group relative">
+                <div class="form-group relative col-md-4">
                     <label for="file">Choose Excel File</label>
                     <input type="file" name="file" id="file" class="form-control">
                     <div class="input-overlay-file"></div>  
                 </div>
-                <br>
+                </div>
+                
+            
+            
+                <!-- Transparent overlay on top of the disabled input -->
+
+            
             
                 <div class="relative imprt_wrapper">
                     <button type="submit" class="btn btn-primary" id="importBtn">Import</button>
                     <div class="overlay" id="overlay"></div>
                 </div>
             </form>
-            <table id="example" class="display:block;">
+            <table id="example" class="data_table_files">
             <!-- Your table content goes here -->
             </table>
         </div>

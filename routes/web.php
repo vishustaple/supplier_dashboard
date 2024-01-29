@@ -37,6 +37,7 @@ Route::get('/', function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
     Route::get('/upload-sheet' , [ExcelImportController::class,'index'])->name('upload.sheets');
     Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
+    Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
     // ...
 });
 });
