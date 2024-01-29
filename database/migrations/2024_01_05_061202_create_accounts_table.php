@@ -16,12 +16,14 @@ return new class extends Migration
             $table->string('customer_number', 20);
             $table->string('customer_name', 255);
             $table->unsignedBigInteger('parent_id')->nullable();
+            $table->unsignedBigInteger('record_type_id')->nullable();
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 
-            $table->foreign('parent_id')->references('id')->on('accounts');
-            $table->foreign('created_by')->references('id')->on('users');
             /** Add other foreign key constraints if needed */
+            $table->foreign('created_by')->references('id')->on('users');
+            $table->foreign('parent_id')->references('id')->on('accounts');
+            $table->foreign('record_type_id')->references('id')->on('record_types');
         });
     }
 
