@@ -32,6 +32,771 @@ class ProcessUploadedFiles extends Command
      */
     public function handle()
     {
+        $ab = [ 
+        [
+            'Account Number' =>'00218208',
+            'Account Name' =>'Tradewind Energy, Inc.',
+            'Record Type' =>'Office Supplies',
+            'ParentID' =>'21958889',
+            'GrandparentID' =>'1637',
+        ],
+        [
+            'Account Number' => '0003003479',
+            'Account Name' => 'Charles River Laboratories International, Inc.',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '2140',
+        ],
+        [
+            'Account Number' => '03449779',
+            'Account Name' => 'Big Ass Fans',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '21958889',
+            'GrandparentID' => '1637',
+        ],
+        [
+            'Account Number' => '03915656',
+            'Account Name' => 'Labor First, LLC',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '21958889',
+            'GrandparentID' => '1637',
+        ],
+        [
+            'Account Number' => '04998340',
+            'Account Name' => 'LaSalle Capital Group',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '05041668',
+            'Account Name' => 'National Academy of Social Insurance',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '05166110',
+            'Account Name' => 'GreenDrop, LLC',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '21958889',
+            'GrandparentID' => '1637',
+        ],
+        [
+            'Account Number' =>'05355117',
+            'Account Name' =>'Red Development',
+            'Record Type' =>'Office Supplies',
+            'ParentID' =>'21958889',
+            'GrandparentID' =>'1637',
+        ],
+        [
+            'Account Number' => '05722117',
+            'Account Name' => 'AgroFresh Inc',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '21958889',
+            'GrandparentID' => '1637',
+        ],
+        [
+            'Account Number' => '06213889',
+            'Account Name' => 'BlackLine Systems',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '21958889',
+            'GrandparentID' => '1637',
+        ],
+        [
+            'Account Number' => '06406845',
+            'Account Name' => 'Eastern Minority Supplier Development Council',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '21958889',
+            'GrandparentID' => '1637',
+        ],
+        [
+            'Account Number' => '07482079',
+            'Account Name' => 'Kane is Able, Inc.',
+            'Record Type' => 'Office Supplies',
+            'ParentID' => '21958889',
+            'GrandparentID' => '1637',
+        ],
+        [
+            'Account Number' => '0800117400',
+            'Account Name' => 'APS',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0800183089',
+            'Account Name' => 'ZARTMAN CONSTRUCTION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0800198616',
+            'Account Name' => 'SAPUTO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0800230278',
+            'Account Name' => 'AVANTOR SCIENCES',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0800269078',
+            'Account Name' => 'SAFT AMERICA',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSF',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0800622425',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0800623076',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801066317',
+            'Account Name' => 'QUANTA SERVICES',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPQS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801172644',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801413816',
+            'Account Name' => 'APLIX INC',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801439514',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801569203',
+            'Account Name' => 'BRIDGEFORD',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPBF',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801874306',
+            'Account Name' => 'KASTALON INC',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801896531',
+            'Account Name' => 'CINCINNATI BELL',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCB',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801924614',
+            'Account Name' => 'CINCINNATI BELL',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0801967720',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0802017699',
+            'Account Name' => 'ACOR ORTHOPEDIC',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0802164038',
+            'Account Name' => 'DOMINION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPDM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0802339143',
+            'Account Name' => 'JACK COOPER',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPJC',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0802529867',
+            'Account Name' => 'BRIDGEFORD',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPBF',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0802608083',
+            'Account Name' => 'INTERSTATE BATTERY',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAA',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0802771675',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0803639194',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0803704477',
+            'Account Name' => 'SAPUTO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0803714344',
+            'Account Name' => 'SAPUTO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0803866292',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0803964345',
+            'Account Name' => 'PARADIGM',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPPD',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0804078582',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0804088631',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0804099562',
+            'Account Name' => 'IMPERIAL DADE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPID',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0804146702',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0804185940',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0804360519',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0804764744',
+            'Account Name' => 'QUANTA SERVICES',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPQS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0805021888',
+            'Account Name' => 'AVANTOR SCIENCES',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0805114824',
+            'Account Name' => 'ABF FREIGHT',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAF',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0805167475',
+            'Account Name' => 'BRIDGEFORD',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPBF',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0805218674',
+            'Account Name' => 'SAPUTO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0805342276',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0805601853',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0805930963',
+            'Account Name' => 'SAPUTO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806102166',
+            'Account Name' => 'BIOMET',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806463915',
+            'Account Name' => 'IMPERIAL DADE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPID',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806467999',
+            'Account Name' => 'CP FLEXIBLE PACKAGING',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806470860',
+            'Account Name' => 'SAPUTO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806674685',
+            'Account Name' => 'SAPUTO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806783445',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806833604',
+            'Account Name' => 'CHURCH & DWIGHT',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCD',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806920047',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0806964235',
+            'Account Name' => 'ELIZABETHTOWN GAS',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0807164843',
+            'Account Name' => 'WIKA INSTRUMENTS',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0807520036',
+            'Account Name' => 'DOMINION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPDM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0807558580',
+            'Account Name' => 'DOMINION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPDM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0807691456',
+            'Account Name' => 'JACK COOPER',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPJC',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0808293567',
+            'Account Name' => 'APS',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0808311229',
+            'Account Name' => 'APS',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0808375935',
+            'Account Name' => 'APS',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0808416119',
+            'Account Name' => 'APS',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0808548705',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0808902951',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0809045735',
+            'Account Name' => 'INTERSTATE BATTERY',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAA',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0809053937',
+            'Account Name' => 'DOMINION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPDM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0809065980',
+            'Account Name' => 'DOMINION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPDM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0809068273',
+            'Account Name' => 'DOMINION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPDM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0809158728',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0809601990',
+            'Account Name' => 'QUANTA SERVICES',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPQS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0809655392',
+            'Account Name' => 'CHURCH & DWIGHT',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCD',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0809684061',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0810807230',
+            'Account Name' => 'SAFT AMERICA',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0811028315',
+            'Account Name' => 'CHURCH & DWIGHT',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCD',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0811283761',
+            'Account Name' => 'INTERSTATE SERVICE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0811363175',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0811454495',
+            'Account Name' => 'DOMINION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPDM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0811632793',
+            'Account Name' => 'THE WICHITA EAGLE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0812835346',
+            'Account Name' => 'JACK COOPER',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPJC',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0812990711',
+            'Account Name' => 'IMPERIAL DADE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPID',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0814662268',
+            'Account Name' => 'CP FLEXIBLE PACKAGING',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0815241443',
+            'Account Name' => 'MADELAINE CHOCOLATE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0815502422',
+            'Account Name' => 'DOMINION',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPDM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0815520671',
+            'Account Name' => 'SELECTIVE INSURANCE CO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPCM',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0815934229',
+            'Account Name' => 'SAPUTO',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPSP',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0815953393',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPFS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' =>'0816503619',
+            'Account Name' =>'SAFT AMERICA',
+            'Record Type' =>'MRO Supplies',
+            'ParentID' =>'CUPSF',
+            'GrandparentID' =>'',
+        ],
+        [
+            'Account Number' => '0816745103',
+            'Account Name' => 'QUANTA SERVICES',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPQS',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0817082860',
+            'Account Name' => 'IMPERIAL DADE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0817199672',
+            'Account Name' => 'FLOWSERVE',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0817603822',
+            'Account Name' => 'ABF FREIGHT',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => 'CUPAF',
+            'GrandparentID' => '',
+        ],
+        [
+            'Account Number' => '0818084501',
+            'Account Name' => 'AVANTOR SCIENCES',
+            'Record Type' => 'MRO Supplies',
+            'ParentID' => '',
+            'GrandparentID' => '',
+        ]
+        ];
+        foreach ($ab as $key => $row) {
+        if (empty($row['ParentID']) && empty($row['GrandparentID'])) {  
+            $customer = Account::where('customer_number', $row['Account Number'])->first();
+            $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
+            if (empty($recordTypeExist)) {
+            $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
+            } else {
+            $RecordTypeId = $recordTypeExist;
+            }
+
+            if (empty($customer)) {
+            Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => null, 'created_by' => 1, 'record_type_id' => $recordTypeExist->id]);
+            } else {
+            DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $recordTypeExist->id]);
+            }
+
+        } elseif (!empty($row['ParentID']) && empty($row['GrandparentID'])) {
+            $perent = Account::where('customer_number', $row['ParentID'])->first();
+
+            $customer = Account::where('customer_number', $row['Account Number'])->first();
+            $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
+            if (empty($recordTypeExist)) {
+            $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
+            } else {
+            $RecordTypeId = $recordTypeExist;
+            }
+            
+            if (empty($customer)) {
+            DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $recordTypeExist->id]);
+            Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => $perent->id, 'created_by' => 1, 'record_type_id' => $recordTypeExist->id]);
+            } else {
+            DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $recordTypeExist->id]);
+            DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $recordTypeExist->id]);
+            }
+        } elseif (!empty($row['ParentID']) && !empty($row['GrandparentID'])) {
+            $gdPerent = Account::where('customer_number', $row['GrandparentID'])->first();
+            $perent = Account::where('customer_number', $row['ParentID'])->first();
+
+            $customer = Account::where('customer_number', $row['Account Number'])->first();
+            $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
+            if (empty($recordTypeExist)) {
+            $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
+            } else {
+            $RecordTypeId = $recordTypeExist;
+            }
+            
+            if (empty($customer)) {
+            DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $recordTypeExist->id]);
+            DB::table('account')->where('id', $gdPerent->id)->update(['record_type_id' => $recordTypeExist->id]);
+            Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => $perent->id, 'created_by' => 1, 'record_type_id' => $recordTypeExist->id]);
+            } else {
+            DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $recordTypeExist->id]);
+            DB::table('account')->where('id', $gdPerent->id)->update(['record_type_id' => $recordTypeExist->id]);
+            DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $recordTypeExist->id]);
+            }
+        } else {
+        }
+        
+        }
+  
+
+
+
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
 
