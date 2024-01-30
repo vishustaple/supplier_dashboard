@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{Account, Order, OrderDetails,UploadedFiles};
+use App\Models\{Account, Order, OrderDetails, UploadedFiles, RecordType};
 
 class ProcessUploadedFiles extends Command
 {
@@ -32,7 +32,7 @@ class ProcessUploadedFiles extends Command
      */
     public function handle()
     {
-        $ab = [ 
+        $records = [ 
         [
             'Account Number' =>'00218208',
             'Account Name' =>'Tradewind Energy, Inc.',
@@ -734,67 +734,85 @@ class ProcessUploadedFiles extends Command
             'GrandparentID' => '',
         ]
         ];
-        foreach ($ab as $key => $row) {
-        if (empty($row['ParentID']) && empty($row['GrandparentID'])) {  
-            $customer = Account::where('customer_number', $row['Account Number'])->first();
-            $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
-            if (empty($recordTypeExist)) {
-            $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
-            } else {
-            $RecordTypeId = $recordTypeExist;
-            }
+        foreach ($records as $key => $row) {
+            if (empty($row['ParentID']) && empty($row['GrandparentID'])) {  
+                $customer = Account::where('customer_number', $row['Account Number'])->first();
+                $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
 
-            if (empty($customer)) {
-            Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => null, 'created_by' => 1, 'record_type_id' => $recordTypeExist->id]);
-            } else {
-            DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $recordTypeExist->id]);
-            }
+                print_r($customer);
+                print_r($recordTypeExist);
+                die("hello2");
+                if (empty($recordTypeExist)) {
+                    $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
+                } else {
+                    $RecordTypeId = $recordTypeExist;
+                }
 
-        } elseif (!empty($row['ParentID']) && empty($row['GrandparentID'])) {
-            $perent = Account::where('customer_number', $row['ParentID'])->first();
+                if (empty($customer)) {
+                    Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => null, 'created_by' => 1, 'record_type_id' => $RecordTypeId->id]);
+                } else {
+                    DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $RecordTypeId->id]);
+                }
 
-            $customer = Account::where('customer_number', $row['Account Number'])->first();
-            $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
-            if (empty($recordTypeExist)) {
-            $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
-            } else {
-            $RecordTypeId = $recordTypeExist;
-            }
-            
-            if (empty($customer)) {
-            DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $recordTypeExist->id]);
-            Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => $perent->id, 'created_by' => 1, 'record_type_id' => $recordTypeExist->id]);
-            } else {
-            DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $recordTypeExist->id]);
-            DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $recordTypeExist->id]);
-            }
-        } elseif (!empty($row['ParentID']) && !empty($row['GrandparentID'])) {
-            $gdPerent = Account::where('customer_number', $row['GrandparentID'])->first();
-            $perent = Account::where('customer_number', $row['ParentID'])->first();
+            } elseif (!empty($row['ParentID']) && empty($row['GrandparentID'])) {
+                $perent = Account::where('customer_number', $row['ParentID'])->first();
 
-            $customer = Account::where('customer_number', $row['Account Number'])->first();
-            $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
-            if (empty($recordTypeExist)) {
-            $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
+                $customer = Account::where('customer_number', $row['Account Number'])->first();
+                $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
+                print_r($customer);
+                print_r($recordTypeExist);
+                die("hello1");
+                if (empty($recordTypeExist)) {
+                    $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
+                } else {
+                    $RecordTypeId = $recordTypeExist;
+                }
+                
+                if (empty($customer)) {
+                    DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $RecordTypeId->id]);
+                    Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => $perent->id, 'created_by' => 1, 'record_type_id' => $RecordTypeId->id]);
+                } else {
+                    DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $RecordTypeId->id]);
+                    DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $RecordTypeId->id]);
+                }
+            } elseif (!empty($row['ParentID']) && !empty($row['GrandparentID'])) {
+                print_r(' '.$row['ParentID'].' ');
+                print_r(' '.$row['GrandparentID'].' ');
+                $gdPerent = Account::where('customer_number', $row['GrandparentID'])->first();
+                $perent = Account::where('customer_number', $row['ParentID'])->first();
+
+                $customer = Account::where('customer_number', $row['Account Number'])->first();
+                $recordTypeExist = RecordType::where('account_name', $row['Record Type'])->first();
+                
+                if (empty($recordTypeExist)) {
+                    $RecordTypeId = RecordType::create(['account_name' => $row['Record Type'], 'created_by' => 1])->first();
+                    print_r($RecordTypeId->id);
+                    die("fsdfdsfdsf");
+                } else {
+                    $RecordTypeId = $recordTypeExist;
+                }
+              
+                
+                if (empty($customer)) {
+                    if (!empty($perent)) {
+                        DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $RecordTypeId->id]);
+                    }
+
+                    if (!empty($gdPerent)) {
+                        DB::table('account')->where('id', $gdPerent->id)->update(['record_type_id' => $RecordTypeId->id]);
+                    }
+                    
+                    Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => $perent->id, 'created_by' => 1, 'record_type_id' => $RecordTypeId->id]);
+                } else {
+                    DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $RecordTypeId->id]);
+                    DB::table('account')->where('id', $gdPerent->id)->update(['record_type_id' => $RecordTypeId->id]);
+                    DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $RecordTypeId->id]);
+                }
             } else {
-            $RecordTypeId = $recordTypeExist;
             }
-            
-            if (empty($customer)) {
-            DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $recordTypeExist->id]);
-            DB::table('account')->where('id', $gdPerent->id)->update(['record_type_id' => $recordTypeExist->id]);
-            Account::create(['customer_number' => $row['Account Number'], 'customer_name' => $row['Account Name'], 'parent_id' => $perent->id, 'created_by' => 1, 'record_type_id' => $recordTypeExist->id]);
-            } else {
-            DB::table('account')->where('id', $perent->id)->update(['record_type_id' => $recordTypeExist->id]);
-            DB::table('account')->where('id', $gdPerent->id)->update(['record_type_id' => $recordTypeExist->id]);
-            DB::table('account')->where('id', $customer->id)->update(['record_type_id' => $recordTypeExist->id]);
-            }
-        } else {
-        }
-        
         }
   
-
+        die("work done");
 
 
         /** This is the folder path where we save the file */

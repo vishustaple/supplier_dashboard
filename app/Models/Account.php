@@ -17,10 +17,11 @@ class Account extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'customer_number',
-        'customer_name',
         'parent_id',
         'created_by',
+        'customer_name',
+        'record_type_id',
+        'customer_number',
     ];
     
     public function parent(){
