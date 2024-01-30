@@ -95,9 +95,9 @@ class ExcelImportController extends Controller
 
         if( $validator->fails() ){  
             $categorySuppliers = CategorySupplier::all();
-            return response()->json(['success' => true]);
+            // return response()->json(['success' => true]);
             // return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
-            return response()->json(['errors' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
+            return response()->json(['error' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }
         
         try{
@@ -214,7 +214,7 @@ class ExcelImportController extends Controller
                     $file->move($destinationPath, $fileName);
 
                 } catch (QueryException $e) {   
-                    return response()->json(['errors' => $e->getMessage()], 200);
+                    return response()->json(['error' => $e->getMessage()], 200);
                     // return redirect()->back()->with('error', $e->getMessage());
                 }
                 return response()->json(['success' => 'Excel file imported successfully!'], 200);
