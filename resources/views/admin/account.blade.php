@@ -103,6 +103,7 @@
             "columns": [
                 { title: 'SR. No' },
                 { title: 'Account Name' },
+                { title: 'Account Number' },
                 { title: 'Parent Name' },
                 { title: 'GrandParent Name' },
                 { title :'Internal Reporting Name'},
@@ -127,17 +128,18 @@
         $('input[type="checkbox"]').change(function() {
             // Check if the checkbox is checked or unchecked
             if ($(this).prop('checked')) {
-                if($(this).attr('id') == "parent"){
-                    $('#grandparentSelect').prop('disabled', false);
-                }
-                else{
-                    $('#grandparentSelect').prop('disabled', true);
-                }
-                console.log($(this).attr('id') + ' is checked');
+                $('#grandparentSelect').prop('disabled', false);
             } else{
+                $('#grandparentSelect').val('');
                 $('#grandparentSelect').prop('disabled', true);
             }
         });
+
+        $('#exampleModal').on('show.bs.modal', function (e) {
+            $('#errorMessage').fadeOut();
+            $("#add_supplier")[0].reset();
+            $('#grandparentSelect').prop('disabled', true);
+        })
 
         //submit form with ajax
 
@@ -149,7 +151,7 @@
         console.log(formData);
         $.ajax({
                 type: 'POST',
-                url: '{{ route('account') }}', // Replace with your actual route name
+                url: '{{ route('account.add') }}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -172,6 +174,9 @@
                     });
                     $('#errorMessage').html(errorMessages.join('<br>'));
                     $('#errorMessage').css('display','block');
+                    setTimeout(function () {
+                        $('#errorMessage').fadeOut();
+                        }, 5000);
                     }
 
                     // Set the content of the div with all accumulated error messages
