@@ -282,8 +282,48 @@ class ExcelImportController extends Controller
      
      
         $accountsdata=json_encode($formattedAccountData);
+        $allArray = DB::table('accounts as c1')
+        ->select('c3.id as gparent_id', 'c3.customer_name', 'c2.id as parent_id', 'c2.customer_name as Parent Name')
+        ->join('accounts as c2', function ($join) {
+        $join->on('c2.id', '=', 'c1.parent_id')
+            ->whereNotNull('c2.id');
+        })
+        ->join('accounts as c3', function ($join) {
+        $join->on('c3.id', '=', 'c2.parent_id')
+            ->whereNotNull('c3.id');
+        })
+        ->groupBy('c3.id', 'c2.id')
+        ->orderBy('c3.id')
+        ->orderBy('c2.id')
+        ->get()->toArray();
+    $resultArray = [];
+    foreach ($allArray as $item) {
+        $gparentId = $item->gparent_id;
+        $parentId = $item->parent_id;
+    
+        // Check if the gparent_id is already in the result array
+        if (!isset($resultArray[$gparentId])) {
+            // If not, add it to the result array
+            $resultArray[$gparentId] = [
+                'id' => $gparentId,
+                'name' => $item->customer_name,
+            ];
+        }
+    
+        // Check if the parent_id is already in the result array
+        if (!in_array($parentId, array_column($resultArray, 'id'))) {
+            // If not, add it to the result array
+            $resultArray[] = [
+                'id' => $parentId,
+                'name' => $item->{'Parent Name'}, // Use 'Parent Name' or adjust the property name accordingly
+            ];
+        }
+    }
+
+// Convert the associative array to a simple numeric array
+    //    $resultArray = array_values($resultArray);
         $grandparent = Account::whereNull('parent_id')->get();
         
-        return view('admin.account',compact('accountsdata','grandparent'));
+        return view('admin.account',compact('accountsdata','grandparent','resultArray'));
      }
 }

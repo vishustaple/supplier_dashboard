@@ -152,6 +152,10 @@ a#navbarDropdown {
 	overflow-x: auto;
 }
 
+svg.svg-inline--fa.fa-caret-down {
+  
+  margin-left: 15px !important;
+}
 @media (max-width:992px) {
   div#example_wrapper {
     overflow: auto;
