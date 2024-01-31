@@ -237,16 +237,17 @@ class ExcelImportController extends Controller
 
         $accounts = Account::with('parent.parent') // Eager load relationships
         ->select('accounts.id', 'accounts.customer_name','accounts.customer_number','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name','accounts.supplier_acct_rep','accounts.management_fee','accounts.record_type','accounts.category_supplier','accounts.cpg_sales_representative','accounts.cpg_customer_service_rep','accounts.sf_cat','accounts.rebate_freq','accounts.member_rebate','accounts.comm_rate',
-        DB::raw("CONCAT(parent.customer_name, '(', parent.id, ')') as Parent_Name"),
-        DB::raw("CONCAT(grandparent.customer_name, '(', grandparent.id, ')') as Grand_Parent_Name"))
+        DB::raw("parent.customer_name as Parent_Name"),
+        DB::raw("grandparent.customer_name as Grand_Parent_Name"))
         ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
         ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
         ->orderBy('grandparent.id')
         ->orderBy('parent.id')
         ->orderBy('accounts.id')
         ->get();
+        // ->toArray();
 
-
+// dd($accounts);
         // ->toSql();
          // Print the SQL query
 //         echo $accounts->toSql();
