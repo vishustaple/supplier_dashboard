@@ -84,6 +84,7 @@
         </div>
       </div>
     </div>
+ 
     <style>
       div#page-loader {
         top: 0;
@@ -116,21 +117,41 @@
             
             $.ajax({
                 type: 'POST',
-                url: '{{ route('import.excel') }}', // Replace with your actual route name
+                url: '{{route('import.excel')}}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    if(response.error){
-                        $('#page-loader').hide();
-                        $('#errorMessage').text(response.error);
-                        $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 5000);
+                    // if(response.error){
+                    //     $('#page-loader').hide();
+                    //     $('#errorMessage').text(response.error);
+                    //     $('#errorMessage').css('display','block');
+                    //     setTimeout(function () {
+                    //     $('#errorMessage').fadeOut();
+                    //     }, 5000);
                       
+                    // }
+                    let errorMessages = [];
+
+                    if (response && response.error) {
+                    $('#page-loader').hide();
+                    // Iterate over each field in the error object
+                    Object.keys(response.error).forEach(field => {
+                    // Get the error messages for the current field
+                    let fieldErrorMessages = response.error[field];
+
+                    // Concatenate the field name and its error messages
+                    let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
+                    console.log(errorMessageText);
+
+                    // Accumulate the error messages
+                    errorMessages.push(errorMessageText);
+                    });
+                    $('#errorMessage').html(errorMessages.join('<br>'));
+                    $('#errorMessage').css('display','block');
                     }
+
                     if(response.success){
                         $('#page-loader').hide();
                         $('#successMessage').text(response.success);
@@ -142,6 +163,7 @@
                         $('#successMessage').fadeOut();
                         window.location.reload();
                         }, 2000); 
+                       
                     }
                     // Handle success response
                     console.log(response);
@@ -249,10 +271,14 @@
         // // Set the end date in the date range picker
         // $('#enddate').data('daterangepicker').setEndDate(endDate);
         // });
+ 
+   
             $('#example').DataTable({
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
             "searching": true, // Enable search
+            "lengthChange":false,
+            "pageLength": 40,
             "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
                 { title: 'SR. No' },
@@ -267,5 +293,5 @@
     });
 </script>
 </html>
-daterangepicker
+
 @endsection
