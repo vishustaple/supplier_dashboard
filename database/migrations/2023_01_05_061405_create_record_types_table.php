@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('record_types', function (Blueprint $table) {
-            $table->id();
-            $table->string('account_name', 255);
-            $table->unsignedBigInteger('created_by');
-            $table->timestamps();
+        // Schema::create('record_types', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('account_name', 255);
+        //     $table->unsignedBigInteger('created_by');
+        //     $table->timestamps();
 
-            $table->foreign('created_by')->references('id')->on('users'); /** Assuming 'users' table exists */
-            /** Add other foreign key constraints if needed */
-        });
+        //     $table->foreign('created_by')->references('id')->on('users'); /** Assuming 'users' table exists */
+        //     /** Add other foreign key constraints if needed */
+        // });
     }
 
     /**
