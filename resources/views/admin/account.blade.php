@@ -47,8 +47,7 @@
                                     <input type="checkbox" id="parent" class="form-check-input radio-checkbox" name="parent" value="1">
                                     <label class="form-check-label" for="parent">Parent</label>
                                     </div>
-<!-- 
-                                    <div class="form-check form-check-inline">
+                                    <!-- <div class="form-check form-check-inline">
                                     <input type="checkbox" id="grandparent" class="form-check-input radio-checkbox" name="grandparent" value="0">
                                     <label class="form-check-label" for="grandparent">GrandParent</label>
                                     </div> -->
@@ -57,10 +56,9 @@
                                     <label for="selectBox">Grand Parent:</label>
                                     <select id="grandparentSelect" name="grandparentSelect" class="form-control" disabled> 
                                         <option value="" selected>--Select--</option>
-                                        <option value="test value">test value</option>
-                                        @if(!empty($grandparent))
-                                            @foreach($grandparent as $gp)
-                                                <option value="{{$gp->id}}">{{$gp->customer_name}}</option>
+                                        @if(!empty($resultArray))
+                                            @foreach($resultArray as $gp)
+                                            <option value="{{ $gp['id'] }}">{{ $gp['name'] }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -96,6 +94,23 @@
 </div>
 <script>
     $(document).ready(function() {
+        // $('#grandparentSelect').change(function(){
+        // var selectedValue = $(this).val();
+        // console.log(selectedValue);
+        // $.ajax({
+        //     type: 'GET',
+        //         url: '{{route('getparent')}}', 
+        //         data:{ selectedValue: selectedValue },
+        //         success: function(response) {},
+        //         error: function(xhr, status, error) {
+
+        //         }
+
+
+        // });
+            
+        // });
+
         $('#account_data').DataTable({
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
@@ -170,17 +185,14 @@
                     }
                     // Assuming `response` is the error response object
                     let errorMessages = [];
-
                     if (response && response.error) {
                     // Iterate over each field in the error object
                     Object.keys(response.error).forEach(field => {
                     // Get the error messages for the current field
                     let fieldErrorMessages = response.error[field];
-
                     // Concatenate the field name and its error messages
                     let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
                     console.log(errorMessageText);
-
                     // Accumulate the error messages
                     errorMessages.push(errorMessageText);
                     });
@@ -208,7 +220,7 @@
                         
                     }
                     // Handle success response
-                    console.log(response);
+                    // console.log(response);
                 },
                 error: function(xhr, status, error) {
                     // Handle error response
