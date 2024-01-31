@@ -6,10 +6,10 @@
  @section('content')
 
  <div id="layoutSidenav">
-    @include('layout.sidenavbar')
+    @include('layout.sidenavbar', ['pageTitleCheck' => 'Upload Sheets'])
     <div id="layoutSidenav_content">
-        <div class="mx-auto py-4">
-        <h2 class="mb-0">Upload Sheets</h2> 
+        <div class="m-1 d-md-flex flex-md-row align-items-center justify-content-between">
+                <h1 class="mb-0 ps-2">Upload Sheets</h1>
         </div>
         <div class="container">
             <div class="alert alert-success" id="successMessage" style="display:none;">
@@ -19,8 +19,8 @@
         
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
-                <div class="row py-4">
-                <div class="form-group col-md-4">
+                <div class="row py-4 align-items-end">
+                <div class="form-group col-md-4 mb-0">
                     <label for="selectBox">Select Supplier:</label>
                     <select id="selectBox" name="supplierselect" class="form-control"> 
                     <option value="" selected>--Select--</option>
@@ -31,17 +31,23 @@
                     @endif
                     </select>
                 </div>
-                <div class="form-group relative col-md-4">
+                <div class="form-group relative col-md-3 mb-0">
                 
-                    <label for="enddate">Select Date</label>
+                    <label for="enddate">Select Date:</label>
                     <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
                     <div class="input-overlay"></div>             
                 </div>
-                <div class="form-group relative col-md-4">
-                    <label for="file">Choose Excel File</label>
+                <div class="form-group relative col-md-3 mb-0">
+                    <label for="file">Choose Excel File:</label>
                     <input type="file" name="file" id="file" class="form-control">
                     <div class="input-overlay-file"></div>  
                 </div>
+                <div class="col-md-2 mb-0">
+                <div class="relative imprt_wrapper">
+                    <button type="submit" class="btn btn-primary" id="importBtn">Import</button>
+                    <div class="overlay" id="overlay"></div>
+                </div>
+</div>
                 </div>
                 
             
@@ -50,10 +56,7 @@
 
             
             
-                <div class="relative imprt_wrapper">
-                    <button type="submit" class="btn btn-primary" id="importBtn">Import</button>
-                    <div class="overlay" id="overlay"></div>
-                </div>
+                
             </form>
             <table id="example" class="data_table_files">
             <!-- Your table content goes here -->

@@ -87,6 +87,12 @@
   .data_table_files {
     width: 100% !important;
   }
+  #supplier_data.data_table_files thead tr th:first-child {
+    width: unset !important;
+    min-width: unset;
+    max-width: unset;
+  }
+
 .data_table_files thead tr th:first-child {
     width: 50px !important;
     min-width: 50px;
@@ -140,6 +146,12 @@ div#example_paginate{
 a#navbarDropdown {
   color: #000!important;
 }
+#account_data {
+	display: block;
+	width: 100%;
+	overflow-x: auto;
+}
+
 @media (max-width:992px) {
   div#example_wrapper {
     overflow: auto;

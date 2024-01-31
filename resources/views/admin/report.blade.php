@@ -5,96 +5,83 @@
  @extends('layout.sidenav')
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
+    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
-        <div class="m-1 d-md-flex flex-md-row align-items-center justify-content-between">
-            <h1 class="mb-0 ps-2">Accounts Data</h1>
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Add Account
-            </button>
-        </div>
-        <div class="mx-auto py-4 d-flex justify-content-between align-items-center">
-        
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Add Account</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                        <div class="alert alert-success" id="successMessage" style="display:none;">
-                        </div>
-                        <div class="alert alert-danger" id="errorMessage" style="display:none;">
-                        </div>
-                            <form class="" id="add_supplier" method="post">
-                                @csrf
-                                <div class="form-group">
-                                    <label>Customer ID </label>
-                                    <input type="text" placeholder="Enter Customer Id" class="form-control" name="customer_id" id="customer_id">
-                                </div> 
-                                <div class="form-group">
-                                    <label>Customer Name</label>
-                                    <input type="text" placeholder="Enter Customer name" class="form-control" name="customer_name" id="customer_name">
-                                </div>
-                                <div class="form-group">
-                                    <div class="form-check form-check-inline">
-                                    <input type="checkbox" id="parent" class="form-check-input radio-checkbox" name="parent" value="1">
-                                    <label class="form-check-label" for="parent">Parent</label>
-                                    </div>
-<!-- 
-                                    <div class="form-check form-check-inline">
-                                    <input type="checkbox" id="grandparent" class="form-check-input radio-checkbox" name="grandparent" value="0">
-                                    <label class="form-check-label" for="grandparent">GrandParent</label>
-                                    </div> -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="selectBox">Grand Parent:</label>
-                                    <select id="grandparentSelect" name="grandparentSelect" class="form-control" disabled> 
-                                        <option value="" selected>--Select--</option>
-                                        <option value="test value">test value</option>
-                                        @if(!empty($grandparent))
-                                            @foreach($grandparent as $gp)
-                                                <option value="{{$gp->id}}">{{$gp->customer_name}}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                <!-- <div class="form-group">
-                                    <label for="selectBox"> Parent:</label>
-                                <select id="parentSelect" name="parentSelect" class="form-control" disabled> 
-                                <option value="" selected>--Select--</option>
-                             
-                                <option value=""></option>
-                              
-                                </select>
-                                </div> -->
-
-                                <div class="text-center">
-                                <button type="submit" class="btn btn-primary mx-auto" id="supplier_add">Submit</button>
-                                </div>
-
-                            </form>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-        </div>
         <div class="container">
-         
+            <div class="m-1 mb-2 d-md-flex align-items-center justify-content-between">
+                <h1 class="mb-0 ">{{ $pageTitle }}</h1>
+                
+            </div>
+            <form  id="import_form"  enctype="multipart/form-data">
+                @csrf
+                <div class="row align-items-end">
+                    <div class="form-group col-md-4 mb-0">
+                        <label for="selectBox">Select Supplier:</label>
+                        <select id="selectBox" name="supplierselect" class="form-control"> 
+                            <option value="" selected>--Select--</option>
+                            @if(isset($categorySuppliers))
+                            @foreach($categorySuppliers as $categorySupplier)
+                            <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                            @endforeach
+                            @endif
+                            </select>
+                        </div>
+                    <div class="form-group relative col-md-4 mb-0">  
+                        <label for="enddate">Select Date:</label>
+                        <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
+                        <input type="text" id="start_date" name="start_date" hidden />
+                        <input type="text" id="end_date" name="end_date" hidden/>
+                        
+                        <div class="input-overlay"></div>             
+                    </div>
+
+                    <div class="col-md-4 mb-0">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                    <!-- Button trigger modal -->
+                </div>
+               
+            </form>
             <table id="account_data" class="data_table_files">
-            <!-- Your table content goes here -->
+                <!-- Your table content goes here -->
             </table>
         </div>
         
     </div>
 </div>
+<!-- Include jQuery -->
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+
+<!-- Include Moment.js -->
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+<!-- Include Date Range Picker JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
+
+<!-- Include Date Range Picker CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css" />
+
+    </body>
 <script>
+    // $(document).ready(function() {
+        $('#enddate').daterangepicker({
+            format: 'YYYY-MM-DD',
+            autoClose: true,
+            singleDate: false,
+            showShortcuts: false,
+            showTopbar: false,
+        });
+    // });
+    // $(document).ready(function() {
+        // $('#enddate').daterangepicker({
+        //     opens: 'left', // Adjust the positioning if needed
+        //     locale: {
+        //         format: 'YYYY-MM-DD', // Adjust the date format
+        //     },
+        // });
+    // });
+
     $(document).ready(function() {
         $('#account_data').DataTable({
             "paging": true,   // Enable pagination
@@ -102,7 +89,7 @@
             "searching": true, // Enable search
             "pageLength": 40,
             "lengthChange":false,
-            "data": <?php if(isset($accountsdata)){echo $accountsdata;}  ?>,
+            "data": '',
             "columns": [
                 { title: 'SR. No' },
                 { title: 'Account Name' },
@@ -122,7 +109,6 @@
                 { title :'Rebate Freq'},
                 { title :'Member Rebate'},
                 { title :'Comm Rate'},
-              
             ]
         });
 
@@ -243,5 +229,4 @@
     });
     
 </script>
-
 @endsection
