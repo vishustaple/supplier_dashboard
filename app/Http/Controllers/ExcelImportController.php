@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use DB;
 use Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,23 +17,10 @@ class ExcelImportController extends Controller
     public function index(){
       
         $categorySuppliers = CategorySupplier::all();
-        $uploadData = UploadedFiles::all();
-        // $objectLikeArray = [
-        //     0 => [
-        //         'property1' => '8596840447',
-        //         'property2' => '8596840447',
-        //         'property3' => '8596840445',
-        //     ],
-        //     1 => [
-        //         'property1' => 'value1',
-        //         'property2' => 'value2',
-        //         'property3' => 'value3',
-        //     ],
-        // ];
-        // $num = OrderDetails::randomInvoiceNum($objectLikeArray);
-        // dd($num);
+        $uploadData = UploadedFiles::orderBy('created_at', 'desc')->get();
         $formattedData = [];
         $cronString=''; 
+        $i=1;
         foreach ($uploadData as $item) {
             if ($item->cron == 1) {
                 $cronString = 'Pending';
@@ -44,16 +31,17 @@ class ExcelImportController extends Controller
             }
             // $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
             $formattedData[] = [
-                $item->id, 
+                $i, 
                 getSupplierName($item->supplier_id),
                 $item->file_name,
                 $cronString,
                 $item->created_at->format('m/d/Y'),
                 // $item->updated_at->format('m/d/Y'),
             ];
+            $i++;
         }
         $data=json_encode($formattedData);
-      
+  
        
         return view('admin.export',compact('categorySuppliers','data'));
     }
@@ -95,7 +83,6 @@ class ExcelImportController extends Controller
 
         if( $validator->fails() ){  
             $categorySuppliers = CategorySupplier::all();
-            // return response()->json(['success' => true]);
             // return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
             return response()->json(['error' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }
@@ -249,9 +236,9 @@ class ExcelImportController extends Controller
        
 
         $accounts = Account::with('parent.parent') // Eager load relationships
-        ->select('accounts.id', 'accounts.customer_name', 
-        \DB::raw("CONCAT(parent.customer_name, '(', parent.id, ')') as Parent_Name"),
-        \DB::raw("CONCAT(grandparent.customer_name, '(', grandparent.id, ')') as Grand_Parent_Name"))
+        ->select('accounts.id', 'accounts.customer_name','accounts.customer_number','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name','accounts.supplier_acct_rep','accounts.management_fee','accounts.record_type','accounts.category_supplier','accounts.cpg_sales_representative','accounts.cpg_customer_service_rep','accounts.sf_cat','accounts.rebate_freq','accounts.member_rebate','accounts.comm_rate',
+        DB::raw("CONCAT(parent.customer_name, '(', parent.id, ')') as Parent_Name"),
+        DB::raw("CONCAT(grandparent.customer_name, '(', grandparent.id, ')') as Grand_Parent_Name"))
         ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
         ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
         ->orderBy('grandparent.id')
@@ -271,8 +258,23 @@ class ExcelImportController extends Controller
             $formattedAccountData[] = [
                 $i, 
                 $account->customer_name,
+                $account->customer_number,
                 $account->Parent_Name??'-',
                 $account->Grand_Parent_Name??'-',
+                $account->internal_reporting_name??'-',
+                $account->qbr??'-',
+                $account->spend_name??'-',
+                $account->supplier_acct_rep??'-',
+                $account->management_fee??'-',
+                $account->record_type??'-',
+                $account->category_supplier??'-',
+                $account->cpg_sales_representative??'-',
+                $account->cpg_customer_service_rep??'-',
+                $account->sf_cat??'-',
+                $account->rebate_freq??'-',
+                $account->member_rebate??'-',
+                $account->comm_rate??'-',
+                
             ];
             $i++;
         }

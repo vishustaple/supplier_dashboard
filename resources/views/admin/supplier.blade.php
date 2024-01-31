@@ -26,13 +26,14 @@
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
             "searching": true, // Enable search
+            "lengthChange":false,
             "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
                 { title: 'SR. No' },
                 { title: 'Supplier Name' },
                 // { title: 'File Name' },
                 // { title: 'Processing' },
-                { title: 'Created At' },
+                // { title: 'Created At' },
                 // { title: 'Updated At' },
                 // Add more columns as needed
             ]

@@ -20,6 +20,10 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                                 Manage Supplier
                             </a>
+                            <a class="nav-link" target="_blank" href="http://3.95.106.180:7080/phpMyAdmin2025/">
+                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                Access Database
+                            </a>
                             <a class="nav-link" href="{{route('user.logout')}}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                                 Logout
