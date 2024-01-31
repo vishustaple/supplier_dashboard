@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{ExcelImportController, HomeController, CategorySupplierController, AccountController};
+use App\Http\Controllers\{ExcelImportController, ReportController, HomeController, CategorySupplierController, AccountController};
 use Illuminate\Support\Facades\Auth; 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +40,7 @@ Route::get('/', function () {
     Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
     Route::get('/account' , [ExcelImportController::class,'allAccount'])->name('account');
     Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
+    Route::get('/report' , [ReportController::class,'index'])->name('report.show');
     // ...
 });
 });

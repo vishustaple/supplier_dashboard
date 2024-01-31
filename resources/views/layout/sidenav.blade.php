@@ -1,4 +1,4 @@
-<body class="sb-nav-fixed">
+<body class="sb-nav-fixed {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Data') ? 'supplier-page' : '' }}">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
         <div class="admin_header_logo brand_logo">
