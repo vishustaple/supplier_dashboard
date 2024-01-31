@@ -156,6 +156,15 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                     if(response.error){
+                   
+                        $('#errorMessage').text(response.error);
+                        $('#errorMessage').css('display','block');
+                        setTimeout(function () {
+                        $('#errorMessage').fadeOut();
+                        }, 5000);
+                      
+                    }
                     // Assuming `response` is the error response object
                     let errorMessages = [];
 
@@ -181,15 +190,7 @@
 
                     // Set the content of the div with all accumulated error messages
                    
-                    // if(response.error){
                    
-                    //     $('#errorMessage').text(response.error);
-                    //     $('#errorMessage').css('display','block');
-                    //     setTimeout(function () {
-                    //     $('#errorMessage').fadeOut();
-                    //     }, 5000);
-                      
-                    // }
                     if(response.success){
                         $('#page-loader').hide();
                         $('#successMessage').text(response.success);
@@ -200,6 +201,8 @@
                         setTimeout(function () {
                         $('#successMessage').fadeOut();
                         }, 5000); 
+                        $('#exampleModal').hide();
+                        
                     }
                     // Handle success response
                     console.log(response);

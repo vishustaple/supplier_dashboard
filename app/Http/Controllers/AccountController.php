@@ -15,20 +15,20 @@ class AccountController extends Controller
             [
                 'customer_id'=> $request->customer_id,
                 'customer_name' => $request->input('customer_name'),
-                'parent'=> $request->parent,
-                'grandparent'=>$request->grandparent,
+                // 'parent'=> $request->parent,
+                // 'grandparent'=>$request->grandparent,
 
 
             ],
             [
                 'customer_id'=>'required',
                 'customer_name'=>'required|regex:/^[a-zA-Z0-9\s]+$/',
-                'parent' => 'nullable',
-                'grandparentselect' => 'required_if:parent,1'
+                // 'parent' => 'nullable',
+                // 'grandparentselect' => 'nullable|required_if:parent,1'
 
             ],
             [
-                'grandparentselect.required_if' => 'The Grandparent field is required',
+                // 'grandparentselect.required_if' => 'The Grandparent field is required',
             ]
              );
                // Add a custom validation message if neither parent nor grandparent is selected
@@ -38,11 +38,16 @@ class AccountController extends Controller
         //     $validator->errors()->add('parent', 'Please select at least one option.');
         //     return response()->json(['error' => $validator->errors()], 200);
         // }
+       
         if( $validator->fails() ){  
            
             return response()->json(['error' => $validator->errors()], 200);
         }
-
+        if($request->parent){
+            if(empty($request->grandparentSelect)){
+            return response()->json(['error' => "The GrandParent Field is Required."], 200);
+            }
+        }
         try{
             Account::create([
                 'customer_number' => $request->customer_id,
