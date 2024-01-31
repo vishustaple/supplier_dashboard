@@ -26,4 +26,17 @@ class Account extends Model
     public function parent(){
         return $this->belongsTo(Account::class, 'parent_id');
     }
+    public function grandparent()
+    {
+        return $this->parent()->with('parent');
+    }
+
+    public static function getHierarchy()
+    {
+        return self::with(['parent' => function ($query) {
+            $query->with('parent');
+        }])
+            ->whereNotNull('parent_id')
+            ->get();
+    }
 }
