@@ -32,16 +32,34 @@ class HomeController extends Controller
     {
         return view('auth.register');
     }
+    public function userview()
+    {    
+        $userdata=User::select('first_name','last_name','user_type')->where('user_type', '!=', User::USER_TYPE_ADMIN)->orderBy('id','desc')->get();
+        $formatuserdata=[];
+        $i=1;
+        foreach ($userdata as $data) {
+            
+            $formatuserdata[] = [
+                $i, 
+                $data->first_name. ' ' .$data->last_name,
+                ($data->user_type == 3)? 'Role User':'Role Admin ',
+            ];
+            $i++;
+        }
+        $data=json_encode($formatuserdata);
+        return view('admin.user',compact('data'));
+    }
+    
     public function userRegister(Request $request)
     {
-       
-        $validator = Validator::make(
+          $validator = Validator::make(
             [
                 'first_name'      => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'password' => $request->password,
                 'confirm_password' => $request->confirm_password,
+                'user_role' => $request->user_role,
             ],
             [
                 'first_name'=>'required|string|max:255',
@@ -49,29 +67,32 @@ class HomeController extends Controller
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
                 'confirm_password' => 'required|string|min:8|same:password',
+                'user_role' => 'required',
             ]
         );
         if( $validator->fails() )
         {  
-            
-            return view('auth.register')->withErrors($validator); 
-            
+            return response()->json(['error' => $validator->errors()], 200);
+     
         }
         else{
+            try {
+               
+                $userType = ($request->user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
 
-            $user = User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'password' => bcrypt($request->password), // Hash the password before saving
-                'user_type'=> USER::USER_TYPE,
-            ]);
-            // Validation passed, so set a success message
-            session()->flash('success_message', 'Registration successful! Please log in.');
-
-            // Redirect to the login view
-            // return view('auth.login');
-            return view('admin.user');
+                $user = User::create([
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'password' => bcrypt($request->password), // Hash the password before saving
+                    'user_type'=> $userType,
+                ]);
+            
+                return response()->json(['success' => 'Add User Successfully!'], 200);
+               
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 200);
+            }
         }
 
     }

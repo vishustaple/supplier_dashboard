@@ -41,6 +41,8 @@ Route::get('/', function () {
     Route::get('/account' , [ExcelImportController::class,'allAccount'])->name('account');
     Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
     Route::get('/report' , [ReportController::class,'index'])->name('report.show');
+    Route::get('/userlist' , [HomeController::class,'userview'])->name('user.show');
+    //not in use now this route 
     Route::get('/getparent',[AccountController::class,'getParent'])->name('getparent');
     // ...
 });
