@@ -5,7 +5,7 @@
    @include('layout.head')
 </head>
 <body>
-
+     
    <div id="main" class=""> 
     @yield('content')
    </div>

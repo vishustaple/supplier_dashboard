@@ -296,8 +296,8 @@ class ExcelImportController extends Controller
         ->orderBy('c3.id')
         ->orderBy('c2.id')
         ->get()->toArray();
-    $resultArray = [];
-    foreach ($allArray as $item) {
+        $resultArray = [];
+        foreach ($allArray as $item) {
         $gparentId = $item->gparent_id;
         $parentId = $item->parent_id;
     
@@ -322,7 +322,7 @@ class ExcelImportController extends Controller
 
 // Convert the associative array to a simple numeric array
     //    $resultArray = array_values($resultArray);
-        $grandparent = Account::whereNull('parent_id')->get();
+        $grandparent = Account::select('id','customer_name')->get();
         
         return view('admin.account',compact('accountsdata','grandparent','resultArray'));
      }

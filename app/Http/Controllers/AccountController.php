@@ -21,7 +21,7 @@ class AccountController extends Controller
 
             ],
             [
-                'customer_id'=>'required',
+                'customer_id'=>'required|unique:accounts,customer_number',
                 'customer_name'=>'required|regex:/^[a-zA-Z0-9\s]+$/',
                 // 'parent' => 'nullable',
                 // 'grandparentselect' => 'nullable|required_if:parent,1'
@@ -40,6 +40,7 @@ class AccountController extends Controller
             }
         }
         try{
+           
             Account::create([
                 'customer_number' => $request->customer_id,
                 'customer_name' => $request->customer_name,
@@ -55,7 +56,7 @@ class AccountController extends Controller
     }
 
     public function getParent(Request $request){
-        dd($request->all());
-        dd("here");
+        // dd($request->all());
+        // dd("here");
     }
 }
