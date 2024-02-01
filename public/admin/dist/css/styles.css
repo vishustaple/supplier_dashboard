@@ -10879,6 +10879,9 @@ body {
   min-height: calc(100vh - 56px);
   margin-left: -225px;
 }
+.supplier-page #layoutSidenav #layoutSidenav_content{
+  min-height: calc(85vh - 56px);
+}
 
 .sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
   transform: translateX(0);

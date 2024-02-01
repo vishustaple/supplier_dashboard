@@ -6,10 +6,10 @@
  @section('content')
 
  <div id="layoutSidenav">
-    @include('layout.sidenavbar')
+    @include('layout.sidenavbar', ['pageTitleCheck' => 'Upload Sheets'])
     <div id="layoutSidenav_content">
-        <div class="mx-auto py-4">
-        <h2 class="mb-0">Upload Sheets</h2> 
+        <div class="m-1 d-md-flex flex-md-row align-items-center justify-content-between">
+                <h1 class="mb-0 ps-2">Upload Sheets</h1>
         </div>
         <div class="container">
             <div class="alert alert-success" id="successMessage" style="display:none;">
@@ -19,7 +19,8 @@
         
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
-                <div class="form-group">
+                <div class="row py-4 align-items-end">
+                <div class="form-group col-md-4 mb-0">
                     <label for="selectBox">Select Supplier:</label>
                     <select id="selectBox" name="supplierselect" class="form-control"> 
                     <option value="" selected>--Select--</option>
@@ -29,31 +30,35 @@
                     @endforeach
                     @endif
                     </select>
-                </div><br>
-                <div class="form-group relative">
+                </div>
+                <div class="form-group relative col-md-3 mb-0">
                 
-                    <label for="enddate">Select Date</label>
+                    <label for="enddate">Select Date:</label>
                     <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
                     <div class="input-overlay"></div>             
                 </div>
-            
-            
-                <!-- Transparent overlay on top of the disabled input -->
-
-                <br>
-                <div class="form-group relative">
-                    <label for="file">Choose Excel File</label>
+                <div class="form-group relative col-md-3 mb-0">
+                    <label for="file">Choose Excel File:</label>
                     <input type="file" name="file" id="file" class="form-control">
                     <div class="input-overlay-file"></div>  
                 </div>
-                <br>
-            
+                <div class="col-md-2 mb-0">
                 <div class="relative imprt_wrapper">
                     <button type="submit" class="btn btn-primary" id="importBtn">Import</button>
                     <div class="overlay" id="overlay"></div>
                 </div>
+</div>
+                </div>
+                
+            
+            
+                <!-- Transparent overlay on top of the disabled input -->
+
+            
+            
+                
             </form>
-            <table id="example" class="display:block;">
+            <table id="example" class="data_table_files">
             <!-- Your table content goes here -->
             </table>
         </div>
@@ -82,6 +87,7 @@
         </div>
       </div>
     </div>
+ 
     <style>
       div#page-loader {
         top: 0;
@@ -114,21 +120,41 @@
             
             $.ajax({
                 type: 'POST',
-                url: '{{ route('import.excel') }}', // Replace with your actual route name
+                url: '{{route('import.excel')}}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    if(response.error){
-                        $('#page-loader').hide();
-                        $('#errorMessage').text(response.error);
-                        $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 5000);
+                    // if(response.error){
+                    //     $('#page-loader').hide();
+                    //     $('#errorMessage').text(response.error);
+                    //     $('#errorMessage').css('display','block');
+                    //     setTimeout(function () {
+                    //     $('#errorMessage').fadeOut();
+                    //     }, 5000);
                       
+                    // }
+                    let errorMessages = [];
+
+                    if (response && response.error) {
+                    $('#page-loader').hide();
+                    // Iterate over each field in the error object
+                    Object.keys(response.error).forEach(field => {
+                    // Get the error messages for the current field
+                    let fieldErrorMessages = response.error[field];
+
+                    // Concatenate the field name and its error messages
+                    let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
+                    console.log(errorMessageText);
+
+                    // Accumulate the error messages
+                    errorMessages.push(errorMessageText);
+                    });
+                    $('#errorMessage').html(errorMessages.join('<br>'));
+                    $('#errorMessage').css('display','block');
                     }
+
                     if(response.success){
                         $('#page-loader').hide();
                         $('#successMessage').text(response.success);
@@ -138,7 +164,9 @@
                         $('#enddate,#file,#importBtn').prop('disabled', true);
                         setTimeout(function () {
                         $('#successMessage').fadeOut();
-                        }, 5000); 
+                        window.location.reload();
+                        }, 2000); 
+                       
                     }
                     // Handle success response
                     console.log(response);
@@ -246,10 +274,14 @@
         // // Set the end date in the date range picker
         // $('#enddate').data('daterangepicker').setEndDate(endDate);
         // });
+ 
+   
             $('#example').DataTable({
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
             "searching": true, // Enable search
+            "lengthChange":false,
+            "pageLength": 40,
             "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
                 { title: 'SR. No' },
@@ -264,5 +296,5 @@
     });
 </script>
 </html>
-daterangepicker
+
 @endsection
