@@ -9,7 +9,7 @@
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Supplier Data'])
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex flex-md-row align-items-center justify-content-between">
-            <h1 class="mb-0 ps-2">Supplier Data</h1>
+            <h1 class="mb-0 ps-2">Manage Supplier</h1>
         </div>
         <div class="container">
          
