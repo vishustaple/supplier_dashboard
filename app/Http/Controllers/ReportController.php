@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use DataTables;
 use App\Models\{Account, Order, OrderDetails, UploadedFiles, CategorySupplier};
 
 use Illuminate\Http\Request;
@@ -22,7 +23,17 @@ class ReportController extends Controller
         return view('admin.reports.'. $reportType .'', ['pageTitle' => $pageTitle, 'categorySuppliers' => CategorySupplier::all()]);
     }
 
-    public function dataFilter(){
-        
+    public function dataFilter(Request $request){
+        if ($request->ajax()) {
+            $data = User::latest()->get();
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btn = '<button type="button" class="btn btn-primary">Action</button>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
     }
 }
