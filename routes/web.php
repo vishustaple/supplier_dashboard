@@ -41,7 +41,7 @@ Route::get('/', function () {
     Route::get('/account' , [ExcelImportController::class,'allAccount'])->name('account');
     Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
     Route::get('/report/{reportType}' , [ReportController::class,'index'])->name('report.type');
-    Route::get('/report/filter' , [ReportController::class,'dataFilter'])->name('report.filter');
+    Route::post('/report/filter' , [ReportController::class,'dataFilter'])->name('report.filter');
     Route::get('/report/csv' , [ReportController::class,'dataCsv'])->name('report.export-csv');
     Route::get('/userlist' , [HomeController::class,'userview'])->name('user.show');
     //not in use now this route 

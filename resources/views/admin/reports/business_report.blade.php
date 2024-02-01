@@ -29,18 +29,21 @@
                         <input type="hidden" id="end_date" name="end_date" />  
                     </div>
                     <div class="col-md-4 mb-0">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button id="submitBtn" class="btn btn-primary">Submit</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
                
             </form>
-            <table class="table table-bordered" id="account_data">
+            <table class="data_table_files" id="account_data">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
+                        <th>Customer Number</th>
+                        <th>Customer Name</th>
+                        <th>Amount</th>
+                        <th>Supplier Name</th>
+                        <th>Date</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -66,32 +69,44 @@
         });
     // });
         // Button click event
-        $('#submitBtn').on('click', function () {
+        $('#import_form').on('submit', function () {
             // Initiate DataTable AJAX request
             $('#account_data').DataTable().ajax.reload();
         });
+        // $.ajaxSetup({
+        //     headers: {
+        //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        //     }
+        // });
 
         // DataTable initialization
         $('#account_data').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: '{{ route('report.filter') }}',
-                type: 'GET',
-                data: function (d) {
-                    // Pass date range and supplier ID when making the request
-                    d.start_date = $('#start_date').val();
-                    d.end_date = $('#end_date').val();
-                    d.supplierId = $('#supplierId').val();
-                },
-            },
-            columns: [
-                { data: 'DT_RowIndex', name: 'DT_RowIndex' },
-                { data: 'name', name: 'name' },
-                { data: 'email', name: 'email' },
-                { data: 'action', name: 'action', orderable: false, searchable: false },
-            ],
-        });
+    processing: true,
+    serverSide: true,
+    ajax: {
+        url: '{{ route('report.filter') }}',
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: function (d) {
+            // Pass date range and supplier ID when making the request
+            d.start_date = $('#start_date').val();
+            d.end_date = $('#end_date').val();
+            d.supplierId = $('#supplierId').val();
+        },
+    },
+    columns: [
+        { data: 'id', name: 'id' },
+        { data: 'customer_number', name: 'customer number' },
+        { data: 'customer_name', name: 'customer name' },
+        { data: 'supplier_name', name: 'supplier name' },
+        { data: 'amount', name: 'amount' },
+        { data: 'date', name: 'date' },
+        // { data: 'action', name: 'action', orderable: false, searchable: false },
+    ],
+});
+
 
         $('#downloadCsvBtn').on('click', function () {
             // Trigger CSV download
