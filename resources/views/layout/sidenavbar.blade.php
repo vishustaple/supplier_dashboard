@@ -20,6 +20,10 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Manage Supplier
                             </a>
+                            <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Data') ? 'active' : '' }}" href="{{route('supplier')}}">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
+                                Manage Users
+                            </a>
                             <!-- Submenu for Manage Supplier -->
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Report') ? 'active' : '' }}" data-toggle="collapse" href="#submenuSupplier">
                                <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
