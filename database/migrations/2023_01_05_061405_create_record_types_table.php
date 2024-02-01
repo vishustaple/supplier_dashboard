@@ -13,7 +13,7 @@ return new class extends Migration
     {
         // Schema::create('record_types', function (Blueprint $table) {
         //     $table->id();
-        //     $table->string('record_type_name', 255);
+        //     $table->string('account_name', 255);
         //     $table->unsignedBigInteger('created_by');
         //     $table->timestamps();
 

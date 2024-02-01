@@ -1,13 +1,19 @@
 @extends('layout.app')
 @section('content')
-    <body class="bg-primary">
+    <body class="yellow">
         <div id="layoutAuthentication">
             <div id="layoutAuthentication_content">
                 <main>
                     <div class="container">
                         <div class="row justify-content-center">
                             <div class="col-lg-5">
+                               
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="brand_logo">
+                                    <a class="logo_link" href="#">
+                                        <img src="{{ asset('images/logo-1.webp') }}">
+                                    </a>
+                                </div>
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
                                         @if(session('success_message'))
                                         <div class="alert alert-success" id="successMessage">
@@ -38,16 +44,16 @@
                                                 <input class="form-check-input" id="inputRememberPassword" name="remember" type="checkbox" value="1" />
                                                 <label class="form-check-label" for="inputRememberPassword">Remember Password</label>
                                             </div> -->
-                                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                            <div class="text-center ">
                                                 <!-- <a class="small" href="password.html">Forgot Password?</a> -->
                                                 <!-- <a class="btn btn-primary" href="index.html">Login</a> -->
-                                                <button type="submit" class="btn btn-primary">Login</button>
+                                                <button type="submit" class="btn blue ">Login</button>
                                             </div>
                                         </form>
                                     </div>
-                                    <div class="card-footer text-center py-3">
+                                    <!-- <div class="card-footer text-center py-3">
                                         <div class="small"><a href="{{route('register')}}">Need an account? Sign up!</a></div>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
