@@ -21,18 +21,18 @@
                                 Manage Supplier
                             </a>
                             <!-- Submenu for Manage Supplier -->
-                            <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Report') ? 'active' : '' }}" data-toggle="collapse" href="#submenuSupplier">
+                            <a class="nav-link {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Business Report', 'Optimization Report', 'Consolidated Supplier Report', 'Supplier Rebate Report', 'Validation Rebate Report', 'Commission Report'])) ? 'active' : '' }}" data-toggle="collapse" href="#submenuSupplier">
                                <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
                                 Reports
                                <i class="fas fa-caret-down"></i>
                             </a>
-                            <div class="collapse" id="submenuSupplier">
-                                <a class="nav-link ml-3" href="#">Business Report</a>
-                                <a class="nav-link ml-3" href="#">Optimization Report</a>
-                                <a class="nav-link ml-3" href="#">Consolidated Supplier Report</a>
-                                <a class="nav-link ml-3" href="#">Supplier Rebate Report</a>
-                                <a class="nav-link ml-3" href="#">Validation Rebate Report</a>
-                                <a class="nav-link ml-3" href="#">Commission Report</a>
+                            <div class="collapse {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Business Report', 'Optimization Report', 'Consolidated Supplier Report', 'Supplier Rebate Report', 'Validation Rebate Report', 'Commission Report'])) ? 'show' : '' }}" id="submenuSupplier">
+                                <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Business Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'business_report'])}}">Business Report</a>
+                                <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Optimization Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'optimization_report'])}}">Optimization Report</a>
+                                <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Consolidated Supplier Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'consolidated_report'])}}">Consolidated Supplier Report</a>
+                                <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Rebate Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'supplier_report'])}}">Supplier Rebate Report</a>
+                                <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Validation Rebate Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'validation_rebate_report'])}}">Validation Rebate Report</a>
+                                <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'commission_report'])}}">Commission Report</a>
                             </div>
                             <a class="nav-link" target="_blank" href="http://3.95.106.180:7080/phpMyAdmin2025/">
                                 <div class="sb-nav-link-icon"><i class="fa fa-database" aria-hidden="true"></i></div>
