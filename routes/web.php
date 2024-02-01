@@ -40,7 +40,7 @@ Route::get('/', function () {
     Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
     Route::get('/account' , [ExcelImportController::class,'allAccount'])->name('account');
     Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
-    Route::get('/report' , [ReportController::class,'index'])->name('report.show');
+    Route::get('/report/{reportType}' , [ReportController::class,'index'])->name('report.type');
     Route::get('/getparent',[AccountController::class,'getParent'])->name('getparent');
     // ...
 });
