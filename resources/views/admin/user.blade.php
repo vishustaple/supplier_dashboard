@@ -8,17 +8,17 @@
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex flex-md-row align-items-center justify-content-between">
-            <h1 class="mb-0 ps-2">Accounts Data</h1>
+            <h1 class="mb-0 ps-2">User Data</h1>
             <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Add Account
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#userModal">
+            Add User
             </button>
         </div>
         <div class="mx-auto py-4 d-flex justify-content-between align-items-center">
         
 
                     <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                         <div class="modal-header">
@@ -32,52 +32,47 @@
                         </div>
                         <div class="alert alert-danger" id="errorMessage" style="display:none;">
                         </div>
-                            <form class="" id="add_supplier" method="post">
-                                @csrf
-                                <div class="form-group">
-                                    <label>Customer ID </label>
-                                    <input type="text" placeholder="Enter Customer Id" class="form-control" name="customer_id" id="customer_id">
-                                </div> 
-                                <div class="form-group">
-                                    <label>Customer Name</label>
-                                    <input type="text" placeholder="Enter Customer name" class="form-control" name="customer_name" id="customer_name">
-                                </div>
-                                <div class="form-group">
-                                    <div class="form-check form-check-inline">
-                                    <input type="checkbox" id="parent" class="form-check-input radio-checkbox" name="parent" value="1">
-                                    <label class="form-check-label" for="parent">Parent</label>
-                                    </div>
-                                    <!-- <div class="form-check form-check-inline">
-                                    <input type="checkbox" id="grandparent" class="form-check-input radio-checkbox" name="grandparent" value="0">
-                                    <label class="form-check-label" for="grandparent">GrandParent</label>
-                                    </div> -->
-                                </div>
-                                <div class="form-group">
-                                    <label for="selectBox">Grand Parent:</label>
-                                    <select id="grandparentSelect" name="grandparentSelect" class="form-control" disabled> 
-                                        <option value="" selected>--Select--</option>
-                                        @if(!empty($grandparent))
-                                            @foreach($grandparent as $gp)
-                                            <option value="{{ $gp->id }}">{{ $gp->customer_name }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                <!-- <div class="form-group">
-                                    <label for="selectBox"> Parent:</label>
-                                <select id="parentSelect" name="parentSelect" class="form-control" disabled> 
-                                <option value="" selected>--Select--</option>
-                             
-                                <option value=""></option>
-                              
-                                </select>
-                                </div> -->
-
-                                <div class="text-center">
-                                <button type="submit" class="btn btn-primary mx-auto" id="supplier_add">Submit</button>
-                                </div>
-
-                            </form>
+                        <form action="{{route('user.register')}}" method="POST">
+                                        @csrf
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-floating mb-3 mb-md-0">
+                                                        <input class="form-control" id="inputFirstName" name="first_name" type="text" placeholder="Enter your first name" />
+                                                        <label for="inputFirstName">First name</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="inputLastName" name="last_name"type="text" placeholder="Enter your last name" />
+                                                        <label for="inputLastName">Last name</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-floating mb-3">
+                                                <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
+                                                <label for="inputEmail">Email address</label>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-floating mb-3 mb-md-0">
+                                                        <input class="form-control" id="inputPassword" name="password" type="password" placeholder="Create a password" />
+                                                        <label for="inputPassword">Password</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-floating mb-3 mb-md-0">
+                                                        <input class="form-control" id="inputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
+                                                        <label for="inputPasswordConfirm">Confirm Password</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-4 mb-0">
+                                                <div class="d-grid">
+                                                    <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
+                                                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                                                </div>
+                                            </div>
+                                        </form>
                         </div>
                         </div>
                     </div>
