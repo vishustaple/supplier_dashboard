@@ -5,10 +5,10 @@
  @extends('layout.sidenav')
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
+    @include('layout.sidenavbar', ['pageTitleCheck' => 'User Data'])
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex flex-md-row align-items-center justify-content-between">
-            <h1 class="mb-0 ps-2">User Data</h1>
+            <h1 class="mb-0 ps-2">Manage Users</h1>
             <!-- Button trigger modal -->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#userModal">
             Add User
@@ -22,7 +22,7 @@
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Add Account</h5>
+                            <h5 class="modal-title" id="exampleModalLabel">Add User</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                             </button>
@@ -32,7 +32,7 @@
                         </div>
                         <div class="alert alert-danger" id="errorMessage" style="display:none;">
                         </div>
-                        <form action="{{route('user.register')}}" method="POST">
+                        <form action="" id="add_user" method="POST">
                                         @csrf
                                             <div class="row mb-3">
                                                 <div class="col-md-6">
@@ -66,10 +66,18 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="form-floating mb-3">
+                                                    <select id="user_role" name="user_role" class="form-control"> 
+                                                    <option value="" selected>--Select--</option>
+                                                    <option value="2">Admin</option>
+                                                    <option value="3">User</option>
+                                                    </select>
+                                                    <label for="userrole">User Role</label>
+                                            </div>
                                             <div class="mt-4 mb-0">
                                                 <div class="d-grid">
                                                     <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
-                                                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                                                    <button type="submit" class="btn btn-primary btn-block">Create User</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -80,7 +88,7 @@
         </div>
         <div class="container">
          
-            <table id="account_data" class="data_table_files">
+            <table id="user_data" class="data_table_files">
             <!-- Your table content goes here -->
             </table>
         </div>
@@ -89,93 +97,46 @@
 </div>
 <script>
     $(document).ready(function() {
-        // $('#grandparentSelect').change(function(){
-        // var selectedValue = $(this).val();
-        // console.log(selectedValue);
-        // $.ajax({
-        //     type: 'GET',
-        //         url: '{{route('getparent')}}', 
-        //         data:{ selectedValue: selectedValue },
-        //         success: function(response) {},
-        //         error: function(xhr, status, error) {
-
-        //         }
-
-
-        // });
-            
-        // });
-
-        $('#account_data').DataTable({
+     
+        $('#user_data').DataTable({
             "paging": true,   // Enable pagination
             // "ordering": true, // Enable sorting
             "searching": true, // Enable search
             "pageLength": 40,
             "lengthChange":false,
-            "data": <?php if(isset($accountsdata)){echo $accountsdata;}  ?>,
+            "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
                 { title: 'SR. No' },
-                { title: 'Account Name' },
-                { title: 'Account Number' },
-                { title: 'Parent Name' },
-                { title: 'GrandParent Name' },
-                { title :'Internal Reporting Name'},
-                { title :'QBR'},
-                { title :'Spend Name'},
-                { title :'Supplier Acct Rep'},
-                { title :'Management Fee'},
-                { title :'Record Type'},
-                { title :'Categroy Supplier'},
-                { title :'CPG Sales Representative'},
-                { title :'CPG Customer Service Rep'},
-                { title :'SF Cat'},
-                { title :'Rebate Freq'},
-                { title :'Member Rebate'},
-                { title :'Comm Rate'},
-              
+                { title: 'User Name' },
+                { title: 'User Type' },
+            
             ]
         });
 
-        
-        // Attach a change event handler to the checkboxes
-        $('input[type="checkbox"]').change(function() {
-            // Check if the checkbox is checked or unchecked
-            if ($(this).prop('checked')) {
-                $('#grandparentSelect').prop('disabled', false);
-            } else{
-                $('#grandparentSelect').val('');
-                $('#grandparentSelect').prop('disabled', true);
-            }
-        });
-
-        $('#exampleModal').on('show.bs.modal', function (e) {
+        $('#userModal').on('show.bs.modal', function (e) {
             $('#errorMessage').fadeOut();
-            $("#add_supplier")[0].reset();
-            $('#grandparentSelect').prop('disabled', true);
+            $("#add_user")[0].reset();
         })
 
         //submit form with ajax
 
-        $("#add_supplier").on('submit', function (e){
-            // alert("here");
-
+        $("#add_user").on('submit', function (e){
         e.preventDefault();
-        var formData = new FormData($('#add_supplier')[0]);
+        var formData = new FormData($('#add_user')[0]);
         console.log(formData);
         $.ajax({
                 type: 'POST',
-                url: '{{ route('account.add') }}', // Replace with your actual route name
+                url: '{{ route('user.register') }}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
                      if(response.error){
-                   
                         $('#errorMessage').text(response.error);
                         $('#errorMessage').css('display','block');
                         setTimeout(function () {
                         $('#errorMessage').fadeOut();
-                        }, 5000);
+                        }, 3000);
                       
                     }
                     // Assuming `response` is the error response object
@@ -195,7 +156,7 @@
                     $('#errorMessage').css('display','block');
                     setTimeout(function () {
                         $('#errorMessage').fadeOut();
-                        }, 5000);
+                        },3000);
                     }
 
                     // Set the content of the div with all accumulated error messages
@@ -207,25 +168,23 @@
                         $('#successMessage').css('display','block');
                         $("form")[0].reset();
                         //disable all field 
-                        $('#enddate,#file,#importBtn').prop('disabled', true);
+                       
                         setTimeout(function () {
                             $('#successMessage').fadeOut();
                             window.location.reload();
-                        }, 5000); 
+                        }, 3000); 
                         
                     }
-                    // Handle success response
-                    // console.log(response);
+                   
                 },
                 error: function(xhr, status, error) {
-                    // Handle error response
-                    // console.error(xhr.responseText);
+               
                     const errorresponse = JSON.parse(xhr.responseText);
                         $('#errorMessage').text(errorresponse.error);
                         $('#errorMessage').css('display','block');
                         setTimeout(function () {
                         $('#errorMessage').fadeOut();
-                        }, 5000);
+                        }, 3000);
                 }
             });
 
