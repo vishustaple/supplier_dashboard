@@ -34,7 +34,7 @@ class HomeController extends Controller
     }
     public function userview()
     {    
-        $userdata=User::select('first_name','last_name','user_type')->where('user_type', '!=', User::USER_TYPE_ADMIN)->orderBy('id','desc')->get();
+        $userdata=User::select('first_name','last_name','user_type')->where('user_type', '!=', User::USER_TYPE_SUPERADMIN)->orderBy('id','desc')->get();
         $formatuserdata=[];
         $i=1;
         foreach ($userdata as $data) {

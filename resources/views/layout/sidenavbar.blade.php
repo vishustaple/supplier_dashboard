@@ -7,12 +7,11 @@
                                 <div class="sb-nav-link-icon"><i class="fa fa-upload" aria-hidden="true"></i></div>
                                 Data Management 
                             </a>
-                            <!-- @if(Auth::user()->user_type == App\Models\User::USER_TYPE_USER ) -->
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Accounts Data') ? 'active' : '' }}" href="{{route('account')}}">
                                 <div class="sb-nav-link-icon"><i class="fa fa-users" aria-hidden="true"></i></div>
                                 Manage Accounts
                             </a>
-                            <!-- @endif -->
+                          
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Data') ? 'active' : '' }}" href="{{route('supplier')}}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Manage Supplier

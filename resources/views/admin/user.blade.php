@@ -34,50 +34,50 @@
                         </div>
                         <form action="" id="add_user" method="POST">
                                         @csrf
-                                            <div class="row mb-3">
+                                            <div class="row">
                                                 <div class="col-md-6">
-                                                    <div class="form-floating mb-3 mb-md-0">
-                                                        <input class="form-control" id="inputFirstName" name="first_name" type="text" placeholder="Enter your first name" />
+                                                    <div class="form-group mb-3 mb-md-0">
                                                         <label for="inputFirstName">First name</label>
+                                                        <input class="form-control" id="inputFirstName" name="first_name" type="text" placeholder="Enter your first name" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div class="form-floating">
-                                                        <input class="form-control" id="inputLastName" name="last_name"type="text" placeholder="Enter your last name" />
+                                                    <div class="form-group">
                                                         <label for="inputLastName">Last name</label>
+                                                        <input class="form-control" id="inputLastName" name="last_name"type="text" placeholder="Enter your last name" />
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-floating mb-3">
-                                                <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
+                                            <div class="form-group mb-3">
                                                 <label for="inputEmail">Email address</label>
+                                                <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-6">
-                                                    <div class="form-floating mb-3 mb-md-0">
-                                                        <input class="form-control" id="inputPassword" name="password" type="password" placeholder="Create a password" />
+                                                    <div class="form-group mb-3 mb-md-0">
                                                         <label for="inputPassword">Password</label>
+                                                        <input class="form-control" id="inputPassword" name="password" type="password" placeholder="Create a password" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div class="form-floating mb-3 mb-md-0">
-                                                        <input class="form-control" id="inputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
+                                                    <div class="form-group mb-3 mb-md-0">
                                                         <label for="inputPasswordConfirm">Confirm Password</label>
+                                                        <input class="form-control" id="inputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-floating mb-3">
+                                            <div class="form-group mb-3">
+                                                <label for="userrole">User Role</label>
                                                     <select id="user_role" name="user_role" class="form-control"> 
                                                     <option value="" selected>--Select--</option>
                                                     <option value="2">Admin</option>
                                                     <option value="3">User</option>
                                                     </select>
-                                                    <label for="userrole">User Role</label>
                                             </div>
                                             <div class="mt-4 mb-0">
                                                 <div class="d-grid">
                                                     <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
-                                                    <button type="submit" class="btn btn-primary btn-block">Create User</button>
+                                                    <button type="submit" class="btn btn-primary mx-auto">Create User</button>
                                                 </div>
                                             </div>
                                         </form>

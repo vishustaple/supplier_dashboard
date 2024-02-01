@@ -100,7 +100,7 @@
 
          function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route('users.export-csv') }}';
+            var csvUrl = '{{ route('report.export-csv') }}';
 
             // Add query parameters for date range and supplier ID
             csvUrl += '?daterange=' + $('#daterange').val() + '&supplierId=' + $('#supplierId').val();
@@ -108,7 +108,7 @@
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
          }
-      });
+    //   });
     });
 </script>
 @endsection
