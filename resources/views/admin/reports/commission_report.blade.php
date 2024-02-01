@@ -28,11 +28,7 @@
                         </div>
                     <div class="form-group relative col-md-4 mb-0">  
                         <label for="enddate">Select Date:</label>
-                        <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
-                        <input type="text" id="start_date" name="start_date" hidden />
-                        <input type="text" id="end_date" name="end_date" hidden/>
-                        
-                        <div class="input-overlay"></div>             
+                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
                     </div>
 
                     <div class="col-md-4 mb-0">
@@ -49,38 +45,13 @@
         
     </div>
 </div>
-<!-- Include jQuery -->
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-
-<!-- Include Moment.js -->
-<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-
 <!-- Include Date Range Picker JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
-
-<!-- Include Date Range Picker CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css" />
-
-    </body>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
-    // $(document).ready(function() {
-        $('#enddate').daterangepicker({
-            format: 'YYYY-MM-DD',
-            autoClose: true,
-            singleDate: false,
-            showShortcuts: false,
-            showTopbar: false,
-        });
-    // });
-    // $(document).ready(function() {
-        // $('#enddate').daterangepicker({
-        //     opens: 'left', // Adjust the positioning if needed
-        //     locale: {
-        //         format: 'YYYY-MM-DD', // Adjust the date format
-        //     },
-        // });
-    // });
+    $(document).ready(function() {
+        $('input[name="dates"]').daterangepicker();
+    });
 
     $(document).ready(function() {
         $('#account_data').DataTable({
