@@ -70,7 +70,8 @@ class HomeController extends Controller
             session()->flash('success_message', 'Registration successful! Please log in.');
 
             // Redirect to the login view
-            return view('auth.login');
+            // return view('auth.login');
+            return view('admin.user');
         }
 
     }
