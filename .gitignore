@@ -1,9 +1,6 @@
 /.phpunit.cache
 /node_modules
-/public/build
-/public/hot
-/public/excel_sheets
-/public/storage
+/public
 /storage
 /vendor
 .env
