@@ -31,11 +31,6 @@
             "columns": [
                 { title: 'SR. No' },
                 { title: 'Supplier Name' },
-                // { title: 'File Name' },
-                // { title: 'Processing' },
-                // { title: 'Created At' },
-                // { title: 'Updated At' },
-                // Add more columns as needed
             ]
         });
     });
