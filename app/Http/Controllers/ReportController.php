@@ -37,16 +37,16 @@ class ReportController extends Controller
             // echo"<pre>";
             //     print_r($request->all());
 // die;
-$filter = $request->all();
+        $filter = $request->all();
 
-$orderColumnArray = [
-0 => 'orders.id',
-1 => 'orders.amount',
-2 => 'orders.date',
-3 => 'suppliers.supplier_name',
-4 => 'orders.customer_number',
-5 => "accounts.customer_name"
-];
+        $orderColumnArray = [
+        0 => 'orders.id',
+        1 => 'orders.amount',
+        2 => 'orders.date',
+        3 => 'suppliers.supplier_name',
+        4 => 'orders.customer_number',
+        5 => "accounts.customer_name"
+        ];
 
 
         $query = Order::query() // Replace YourModel with the actual model you are using for the data
@@ -55,7 +55,7 @@ $orderColumnArray = [
         ->select('orders.id as id', 'orders.amount as amount', 'orders.date as date', 'suppliers.supplier_name as supplier_name', 'orders.customer_number as customer_number', "accounts.customer_name as customer_name"); // Adjust the column names as needed
         // Filter data based on request parameters
         if ($request->filled('start_date')) {
-            $query->whereDate('orders.date', '>=', $request->input('start_date'));
+            $query->whereDate('orders.date', '>=', $filter['start_date']);
         }
 
         if ($request->filled('end_date')) {
