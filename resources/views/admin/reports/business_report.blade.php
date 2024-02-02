@@ -13,7 +13,7 @@
                 <div class="row align-items-end">
                     <div class="form-group col-md-4 mb-0">
                         <label for="selectBox">Select Supplier:</label>
-                        <select id="selectBox" name="supplierselect" class="form-control"> 
+                        <select id="supplierId" name="supplierselect" class="form-control"> 
                             <option value="" selected>--Select--</option>
                             @if(isset($categorySuppliers))
                             @foreach($categorySuppliers as $categorySupplier)
@@ -32,6 +32,7 @@
                     <button id="submitBtn" class="btn btn-primary">Submit</button>
                     </div>
                     <!-- Button trigger modal -->
+                    <button id="downloadCsvBtn">Csv Download</button>
                 </div>
                
             </form>
@@ -41,10 +42,9 @@
                         <th>ID</th>
                         <th>Customer Number</th>
                         <th>Customer Name</th>
-                        <th>Amount</th>
                         <th>Supplier Name</th>
+                        <th>Amount</th>
                         <th>Date</th>
-                        <th>Action</th>
                     </tr>
                 </thead>
             </table>
@@ -52,6 +52,23 @@
         
     </div>
 </div>
+<style>
+      div#page-loader {
+        top: 0;
+        left: 0;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: #00000080;
+        z-index: 999999;
+    }
+    div#page-loader-wrap {
+        text-align: center;
+        /* vertical-align: center !important; */
+        margin-top: 20%;
+    }
+
+    </style>
 <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
@@ -62,52 +79,63 @@
         // Event handler for when the user applies the date range
         $('input[name="dates"]').on('apply.daterangepicker', function(ev, picker) {
             // Access the selected date range
-            $('#start_date').val(picker.startDate.format('MM-DD-YYYY')),
-            $('#end_date').val(picker.endDate.format('MM-DD-YYYY'));
+            $('#start_date').val(picker.startDate.format('YYYY-MM-DD')),
+            $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
             // Perform actions with the selected date range
             console.log('Selected Date Range:', startDate, 'to', endDate);
         });
     // });
         // Button click event
         $('#import_form').on('submit', function () {
+            event.preventDefault();
             // Initiate DataTable AJAX request
             $('#account_data').DataTable().ajax.reload();
         });
-        // $.ajaxSetup({
-        //     headers: {
-        //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        //     }
-        // });
 
         // DataTable initialization
-        $('#account_data').DataTable({
-    processing: true,
-    serverSide: true,
-    ajax: {
-        url: '{{ route('report.filter') }}',
-        type: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        data: function (d) {
-            // Pass date range and supplier ID when making the request
-            d.start_date = $('#start_date').val();
-            d.end_date = $('#end_date').val();
-            d.supplierId = $('#supplierId').val();
-        },
-    },
-    columns: [
-        { data: 'id', name: 'id' },
-        { data: 'customer_number', name: 'customer number' },
-        { data: 'customer_name', name: 'customer name' },
-        { data: 'supplier_name', name: 'supplier name' },
-        { data: 'amount', name: 'amount' },
-        { data: 'date', name: 'date' },
-        // { data: 'action', name: 'action', orderable: false, searchable: false },
-    ],
-});
+        var dataTable = $('#account_data').DataTable({
+            oLanguage: {
+                sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
+            },
+            processing: true,
+            serverSide: true,
+            pageLength: 50,
+            ajax: {
+                url: '{{ route('report.filter') }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: function (d) {
+                    // Pass date range and supplier ID when making the request
+                    d.start_date = $('#start_date').val();
+                    d.end_date = $('#end_date').val();
+                    d.supplierId = $('#supplierId').val();
+                },
+            },
+            beforeSend: function() {
+                // Show both the DataTables processing indicator and the manual loader before making the AJAX request
+                $('.dataTables_processing').show();
+                $('#manualLoader').show();
+            },
+            complete: function() {
+                // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
+                $('.dataTables_processing').hide();
+                $('#manualLoader').hide();
+            },
+            columns: [
+                { data: 'id', name: 'id' },
+                { data: 'customer_number', name: 'customer_number' },
+                { data: 'customer_name', name: 'customer_name' },
+                { data: 'supplier_name', name: 'supplier_name' },
+                { data: 'amount', name: 'amount' },
+                { data: 'date', name: 'date'},
+                // { data: 'action', name: 'action', orderable: false, searchable: false },
+            ],
 
+        });
 
+  
         $('#downloadCsvBtn').on('click', function () {
             // Trigger CSV download
             downloadCsv();
@@ -118,7 +146,7 @@
             var csvUrl = '{{ route('report.export-csv') }}';
 
             // Add query parameters for date range and supplier ID
-            csvUrl += '?daterange=' + $('#daterange').val() + '&supplierId=' + $('#supplierId').val();
+            csvUrl += '?start=' + $('#start_date').val() + '&end=' + $('#end_date').val() + '&supplierId=' + $('#supplierId').val();
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
