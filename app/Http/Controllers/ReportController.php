@@ -10,6 +10,10 @@ use Illuminate\Http\Request;
 class ReportController extends Controller
 {
     public function index($reportType){
+        if ($reportType == 'csv') {
+            $reportType ='business_report';
+        }
+
         $setPageTitleArray = [
             'business_report' => 'Business Report',
             'optimization_report' => 'Optimization Report',
@@ -37,10 +41,15 @@ class ReportController extends Controller
         $endDate = $request->input('daterange.end');
         $supplierId = $request->input('supplierId');
 
+        $filter['start_date'] = $startDate;
+        $filter['$end_date'] = $endDate;
+        $filter['supplierId'] = $supplierId; 
+
         $csv = true;
+
         // Fetch data using the parameters and transform it into CSV format
         // Replace this with your actual data fetching logic
-        $csvData = Order::getFilterdData($startDate, $endDate, $supplierId, $csv);
+        $csvData = Order::getFilterdData($filter, $csv);
 
         // Generate CSV file and set appropriate headers
         $csvFileName = 'export.csv';
