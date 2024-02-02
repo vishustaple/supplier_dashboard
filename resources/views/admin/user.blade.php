@@ -14,7 +14,7 @@
             Add User
             </button>
         </div>
-        <div class="mx-auto py-4 d-flex justify-content-between align-items-center">
+        <div class="mx-auto py-0 d-flex justify-content-between align-items-center">
         
 
                     <!-- Modal -->
@@ -86,7 +86,7 @@
                     </div>
                     </div>
         </div>
-        <div class="mx-auto py-4 d-flex justify-content-between align-items-center">
+        <div class="mx-auto py-0 d-flex justify-content-between align-items-center">
         
 
         <!-- Modal -->
