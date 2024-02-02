@@ -70,6 +70,7 @@
     // });
         // Button click event
         $('#import_form').on('submit', function () {
+            event.preventDefault();
             // Initiate DataTable AJAX request
             $('#account_data').DataTable().ajax.reload();
         });
