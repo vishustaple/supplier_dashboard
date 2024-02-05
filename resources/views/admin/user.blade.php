@@ -2,7 +2,7 @@
 
 
 @extends('layout.app')
- @extends('layout.sidenav')
+
  @section('content')
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'User Data'])
@@ -90,7 +90,7 @@
         
 
         <!-- Modal -->
-        <div class="modal fade" id="updateuserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal fade" id="updateuserModal" tabindex="-1" role="dialog" aria-labelledby="updateuserModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
             <div class="modal-header">
@@ -182,7 +182,7 @@
             "lengthChange":false,
             "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
-                { title: 'SR. No' },
+                // { title: 'SR. No' },
                 { title: 'User Name' },
                 { title: 'User Type' },
                 { title: 'Action' },
@@ -378,7 +378,12 @@
                 });
             });
 
-
+            if ($(e.target).closest('.modal').length === 0) {
+      // Clicked outside the modal
+      $('#updateuserModal').modal('hide');
+      // Detach the click event handler
+      $(document).off('click');
+    }
             //to remove user 
                 $(document).on('click','.remove',function(){
                 

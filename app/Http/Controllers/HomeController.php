@@ -40,10 +40,10 @@ class HomeController extends Controller
         foreach ($userdata as $data) {
             
             $formatuserdata[] = [
-                $i, 
+                // $i, 
                 $data->first_name. ' ' .$data->last_name,
                 ($data->user_type == 3)? 'Role User':'Role Admin ',
-                '<button style="cursor:pointer" class="btn btn-outline-dark btn-xs updateuser" data-userid="' . $data->id . '" >Update</button><button data-id="' . $data->id . '" class="btn btn-danger btn-xs remove">Remove</button>',
+                '<button style="cursor:pointer" class="btn btn-primary btn-xs updateuser " data-userid="' . $data->id . '" >Update</button><button data-id="' . $data->id . '" class="btn btn-danger btn-xs remove">Remove</button>',
             ];
             $i++;
         }
@@ -55,7 +55,7 @@ class HomeController extends Controller
     {
           $validator = Validator::make(
             [
-                'first_name'      => $request->first_name,
+                'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'password' => $request->password,
