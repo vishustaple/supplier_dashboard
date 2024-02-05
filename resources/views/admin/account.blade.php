@@ -7,11 +7,11 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
     <div id="layoutSidenav_content">
-        <div class="m-1 d-md-flex flex-md-row align-items-center justify-content-between">
+        <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
             <h1 class="mb-0 ps-2">Manage Accounts</h1>
             <!-- Button trigger modal -->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Add Account
+            <i class="fa-solid fa-plus"></i> Account
             </button>
         </div>
         <div class="mx-auto py-4 d-flex justify-content-between align-items-center">
