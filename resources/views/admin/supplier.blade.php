@@ -2,7 +2,7 @@
 
 
 @extends('layout.app')
- @extends('layout.sidenav', ['pageTitleCheck' => 'Supplier Data'])
+
  @section('content')
 
  <div id="layoutSidenav">
@@ -29,7 +29,7 @@
             "lengthChange":false,
             "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
-                { title: 'SR. No' },
+                // { title: 'SR. No' },
                 { title: 'Supplier Name' },
             ]
         });

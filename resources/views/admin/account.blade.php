@@ -2,7 +2,7 @@
 
 
 @extends('layout.app')
- @extends('layout.sidenav')
+
  @section('content')
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
@@ -119,7 +119,7 @@
             "lengthChange":false,
             "data": <?php if(isset($accountsdata)){echo $accountsdata;}  ?>,
             "columns": [
-                { title: 'SR. No' },
+                // { title: 'SR. No' },
                 { title: 'Account Name' },
                 { title: 'Account Number' },
                 { title: 'Parent Name' },

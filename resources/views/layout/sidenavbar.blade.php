@@ -1,7 +1,7 @@
 <div id="layoutSidenav_nav">
                 <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                     <div class="sb-sidenav-menu">
-                        <div class="nav">
+                        <div class="nav side_bar_admin">
                                                   
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Upload Sheets') ? 'active' : '' }}" href="{{route('upload.sheets')}}">
                                 <div class="sb-nav-link-icon"><i class="fa fa-upload" aria-hidden="true"></i></div>
