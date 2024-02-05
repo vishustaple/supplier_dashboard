@@ -93,11 +93,20 @@
     max-width: unset;
   }
 
-.data_table_files thead tr th:first-child {
+/* .data_table_files thead tr th:first-child {
     width: 50px !important;
     min-width: 50px;
     max-width: 50px;
     box-sizing: border-box;
+} */
+.data_table_files thead tr th:first-child {
+  white-space: nowrap;
+}
+table thead tr th{
+  background-color: #b17828 !important;
+  color: #fff !important;
+  border-color: #b17828 !important;
+  white-space: nowrap !important;
 }
 .data_table_files tbody tr td:last-child{
     width: 70px !important;

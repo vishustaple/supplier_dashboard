@@ -9,7 +9,7 @@
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Upload Sheets'])
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex flex-md-row align-items-center justify-content-between">
-                <h1 class="mb-0 ps-2">Upload Sheets</h1>
+                <h1 class="mb-0 ps-2">Data Management</h1>
         </div>
         <div class="container">
             <div class="alert alert-success" id="successMessage" style="display:none;">
@@ -19,7 +19,7 @@
         
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
-                <div class="row py-4 align-items-end">
+                <div class="row py-4 align-items-end border-bottom mb-3">
                 <div class="form-group col-md-4 mb-0">
                     <label for="selectBox">Select Supplier:</label>
                     <select id="selectBox" name="supplierselect" class="form-control"> 
@@ -43,7 +43,7 @@
                     <div class="input-overlay-file"></div>  
                 </div>
                 <div class="col-md-2 mb-0">
-                <div class="relative imprt_wrapper">
+                <div class="relative imprt_wrapper text-end">
                     <button type="submit" class="btn btn-primary" id="importBtn">Import</button>
                     <div class="overlay" id="overlay"></div>
                 </div>
