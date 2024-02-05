@@ -43,7 +43,7 @@ class HomeController extends Controller
                 // $i, 
                 $data->first_name. ' ' .$data->last_name,
                 ($data->user_type == 3)? 'Role User':'Role Admin ',
-                '<button style="cursor:pointer" class="btn btn-primary btn-xs updateuser " data-userid="' . $data->id . '" >Update</button><button data-id="' . $data->id . '" class="btn btn-danger btn-xs remove">Remove</button>',
+                '<button style="cursor:pointer" class="btn btn-primary btn-xs updateuser " data-userid="' . $data->id . '" ><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . $data->id . '" class="btn btn-danger btn-xs remove"><i class="fa-solid fa-trash"></i></button>',
             ];
             $i++;
         }
