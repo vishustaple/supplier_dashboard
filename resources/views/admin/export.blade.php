@@ -2,7 +2,7 @@
 
 
 @extends('layout.app')
- @extends('layout.sidenav')
+
  @section('content')
 
  <div id="layoutSidenav">
@@ -284,7 +284,7 @@
             "pageLength": 40,
             "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
-                { title: 'SR. No' },
+                // { title: 'SR. No' },
                 { title: 'Supplier Name' },
                 { title: 'File Name' },
                 { title: 'Processing' },
