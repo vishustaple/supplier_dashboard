@@ -186,14 +186,17 @@ body #main  .dataTables_wrapper .dataTables_paginate .paginate_button.disabled{
 }
 .dataTables_wrapper .dataTables_info,.dataTables_wrapper .dataTables_paginate{
   padding-top: 1.755em;
+  padding-bottom: 20px;
 }
 div#userModal .modal-header,
-#updateuserModal .modal-header{ 
+#updateuserModal .modal-header,
+#exampleModal .modal-header{ 
   justify-content: center;
   padding: 10px;
 }
 div#userModal .modal-header button.close,
-#updateuserModal  .modal-header button.close{
+#updateuserModal  .modal-header button.close,
+#exampleModal  .modal-header button.close{
   position: absolute;
   right: 0px;
   top: 0px;
@@ -208,11 +211,13 @@ div#userModal .modal-header button.close,
   color: #fff;
 }
 div#userModal .modal-content,
-#updateuserModal .modal-content{
+#updateuserModal .modal-content,
+#exampleModal  .modal-content{
   border-radius: 25px;
 }
 div#userModal .modal-header h5,
-#updateuserModal .modal-header h5{
+#updateuserModal .modal-header h5,
+#exampleModal .modal-header h5 {
   font-size: 30px;
 }
   table.data_table_files.dataTable.no-footer thead tr th:last-child {
