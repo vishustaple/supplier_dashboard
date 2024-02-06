@@ -42,8 +42,8 @@ class HomeController extends Controller
             $formatuserdata[] = [
                 // $i, 
                 $data->first_name. ' ' .$data->last_name,
-                ($data->user_type == 3)? 'Role User':'Role Admin ',
-                '<button style="cursor:pointer" class="btn btn-primary btn-xs updateuser " data-userid="' . $data->id . '" ><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . $data->id . '" class="btn btn-danger btn-xs remove"><i class="fa-solid fa-trash"></i></button>',
+                ($data->user_type == 3)? 'User':' Admin ',
+                '<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser " data-userid="' . $data->id . '" ><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . $data->id . '" class="btn btn-danger btn-xs remove" title="Remove User"><i class="fa-solid fa-trash"></i></button>',
             ];
             $i++;
         }
@@ -56,7 +56,7 @@ class HomeController extends Controller
           $validator = Validator::make(
             [
                 'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
+                // 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'password' => $request->password,
                 'confirm_password' => $request->confirm_password,
@@ -64,7 +64,7 @@ class HomeController extends Controller
             ],
             [
                 'first_name'=>'required|string|max:255',
-                'last_name'=>'required|string|max:255',
+                // 'last_name'=>'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
                 'confirm_password' => 'required|string|min:8|same:password',
@@ -150,7 +150,7 @@ class HomeController extends Controller
                 ],
                 [
                     'first_name'=>'required|string|max:255',
-                    'last_name'=>'required|string|max:255',
+                    // 'last_name'=>'required|string|max:255',
                     'email' => 'required|string|email|max:255|unique:users,email,'.$request->update_user_id,
                     'password' => $request->password != null ? 'required|string|min:8' : '',
                     // 'password' => 'required_if:password,filled|string|min:8',

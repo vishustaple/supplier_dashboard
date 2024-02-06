@@ -1,4 +1,4 @@
-<!-- resources/views/excel-import.blade.php -->
+
 
 
 @extends('layout.app')
@@ -9,7 +9,7 @@
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Upload Sheets'])
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
-                <h1 class="mb-0 ps-2">Data Management</h1>
+                <h3 class="mb-0 ps-2">Data Management</h3>
         </div>
         <div class="container">
             <div class="alert alert-success" id="successMessage" style="display:none;">
@@ -276,7 +276,7 @@
         // });
  
    
-            $('#example').DataTable({
+         var exportTable =  $('#example').DataTable({
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
             "searching": true, // Enable search
@@ -293,6 +293,14 @@
                 // Add more columns as needed
             ]
         });
+        if (exportTable.data().count() > 40) {
+            console.log("here");
+            $('#example_paginate').show(); // Enable pagination
+        } else {
+            console.log("here");
+            $('#example_paginate').hide();
+        }
+        
     });
 </script>
 </html>
