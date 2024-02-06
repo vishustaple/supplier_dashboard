@@ -39,14 +39,11 @@ class ProcessUploadedCatalogFiles extends Command
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
-        $supplierId = 5;
+        $supplierId = 4;
 
         /** Loading excel file using path and name of file from table "uploaded_file" */
-        // if (!$supplierId) {
-            $spreadSheet = $reader->load($destinationPath . '/' . 'CatalogWBM.xlsx', 2);    
-        // } else {
-            // $spreadSheet = $reader->load($destinationPath . '/' . 'catalogOd.xlsx', 2);
-        // }
+        $spreadSheet = $reader->load($destinationPath . '/' . 'CatelogStaples.xlsx', 2);    
+      
         
         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
 
@@ -95,7 +92,7 @@ class ProcessUploadedCatalogFiles extends Command
                         'supplier_id' => $supplierId,
                         'description' => (isset($row[8]) && !empty($row[8])) ? ($row[8]) : ('0')
                     ]);
-                } elseif ($supplierId == 2) {
+                } elseif ($supplierId == 4) {
                     $catalogLastInsertId = Catalog::create([
                         'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
                         'price' => (isset($row[5]) && !empty($row[5])) ? ($row[5]) : ('0'),
@@ -111,14 +108,6 @@ class ProcessUploadedCatalogFiles extends Command
                         'supplier_id' => $supplierId,
                         'description' => (isset($row[3]) && !empty($row[3])) ? ($row[3]) : ('0')
                     ]);
-                } elseif ($supplierId == 4) {
-                    // $catalogLastInsertId = Catalog::create([
-                    //     'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
-                    //     'price' => (isset($row[4]) && !empty($row[4])) ? ($row[4]) : ('0'),
-                    //     'created_by' => 1,
-                    //     'supplier_id' => $supplierId,
-                    //     'description' => (isset($row[8]) && !empty($row[8])) ? ($row[8]) : ('0')
-                    // ]);
                 } else {
 
                 }
