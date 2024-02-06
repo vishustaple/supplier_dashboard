@@ -9,7 +9,7 @@
     <div id="layoutSidenav_content">
         <div class="container">
             <div class="m-1 mb-2 d-md-flex align-items-center justify-content-between">
-                <h1 class="mb-0 ">{{ $pageTitle }}</h1>
+                <h3 class="mb-0 ">{{ $pageTitle }}</h3>
                 
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
