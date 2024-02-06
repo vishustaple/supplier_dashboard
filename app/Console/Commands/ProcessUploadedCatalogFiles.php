@@ -39,7 +39,7 @@ class ProcessUploadedCatalogFiles extends Command
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
-        $supplierId = 3;
+        $supplierId = 5;
 
         /** Loading excel file using path and name of file from table "uploaded_file" */
         // if (!$supplierId) {
@@ -103,7 +103,7 @@ class ProcessUploadedCatalogFiles extends Command
                         'supplier_id' => $supplierId,
                         'description' => (isset($row[1]) && !empty($row[1])) ? ($row[1]) : ('0')
                     ]);
-                } elseif ($supplierId == 3) {
+                } elseif ($supplierId == 5) {
                     $catalogLastInsertId = Catalog::create([
                         'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
                         'price' => (isset($row[5]) && !empty($row[5])) ? ($row[5]) : ('0'),
