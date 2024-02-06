@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Catalog;
+use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -34,12 +35,18 @@ class ProcessUploadedCatalogFiles extends Command
         
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
-        ini_set('memory_limit', '18024M');
+        ini_set('memory_limit', '1024M');
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
+        $supplierId = 3;
+
         /** Loading excel file using path and name of file from table "uploaded_file" */
-        $spreadSheet = $reader->load($destinationPath . '/' . 'catalogOd.xlsx', 2);
+        // if (!$supplierId) {
+            $spreadSheet = $reader->load($destinationPath . '/' . 'CatalogWBM.xlsx', 2);    
+        // } else {
+            // $spreadSheet = $reader->load($destinationPath . '/' . 'catalogOd.xlsx', 2);
+        // }
         
         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
 
@@ -80,22 +87,52 @@ class ProcessUploadedCatalogFiles extends Command
                     continue;
                 }
 
-                $catalogLastInsertId = Catalog::create([
-                    'sku' => $row[0],
-                    'price' => () ? ($row[4]) : (''),
-                    'created_by' => 1,
-                    'supplier_id' => 1,
-                    'description' => $row[8]
-                ]);
+                if ($supplierId == 1) {
+                    $catalogLastInsertId = Catalog::create([
+                        'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
+                        'price' => (isset($row[4]) && !empty($row[4])) ? ($row[4]) : ('0'),
+                        'created_by' => 1,
+                        'supplier_id' => $supplierId,
+                        'description' => (isset($row[8]) && !empty($row[8])) ? ($row[8]) : ('0')
+                    ]);
+                } elseif ($supplierId == 2) {
+                    $catalogLastInsertId = Catalog::create([
+                        'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
+                        'price' => (isset($row[5]) && !empty($row[5])) ? ($row[5]) : ('0'),
+                        'created_by' => 1,
+                        'supplier_id' => $supplierId,
+                        'description' => (isset($row[1]) && !empty($row[1])) ? ($row[1]) : ('0')
+                    ]);
+                } elseif ($supplierId == 3) {
+                    $catalogLastInsertId = Catalog::create([
+                        'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
+                        'price' => (isset($row[5]) && !empty($row[5])) ? ($row[5]) : ('0'),
+                        'created_by' => 1,
+                        'supplier_id' => $supplierId,
+                        'description' => (isset($row[3]) && !empty($row[3])) ? ($row[3]) : ('0')
+                    ]);
+                } elseif ($supplierId == 4) {
+                    // $catalogLastInsertId = Catalog::create([
+                    //     'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
+                    //     'price' => (isset($row[4]) && !empty($row[4])) ? ($row[4]) : ('0'),
+                    //     'created_by' => 1,
+                    //     'supplier_id' => $supplierId,
+                    //     'description' => (isset($row[8]) && !empty($row[8])) ? ($row[8]) : ('0')
+                    // ]);
+                } else {
 
+                }
+                
                 foreach ($row as $key1 => $value) {
                     if(!empty($maxNonEmptyValue[$key1])) {     
                         $finalInsertArray[] = [
-                            'value' => $value,
+                            'table_value' => $value,
                             'created_by' => 1,
-                            'key' => $maxNonEmptyValue[$key1],
+                            'table_key' => $maxNonEmptyValue[$key1],
                             'catalog_id' => $catalogLastInsertId->id,
                             'file_name' => 'Account Info.xlsx',
+                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                         ];  
                     }
                 }
@@ -112,6 +149,7 @@ class ProcessUploadedCatalogFiles extends Command
                     
                     unset($finalInsertArray);
                 }
+                $count++; 
             }
             if (!empty($finalInsertArray)) {
                 try {
