@@ -42,6 +42,8 @@ Route::get('/', function () {
     Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
     Route::get('/report/{reportType}' , [ReportController::class,'index'])->name('report.type');
     Route::post('/report/filter' , [ReportController::class,'dataFilter'])->name('report.filter');
+    Route::post('/account/filter' , [ExcelImportController::class,'getAccountsWithAjax'])->name('account.filter');
+    
     Route::get('/report/csv' , [ReportController::class,'exportCsv'])->name('report.export-csv');
     Route::get('/userlist' , [HomeController::class,'userview'])->name('user.show');
     //not in use now this route 
