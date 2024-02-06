@@ -4,7 +4,7 @@
 <head>
    @include('layout.head')
 </head>
-<body>
+<body >
      
    <div id="main" class=""> 
       @include('layout.sidenav') 
