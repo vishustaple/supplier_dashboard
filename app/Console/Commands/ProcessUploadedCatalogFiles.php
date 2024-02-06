@@ -45,6 +45,8 @@ class ProcessUploadedCatalogFiles extends Command
 
         for ($i=0; $i < $sheetCount; $i++) { 
             $workSheetArray = $spreadSheet->getSheet($i)->toArray();
+            $count = $maxNonEmptyCount = 0;
+            
             foreach ($workSheetArray as $key=>$values) {
                 /** Checking not empty columns */
                 $nonEmptyCount = count(array_filter(array_values($values), function ($item) {
@@ -70,8 +72,8 @@ class ProcessUploadedCatalogFiles extends Command
                 return str_replace(["\r", "\n"], '', $value);
             }, $maxNonEmptyValue);
             
-            print_r($maxNonEmptyValue);
-            die; 
+            // print_r($maxNonEmptyValue);
+            // die; 
 
             foreach ($workSheetArray as $key => $row) {
                 if ($key == 0) {
@@ -80,7 +82,7 @@ class ProcessUploadedCatalogFiles extends Command
 
                 $catalogLastInsertId = Catalog::create([
                     'sku' => $row[0],
-                    'price' => $row[5],
+                    'price' => () ? ($row[4]) : (''),
                     'created_by' => 1,
                     'supplier_id' => 1,
                     'description' => $row[8]
@@ -92,7 +94,7 @@ class ProcessUploadedCatalogFiles extends Command
                             'value' => $value,
                             'created_by' => 1,
                             'key' => $maxNonEmptyValue[$key1],
-                            'catalog_id' => $catalogLastInsertId,
+                            'catalog_id' => $catalogLastInsertId->id,
                             'file_name' => 'Account Info.xlsx',
                         ];  
                     }
