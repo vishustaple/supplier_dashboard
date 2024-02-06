@@ -27,11 +27,11 @@ class Order extends Model
     public static function getFilterdData($filter = [], $csv=false){
         $orderColumnArray = [
             0 => 'orders.id',
-            1 => 'orders.amount',
-            2 => 'orders.date',
+            1 => 'orders.customer_number',
+            2 => "accounts.customer_name",
             3 => 'suppliers.supplier_name',
-            4 => 'orders.customer_number',
-            5 => "accounts.customer_name"
+            4 => 'orders.amount',
+            5 => 'orders.date',
         ];
     
         $query = self::query() // Replace YourModel with the actual model you are using for the data
