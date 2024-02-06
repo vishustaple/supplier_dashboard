@@ -1,4 +1,5 @@
-<body class="sb-nav-fixed {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Data') ? 'supplier-page' : '' }}">
+<div class="sb-nav-fixed {{ isset($pageTitleCheck) && ($pageTitleCheck == 'Supplier Data' || $pageTitleCheck == 'User Data') ? $pageTitleCheck == 'Supplier Data' ? 'supplier-page' : 'user-page' : 'user' }}">
+  
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
         <div class="admin_header_logo brand_logo">
@@ -20,7 +21,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#!"><div class="small">{{ auth()->user()->first_name  . ' ' . auth()->user()->last_name}}!</div></a></li>
+                        <li><a class="dropdown-item" href="#"><div class="small">@if(Auth::check()){{ auth()->user()->first_name  . ' ' . auth()->user()->last_name}}!@endif</div></a></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li><a class="dropdown-item" href="{{route('user.logout')}}">Logout</a></li>
                     </ul>
@@ -28,5 +29,5 @@
             </ul>
         </nav>
         
-    </body>
+    </div>
 

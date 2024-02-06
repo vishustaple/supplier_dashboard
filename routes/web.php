@@ -48,6 +48,10 @@ Route::get('/', function () {
     Route::get('/userlist' , [HomeController::class,'userview'])->name('user.show');
     //not in use now this route 
     Route::get('/getparent',[AccountController::class,'getParent'])->name('getparent');
+    Route::get('/updateuser', [HomeController::class, 'UpdateUser'])->name('user.updateuser');
+    Route::post('/updateuserdata', [HomeController::class, 'UpdateUserData'])->name('user.updateuserdata');
+    Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
+
     // ...
 });
 });

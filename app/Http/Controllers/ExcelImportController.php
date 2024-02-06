@@ -31,7 +31,7 @@ class ExcelImportController extends Controller
             }
             // $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
             $formattedData[] = [
-                $i, 
+                // $i, 
                 getSupplierName($item->supplier_id),
                 $item->file_name,
                 $cronString,
@@ -222,7 +222,7 @@ class ExcelImportController extends Controller
         foreach ($categorySuppliers as $suppliers) {
             # code...
             $formattedData[] = [
-                $suppliers->id, 
+                // $suppliers->id, 
                 $suppliers->supplier_name,
                 $suppliers->created_at->format('m/d/Y'),
             ];
@@ -275,6 +275,7 @@ class ExcelImportController extends Controller
 //                 $account->rebate_freq??'-',
 //                 $account->member_rebate??'-',
 //                 $account->comm_rate??'-',
+
                 
 //             ];
 //             $i++;

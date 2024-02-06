@@ -4,10 +4,11 @@
 <head>
    @include('layout.head')
 </head>
-<body>
+<body >
      
    <div id="main" class=""> 
-    @yield('content')
+      @include('layout.sidenav') 
+      @yield('content')
    </div>
 
    @include('layout.footscript')

@@ -36,6 +36,9 @@
     background-color: #f5f5f5; /* Set a background color for the hover effect */
     }
 
+    table tbody tr:nth-child(even){
+      background-color: #f5f5f5; 
+    }
 
     /*for overlay*/
     /* .input-overlay {
@@ -93,18 +96,36 @@
     max-width: unset;
   }
 
-.data_table_files thead tr th:first-child {
+/* .data_table_files thead tr th:first-child {
     width: 50px !important;
     min-width: 50px;
     max-width: 50px;
     box-sizing: border-box;
+} */
+.data_table_files thead tr th:first-child {
+  white-space: nowrap;
 }
-.data_table_files tbody tr td:last-child{
+table thead tr th{
+  background-color: #b17828 !important;
+  color: #fff !important;
+  border-color: #b17828 !important;
+  /* white-space: nowrap !important; */
+}
+.calendar-table table thead tr th {
+  background-color: transparent !important;
+  color: #000 !important;
+  border-color: transparent !important;
+  /* white-space: nowrap !important; */
+}
+table#account_data  thead tr th{
+  white-space: nowrap !important; 
+}
+/* .data_table_files tbody tr td:last-child{
     width: 70px !important;
     min-width: 70px;
     max-width: 70px;
     box-sizing: border-box;
-}
+} */
 div#example_filter {
   padding-bottom: 10px;
 }
@@ -155,6 +176,101 @@ a#navbarDropdown {
 svg.svg-inline--fa.fa-caret-down {
   
   margin-left: 15px !important;
+}
+#user_data thead tr th:last-child {
+	width: 190px !important;
+}
+#user_data tbody tr td:last-child button {
+	margin: 0px 5px;
+}
+.user-page #layoutSidenav_content {
+	min-height: calc(55vh - 56px) !important;
+}
+body #main .dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: #b17828 !important;
+  color: #fff !important;
+}
+body #main  .dataTables_wrapper .dataTables_paginate .paginate_button.disabled{
+   opacity: 0.5;
+}
+.dataTables_wrapper .dataTables_info,.dataTables_wrapper .dataTables_paginate{
+  padding-top: 1.755em;
+  padding-bottom: 20px;
+}
+div#userModal .modal-header,
+#updateuserModal .modal-header,
+#exampleModal .modal-header{ 
+  justify-content: center;
+  padding: 10px;
+}
+div#userModal .modal-header button.close,
+#updateuserModal  .modal-header button.close,
+#exampleModal  .modal-header button.close{
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 40px;
+  height: 40px;
+  background: #dc3545;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  color: #fff;
+}
+div#userModal .modal-content,
+#updateuserModal .modal-content,
+#exampleModal  .modal-content{
+  border-radius: 25px;
+}
+div#userModal .modal-header h5,
+#updateuserModal .modal-header h5,
+#exampleModal .modal-header h5 {
+  font-size: 30px;
+}
+  table.data_table_files.dataTable.no-footer thead tr th:last-child {
+    white-space: nowrap;
+}
+/* table.data_table_files.dataTable.no-footer tbody tr td:nth-child(2) {
+  width: 500px !important;
+  min-width: 500px !important;
+  max-width: 500px;
+} */
+div#layoutSidenav_nav {
+  position: fixed;
+  width: 225px;
+  height: 100vh;
+}
+
+div#layoutSidenav_content {
+  margin-left: 225px !important;
+}
+.sb-sidenav .sb-sidenav-menu .nav {
+  height: calc(100vh - 67px);
+  overflow: auto;
+}
+.sb-sidenav .sb-sidenav-menu .nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+.sb-sidenav .sb-sidenav-menu .nav::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+.sb-sidenav .sb-sidenav-menu .nav::-webkit-scrollbar-thumb {
+  background: #b17828; 
+}
+
+/* Handle on hover */
+.sb-sidenav .sb-sidenav-menu .nav::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+.btn.updateuser,.btn.remove{
+   font-size: 14px;
+   padding: 5px 10px;
 }
 @media (max-width:992px) {
   div#example_wrapper {

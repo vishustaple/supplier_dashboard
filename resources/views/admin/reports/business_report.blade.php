@@ -5,12 +5,12 @@
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="container">
-            <div class="m-1 mb-2 d-md-flex align-items-center justify-content-between">
-                <h1 class="mb-0 ">{{ $pageTitle }}</h1>
+            <div class="m-1 mb-2 d-md-flex border-bottom pb-3 mb-3 align-items-center justify-content-between">
+                <h3 class="mb-0 ">{{ $pageTitle }}</h3>
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
-                <div class="row align-items-end">
+                <div class="row align-items-end border-bottom pb-3 mb-4">
                     <div class="form-group col-md-4 mb-0">
                         <label for="selectBox">Select Supplier:</label>
                         <select id="supplierId" name="supplierselect" class="form-control"> 
@@ -28,11 +28,12 @@
                         <input type="hidden" id="start_date" name="start_date" />
                         <input type="hidden" id="end_date" name="end_date" />  
                     </div>
-                    <div class="col-md-4 mb-0">
+                    <div class="col-md-4 mb-0 text-end">
                     <button id="submitBtn" class="btn btn-primary">Submit</button>
+                    <button id="downloadCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
                     <!-- Button trigger modal -->
-                    <button id="downloadCsvBtn">Csv Download</button>
+                   
                 </div>
                
             </form>
