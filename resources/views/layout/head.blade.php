@@ -24,9 +24,14 @@
         <link rel="stylesheet" type="text/css" href="{{asset('css/daterangepicker.css')}}" />
         <!---modal links-->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-        <!-- SweetAlert2 CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+            <!-- SweetAlert2 CDN -->
+            <!-- Include SweetAlert2 bundle from jsDelivr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+        <!-- <link  href="https://cdn.jsdelivr.net/npm/sweetalert2@10"> -->
+        
+        <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script> -->

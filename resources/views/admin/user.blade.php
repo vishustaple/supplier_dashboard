@@ -7,13 +7,15 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'User Data'])
     <div id="layoutSidenav_content">
-        <div class="m-1 px-2 d-md-flex flex-md-row align-items-center justify-content-between">
-            <h1 class="mb-0 ps-2">Manage Users</h1>
+        <div class="m-1 px-2 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
+            <h3 class="mb-0 ps-2">Manage Users</h3>
             <!-- Button trigger modal -->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#userModal">
             <i class="fa-solid fa-plus"></i> User
             </button>
         </div>
+        <div class="alert alert-success m-3" id="user_del_success" style="display:none;">
+                        </div>
         <div class="mx-auto py-0 d-flex justify-content-between align-items-center">
         
 
@@ -170,11 +172,11 @@
     </div>
 </div>
 
-<script>
+<script type="text/javascript">
    
     $(document).ready(function() {
      
-        $('#user_data').DataTable({
+       var userTable = $('#user_data').DataTable({
             "paging": true,   // Enable pagination
             // "ordering": true, // Enable sorting
             "searching": true, // Enable search
@@ -184,12 +186,17 @@
             "columns": [
                 // { title: 'SR. No' },
                 { title: 'User Name' },
-                { title: 'User Type' },
+                { title: 'User Role' },
                 { title: 'Action' },
 
             
             ]
         });
+        if (userTable.data().count() > 40) {
+            $('#user_data_paginate').show(); // Enable pagination
+        } else {
+            $('#user_data_paginate').hide();
+        }
 
         $('#userModal').on('show.bs.modal', function (e) {
             $('#errorMessage').fadeOut();
@@ -320,7 +327,7 @@
             e.preventDefault();
             var formData = new FormData($('#update_user')[0]);
             // console.log(formData);
-            $.ajax({
+                $.ajax({
                 type: 'POST',
                 url: '{{ route('user.updateuserdata') }}',
                 data: formData,
@@ -376,54 +383,56 @@
                     }, 3000);
                     }
                 });
+
             });
 
-            if ($(e.target).closest('.modal').length === 0) {
-      // Clicked outside the modal
-      $('#updateuserModal').modal('hide');
-      // Detach the click event handler
-      $(document).off('click');
-    }
-            //to remove user 
-                $(document).on('click','.remove',function(){
-                
+               //to remove user 
+                $(document).on('click','.remove',function(){               
                 var id = $(this).attr('data-id');
-                // alert(id);
-                swal.fire({
+                    swal.fire({
                         title: "Oops....",
-                        text: "Are You Sure You want to delete User!",
+                        text: "Are you sure you want to delete this user?",
                         icon: "error",
                         showCancelButton: true,
                         confirmButtonText: 'YES',
                         cancelButtonText: 'NO',
                         reverseButtons: true
-                        }).then(function(isConfirm) {
-                            if (isConfirm) {
+                        }).then((result) => {
+                                 if (result.isConfirmed) {
                                     $.ajax({
                                     url:"{{route('user.remove')}}",
                                     data:{id:id},
                                     success:function(data)
                                     {
-                                        swal.fire({
-                                            position: 'top-end',
-                                            icon: 'success',
-                                            title: 'Remove Successfully',
-                                            showConfirmButton: false,
-                                            timer: 1500
-                                        })
-                                        setTimeout(function () {
+                                        
+                                        // swal.fire({
+                                        //     position: 'top-end',
+                                        //     icon: 'success',
+                                        //     title: 'Remove Successfully',
+                                        //     showConfirmButton: false,
+                                        //     timer: 1500
+                                        // })
+                                        // location.reload();
+                                        // }, 1500);
+                                        
+                                        $('#user_del_success').text('User Delete Successfully!');
+                                        $('#user_del_success').css('display','block');
+                                                            setTimeout(function () {
+                                        $('#user_del_success').fadeOut();
                                         location.reload();
-                                        }, 1500);
+                                        }, 3000);
+                                        
                                     },
                                     error:function(error){
                                     
                                     }
                                     });
-                            } else {
+                            } 
+                            else {
 
                             }
-                            });
-           });
+                    });
+                });
     });
 
  

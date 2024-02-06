@@ -8,13 +8,13 @@
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
-            <h1 class="mb-0 ps-2">Manage Accounts</h1>
+            <h3 class="mb-0 ps-2">Manage Accounts</h3>
             <!-- Button trigger modal -->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
             <i class="fa-solid fa-plus"></i> Account
             </button>
         </div>
-        <div class="mx-auto py-4 d-flex justify-content-between align-items-center">
+        <div class="mx-auto d-flex justify-content-between align-items-center">
         
 
                     <!-- Modal -->
@@ -111,7 +111,7 @@
             
         // });
 
-        $('#account_data').DataTable({
+        var accountTable = $('#account_data').DataTable({
             "paging": true,   // Enable pagination
             // "ordering": true, // Enable sorting
             "searching": true, // Enable search
@@ -140,7 +140,11 @@
               
             ]
         });
-
+        if (accountTable.data().count() > 40) {
+            $('#account_data_paginate').show(); // Enable pagination
+        } else {
+            $('#account_data_paginate').hide();
+        }
         
         // Attach a change event handler to the checkboxes
         $('input[type="checkbox"]').change(function() {
