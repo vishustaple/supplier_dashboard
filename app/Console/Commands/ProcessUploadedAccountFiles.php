@@ -86,11 +86,9 @@ class ProcessUploadedAccountFiles extends Command
             }
 
             if ($count == 100) {
-                print_r($finalInsertArray);
                 $count = 0;
                 try {
                     DB::table('accounts_one')->insert($finalInsertArray);
-
                 } catch (QueryException $e) {   
                     Log::error('Error in YourScheduledTask: ' . $e->getMessage());
                     echo "Database insertion failed: " . $e->getMessage();
