@@ -140,11 +140,11 @@
                 { data: 'amount', name: 'amount' },
                 { data: 'date', name: 'date'},
                 { 
-            data: null,
-            name: 'action',
+            data: 'id',
+            name: 'id',
             render: function(data, type, full, meta) {
                 // Define the action button or link here
-                return '<button class="btn btn-primary" title="View Details"><i class="fa-regular  fa-eye"></i></button>';
+                return '<a class="btn btn-primary" title="View Details" href="{{ route('report.type', ['reportType' => 'business_report','id' => ':id']) }}'.replace(':id', data) + '"><i class="fa-regular  fa-eye"></i></a>';
             }
         }
             ],
@@ -164,7 +164,7 @@
             // Open this row
             row.child( format(row.data()) ).show();
             tr.addClass('shown');
-        }
+            }
     });
 
     function format ( rowData ) {

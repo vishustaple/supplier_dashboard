@@ -98,6 +98,7 @@
                         <th>Account Name</th>
                         <th>Record Type</th>
                         <th>Date</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
             </table>
@@ -192,11 +193,19 @@
                 { data: 'account_name', name: 'account_name' },
                 { data: 'record_type', name: 'record_type' },
                 { data: 'date', name: 'date'},
-                // { data: 'action', name: 'action', orderable: false, searchable: false },
+                { 
+                    data: null,
+                    name: 'action',
+                    render: function(data, type, full, meta) {
+                    // Define the action button or link here
+                    return '<button class="btn btn-primary" title="View Details"><i class="fa-regular  fa-eye"></i></button>';
+                    }
+                }
             ],
 
         });
-
+       
+         
         if (accountTable.data().count() > 40) {
             $('#account_data_paginate').show(); // Enable pagination
         } else {

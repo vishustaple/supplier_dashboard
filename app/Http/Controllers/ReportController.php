@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use DataTables;
 use League\Csv\Writer;
-use App\Models\{Order, CategorySupplier};
+use App\Models\{Order, CategorySupplier, Account, Supplier};
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use DB;
 
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function index($reportType){
+    public function index($reportType, $id = null){
         $setPageTitleArray = [
             'business_report' => 'Business Report',
             'commission_report' => 'Commission Report',
@@ -20,7 +21,20 @@ class ReportController extends Controller
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
         ];
-        
+        if(isset($id) && $reportType= "Business Report"){
+      
+        // Retrieve orders based on the join conditions
+        $orders = DB::table('orders')
+
+        ->leftjoin('accounts', 'orders.customer_number', '=', 'accounts.customer_number')
+        ->leftjoin('suppliers', 'orders.supplier_id', '=', 'suppliers.id')
+        ->select('orders.customer_number','orders.amount','orders.date','accounts.customer_name','suppliers.supplier_name','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name')
+        ->where('orders.id','=', $id)
+        ->get();
+           
+           return view('admin.viewdetail',compact('orders'));
+
+        }
         return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::all()]);
     }
 
@@ -70,5 +84,10 @@ class ReportController extends Controller
   
         /** return $csvResponse; */
         return $response;
+    }
+    public function  Back()
+    {
+    $url = route('report.type',['reportType' => 'business_report']);
+    return redirect($url);
     }
 }
