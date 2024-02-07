@@ -146,7 +146,7 @@ class Account extends Model
             $formatuserdata[$key]['id'] = $data->id;
             $formatuserdata[$key]['customer_number'] = $data->customer_number;
             $formatuserdata[$key]['customer_name'] = $data->customer_name;
-            $formatuserdata[$key]['catagory_supplier'] = $data->catagory_supplier;
+            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['account_name'] = $data->account_name;
             $formatuserdata[$key]['record_type'] = $data->record_type;
             $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
