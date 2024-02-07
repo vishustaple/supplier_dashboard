@@ -233,97 +233,106 @@ class ExcelImportController extends Controller
         return view('admin.supplier',compact('data'));
     }
      public function allAccount(){
-       
+      
 
-        $accounts = Account::with('parent.parent') // Eager load relationships
-        ->select('accounts.id', 'accounts.customer_name','accounts.customer_number','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name','accounts.supplier_acct_rep','accounts.management_fee','accounts.record_type','accounts.category_supplier','accounts.cpg_sales_representative','accounts.cpg_customer_service_rep','accounts.sf_cat','accounts.rebate_freq','accounts.member_rebate','accounts.comm_rate',
-        DB::raw("parent.customer_name as Parent_Name"),
-        DB::raw("grandparent.customer_name as Grand_Parent_Name"))
-        ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
-        ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
-        ->orderBy('grandparent.id')
-        ->orderBy('parent.id')
-        ->orderBy('accounts.id')
-        ->get();
-        // ->toArray();
+//         $accounts = Account::with('parent.parent') // Eager load relationships
+//         ->select('accounts.id', 'accounts.customer_name','accounts.customer_number','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name','accounts.supplier_acct_rep','accounts.management_fee','accounts.record_type','accounts.category_supplier','accounts.cpg_sales_representative','accounts.cpg_customer_service_rep','accounts.sf_cat','accounts.rebate_freq','accounts.member_rebate','accounts.comm_rate',
+//         DB::raw("parent.customer_name as Parent_Name"),
+//         DB::raw("grandparent.customer_name as Grand_Parent_Name"))
+//         ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
+//         ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
+//         ->orderBy('grandparent.id')
+//         ->orderBy('parent.id')
+//         ->orderBy('accounts.id')
+//         ->get();
+//         // ->toArray();
 
-// dd($accounts);
-        // ->toSql();
-         // Print the SQL query
-//         echo $accounts->toSql();
-// die();
-        $formattedAccountData = [];
-        $i=1;
-        foreach ($accounts as $account) {
-            # code...
-            $formattedAccountData[] = [
-                // $i, 
-                $account->customer_name,
-                $account->customer_number,
-                $account->Parent_Name??'-',
-                $account->Grand_Parent_Name??'-',
-                $account->internal_reporting_name??'-',
-                $account->qbr??'-',
-                $account->spend_name??'-',
-                $account->supplier_acct_rep??'-',
-                $account->management_fee??'-',
-                $account->record_type??'-',
-                $account->category_supplier??'-',
-                $account->cpg_sales_representative??'-',
-                $account->cpg_customer_service_rep??'-',
-                $account->sf_cat??'-',
-                $account->rebate_freq??'-',
-                $account->member_rebate??'-',
-                $account->comm_rate??'-',
+// // dd($accounts);
+//         // ->toSql();
+//          // Print the SQL query
+// //         echo $accounts->toSql();
+// // die();
+//         $formattedAccountData = [];
+//         $i=1;
+//         foreach ($accounts as $account) {
+//             # code...
+//             $formattedAccountData[] = [
+//                 $i, 
+//                 $account->customer_name,
+//                 $account->customer_number,
+//                 $account->Parent_Name??'-',
+//                 $account->Grand_Parent_Name??'-',
+//                 $account->internal_reporting_name??'-',
+//                 $account->qbr??'-',
+//                 $account->spend_name??'-',
+//                 $account->supplier_acct_rep??'-',
+//                 $account->management_fee??'-',
+//                 $account->record_type??'-',
+//                 $account->category_supplier??'-',
+//                 $account->cpg_sales_representative??'-',
+//                 $account->cpg_customer_service_rep??'-',
+//                 $account->sf_cat??'-',
+//                 $account->rebate_freq??'-',
+//                 $account->member_rebate??'-',
+//                 $account->comm_rate??'-',
+
                 
-            ];
-            $i++;
-        }
+//             ];
+//             $i++;
+//         }
      
      
-        $accountsdata=json_encode($formattedAccountData);
-    //     $allArray = DB::table('accounts as c1')
-    //     ->select('c3.id as gparent_id', 'c3.customer_name', 'c2.id as parent_id', 'c2.customer_name as Parent Name')
-    //     ->join('accounts as c2', function ($join) {
-    //     $join->on('c2.id', '=', 'c1.parent_id')
-    //         ->whereNotNull('c2.id');
-    //     })
-    //     ->join('accounts as c3', function ($join) {
-    //     $join->on('c3.id', '=', 'c2.parent_id')
-    //         ->whereNotNull('c3.id');
-    //     })
-    //     ->groupBy('c3.id', 'c2.id')
-    //     ->orderBy('c3.id')
-    //     ->orderBy('c2.id')
-    //     ->get();
-    //     $resultArray = [];
-    //     foreach ($allArray as $item) {
-    //     $gparentId = $item->gparent_id;
-    //     $parentId = $item->parent_id;
+//         $accountsdata=json_encode($formattedAccountData);
+//     //     $allArray = DB::table('accounts as c1')
+//     //     ->select('c3.id as gparent_id', 'c3.customer_name', 'c2.id as parent_id', 'c2.customer_name as Parent Name')
+//     //     ->join('accounts as c2', function ($join) {
+//     //     $join->on('c2.id', '=', 'c1.parent_id')
+//     //         ->whereNotNull('c2.id');
+//     //     })
+//     //     ->join('accounts as c3', function ($join) {
+//     //     $join->on('c3.id', '=', 'c2.parent_id')
+//     //         ->whereNotNull('c3.id');
+//     //     })
+//     //     ->groupBy('c3.id', 'c2.id')
+//     //     ->orderBy('c3.id')
+//     //     ->orderBy('c2.id')
+//     //     ->get();
+//     //     $resultArray = [];
+//     //     foreach ($allArray as $item) {
+//     //     $gparentId = $item->gparent_id;
+//     //     $parentId = $item->parent_id;
     
-    //     // Check if the gparent_id is already in the result array
-    //     if (!isset($resultArray[$gparentId])) {
-    //         // If not, add it to the result array
-    //         $resultArray[$gparentId] = [
-    //             'id' => $gparentId,
-    //             'name' => $item->customer_name,
-    //         ];
-    //     }
+//     //     // Check if the gparent_id is already in the result array
+//     //     if (!isset($resultArray[$gparentId])) {
+//     //         // If not, add it to the result array
+//     //         $resultArray[$gparentId] = [
+//     //             'id' => $gparentId,
+//     //             'name' => $item->customer_name,
+//     //         ];
+//     //     }
     
-    //     // Check if the parent_id is already in the result array
-    //     if (!in_array($parentId, array_column($resultArray, 'id'))) {
-    //         // If not, add it to the result array
-    //         $resultArray[] = [
-    //             'id' => $parentId,
-    //             'name' => $item->{'Parent Name'}, // Use 'Parent Name' or adjust the property name accordingly
-    //         ];
-    //     }
-    // }
+//     //     // Check if the parent_id is already in the result array
+//     //     if (!in_array($parentId, array_column($resultArray, 'id'))) {
+//     //         // If not, add it to the result array
+//     //         $resultArray[] = [
+//     //             'id' => $parentId,
+//     //             'name' => $item->{'Parent Name'}, // Use 'Parent Name' or adjust the property name accordingly
+//     //         ];
+//     //     }
+//     // }
 
-// Convert the associative array to a simple numeric array
-    //    $resultArray = array_values($resultArray);
-        $grandparent = Account::select('id','customer_name')->get();
+// // Convert the associative array to a simple numeric array
+//     //    $resultArray = array_values($resultArray);
+//         $grandparent = Account::select('id','customer_name')->get();
         
-        return view('admin.account',compact('accountsdata','grandparent'));
+        // return view('admin.account',compact('accountsdata','grandparent'));
+        return view('admin.account');
      }
+
+    public function getAccountsWithAjax(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = Account::getFilterdAccountsData($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
 }
