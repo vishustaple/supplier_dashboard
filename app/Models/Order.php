@@ -68,14 +68,18 @@ class Order extends Model
         // Get total records count (without filtering)
         $totalRecords = $query->count();
 
-        if (isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             // Order by column and direction
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
         }
 
         if (isset($filter['start']) && isset($filter['length'])) {
             // Get paginated results based on start, length
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
+        } else {
+            $filteredData = $query->get();
         }
 
         // Print the SQL query

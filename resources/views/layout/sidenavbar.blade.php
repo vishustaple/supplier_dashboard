@@ -16,7 +16,12 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Manage Supplier
                             </a>
-                          
+                            
+                            <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Catalog List') ? 'active' : '' }}" href="{{route('catalog.list', ['catalogType' => 'catalog'])}}">
+                                <div class="sb-nav-link-icon"><i class="fa fa-book" aria-hidden="true"></i></div>
+                                Catalog List
+                            </a>
+
                             <a class="nav-link " href="{{route('user.show')}}">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
                                 Manage Users

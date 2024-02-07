@@ -86,7 +86,17 @@
         <div class="container">
          
             <table id="account_data" class="data_table_files">
-            <!-- Your table content goes here -->
+            <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Number</th>
+                        <th>Customer Name</th>
+                        <th>Supplier Catagory</th>
+                        <th>Account Name</th>
+                        <th>Record Type</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
             </table>
         </div>
         
@@ -111,34 +121,78 @@
             
         // });
 
-        var accountTable = $('#account_data').DataTable({
-            "paging": true,   // Enable pagination
-            // "ordering": true, // Enable sorting
-            "searching": true, // Enable search
-            "pageLength": 40,
-            "lengthChange":false,
-            "data": <?php if(isset($accountsdata)){echo $accountsdata;}  ?>,
-            "columns": [
-                // { title: 'SR. No' },
-                { title: 'Account Name' },
-                { title: 'Account Number' },
-                { title: 'Parent Name' },
-                { title: 'GrandParent Name' },
-                { title :'Internal Reporting Name'},
-                { title :'QBR'},
-                { title :'Spend Name'},
-                { title :'Supplier Acct Rep'},
-                { title :'Management Fee'},
-                { title :'Record Type'},
-                { title :'Categroy Supplier'},
-                { title :'CPG Sales Representative'},
-                { title :'CPG Customer Service Rep'},
-                { title :'SF Cat'},
-                { title :'Rebate Freq'},
-                { title :'Member Rebate'},
-                { title :'Comm Rate'},
+        // $('#account_data').DataTable({
+        //     "paging": true,   // Enable pagination
+        //     // "ordering": true, // Enable sorting
+        //     "searching": true, // Enable search
+        //     "pageLength": 40,
+        //     "lengthChange":false,
+        //     "data": <?php if(isset($accountsdata)){echo $accountsdata;}  ?>,
+        //     "columns": [
+        //         { title: 'SR. No' },
+        //         { title: 'Account Name' },
+        //         { title: 'Account Number' },
+        //         { title: 'Parent Name' },
+        //         { title: 'GrandParent Name' },
+        //         { title :'Internal Reporting Name'},
+        //         { title :'QBR'},
+        //         { title :'Spend Name'},
+        //         { title :'Supplier Acct Rep'},
+        //         { title :'Management Fee'},
+        //         { title :'Record Type'},
+        //         { title :'Categroy Supplier'},
+        //         { title :'CPG Sales Representative'},
+        //         { title :'CPG Customer Service Rep'},
+        //         { title :'SF Cat'},
+        //         { title :'Rebate Freq'},
+        //         { title :'Member Rebate'},
+        //         { title :'Comm Rate'},
+
               
-            ]
+        //     ]
+        // });
+
+        var dataTable = $('#account_data').DataTable({
+            oLanguage: {
+                sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
+            },
+            processing: true,
+            serverSide: true,
+            pageLength: 50,
+            ajax: {
+                url: '{{ route('account.filter') }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: function (d) {
+                    // Pass date range and supplier ID when making the request
+                    d.start_date = $('#start_date').val();
+                    d.end_date = $('#end_date').val();
+                    d.supplierId = $('#supplierId').val();
+                },
+            },
+            beforeSend: function() {
+                // Show both the DataTables processing indicator and the manual loader before making the AJAX request
+                $('.dataTables_processing').show();
+                $('#manualLoader').show();
+            },
+            complete: function() {
+                // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
+                $('.dataTables_processing').hide();
+                $('#manualLoader').hide();
+            },
+            columns: [
+                { data: 'id', name: 'id' },
+                { data: 'customer_number', name: 'customer_number' },
+                { data: 'customer_name', name: 'customer_name' },
+                { data: 'supplier_name', name: 'supplier_name' },
+                { data: 'account_name', name: 'account_name' },
+                { data: 'record_type', name: 'record_type' },
+                { data: 'date', name: 'date'},
+                // { data: 'action', name: 'action', orderable: false, searchable: false },
+            ],
+
         });
         if (accountTable.data().count() > 40) {
             $('#account_data_paginate').show(); // Enable pagination
