@@ -329,10 +329,5 @@ class ExcelImportController extends Controller
         return view('admin.account');
      }
 
-    public function getAccountsWithAjax(Request $request){
-        if ($request->ajax()) {
-            $formatuserdata = Account::getFilterdAccountsData($request->all());
-            return response()->json($formatuserdata);
-        }
-    }
+   
 }
