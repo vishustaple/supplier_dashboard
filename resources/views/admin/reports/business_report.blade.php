@@ -40,12 +40,10 @@
             <table class="data_table_files" id="business_data">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Customer Number</th>
                         <th>Customer Name</th>
                         <th>Supplier Name</th>
                         <th>Amount</th>
-                        <th>Date</th>
                     </tr>
                 </thead>
             </table>
@@ -132,12 +130,10 @@
                 }
             },
             columns: [
-                { data: 'id', name: 'id' },
                 { data: 'customer_number', name: 'customer_number' },
                 { data: 'customer_name', name: 'customer_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'amount', name: 'amount' },
-                { data: 'date', name: 'date'},
                 // { data: 'action', name: 'action', orderable: false, searchable: false },
             ],
             
