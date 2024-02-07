@@ -233,7 +233,7 @@
                         $('#errorMessage').text(errorresponse.error);
                         $('#errorMessage').css('display','block');
                         setTimeout(function () {
-                        $('#errorMessage').fadeOut();
+                         $('#errorMessage').fadeOut();
                         }, 5000);
                 }
             });
