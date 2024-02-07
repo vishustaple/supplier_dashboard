@@ -161,6 +161,7 @@
             },
             processing: true,
             serverSide: true,
+            lengthMenu: [],
             pageLength: 50,
             ajax: {
                 url: '{{ route('account.filter') }}',
@@ -184,6 +185,8 @@
                 // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
                 $('.dataTables_processing').hide();
                 $('#manualLoader').hide();
+
+             
             },
             columns: [
                 { data: 'customer_number', name: 'customer_number' },
@@ -197,11 +200,17 @@
 
         });
 
-        if (accountTable.data().count() > 40) {
-            $('#account_data_paginate').show(); // Enable pagination
-        } else {
-            $('#account_data_paginate').hide();
-        }
+        // var rowCount = accountTable.rows().count();
+        // console.log(rowCount);
+
+        // alert(accountTable.fnGetData().length);
+        // if (accountTable.data().count() > 40) {
+        //     $('#account_data_paginate').show(); // Enable pagination
+        // } else {
+        //     $('#account_data_paginate').hide();
+        // }
+
+        $('#account_data_length').hide();
         
         // Attach a change event handler to the checkboxes
         $('input[type="checkbox"]').change(function() {
