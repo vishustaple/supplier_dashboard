@@ -7,12 +7,15 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
     <div id="layoutSidenav_content">
-        <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
-            <h3 class="mb-0 ps-2">Manage Accounts</h3>
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            <i class="fa-solid fa-plus"></i> Account
-            </button>
+        <h3 class="mb-0 ps-2">Manage Accounts</h3>
+        <div class="row align-items-end border-bottom pb-3 mb-4">
+            <div class="col-md-12 mb-0 text-end">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                <i class="fa-solid fa-plus"></i> Account
+                </button>
+                <button id="downloadAccountCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+            </div>
         </div>
         <div class="mx-auto d-flex justify-content-between align-items-center">
         
@@ -82,13 +85,13 @@
                         </div>
                     </div>
                     </div>
+                    
         </div>
         <div class="container">
-         
+      
             <table id="account_data" class="data_table_files">
             <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Customer Number</th>
                         <th>Customer Name</th>
                         <th>Supplier Catagory</th>
@@ -152,7 +155,7 @@
         //     ]
         // });
 
-        var dataTable = $('#account_data').DataTable({
+        var accountTable = $('#account_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
@@ -183,7 +186,6 @@
                 $('#manualLoader').hide();
             },
             columns: [
-                { data: 'id', name: 'id' },
                 { data: 'customer_number', name: 'customer_number' },
                 { data: 'customer_name', name: 'customer_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
@@ -194,6 +196,7 @@
             ],
 
         });
+
         if (accountTable.data().count() > 40) {
             $('#account_data_paginate').show(); // Enable pagination
         } else {
@@ -294,6 +297,19 @@
 
 
         });
+
+        $('#downloadAccountCsvBtn').on('click', function () {
+            // Trigger CSV download
+            downloadAccountCsv();
+        });
+
+        function downloadAccountCsv() {
+            // You can customize this URL to match your backend route for CSV download
+            var csvUrl = '{{ route('account.export-csv') }}';
+
+            // Open a new window to download the CSV file
+            window.open(csvUrl, '_blank');
+        }
 
     });
             

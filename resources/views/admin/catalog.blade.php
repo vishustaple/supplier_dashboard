@@ -100,11 +100,11 @@
         });
 
         function downloadCatalogCsv() {
-        // You can customize this URL to match your backend route for CSV download
-        var csvUrl = '{{ route('catalog.export-csv') }}';
+            // You can customize this URL to match your backend route for CSV download
+            var csvUrl = '{{ route('catalog.export-csv') }}';
 
-        // Open a new window to download the CSV file
-        window.open(csvUrl, '_blank');
+            // Open a new window to download the CSV file
+            window.open(csvUrl, '_blank');
         }
     });
 </script>
