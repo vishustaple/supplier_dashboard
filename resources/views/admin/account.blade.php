@@ -186,7 +186,7 @@
                 { data: 'id', name: 'id' },
                 { data: 'customer_number', name: 'customer_number' },
                 { data: 'customer_name', name: 'customer_name' },
-                { data: 'catagory_supplier', name: 'catagory_supplier' },
+                { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'account_name', name: 'account_name' },
                 { data: 'record_type', name: 'record_type' },
                 { data: 'date', name: 'date'},
