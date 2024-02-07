@@ -97,7 +97,7 @@
                         <th>Supplier Catagory</th>
                         <th>Account Name</th>
                         <th>Record Type</th>
-                        <th>Date</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
             </table>
@@ -194,8 +194,7 @@
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'account_name', name: 'account_name' },
                 { data: 'record_type', name: 'record_type' },
-                { data: 'date', name: 'date'},
-                // { data: 'action', name: 'action', orderable: false, searchable: false },
+                { data: 'id', name: 'id'},
             ],
 
         });

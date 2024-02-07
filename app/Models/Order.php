@@ -65,9 +65,9 @@ class Order extends Model
         
         // Get total records count (without filtering)
         
-        
+        $totalRecords = $query->count();
+        // $totalRecords = $query->getCountForPagination();
         $query->groupBy('orders.id');
-        $totalRecords = $query->getCountForPagination();
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             // Order by column and direction
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -93,7 +93,7 @@ class Order extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            // $formatuserdata[$key]['id'] = $data->id;
+            $formatuserdata[$key]['id'] = '<a class="btn btn-primary" title="View Details" href= '.route('report.type', ['reportType' => 'business_report','id' => $data->id]).'><i class="fa-regular  fa-eye"></i></a>';
             $formatuserdata[$key]['customer_number'] = $data->customer_number;
             $formatuserdata[$key]['customer_name'] = $data->customer_name;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;

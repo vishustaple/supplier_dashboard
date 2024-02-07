@@ -58,7 +58,7 @@ class AccountController extends Controller
         
         }
     }
-
+   
     public function getParent(Request $request){
         // dd($request->all());
         // dd("here");
@@ -106,5 +106,9 @@ class AccountController extends Controller
   
         /** return $csvResponse; */
         return $response;
+    }
+
+    public function viewDetails(Request $request){
+        dd("here");
     }
 }
