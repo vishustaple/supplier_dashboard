@@ -77,7 +77,7 @@ class Catalog extends Model
             $formatuserdata[$key]['sku'] = $data->sku;
             $formatuserdata[$key]['description'] = $data->description;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
-            $formatuserdata[$key]['price'] = $data->price;
+            $formatuserdata[$key]['price'] = '$'.$data->price;
             // $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
         }
 
