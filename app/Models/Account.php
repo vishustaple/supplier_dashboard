@@ -9,7 +9,7 @@ class Account extends Model
 {
     use HasFactory;
 
-    protected $table = 'accounts_one';
+    protected $table = 'accounts';
 
      /**
      * The attributes that are mass assignable.
@@ -146,6 +146,7 @@ class Account extends Model
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
             // $formatuserdata[$key]['id'] = $data->id;
+            $formatuserdata[$key]['id'] = '<a class="btn btn-primary" title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i></a>';
             $formatuserdata[$key]['customer_number'] = $data->customer_number;
             $formatuserdata[$key]['customer_name'] = $data->customer_name;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;

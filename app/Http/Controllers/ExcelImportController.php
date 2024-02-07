@@ -232,8 +232,19 @@ class ExcelImportController extends Controller
         $data=json_encode($formattedData);
         return view('admin.supplier',compact('data'));
     }
-     public function allAccount(){
-      
+     public function allAccount(Request $request, $id=null){
+        if (!isset($id)) {
+            $id = $request->query('id');
+        }
+        if(isset($id)){
+            // Retrieve orders based on the join conditions
+            $account = DB::table('accounts')
+            ->where('accounts.id','=', $id)
+            ->get();
+               
+               return view('admin.viewdetail',compact('account'));
+    
+            }
 
 //         $accounts = Account::with('parent.parent') // Eager load relationships
 //         ->select('accounts.id', 'accounts.customer_name','accounts.customer_number','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name','accounts.supplier_acct_rep','accounts.management_fee','accounts.record_type','accounts.category_supplier','accounts.cpg_sales_representative','accounts.cpg_customer_service_rep','accounts.sf_cat','accounts.rebate_freq','accounts.member_rebate','accounts.comm_rate',
