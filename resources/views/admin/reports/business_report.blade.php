@@ -37,7 +37,7 @@
                 </div>
                
             </form>
-            <table class="data_table_files" id="account_data">
+            <table class="data_table_files" id="business_data">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -90,17 +90,18 @@
         $('#import_form').on('submit', function () {
             event.preventDefault();
             // Initiate DataTable AJAX request
-            $('#account_data').DataTable().ajax.reload();
+            $('#business_data').DataTable().ajax.reload();
         });
 
         // DataTable initialization
-        var dataTable = $('#account_data').DataTable({
+        var businessdataTable = $('#business_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
             processing: true,
             serverSide: true,
-            pageLength: 50,
+            lengthMenu: [], 
+            pageLength: 40,
             ajax: {
                 url: '{{ route('report.filter') }}',
                 type: 'POST',
@@ -123,6 +124,12 @@
                 // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
                 $('.dataTables_processing').hide();
                 $('#manualLoader').hide();
+
+                if (businessdataTable.data().count() > 40) {
+                $('#business_data_paginate').show(); // Enable pagination
+                } else {
+                $('#business_data_paginate').hide();
+                }
             },
             columns: [
                 { data: 'id', name: 'id' },
@@ -133,9 +140,10 @@
                 { data: 'date', name: 'date'},
                 // { data: 'action', name: 'action', orderable: false, searchable: false },
             ],
-
+            
         });
-
+        $('#business_data_length').hide();
+        
   
         $('#downloadCsvBtn').on('click', function () {
             // Trigger CSV download
