@@ -124,17 +124,19 @@ class Account extends Model
 
         // Get total records count (without filtering)
         $totalRecords = $query->count();
-
-        if (isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             // Order by column and direction
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
         }
 
         if (isset($filter['start']) && isset($filter['length'])) {
             // Get paginated results based on start, length
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
+        } else {
+            $filteredData = $query->get();
         }
-
         // Print the SQL query
         // dd($query->toSql());    
 
@@ -143,7 +145,7 @@ class Account extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            $formatuserdata[$key]['id'] = $data->id;
+            // $formatuserdata[$key]['id'] = $data->id;
             $formatuserdata[$key]['customer_number'] = $data->customer_number;
             $formatuserdata[$key]['customer_name'] = $data->customer_name;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
