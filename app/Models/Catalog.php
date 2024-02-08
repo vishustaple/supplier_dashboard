@@ -35,7 +35,7 @@ class Catalog extends Model
         $query = self::query() // Replace YourModel with the actual model you are using for the data
         ->leftJoin('suppliers', 'catalog.supplier_id', '=', 'suppliers.id')
 
-        ->select('catalog.sku as sku' ,'catalog.description as description' ,'suppliers.supplier_name as supplier_name' ,'catalog.price as price'); // Adjust the column names as needed
+        ->select('catalog.id as id', 'catalog.sku as sku' ,'catalog.description as description' ,'suppliers.supplier_name as supplier_name' ,'catalog.price as price'); // Adjust the column names as needed
 
         // Search functionality
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -73,11 +73,13 @@ class Catalog extends Model
 
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            // $formatuserdata[$key]['id'] = $data->id;
             $formatuserdata[$key]['sku'] = $data->sku;
             $formatuserdata[$key]['description'] = $data->description;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['price'] = '$'.$data->price;
+            // if ($csv == false) {    
+            //     $formatuserdata[$key]['id'] = '<a class="btn btn-primary" title="View Details" href= '.route('catalog.list', ['reportType' => 'Catalog List','id' => $data->id]).'><i class="fa-regular  fa-eye"></i></a>';
+            // }
             // $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
         }
 
