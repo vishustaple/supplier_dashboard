@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use DataTables;
-use League\Csv\Writer;
-use App\Models\{Order, CategorySupplier, Account, Supplier};
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use DB;
+use League\Csv\Writer;
+use App\Models\{Order, CategorySupplier};
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 use Illuminate\Http\Request;
 
@@ -35,7 +34,7 @@ class ReportController extends Controller
         ->leftjoin('suppliers', 'orders.supplier_id', '=', 'suppliers.id')
         ->select('orders.customer_number','orders.amount','orders.date','accounts.alies','suppliers.supplier_name','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name')
         ->where('orders.id','=', $id)
-        ->get();
+        ->first();
            
            return view('admin.viewdetail',compact('orders'));
 

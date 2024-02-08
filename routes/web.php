@@ -61,7 +61,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
 
         /** Catalog Section Start */
-        Route::get('/catalog/{catalogType}' , [CatalogController::class,'index'])->name('catalog.list');
+        Route::get('/catalog/{catalogType}/{id?}' , [CatalogController::class,'index'])->name('catalog.list');
         Route::post('/catalog/filter' , [CatalogController::class,'catalogAjaxFilter'])->name('catalog.filter');
         Route::get('/catalogs/csv' , [CatalogController::class,'exportCatalogCsv'])->name('catalog.export-csv');
       

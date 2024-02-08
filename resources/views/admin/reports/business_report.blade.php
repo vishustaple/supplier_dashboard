@@ -137,10 +137,7 @@
                 { data: 'customer_name', name: 'customer_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'amount', name: 'amount' },
-                { 
-            data: 'id',
-            name: 'id',}
-           
+                { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
             
         });
