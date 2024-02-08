@@ -160,14 +160,14 @@
 
     function format ( rowData ) {
         // `rowData` is the original data object for the row
-        return '<div class="row_details">'+
+        return  '<div class="row_details">'+
                 '<p><b>ID</b>: '+rowData.id+'</p>'+
                 '<p><b>Customer Number</b>: '+rowData.customer_number+'</p>'+
                 '<p><b>Customer Name</b>: '+rowData.customer_name+'</p>'+
                 '<p><b>Supplier Name</b>: '+rowData.supplier_name+'</p>'+
                 '<p><b>Amount</b>: '+rowData.amount+'</p>'+
                 '<p><b>Date</b>: '+rowData.date+'</p>'+
-               '</div>';
+                '</div>';
     }
     
         $('#downloadCsvBtn').on('click', function () {

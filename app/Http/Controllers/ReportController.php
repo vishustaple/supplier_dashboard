@@ -91,7 +91,7 @@ class ReportController extends Controller
     }
     public function  Back()
     {
-    $url = route('report.type',['reportType' => 'business_report']);
-    return redirect($url);
+        $url = route('report.type',['reportType' => 'business_report']);
+        return redirect($url);
     }
 }

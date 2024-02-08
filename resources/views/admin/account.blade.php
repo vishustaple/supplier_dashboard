@@ -6,7 +6,7 @@
  @section('content')
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
-    <div id="layoutSidenav_content">
+    <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-2">Manage Accounts</h3>
         <div class="row align-items-end border-bottom pb-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
