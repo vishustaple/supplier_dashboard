@@ -7,7 +7,10 @@
 
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Supplier Data'])
-    <div id="layoutSidenav_content">
+     @if(isset($pageTitleCheck))
+            <span>{{ $pageTitleCheck }}</span>
+        @endif 
+    <div id="layoutSidenav_content" class="{{ isset($pageTitleCheck) && ($pageTitleCheck == 'Supplier Data' || $pageTitleCheck == 'User Data') ? $pageTitleCheck == 'Supplier Data' ? 'supplier-page' : 'user-page' : 'user' }}">
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
             <h3 class="mb-0 ps-2 ">Manage Supplier</h3>
         </div>

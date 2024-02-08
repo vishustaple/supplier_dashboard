@@ -2,7 +2,7 @@
 
 
 @extends('layout.app')
-
+@section('title', 'Upload sheet')
  @section('content')
 
  <div id="layoutSidenav">
