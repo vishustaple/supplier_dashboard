@@ -45,7 +45,6 @@
                         <th>Customer Name</th>
                         <th>Supplier Name</th>
                         <th>Amount</th>
-                        <th>Date</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -138,15 +137,7 @@
                 { data: 'customer_name', name: 'customer_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'amount', name: 'amount' },
-                { data: 'date', name: 'date'},
-                { 
-            data: 'id',
-            name: 'id',
-            render: function(data, type, full, meta) {
-                // Define the action button or link here
-                return '<a class="btn btn-primary" title="View Details" href="{{ route('report.type', ['reportType' => 'business_report','id' => ':id']) }}'.replace(':id', data) + '"><i class="fa-regular  fa-eye"></i></a>';
-            }
-        }
+                { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
             
         });
