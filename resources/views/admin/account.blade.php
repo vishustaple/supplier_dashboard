@@ -95,9 +95,10 @@
                         <th>Customer Number</th>
                         <th>Customer Name</th>
                         <th>Supplier Catagory</th>
+                        <th>Parent Name</th>
+                        <th>Grand Parent Name</th>
                         <th>Account Name</th>
                         <th>Record Type</th>
-                        <th>Date</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -162,6 +163,7 @@
             },
             processing: true,
             serverSide: true,
+            lengthMenu: [],
             pageLength: 50,
             ajax: {
                 url: '{{ route('account.filter') }}',
@@ -185,32 +187,33 @@
                 // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
                 $('.dataTables_processing').hide();
                 $('#manualLoader').hide();
+
+             
             },
             columns: [
                 { data: 'customer_number', name: 'customer_number' },
                 { data: 'customer_name', name: 'customer_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
+                { data: 'parent_name', name: 'parent_name' },
+                { data: 'grand_parent_name', name: 'grand_parent_name' },
                 { data: 'account_name', name: 'account_name' },
                 { data: 'record_type', name: 'record_type' },
-                { data: 'date', name: 'date'},
-                { 
-                    data: null,
-                    name: 'action',
-                    render: function(data, type, full, meta) {
-                    // Define the action button or link here
-                    return '<button class="btn btn-primary" title="View Details"><i class="fa-regular  fa-eye"></i></button>';
-                    }
-                }
+                { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
 
         });
-       
-         $('#account_data_length').hide();
-        if (accountTable.data().count() > 40) {
-            $('#account_data_paginate').show(); // Enable pagination
-        } else {
-            $('#account_data_paginate').hide();
-        }
+
+        // var rowCount = accountTable.rows().count();
+        // console.log(rowCount);
+
+        // alert(accountTable.fnGetData().length);
+        // if (accountTable.data().count() > 40) {
+        //     $('#account_data_paginate').show(); // Enable pagination
+        // } else {
+        //     $('#account_data_paginate').hide();
+        // }
+
+        $('#account_data_length').hide();
         
         // Attach a change event handler to the checkboxes
         $('input[type="checkbox"]').change(function() {

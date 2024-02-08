@@ -39,7 +39,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
 
         /** Account Section Start */
-        Route::get('/account' , [ExcelImportController::class,'allAccount'])->name('account');
+        Route::get('/account/{id?}' , [ExcelImportController::class,'allAccount'])->name('account');
         Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
         Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
         Route::get('/accounts/csv' , [AccountController::class,'exportAccountCsv'])->name('account.export-csv');
@@ -61,7 +61,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
 
         /** Catalog Section Start */
-        Route::get('/catalog/{catalogType}' , [CatalogController::class,'index'])->name('catalog.list');
+        Route::get('/catalog/{catalogType}/{id?}' , [CatalogController::class,'index'])->name('catalog.list');
         Route::post('/catalog/filter' , [CatalogController::class,'catalogAjaxFilter'])->name('catalog.filter');
         Route::get('/catalogs/csv' , [CatalogController::class,'exportCatalogCsv'])->name('catalog.export-csv');
       

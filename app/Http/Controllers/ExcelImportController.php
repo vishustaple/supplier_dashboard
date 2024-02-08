@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use DB;
 use Validator;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use App\Models\{CategorySupplier, UploadedFiles, OrderDetails, Account};
-use Carbon\Carbon;
+use App\Models\{CategorySupplier, UploadedFiles, Account};
 
 
 class ExcelImportController extends Controller
@@ -232,8 +233,49 @@ class ExcelImportController extends Controller
         $data=json_encode($formattedData);
         return view('admin.supplier',compact('data'));
     }
-     public function allAccount(){
-      
+     public function allAccount(Request $request, $id=null){
+        if (!isset($id)) {
+            $id = $request->query('id');
+        }
+        if(isset($id)){
+            $account = Account::with('parent.parent') // Eager load relationships
+            ->select(
+                'accounts.qbr as qbr',
+                'accounts.alies as alies',
+                'accounts.sf_cat as sf_cat',
+                'accounts.comm_rate as comm_rate',
+                'accounts.parent_id as parent_id',
+                'accounts.spend_name as spend_name',
+                'accounts.created_at as created_at',
+                'accounts.created_by as created_by',
+                'accounts.updated_at as updated_at',
+                'accounts.rebate_freq as rebate_freq',
+                'accounts.record_type as record_type',
+                DB::raw("parent.alies as parent_name"),
+                'accounts.account_name as account_name',
+                'accounts.member_rebate as member_rebate',
+                'accounts.temp_end_date as temp_end_date',
+                'accounts.volume_rebate as volume_rebate',
+                'accounts.management_fee as management_fee',
+                'accounts.customer_number as customer_number',
+                'accounts.temp_active_date as temp_active_date',
+                'accounts.category_supplier as category_supplier',
+                'accounts.supplier_acct_rep as supplier_acct_rep',
+                DB::raw("grandparent.alies as grand_parent_name"),
+                'accounts.sales_representative as sales_representative',
+                'accounts.internal_reporting_name as internal_reporting_name',
+                'accounts.cpg_sales_representative as cpg_sales_representative',
+                'accounts.cpg_customer_service_rep as cpg_customer_service_rep',
+                'accounts.customer_service_representative as customer_service_representative',  
+            )
+            ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
+            ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
+            ->where('accounts.id','=', $id)
+            ->first();
+               
+            return view('admin.viewdetail',compact('account'));
+    
+        }
 
 //         $accounts = Account::with('parent.parent') // Eager load relationships
 //         ->select('accounts.id', 'accounts.customer_name','accounts.customer_number','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name','accounts.supplier_acct_rep','accounts.management_fee','accounts.record_type','accounts.category_supplier','accounts.cpg_sales_representative','accounts.cpg_customer_service_rep','accounts.sf_cat','accounts.rebate_freq','accounts.member_rebate','accounts.comm_rate',
