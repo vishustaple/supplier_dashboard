@@ -8,11 +8,24 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 class CatalogController extends Controller
 {
-    public function index($catalogType){
+    public function index(Request $request, $catalogType, $id=null){
+        if (!isset($id)) {
+            $id = $request->query('id');
+        }
+
         $setPageTitleArray = [
             'catalog' => 'Catalog List',
         ];
         
+        if (isset($id)) {
+            $catalog = Catalog::query() 
+            ->leftJoin('suppliers', 'catalog.supplier_id', '=', 'suppliers.id')
+            ->where('catalog.id', '=', $id)
+            ->select('catalog.id as id', 'catalog.sku as sku' ,'catalog.description as description' ,'suppliers.supplier_name as supplier_name' ,'catalog.price as price')->first();
+
+            return view('admin.viewdetail',compact('catalog'));
+        }
+
         return view('admin.'. $catalogType .'', ['pageTitle' => $setPageTitleArray[$catalogType]]);
     }
 
@@ -54,7 +67,7 @@ class CatalogController extends Controller
 
         /** Set headers for CSV download */
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename="CatalogData'.now()->format('YmdHis').'.csv"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="CatalogData_'.now()->format('YmdHis').'.csv"');
   
         /** return $csvResponse; */
         return $response;

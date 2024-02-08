@@ -1,10 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Validator;
+use League\Csv\Writer;
 use App\Models\Account;
 use Illuminate\Http\Request;
-use App\Rules\AtLeastOneChecked;
+use Illuminate\Database\QueryException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+// use App\Rules\AtLeastOneChecked;
 
 class AccountController extends Controller
 {
@@ -54,9 +58,57 @@ class AccountController extends Controller
         
         }
     }
-
+   
     public function getParent(Request $request){
         // dd($request->all());
         // dd("here");
+    }
+
+    public function getAccountsWithAjax(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = Account::getFilterdAccountsData($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
+
+    public function exportAccountCsv(Request $request){
+        /** Retrieve data based on the provided parameters */
+        $filter = [];
+        $csv = true;
+
+        /** Fetch data using the parameters and transform it into CSV format */
+        /** Replace this with your actual data fetching logic */
+        $data = Account::getFilterdAccountsData($filter, $csv);
+
+        /** Create a stream for output */
+        $stream = fopen('php://temp', 'w+');
+
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+        
+        /** Add column headings */
+        $csvWriter->insertOne(['Customer Number', 'Customer Name', 'Supplier Name', 'Account Name', 'Record Type', 'Date']);
+
+        /** Insert the data into the CSV */
+        $csvWriter->insertAll($data);
+
+        /** Rewind the stream pointer */
+        rewind($stream);
+
+        /** Create a streamed response with the CSV data */
+        $response = new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+        });
+
+        /** Set headers for CSV download */
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="AccountData_'.now()->format('YmdHis').'.csv"');
+  
+        /** return $csvResponse; */
+        return $response;
+    }
+
+    public function viewDetails(Request $request){
+        dd("here");
     }
 }
