@@ -39,15 +39,18 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
 
         /** Account Section Start */
-        Route::get('/account' , [ExcelImportController::class,'allAccount'])->name('account');
+        Route::get('/account/{id?}' , [ExcelImportController::class,'allAccount'])->name('account');
         Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
-        Route::post('/account/filter' , [ExcelImportController::class,'getAccountsWithAjax'])->name('account.filter');
+        Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
+        Route::get('/accounts/csv' , [AccountController::class,'exportAccountCsv'])->name('account.export-csv');
         /** Account Section End */
 
         /** Report Section Start */
-        Route::get('/report/{reportType}' , [ReportController::class,'index'])->name('report.type');
+        Route::get('/report/{reportType}/{id?}' , [ReportController::class,'index'])->name('report.type');
         Route::post('/report/filter', [ReportController::class, 'dataFilter'])->name('report.filter');
         Route::get('/reports/csv' , [ReportController::class,'exportCsv'])->name('report.export-csv');
+        Route::get('/back' , [ReportController::class,'Back'])->name('report.back');
+        
         /** Report Section End */
     
         Route::get('/userlist' , [HomeController::class,'userview'])->name('user.show');
@@ -58,11 +61,13 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
 
         /** Catalog Section Start */
-        Route::get('/catalog/{catalogType}' , [CatalogController::class,'index'])->name('catalog.list');
+        Route::get('/catalog/{catalogType}/{id?}' , [CatalogController::class,'index'])->name('catalog.list');
         Route::post('/catalog/filter' , [CatalogController::class,'catalogAjaxFilter'])->name('catalog.filter');
         Route::get('/catalogs/csv' , [CatalogController::class,'exportCatalogCsv'])->name('catalog.export-csv');
+      
         /** Catalog Section End */
         // ...
+        // Route::get('/{routename}/viewdetail/{id}' ,  [AccountController::class,'viewDetails'])->name('view.detail');
     });
 });
 

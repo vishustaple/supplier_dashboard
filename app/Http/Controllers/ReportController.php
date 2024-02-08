@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use DataTables;
+use DB;
 use League\Csv\Writer;
 use App\Models\{Order, CategorySupplier};
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -11,7 +11,12 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function index($reportType){
+    public function index(Request $request, $reportType, $id=null){
+        // dd($$id);
+        if (!isset($id)) {
+            $id = $request->query('id');
+        }
+        
         $setPageTitleArray = [
             'business_report' => 'Business Report',
             'commission_report' => 'Commission Report',
@@ -20,7 +25,20 @@ class ReportController extends Controller
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
         ];
-        
+
+        if(isset($id) && isset($reportType)){
+        // Retrieve orders based on the join conditions
+        $orders = DB::table('orders')
+
+        ->leftjoin('accounts', 'orders.customer_number', '=', 'accounts.customer_number')
+        ->leftjoin('suppliers', 'orders.supplier_id', '=', 'suppliers.id')
+        ->select('orders.customer_number','orders.amount','orders.date','accounts.alies','suppliers.supplier_name','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name')
+        ->where('orders.id','=', $id)
+        ->first();
+           
+           return view('admin.viewdetail',compact('orders'));
+
+        }
         return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::all()]);
     }
 
@@ -66,9 +84,14 @@ class ReportController extends Controller
 
         /** Set headers for CSV download */
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename=""BusinessData'.now()->format('YmdHis').'.csv".csv"');
+        $response->headers->set('Content-Disposition', 'attachment; filename=""BusinessData_'.now()->format('YmdHis').'.csv".csv"');
   
         /** return $csvResponse; */
         return $response;
+    }
+    public function  Back()
+    {
+    $url = route('report.type',['reportType' => 'business_report']);
+    return redirect($url);
     }
 }

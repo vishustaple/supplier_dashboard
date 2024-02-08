@@ -40,12 +40,12 @@
             <table class="data_table_files" id="business_data">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <!-- <th>ID</th> -->
                         <th>Customer Number</th>
                         <th>Customer Name</th>
                         <th>Supplier Name</th>
                         <th>Amount</th>
-                        <th>Date</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
             </table>
@@ -94,13 +94,14 @@
         });
 
         // DataTable initialization
-        var dataTable = $('#business_data').DataTable({
+        var businessdataTable = $('#business_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
             processing: true,
             serverSide: true,
-            pageLength: 50,
+            lengthMenu: [], 
+            pageLength: 40,
             ajax: {
                 url: '{{ route('report.filter') }}',
                 type: 'POST',
@@ -119,23 +120,56 @@
                 $('.dataTables_processing').show();
                 $('#manualLoader').show();
             },
-            complete: function() {
+            complete: function(response) {
                 // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
                 $('.dataTables_processing').hide();
                 $('#manualLoader').hide();
+                console.log(response); 
+                if (businessdataTable.data().count() > 40) {
+                $('#business_data_paginate').show(); // Enable pagination
+                } else {
+                $('#business_data_paginate').hide();
+                }
             },
             columns: [
-                { data: 'id', name: 'id' },
+                // { data: 'id', name: 'id' },
                 { data: 'customer_number', name: 'customer_number' },
                 { data: 'customer_name', name: 'customer_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'amount', name: 'amount' },
-                { data: 'date', name: 'date'},
-                // { data: 'action', name: 'action', orderable: false, searchable: false },
+                { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
-
+            
         });
-  
+        $('#business_data_length').hide();
+        $('#business_data tbody').on('click', 'button', function () {
+        var tr = $(this).closest('tr');
+        var row = businessdataTable.row(tr);
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child( format(row.data()) ).show();
+            tr.addClass('shown');
+            }
+    });
+
+    function format ( rowData ) {
+        // `rowData` is the original data object for the row
+        return '<div class="row_details">'+
+                '<p><b>ID</b>: '+rowData.id+'</p>'+
+                '<p><b>Customer Number</b>: '+rowData.customer_number+'</p>'+
+                '<p><b>Customer Name</b>: '+rowData.customer_name+'</p>'+
+                '<p><b>Supplier Name</b>: '+rowData.supplier_name+'</p>'+
+                '<p><b>Amount</b>: '+rowData.amount+'</p>'+
+                '<p><b>Date</b>: '+rowData.date+'</p>'+
+               '</div>';
+    }
+    
         $('#downloadCsvBtn').on('click', function () {
             // Trigger CSV download
             downloadCsv();

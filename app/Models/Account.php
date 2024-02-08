@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Account extends Model
 {
     use HasFactory;
 
-    protected $table = 'accounts_one';
+    protected $table = 'accounts';
 
      /**
      * The attributes that are mass assignable.
@@ -90,26 +91,13 @@ class Account extends Model
             5 => 'record_type',
             6 => 'created_at',
         ];
-    
-        $query = self::query() // Replace YourModel with the actual model you are using for the data
-        // ->leftJoin('suppliers', 'orders.supplier_id', '=', 'suppliers.id')
-        // ->leftJoin('accounts', 'orders.customer_number', '=', 'accounts.customer_number')
 
-        ->select('id', 'record_type as record_type', 'created_at as date', 'category_supplier as supplier_name', 'customer_number as customer_number', "alies as customer_name", 'account_name'); // Adjust the column names as needed
-
-        // Filter data based on request parameters
-        // if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
-        //     $startDate = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
-        //     $endDate = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
-        //     // Debug output
-        //     // dd('Start Date: ' . $startDate, 'End Date: ' . $endDate);
-        //     $query->whereBetween('orders.date', [$startDate, $endDate]);
-        //     // dd($query->toSql());    
-        // }
-
-        // if (isset($filter['supplierId']) && !empty($filter['supplierId'])) {
-        //     $query->where('orders.supplier_id', $filter['supplierId']);
-        // }
+        $query = self::with('parent.parent') // Eager load relationships
+        ->select('accounts.id as id', 'accounts.record_type as record_type', 'accounts.created_at as date', 'accounts.category_supplier as supplier_name', 'accounts.customer_number as customer_number', "accounts.alies as customer_name", 'accounts.account_name as account_name',
+        DB::raw("parent.alies as parent_name"),
+        DB::raw("grandparent.alies as grand_parent_name"))
+        ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
+        ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id');
 
         // Search functionality
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -124,17 +112,19 @@ class Account extends Model
 
         // Get total records count (without filtering)
         $totalRecords = $query->count();
-
-        if (isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             // Order by column and direction
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
         }
 
         if (isset($filter['start']) && isset($filter['length'])) {
             // Get paginated results based on start, length
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
+        } else {
+            $filteredData = $query->get();
         }
-
         // Print the SQL query
         // dd($query->toSql());    
 
@@ -143,13 +133,17 @@ class Account extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            $formatuserdata[$key]['id'] = $data->id;
-            $formatuserdata[$key]['customer_number'] = $data->customer_number;
-            $formatuserdata[$key]['customer_name'] = $data->customer_name;
-            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
-            $formatuserdata[$key]['account_name'] = $data->account_name;
             $formatuserdata[$key]['record_type'] = $data->record_type;
+            $formatuserdata[$key]['parent_name'] = $data->parent_name;
+            $formatuserdata[$key]['account_name'] = $data->account_name;
+            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
+            $formatuserdata[$key]['customer_name'] = $data->customer_name;
+            $formatuserdata[$key]['customer_number'] = $data->customer_number;
+            $formatuserdata[$key]['grand_parent_name'] = $data->grand_parent_name;
             $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
+            if ($csv == false) {    
+                $formatuserdata[$key]['id'] = '<a class="btn btn-primary" title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i></a>';
+            }
         }
 
         if ($csv == true) {
