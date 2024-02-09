@@ -7,6 +7,8 @@ return [
     'Accounts Data' =>'account-page',
     'Catalog List' =>'catalog-page',
     'Business Report' =>'business-page',
+    'Edit Account Data' => 'edit-account-page',
+    'Add Account Data' => 'add-account-page',
 
     // Add more elements as needed
 ];
