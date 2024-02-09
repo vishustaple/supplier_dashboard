@@ -10,22 +10,23 @@ class ExcelData extends Model
     use HasFactory;
     
     protected $table = 'order_product_details';
-
+    
      /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'invoice_number',
+    
+     protected $fillable = [
+        'order_id',
         'file_name',
         'key',
         'value',
     ];
 
     /** Define the relationship with the Supplier model */
-    // public function supplier()
-    // {
-    //     return $this->belongsTo(CategorySuppliers::class);
-    // }
+    public function order()
+    {
+        return $this->belongsTo(order::class);
+    }
 }
