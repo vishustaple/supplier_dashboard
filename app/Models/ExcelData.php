@@ -18,10 +18,11 @@ class ExcelData extends Model
      */
     
      protected $fillable = [
-        'order_id',
-        'file_name',
         'key',
         'value',
+        'data_id',
+        'order_id',
+        'file_name',
     ];
 
     /** Define the relationship with the Supplier model */

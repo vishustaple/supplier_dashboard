@@ -360,6 +360,7 @@ class ProcessUploadedFiles extends Command
                                         foreach ($row as $key1 => $value) {
                                             if(!empty($maxNonEmptyValue[$key1])) {
                                                 $finalInsertArray[] = [
+                                                    'data_id' => $fileValue->id,
                                                     'value' => $value,
                                                     'key' => $maxNonEmptyValue[$key1],
                                                     'file_name' => $fileValue->file_name,
@@ -375,6 +376,7 @@ class ProcessUploadedFiles extends Command
                                                     $date = explode("-", $workSheetArray[7][$key]);
 
                                                     $orderLastInsertId = Order::create([
+                                                        'data_id' => $fileValue->id,
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => $fileValue->supplier_id,
                                                         'amount' => str_replace(",", "", number_format($row[$key], 2, '.')),
@@ -386,6 +388,7 @@ class ProcessUploadedFiles extends Command
 
                                                     if ($weeklyCheck) {
                                                         OrderDetails::create([
+                                                            'data_id' => $fileValue->id,
                                                             'order_id' => $orderLastInsertId->id,
                                                             'created_by' => $fileValue->created_by,
                                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -396,6 +399,7 @@ class ProcessUploadedFiles extends Command
                                                         ]);
                                                     } else {
                                                         OrderDetails::create([
+                                                            'data_id' => $fileValue->id,
                                                             'order_id' => $orderLastInsertId->id,
                                                             'created_by' => $fileValue->created_by,
                                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -411,6 +415,7 @@ class ProcessUploadedFiles extends Command
                                             if ($fileValue->supplier_id == 6) {
                                                 $customerNumber = explode(" ", $row[$keyCustomerNumber]);
                                                 $orderLastInsertId = Order::create([
+                                                    'data_id' => $fileValue->id,
                                                     'created_by' => $fileValue->created_by,
                                                     'supplier_id' => $fileValue->supplier_id,
                                                     'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? ($row[$keyAmount]) : ((!empty($keyOffCoreAmount) && !empty($row[$keyOffCoreAmount]) && $fileValue->supplier_id) ? ($row[$keyOffCoreAmount]) : ('0.0')),
@@ -421,6 +426,7 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             } else {
                                                 $orderLastInsertId = Order::create([
+                                                    'data_id' => $fileValue->id,
                                                     'created_by' => $fileValue->created_by,
                                                     'supplier_id' => $fileValue->supplier_id,
                                                     'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? ($row[$keyAmount]) : ((!empty($keyOffCoreAmount) && !empty($row[$keyOffCoreAmount]) && $fileValue->supplier_id) ? ($row[$keyOffCoreAmount]) : ('0.0')),
@@ -433,6 +439,7 @@ class ProcessUploadedFiles extends Command
 
                                             if ($weeklyCheck) {
                                                 $orderDetailsArray[] = [
+                                                    'data_id' => $fileValue->id,
                                                     'order_id' => $orderLastInsertId->id,
                                                     'created_by' => $fileValue->created_by,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -444,6 +451,7 @@ class ProcessUploadedFiles extends Command
                                                 ];
                                             } else {
                                                 $orderDetailsArray[] = [
+                                                    'data_id' => $fileValue->id,
                                                     'order_id' => $orderLastInsertId->id,
                                                     'created_by' => $fileValue->created_by,
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
