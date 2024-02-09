@@ -20,12 +20,13 @@ class UploadedFiles extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'supplier_id',
-        'file_name',
         'cron',
-        'created_by',
-        'start_date',
         'end_date',
+        'file_name',
+        'start_date',
+        'created_by',
+        'deleted_by',
+        'supplier_id',
     ];
 
     protected $dates = ['deleted_at'];
@@ -45,5 +46,17 @@ class UploadedFiles extends Model
         if (auth()->check()) {
             $this->deleted_by = auth()->user()->id;
         }
+    }
+
+    // Define the relationship with the supplier table
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
+    }
+
+    // Define the relationship with the user table
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

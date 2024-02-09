@@ -17,8 +17,11 @@ return new class extends Migration
             $table->string('file_name', 255);
             $table->string('key', 255);
             $table->text('value')->nullable();
+            $table->unsignedBigInteger('data_id')->nullable();
+
             $table->timestamps();
             
+            $table->foreign('data_id')->references('id')->on('uploaded_files');
             $table->foreign('order_id')->references('id')->on('orders'); /** Assuming 'orders' table exists */
             /** Add other foreign key constraints if needed */
 

@@ -20,10 +20,14 @@ class ExcelImportController extends Controller
     public function index(){
       
         $categorySuppliers = CategorySupplier::all();
-        $uploadData = UploadedFiles::orderBy('created_at', 'desc')->get();
+        $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('created_at', 'desc')->get();
+        // echo"<pre>";
+        // print_r($uploadData);
+        // die;
         $formattedData = [];
         $cronString=''; 
         $i=1;
+
         foreach ($uploadData as $item) {
             if ($item->cron == 1) {
                 $cronString = 'Pending';
@@ -38,8 +42,12 @@ class ExcelImportController extends Controller
                 getSupplierName($item->supplier_id),
                 $item->file_name,
                 $cronString,
+                $item->createdByUser->first_name.' '.$item->createdByUser->last_name,
                 $item->created_at->format('m/d/Y'),
-                '<button data-id="' . $item->id . '" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>',
+                '<form action="'.route('upload.delete').'" method="POST">
+                @csrf
+                <!-- Include the ID of the file you want to delete -->
+                <input type="hidden" name="file_id" value="'.$item->id.'"><button type="submit" class="btn btn-danger btn-xs remove ' . (isset($item->deleted_at) && !empty($item->deleted_at) ? 'disabled' : '') . '" title="Remove File" ' . (isset($item->deleted_at) && !empty($item->deleted_at) ? 'disabled="disabled"' : '') . '><i class="fa-solid fa-trash"></i></button>',
                 // $item->updated_at->format('m/d/Y'),
             ];
             $i++;
@@ -377,65 +385,33 @@ class ExcelImportController extends Controller
      }
 
     public function deleteFile(Request $request) {
-        /** Selecting the file data row using table id */
-        $fileData = UploadedFiles::where('id',$request->id)->first();
-        if ($fileData) {
-            if (in_array($fileData->cron, [2, 3])) {
-                try {
-                    /** selecting order_product_details table data of file for deleting order_detail and order table data */
-                    if (isset($fileData->file_name) && !empty($fileData->file_name)) {
-                        $excelFileData1 = ExcelData::where('file_name', $fileData->file_name)->get();
-                        dd($excelFileData1->toSql());
-                    }
-                } catch (QueryException $e) {   
-                    Log::error('Database $excelFileData ExcelImportController selection failed:: ' . $e->getMessage());
-                    return response()->json(['errorMessage' => $e->getMessage(), 500]);
-                }
+        try {
+            /** Selecting the file data row using table id */
+            $fileData = UploadedFiles::where('id',$request->id)->first();
 
-                try {
-                    /** Deleting order_product_details table data of file */
-                    ExcelData::where('file_name', $fileData->file_name)->delete();
-                } catch (QueryException $e) {   
-                    Log::error('Database $excelFileData ExcelImportController deletion failed:: ' . $e->getMessage());
-                    return response()->json(['errorMessage' => $e->getMessage(), 500]);
-                }
+            // Delete records from UploadedFiles table
+            DB::table('uploaded_files')->where('id', $request->id)->delete();
 
-                if (isset($excelFileData1) && $excelFileData1->isNotEmpty()) {
-                    foreach ($excelFileData1 as $value) {
-                        try {
-                            /** Deleting order_details table data of file */
-                            OrderDetails::where('id', $value->order_id)->delete();
+            // Delete records from ExcelData table
+            DB::table('excel_data')->where('data_id', $request->id)->delete();
 
-                        } catch (QueryException $e) {   
-                            Log::error('Database orderDetaile ExcelImportController deletion failed:: ' . $e->getMessage());
-                            return response()->json(['errorMessage' => $e->getMessage(), 500]);
-                        }
+            // Delete records from OrderDetails table
+            DB::table('order_details')->where('data_id', $request->id)->delete();
 
-                        try {
-                            /** Deleting order table data of file */
-                            Order::where('id', $value->order_id)->delete();
-                            dd($fileData);
+            // Delete records from Order table
+            DB::table('orders')->where('data_id', $request->id)->delete();
 
-                        } catch (QueryException $e) {   
-                            Log::error('Database orderData ExcelImportController selection failed:: ' . $e->getMessage());
-                            return response()->json(['errorMessage' => $e->getMessage(), 500]);
-                        }
-                    }
-                }
-            }
-            
-            try {
-                /** Deleting uploded file from storage */
-                Storage::delete($fileData->file_name);
-    
-                /** Deleting uploded file from datatbase */
-                $fileData->delete();
-            } catch (QueryException $e) {   
-                Log::error('Database $fileData ExcelImportController deletion failed:: ' . $e->getMessage());
-                return response()->json(['status'=> 'error', 'errorMessage' => $e->getMessage()]);
-            }
+            /** Deleting uploded file from storage */
+            Storage::delete($fileData->file_name);
+        } catch (QueryException $e) {   
+            Log::error('Database deletion failed:: ' . $e->getMessage());
+
+            // Error message
+            session()->flash('error', $e->getMessage());
         }
-
-        return response()->json(['success' => true]);
+        
+        // Success message
+        session()->flash('success', 'File Delete Successfully.');
+        return redirect()->back(); 
     }
 }

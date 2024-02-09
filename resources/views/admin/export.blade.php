@@ -18,6 +18,18 @@
             <div class="alert alert-danger" id="errorMessage" style="display:none;">
             </div>
         
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
                 <div class="row py-4 align-items-end border-bottom mb-3">
@@ -283,11 +295,22 @@
                 { title: 'Supplier Name' },
                 { title: 'File Name' },
                 { title: 'Processing' },
+                { title: 'User' },
                 { title: 'Date' },
                 { title: 'Action' },
                 // { title: 'Updated At' },
                 // Add more columns as needed
-            ]
+            ],
+            "rowCallback": function(row, data, index) {
+                // Loop through each cell in the row
+                $('td', row).each(function() {
+                    // Check if the cell contains a button with a specific class
+                    if ($(this).find('button.disabled').length) {
+                        $(row).css('background-color','#f09b9b');
+                    }
+                });
+            }
+            
         });
         if (exportTable.data().count() > 40) {
             // console.log("here");
@@ -326,7 +349,7 @@
                             $('#user_del_success').css('display','block');
                             setTimeout(function () {
                                 $('#user_del_success').fadeOut();
-                                // location.reload();
+                                location.reload();
                             }, 3000);
                             
                         },
