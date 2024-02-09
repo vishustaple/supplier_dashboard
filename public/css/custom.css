@@ -168,11 +168,13 @@ a#navbarDropdown {
   color: #000!important;
 }
 #account_data {
-	display: block;
+	/* display: block; */
 	width: 100%;
 	overflow-x: auto;
 }
-
+#account_data th,#account_data td{
+  padding: 10px !important;
+}
 svg.svg-inline--fa.fa-caret-down {
   
   margin-left: 15px !important;
