@@ -233,7 +233,7 @@
        // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
             var startDateInput = $('#enddate');
-            if ($(this).val() == '2') {
+            if ($(this).val() == '1') {
                 $(".input-overlay").css("display","none");
                 startDateInput.prop('disabled', false);
             } else {
