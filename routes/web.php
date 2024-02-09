@@ -35,6 +35,7 @@ Route::group(['prefix' => 'admin'], function () {
         // Routes under the 'admin' prefix
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::get('/upload-sheet' , [ExcelImportController::class,'index'])->name('upload.sheets');
+        Route::get('/delete-file' , [ExcelImportController::class,'deleteFile'])->name('upload.delete');
         Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
         Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
 
