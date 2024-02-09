@@ -1,12 +1,13 @@
 <!-- resources/views/excel-import.blade.php -->
 
 
-@extends('layout.app')
+@extends('layout.app', ['pageTitleCheck' => 'Supplier Data'])
 
  @section('content')
 
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Supplier Data'])
+    @include('layout.sidenavbar')
+  
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
             <h3 class="mb-0 ps-2 ">Manage Supplier</h3>

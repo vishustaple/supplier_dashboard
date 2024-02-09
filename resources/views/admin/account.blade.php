@@ -1,12 +1,12 @@
 <!-- resources/views/excel-import.blade.php -->
 
 
-@extends('layout.app')
+@extends('layout.app', ['pageTitleCheck' => 'Accounts Data'])
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
-    <div id="layoutSidenav_content">
+    @include('layout.sidenavbar')
+    <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-2">Manage Accounts</h3>
         <div class="row align-items-end border-bottom pb-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
@@ -94,7 +94,7 @@
                     <tr>
                         <th>Customer Number</th>
                         <th>Customer Name</th>
-                        <th>Supplier Catagory</th>
+                        <th>Supplier Name</th>
                         <th>Parent Name</th>
                         <th>Grand Parent Name</th>
                         <th>Account Name</th>

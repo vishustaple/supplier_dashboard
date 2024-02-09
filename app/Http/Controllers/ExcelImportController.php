@@ -53,13 +53,15 @@ class ExcelImportController extends Controller
         // dd($request->all());
         $endDateRange = $request->input('enddate');
 
-        /** Split the date range string into start and end dates */
+        // /** Split the date range string into start and end dates */
+        if(!empty($endDateRange ))
+        {
         list($startDate, $endDate) = explode(' - ', $endDateRange);
         
         /** Convert the date strings to the 'YYYY-MM-DD' format */
         $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
         $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-
+        }
         $supplierId = $request->supplierselect;
         
         /** Validate the uploaded file */
@@ -73,12 +75,12 @@ class ExcelImportController extends Controller
             [
                 'supplierselect'=>'required',
                 // 'startdate'=>'required',
-                'enddate'=>'required',
+                // 'enddate'=>'required',
                 'file' => 'required|file|mimes:xlsx,xls',
 
             ],
             [
-                'enddate.required' => 'The Date field is required. ',
+                // 'enddate.required' => 'The date field is required. ',
                 'supplierselect.required' => 'Please select a supplier. It is a required field.',
                
             ]
@@ -183,19 +185,19 @@ class ExcelImportController extends Controller
                 /** Get the authenticated user */
                 $user = Auth::user();
                 $endDateRange = $request->input('enddate');
-
+                if(!empty($endDateRange)){
                 // Split the date range string into start and end dates
                 list($startDate, $endDate) = explode(' - ', $endDateRange);
                 // Convert the date strings to the 'YYYY-MM-DD' format
                 $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
                 $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-        
+                }
                 try{
                     UploadedFiles::create([
                         'supplier_id' => $request->supplierselect,
                         'cron' => UploadedFiles::UPLOAD,
-                        'start_date' => $formattedStartDate,
-                        'end_date' => $formattedEndDate,
+                        'start_date' => $formattedStartDate??"",
+                        'end_date' => $formattedEndDate??"",
                         'file_name' => $fileName,
                         'created_by' => $user->id,
                     ]); 

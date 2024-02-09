@@ -3,11 +3,16 @@
 <html>
 <head>
    @include('layout.head')
+
 </head>
 <body >
      
    <div id="main" class=""> 
-      @include('layout.sidenav') 
+  
+      @if(Route::currentRouteName() !== 'login')
+         @include('layout.sidenav')
+      @endif
+    
       @yield('content')
    </div>
 

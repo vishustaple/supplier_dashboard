@@ -1,11 +1,11 @@
 <!-- resources/views/excel-import.blade.php -->
 
 
-@extends('layout.app')
+@extends('layout.app', ['pageTitleCheck' => 'User Data'])
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'User Data'])
+    @include('layout.sidenavbar')
     <div id="layoutSidenav_content">
         <div class="m-1 px-2 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
             <h3 class="mb-0 ps-2">Manage Users</h3>
