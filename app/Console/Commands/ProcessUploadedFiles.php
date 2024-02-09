@@ -68,7 +68,7 @@ class ProcessUploadedFiles extends Command
 
         try{
             /** Select those file name where cron is one */
-            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', UploadedFiles::UPLOAD)->first();
+            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', UploadedFiles::UPLOAD)->whereNull('deleted_by')->first();
 
             // $monthsDifference = $interval->m;
             // $yearsDifference = $interval->y;
@@ -76,10 +76,10 @@ class ProcessUploadedFiles extends Command
             if ($fileValue !== null) {
 
                 /** Update cron two means start processing data into excel */
-                // DB::table('uploaded_files')->where('id', $fileValue->id)
-                // ->update([
-                // 'cron' => UploadedFiles::CRON
-                // ]);
+                DB::table('uploaded_files')->where('id', $fileValue->id)
+                ->update([
+                'cron' => UploadedFiles::CRON
+                ]);
 
 
 
@@ -219,19 +219,19 @@ class ProcessUploadedFiles extends Command
                                         $customer = Account::where('customer_number', $row[4])->first();
 
                                         if (empty($gdPerent) && empty($perent) && empty($customer)) {
-                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[0], 'customer_name' => $row[1], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[0], 'alies' => $row[1], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
 
-                                            $lastInsertPerentId = Account::create(['customer_number' => $row[2], 'customer_name' => $row[3], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            $lastInsertPerentId = Account::create(['customer_number' => $row[2], 'alies' => $row[3], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $row[4], 'customer_name' => $row[5], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[4], 'alies' => $row[5], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($gdPerent) && empty($perent) && empty($customer)) {
-                                            $lastInsertPerentId = Account::create(['customer_number' => $row[2], 'customer_name' => $row[3], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
+                                            $lastInsertPerentId = Account::create(['customer_number' => $row[2], 'alies' => $row[3], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $row[4], 'customer_name' => $row[5], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[4], 'alies' => $row[5], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($gdPerent) && !empty($perent) && empty($customer)) {
-                                            Account::create(['customer_number' => $row[4], 'customer_name' => $row[5], 'parent_id' => $perent->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[4], 'alies' => $row[5], 'parent_id' => $perent->id, 'created_by' => $fileValue->created_by]);
 
                                         } else {
                                             // echo "hello";
@@ -243,12 +243,12 @@ class ProcessUploadedFiles extends Command
                                         $perent = Account::where('customer_number', $row[2])->first();
 
                                         if (empty($gdPerent) && empty($perent)) {
-                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[0], 'customer_name' => $row[1], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[0], 'alies' => $row[1], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $row[2], 'customer_name' => $row[3], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[2], 'alies' => $row[3], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($gdPerent) && empty($perent)) {
-                                            Account::create(['customer_number' => $row[2], 'customer_name' => $row[3], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[2], 'alies' => $row[3], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
 
                                         } else {
                                             // echo "hello";
@@ -282,42 +282,42 @@ class ProcessUploadedFiles extends Command
                                         $customerName6 = implode(" ", $customerName6);
                                         
                                         if (empty($lc1) && empty($lc2) && empty($lc3) && empty($lc4) && empty($lc5) && empty($lc6)) {
-                                            $li1 = Account::create(['customer_number' => $c1[0], 'customer_name' => $customerName1, 'parent_id' => null, 'created_by' => $fileValue->created_by]);
-                                            $li2 = Account::create(['customer_number' => $c2[0], 'customer_name' => $customerName2, 'parent_id' => $li1->id, 'created_by' => $fileValue->created_by]);
-                                            $li3 = Account::create(['customer_number' => $c3[0], 'customer_name' => $customerName3, 'parent_id' => $li2->id, 'created_by' => $fileValue->created_by]);
-                                            $li4 = Account::create(['customer_number' => $c4[0], 'customer_name' => $customerName4, 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
-                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $customerName5, 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
+                                            $li1 = Account::create(['customer_number' => $c1[0], 'alies' => $customerName1, 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                            $li2 = Account::create(['customer_number' => $c2[0], 'alies' => $customerName2, 'parent_id' => $li1->id, 'created_by' => $fileValue->created_by]);
+                                            $li3 = Account::create(['customer_number' => $c3[0], 'alies' => $customerName3, 'parent_id' => $li2->id, 'created_by' => $fileValue->created_by]);
+                                            $li4 = Account::create(['customer_number' => $c4[0], 'alies' => $customerName4, 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'alies' => $customerName5, 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $c6[0], 'alies' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($lc1) && empty($lc2) && empty($lc3) && empty($lc4) && empty($lc5) && empty($lc6)) {
-                                            $li2 = Account::create(['customer_number' => $c2[0], 'customer_name' => $customerName2, 'parent_id' => $lc1->id, 'created_by' => $fileValue->created_by]);
-                                            $li3 = Account::create(['customer_number' => $c3[0], 'customer_name' => $customerName3, 'parent_id' => $li2->id, 'created_by' => $fileValue->created_by]);
-                                            $li4 = Account::create(['customer_number' => $c4[0], 'customer_name' => $customerName4, 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
-                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $customerName5, 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
+                                            $li2 = Account::create(['customer_number' => $c2[0], 'alies' => $customerName2, 'parent_id' => $lc1->id, 'created_by' => $fileValue->created_by]);
+                                            $li3 = Account::create(['customer_number' => $c3[0], 'alies' => $customerName3, 'parent_id' => $li2->id, 'created_by' => $fileValue->created_by]);
+                                            $li4 = Account::create(['customer_number' => $c4[0], 'alies' => $customerName4, 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'alies' => $customerName5, 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $c6[0], 'alies' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($lc1) && !empty($lc2) && empty($lc3) && empty($lc4) && empty($lc5) && empty($lc6)) {
-                                            $li3 = Account::create(['customer_number' => $c3[0], 'customer_name' => $customerName3, 'parent_id' => $lc2->id, 'created_by' => $fileValue->created_by]);
-                                            $li4 = Account::create(['customer_number' => $c4[0], 'customer_name' => $customerName4, 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
-                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $customerName5, 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
+                                            $li3 = Account::create(['customer_number' => $c3[0], 'alies' => $customerName3, 'parent_id' => $lc2->id, 'created_by' => $fileValue->created_by]);
+                                            $li4 = Account::create(['customer_number' => $c4[0], 'alies' => $customerName4, 'parent_id' => $li3->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'alies' => $customerName5, 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $c6[0], 'alies' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
 
                                         }elseif (!empty($lc1) && !empty($lc2) && !empty($lc3) && empty($lc4) && empty($lc5) && empty($lc6)) {
-                                            $li4 = Account::create(['customer_number' => $c4[0], 'customer_name' => $customerName4, 'parent_id' => $lc3->id, 'created_by' => $fileValue->created_by]);
-                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $customerName5, 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
+                                            $li4 = Account::create(['customer_number' => $c4[0], 'alies' => $customerName4, 'parent_id' => $lc3->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'alies' => $customerName5, 'parent_id' => $li4->id, 'created_by' => $fileValue->created_by]);
                                             
-                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $c6[0], 'alies' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($lc1) && !empty($lc2) && !empty($lc3) && !empty($lc4) && empty($lc5) && empty($lc6)) {
-                                            $li5 = Account::create(['customer_number' => $c5[0], 'customer_name' => $customerName5, 'parent_id' => $lc4->id, 'created_by' => $fileValue->created_by]);
+                                            $li5 = Account::create(['customer_number' => $c5[0], 'alies' => $customerName5, 'parent_id' => $lc4->id, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $c6[0], 'alies' => $customerName6, 'parent_id' => $li5->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($lc1) && !empty($lc2) && !empty($lc3) && !empty($lc4) && empty($lc5) && empty($lc6)) {
-                                            Account::create(['customer_number' => $c6[0], 'customer_name' => $customerName6, 'parent_id' => $lc5->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $c6[0], 'alies' => $customerName6, 'parent_id' => $lc5->id, 'created_by' => $fileValue->created_by]);
 
                                         } else {
                                             // echo "hello";
@@ -327,7 +327,7 @@ class ProcessUploadedFiles extends Command
                                     if ($fileValue->supplier_id == 5) {
                                         $perent = Account::where('customer_number', $row[1])->first();
                                         if (empty($perent)) {
-                                            Account::create(['customer_number' => $row[1], 'customer_name' => $row[2], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[1], 'alies' => $row[2], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
                                         }
                                     }
                                 }
@@ -366,46 +366,6 @@ class ProcessUploadedFiles extends Command
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                 ];  
-
-                                                // if (!empty($columnArray[$fileValue->supplier_id]['customer_number']) && $columnArray[$fileValue->supplier_id]['customer_number'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
-                                                //     $finalOrderInsertArray['customer_number'] = $value;
-                                                // }
-
-                                                // if (!empty($columnArray[$fileValue->supplier_id]['amount']) && $columnArray[$fileValue->supplier_id]['amount'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
-                                                //     $finalOrderInsertArray['amount'] = $value;
-                                                // } elseif ($fileValue->supplier_id == 1 && "OFF-CORE SPEND" == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1]) && !empty($value)) {
-                                                //     if (!empty($value)) {
-                                                //         $finalOrderInsertArray['amount'] = str_replace(",", "", number_format($value, 2, '.'));
-                                                //     } else {
-                                                //         $finalOrderInsertArray['amount'] = '0.0';
-                                                //     }
-                                                // } else {
-                                                //     $finalOrderInsertArray['amount'] = '0.0';
-                                                // }
-
-                                                // if (!empty($columnArray[$fileValue->supplier_id]['invoice_no']) && $columnArray[$fileValue->supplier_id]['invoice_no'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
-                                                //     if (empty($value)) {
-                                                //         $finalOrderInsertArray['invoice_no'] = OrderDetails::randomInvoiceNum();
-                                                //     } else {
-                                                //         $finalOrderInsertArray['invoice_no'] = $value;
-                                                //     }
-                                                // } else {
-                                                //     $finalOrderInsertArray['invoice_no'] = OrderDetails::randomInvoiceNum();
-                                                // }
-
-                                                // if (!empty($columnArray[$fileValue->supplier_id]['invoice_date']) && $columnArray[$fileValue->supplier_id]['invoice_date'] == preg_replace('/\s+/', ' ', $maxNonEmptyValue[$key1])) {
-                                                //     if (!empty($value)) {
-                                                //         if ($fileValue->supplier_id == 4) {
-                                                //             $finalOrderInsertArray['invoice_date'] = Carbon::createFromFormat('Y-m-d H:i:s', $value);
-                                                //         } else {
-                                                //             $finalOrderInsertArray['invoice_date'] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
-                                                //         }
-                                                //     } else { 
-                                                //         $finalOrderInsertArray['invoice_date'] = $fileValue->start_date;                                                    
-                                                //     }
-                                                // } else {
-                                                //     $finalOrderInsertArray['invoice_date'] = $fileValue->start_date;                                                
-                                                // }
                                             }
                                         }
 
@@ -550,7 +510,7 @@ class ProcessUploadedFiles extends Command
 
                 try {
                     /** Update the 'cron' field three after processing */
-                    // DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => UploadedFiles::PROCESSED]);
+                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => UploadedFiles::PROCESSED]);
 
                     $this->info('Uploaded files processed successfully.');
                 } catch (QueryException $e) {   

@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class UploadedFiles extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     const UPLOAD = 1;
     const CRON = 2;
     const PROCESSED = 3;
@@ -27,4 +28,22 @@ class UploadedFiles extends Model
         'end_date',
     ];
 
+    protected $dates = ['deleted_at'];
+
+    public function runSoftDelete()
+    {
+        // Set the deleted_by value before soft deleting the record
+        $this->setDeletedBy();
+
+        // Perform the soft delete
+        $this->{$this->getDeletedAtColumn()} = $time = $this->freshTimestamp();
+        $this->update([$this->getDeletedAtColumn() => $this->fromDateTime($time)]);
+    }
+
+    protected function setDeletedBy()
+    {
+        if (auth()->check()) {
+            $this->deleted_by = auth()->user()->id;
+        }
+    }
 }
