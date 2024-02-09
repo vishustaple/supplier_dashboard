@@ -11,6 +11,7 @@
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
                 <h3 class="mb-0 ps-2">Data Management</h3>
         </div>
+        <div class="alert alert-success m-3" id="user_del_success" style="display:none;"></div>
         <div class="container">
             <div class="alert alert-success" id="successMessage" style="display:none;">
             </div>
@@ -288,7 +289,8 @@
                 { title: 'Supplier Name' },
                 { title: 'File Name' },
                 { title: 'Processing' },
-                { title: 'Created At' },
+                { title: 'Date' },
+                { title: 'Action' },
                 // { title: 'Updated At' },
                 // Add more columns as needed
             ]
@@ -301,6 +303,57 @@
             $('#example_paginate').hide();
         }
         
+        $(document).on('click','.remove',function(){               
+            var id = $(this).attr('data-id');
+            swal.fire({
+                title: "Oops....",
+                text: "Are you sure you want to delete this file?",
+                icon: "error",
+                showCancelButton: true,
+                confirmButtonText: 'YES',
+                cancelButtonText: 'NO',
+                reverseButtons: true
+                }).then((result) => {
+                            if (result.isConfirmed) {
+                            $.ajax({
+                            url:"{{ route('upload.delete') }}",
+                            data:{id:id},
+                            success:function(data)
+                            {
+                                
+                                // swal.fire({
+                                //     position: 'top-end',
+                                //     icon: 'success',
+                                //     title: 'Remove Successfully',
+                                //     showConfirmButton: false,
+                                //     timer: 1500
+                                // })
+                                // location.reload();
+                                // }, 1500);
+                                
+                                $('#user_del_success').text('User Delete Successfully!');
+                                $('#user_del_success').css('display','block');
+                                                    setTimeout(function () {
+                                $('#user_del_success').fadeOut();
+                                location.reload();
+                                }, 3000);
+                                
+                            },
+                            error: function(xhr, status, error) {
+                                // Handle error response
+                                var errorMessage = xhr.responseJSON.error; // Extract the error message from JSON response
+                                console.error(errorMessage); // Log the error message
+                                // Display the error message to the user (e.g., in an alert box, modal, or HTML element)
+                                // Example using alert:
+                                alert('An error occurred: ' + errorMessage);
+                            }
+                            });
+                    } 
+                    else {
+
+                    }
+            });
+        });
     });
 </script>
 </html>

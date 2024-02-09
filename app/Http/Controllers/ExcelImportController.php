@@ -6,11 +6,12 @@ use DB;
 use Validator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use App\Models\{CategorySupplier, UploadedFiles, Account};
+use App\Models\{CategorySupplier, UploadedFiles, Account, ExcelData, OrderDetails, Order};
 
 
 class ExcelImportController extends Controller
@@ -37,6 +38,7 @@ class ExcelImportController extends Controller
                 $item->file_name,
                 $cronString,
                 $item->created_at->format('m/d/Y'),
+                '<button data-id="' . $item->id . '" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>',
                 // $item->updated_at->format('m/d/Y'),
             ];
             $i++;
@@ -371,5 +373,67 @@ class ExcelImportController extends Controller
         return view('admin.account');
      }
 
-   
+    public function deleteFile(Request $request) {
+        $fileData = UploadedFiles::where('id',$request->id)->first();
+
+        if ($fileData) {
+            if (in_array($fileData->cron, [2, 3])) {
+                try {
+                    $excelFileData = ExcelData::where('file_name', $fileData->file_name)->get();
+                } catch (QueryException $e) {   
+                    Log::error('Database $excelFileData ExcelImportController selection failed:: ' . $e->getMessage());
+                    return response()->json(['status'=> 'error', 'errorMessage' => $e->getMessage()]);
+                }
+
+                $excelFileData1 = $excelFileData;
+
+                try {
+                    $excelFileData->delete();
+                } catch (QueryException $e) {   
+                    Log::error('Database ExcelData ExcelImportController deletion failed:: ' . $e->getMessage());
+                    return response()->json(['status'=> 'error', 'errorMessage' => $e->getMessage()]);
+                }
+
+                if ($excelFileData1) {
+                    foreach ($excelFileData1 as $value) {
+                        try {
+                            OrderDetails::where('id', $value->order_id)->delete();
+                        } catch (QueryException $e) {   
+                            Log::error('Database orderDetaile ExcelImportController deletion failed:: ' . $e->getMessage());
+                            return response()->json(['status'=> 'error', 'errorMessage' => $e->getMessage()]);
+                        }
+
+                        try {
+                            $orderData = Order::where('id', $value->order_id)->first();
+                        } catch (QueryException $e) {   
+                            Log::error('Database orderData ExcelImportController selection failed:: ' . $e->getMessage());
+                            return response()->json(['status'=> 'error', 'errorMessage' => $e->getMessage()]);
+                        }
+
+                        try {
+                            Account::whereDate('created_at', '=', $orderData->created_at)->where('customer_number', '=', $orderData->customerNumber)->delete();
+                        } catch (QueryException $e) {   
+                            Log::error('Database account ExcelImportController deletion failed:: ' . $e->getMessage());
+                            return response()->json(['status'=> 'error', 'errorMessage' => $e->getMessage()]);
+                        }
+
+                        try {
+                            $orderData->delete();
+                        } catch (QueryException $e) {   
+                            Log::error('Database order ExcelImportController deletion failed:: ' . $e->getMessage());
+                            return response()->json(['status'=> 'error', 'errorMessage' => $e->getMessage()]);
+                        }
+                    }
+                }
+            }
+        } else {
+            try {
+                $fileData->delete();
+            } catch (QueryException $e) {   
+                Log::error('Database $fileData ExcelImportController deletion failed:: ' . $e->getMessage());
+                return response()->json(['status'=> 'error', 'errorMessage' => $e->getMessage()]);
+            }
+        }
+        return response()->json(['success' => true]);
+    }
 }
