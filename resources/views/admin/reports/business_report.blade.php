@@ -1,8 +1,8 @@
-@extends('layout.app')
- @extends('layout.sidenav')
+@extends('layout.app', ['pageTitleCheck' => $pageTitle])
+
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
+    @include('layout.sidenavbar')
     <div id="layoutSidenav_content">
         <div class="container">
             <div class="m-1 mb-2 d-md-flex border-bottom pb-3 mb-3 align-items-center justify-content-between">
@@ -160,14 +160,14 @@
 
     function format ( rowData ) {
         // `rowData` is the original data object for the row
-        return '<div class="row_details">'+
+        return  '<div class="row_details">'+
                 '<p><b>ID</b>: '+rowData.id+'</p>'+
                 '<p><b>Customer Number</b>: '+rowData.customer_number+'</p>'+
                 '<p><b>Customer Name</b>: '+rowData.customer_name+'</p>'+
                 '<p><b>Supplier Name</b>: '+rowData.supplier_name+'</p>'+
                 '<p><b>Amount</b>: '+rowData.amount+'</p>'+
                 '<p><b>Date</b>: '+rowData.date+'</p>'+
-               '</div>';
+                '</div>';
     }
     
         $('#downloadCsvBtn').on('click', function () {

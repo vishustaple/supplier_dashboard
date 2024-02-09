@@ -1,12 +1,12 @@
 
 
 
-@extends('layout.app')
+@extends('layout.app', ['pageTitleCheck' => 'Upload Sheets'])
 
  @section('content')
 
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Upload Sheets'])
+    @include('layout.sidenavbar')
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
                 <h3 class="mb-0 ps-2">Data Management</h3>
@@ -36,12 +36,12 @@
                 
                     <label for="enddate">Select Date:</label>
                     <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
-                    <div class="input-overlay"></div>             
+                    <!-- <div class="input-overlay"></div>              -->
                 </div>
                 <div class="form-group relative col-md-6 pt-4 mb-0">
                     <label for="file">Choose Excel File:</label>
                     <input type="file" name="file" id="file" class="form-control">
-                    <div class="input-overlay-file"></div>  
+                    <!-- <div class="input-overlay-file"></div>   -->
                 </div>
                 <div class="col-md-6 mb-0">
                 <div class="relative imprt_wrapper text-end">
@@ -127,15 +127,15 @@
                 contentType: false,
                 success: function(response) {
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    // if(response.error){
-                    //     $('#page-loader').hide();
-                    //     $('#errorMessage').text(response.error);
-                    //     $('#errorMessage').css('display','block');
-                    //     setTimeout(function () {
-                    //     $('#errorMessage').fadeOut();
-                    //     }, 5000);
+                    if(response.error){
+                        $('#page-loader').hide();
+                        $('#errorMessage').text(response.error);
+                        $('#errorMessage').css('display','block');
+                        setTimeout(function () {
+                        $('#errorMessage').fadeOut();
+                        }, 5000);
                       
-                    // }
+                    }
                     let errorMessages = [];
 
                     if (response && response.error) {
@@ -165,7 +165,7 @@
                         $('#enddate,#file,#importBtn').prop('disabled', true);
                         setTimeout(function () {
                         $('#successMessage').fadeOut();
-                        window.location.reload();
+                        location.reload();
                         }, 2000); 
                        
                     }
@@ -180,32 +180,32 @@
         });
    
         //disable all field 
-        $('#enddate,#file,#importBtn').prop('disabled', true); 
+        // $('#enddate,#file,#importBtn').prop('disabled', true); 
         var endDateInput = document.getElementById('enddate');
             // Event handler for click on the overlay
 
         //check if supplier not select
-        $(".input-overlay").click(function() {
-        var customErrorMessage = "Please Select Supplier First.";
-        var errorList = $('#errorMessage');
-        errorList.text(customErrorMessage);
-        errorList.css('display', 'block');
-        setTimeout(function () {
-        errorList.fadeOut();
-        // errorList.css('display', 'none');
-        }, 2000);
-      });
+    //     $(".input-overlay").click(function() {
+    //     var customErrorMessage = "Please Select Supplier First.";
+    //     var errorList = $('#errorMessage');
+    //     errorList.text(customErrorMessage);
+    //     errorList.css('display', 'block');
+    //     setTimeout(function () {
+    //     errorList.fadeOut();
+    //     // errorList.css('display', 'none');
+    //     }, 2000);
+    //   });
        //check if date is not selected
-      $(".input-overlay-file").click(function() {
-        var customErrorMessage2 = "Please Select date First.";
-        var errorList2 = $('#errorMessage');
-        errorList2.text(customErrorMessage2);
-        errorList2.css('display', 'block');
-        setTimeout(function () {
-            errorList2.fadeOut();
-        // errorList2.css('display', 'none');
-        }, 2000);
-      });
+    //   $(".input-overlay-file").click(function() {
+    //     var customErrorMessage2 = "Please Select date First.";
+    //     var errorList2 = $('#errorMessage');
+    //     errorList2.text(customErrorMessage2);
+    //     errorList2.css('display', 'block');
+    //     setTimeout(function () {
+    //         errorList2.fadeOut();
+    //     // errorList2.css('display', 'none');
+    //     }, 2000);
+    //   });
         //check for all fields 
         $(".overlay").click(function() {
         var customErrorMessage3 = "Please Select all mandatory field.";
@@ -234,7 +234,7 @@
        // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
             var startDateInput = $('#enddate');
-            if ($(this).val().trim() !== '') {
+            if ($(this).val() == '2') {
                 $(".input-overlay").css("display","none");
                 startDateInput.prop('disabled', false);
             } else {
@@ -257,24 +257,18 @@
                 EndDateInput.prop('disabled', true);
             }
         });
-        $('#file').on('change', function() {
-            var ImportInput = $('#importBtn');  // Assuming you want to check the value of #file
+        // $('#file').on('change', function() {
+        //     var ImportInput = $('#importBtn');  // Assuming you want to check the value of #file
             
-            if ($(this).val().trim() !== '') {
-                $(".overlay").css("display","none");
-                ImportInput.prop('disabled', false);
-            } else {
-                $(".overlay").css("position","absolute");
-                ImportInput.prop('disabled', true);
-            }
-        });
-        // $('#enddate').on('apply.daterangepicker', function(ev, picker) {
-        // var startDate = picker.startDate;
-        // var endDate = startDate.clone().add(1, 'month');
-        //   console.log(endDate);
-        // // Set the end date in the date range picker
-        // $('#enddate').data('daterangepicker').setEndDate(endDate);
+        //     if ($(this).val().trim() !== '') {
+        //         $(".overlay").css("display","none");
+        //         ImportInput.prop('disabled', false);
+        //     } else {
+        //         $(".overlay").css("position","absolute");
+        //         ImportInput.prop('disabled', true);
+        //     }
         // });
+     
  
    
          var exportTable =  $('#example').DataTable({
@@ -296,7 +290,7 @@
             ]
         });
         if (exportTable.data().count() > 40) {
-            console.log("here");
+            // console.log("here");
             $('#example_paginate').show(); // Enable pagination
         } else {
             console.log("here");

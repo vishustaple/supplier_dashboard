@@ -1,7 +1,7 @@
 /* div#example_wrapper {
     overflow: auto;
     } */
-    div#example_wrapper table#example thead tr th:nth-child(3){
+    /* div#example_wrapper table#example thead tr th:nth-child(3){
     width: 150px !important;
     min-width: 150px !important;
     max-width: 150px !important;
@@ -12,7 +12,7 @@
     min-width: 150px !important;
     max-width: 150px !important;
     overflow: hidden;
-    }
+    } */
     /* Apply border to the table */
     table.dataTable {
     border-collapse: collapse;
@@ -168,11 +168,13 @@ a#navbarDropdown {
   color: #000!important;
 }
 #account_data {
-	display: block;
+	/* display: block; */
 	width: 100%;
 	overflow-x: auto;
 }
-
+#account_data th,#account_data td{
+  padding: 10px !important;
+}
 svg.svg-inline--fa.fa-caret-down {
   
   margin-left: 15px !important;
@@ -237,6 +239,16 @@ div#userModal .modal-header h5,
   min-width: 500px !important;
   max-width: 500px;
 } */
+#example_wrapper table#example.data_table_files.dataTable.no-footer tbody tr td:nth-child(1) {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px;
+}
+#example_wrapper table#example.data_table_files.dataTable.no-footer tbody tr td:nth-child(3) {
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 100px;
+}
 div#layoutSidenav_nav {
   position: fixed;
   width: 225px;
@@ -245,6 +257,7 @@ div#layoutSidenav_nav {
 
 div#layoutSidenav_content {
   margin-left: 225px !important;
+  overflow: hidden;
 }
 .sb-sidenav .sb-sidenav-menu .nav {
   height: calc(100vh - 67px);
