@@ -1,4 +1,8 @@
-<div class="sb-nav-fixed {{ isset($pageTitleCheck) && ($pageTitleCheck == 'Supplier Data' || $pageTitleCheck == 'User Data') ? $pageTitleCheck == 'Supplier Data' ? 'supplier-page' : 'user-page' : 'user' }}">
+@if(isset($pageTitleCheck) && config('pagetitle.' . $pageTitleCheck))
+    <div class="sb-nav-fixed {{ config('pagetitle.' . $pageTitleCheck) }}">
+@else
+    <div class="sb-nav-fixed">
+@endif
   
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->

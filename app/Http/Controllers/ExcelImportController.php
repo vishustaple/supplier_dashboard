@@ -6,11 +6,13 @@ use DB;
 use Validator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use App\Models\{CategorySupplier, UploadedFiles, Account};
+use App\Models\{CategorySupplier, UploadedFiles, Account, ExcelData, OrderDetails, Order};
 
 
 class ExcelImportController extends Controller
@@ -18,16 +20,21 @@ class ExcelImportController extends Controller
     public function index(){
       
         $categorySuppliers = CategorySupplier::all();
-        $uploadData = UploadedFiles::orderBy('created_at', 'desc')->get();
+        $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name', 'deletedByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
+        // echo"<pre>";
+        // print_r($uploadData);
+        // die;
         $formattedData = [];
         $cronString=''; 
         $i=1;
+
         foreach ($uploadData as $item) {
             if ($item->cron == 1) {
                 $cronString = 'Pending';
-            } elseif ($item->cron == 3) {
-                $cronString = 'Uploaded';
+            } elseif ($item->cron == 2) {
+                $cronString = 'Processing';
             } else {
+                $cronString = 'Uploaded';
                 // If you don't want to set a default value, you can leave this block empty or skip it.
             }
             // $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
@@ -36,7 +43,15 @@ class ExcelImportController extends Controller
                 getSupplierName($item->supplier_id),
                 $item->file_name,
                 $cronString,
+                $item->createdByUser->first_name.' '.$item->createdByUser->last_name,
+                (isset($item->deletedByUser->id) && !empty($item->deletedByUser->id)) ? ($item->deletedByUser->first_name.' '.$item->deletedByUser->last_name) : (''),
                 $item->created_at->format('m/d/Y'),
+                (isset($item->delete) && !empty($item->delete)) ? ('<div class="spinner">
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+              </div>
+              ') : ((isset($item->deleted_at) && !empty($item->deleted_at) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$item->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>')),
                 // $item->updated_at->format('m/d/Y'),
             ];
             $i++;
@@ -51,13 +66,15 @@ class ExcelImportController extends Controller
         // dd($request->all());
         $endDateRange = $request->input('enddate');
 
-        /** Split the date range string into start and end dates */
+        // /** Split the date range string into start and end dates */
+        if(!empty($endDateRange ))
+        {
         list($startDate, $endDate) = explode(' - ', $endDateRange);
         
         /** Convert the date strings to the 'YYYY-MM-DD' format */
         $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
         $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-
+        }
         $supplierId = $request->supplierselect;
         
         /** Validate the uploaded file */
@@ -71,12 +88,12 @@ class ExcelImportController extends Controller
             [
                 'supplierselect'=>'required',
                 // 'startdate'=>'required',
-                'enddate'=>'required',
+                // 'enddate'=>'required',
                 'file' => 'required|file|mimes:xlsx,xls',
 
             ],
             [
-                'enddate.required' => 'The Date field is required. ',
+                // 'enddate.required' => 'The date field is required. ',
                 'supplierselect.required' => 'Please select a supplier. It is a required field.',
                
             ]
@@ -181,19 +198,19 @@ class ExcelImportController extends Controller
                 /** Get the authenticated user */
                 $user = Auth::user();
                 $endDateRange = $request->input('enddate');
-
+                if(!empty($endDateRange)){
                 // Split the date range string into start and end dates
                 list($startDate, $endDate) = explode(' - ', $endDateRange);
                 // Convert the date strings to the 'YYYY-MM-DD' format
                 $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
                 $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-        
+                }
                 try{
                     UploadedFiles::create([
                         'supplier_id' => $request->supplierselect,
                         'cron' => UploadedFiles::UPLOAD,
-                        'start_date' => $formattedStartDate,
-                        'end_date' => $formattedEndDate,
+                        'start_date' => $formattedStartDate??"",
+                        'end_date' => $formattedEndDate??"",
                         'file_name' => $fileName,
                         'created_by' => $user->id,
                     ]); 
@@ -371,5 +388,59 @@ class ExcelImportController extends Controller
         return view('admin.account');
      }
 
-   
+    public function deleteFile(Request $request, $id) {
+        if (!isset($id)) {
+            $id = $request->id;
+        }
+
+        try {
+            /** Selecting the file data row using table id */
+            $fileData = UploadedFiles::where('id',$id)->first();
+            $fileData->delete = 1;
+            
+            if (auth()->check()) {
+                $fileData->deleted_by = auth()->user()->id;
+            }
+            
+            $fileData->save();
+        } catch (QueryException $e) {   
+            Log::error('Database deletion failed:: ' . $e->getMessage());
+
+            /** Error message */
+            session()->flash('error', $e->getMessage());
+        }
+        
+        /** Success message */
+        session()->flash('success', 'File Successfully Added Delete Quey.');
+        return redirect()->back(); 
+    }
+
+    public function downloadSampleFile(Request $request, $id) {
+        if (!isset($id)) {
+            $id = $request->id;
+        }
+
+        $filename = [
+            1 => 'g_and_t_laboratories_sample.xlsx',
+            2 => 'grainger_sample.xlsx',
+            3 => 'od_sample.xlsx',
+            4 => 'staple_sample.xlsx',
+            5 => 'wb_sample.xlsx',
+            6 => 'lyreco_sample.xlsx'
+        ];
+
+        $destinationPath = public_path('/excel_sheets');
+
+        // Assuming the files are stored in the storage/app/public directory
+        $filePath = storage_path($destinationPath . '/' . $filename[$id]."");
+
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Generate the download response
+            return response()->download($filePath);
+        } else {
+            // Redirect or show error message
+            return redirect()->back()->with('error', 'File not found.');
+        }
+    }
 }

@@ -1,5 +1,5 @@
-@extends('layout.app')
-@extends('layout.sidenav')
+@extends('layout.app', ['pageTitleCheck' => $pageTitle])
+
 @section('content')
 <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
