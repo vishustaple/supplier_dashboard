@@ -16,10 +16,12 @@ return new class extends Migration
             $table->string('customer_number', 255);
             $table->decimal('amount', 10, 2);
             $table->unsignedBigInteger('supplier_id')->nullable();
+            $table->unsignedBigInteger('data_id')->nullable();
             $table->datetime('date');
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 
+            $table->foreign('data_id')->references('id')->on('uploaded_files');
             $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             // $table->foreign('record_type_id')->references('id')->on('record_types');

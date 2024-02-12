@@ -1,8 +1,8 @@
 
 
 
-@extends('layout.app')
-@section('title', 'Upload sheet')
+@extends('layout.app', ['pageTitleCheck' => 'Upload Sheets'])
+
  @section('content')
 
  <div id="layoutSidenav">
@@ -11,12 +11,25 @@
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
                 <h3 class="mb-0 ps-2">Data Management</h3>
         </div>
+        <div class="alert alert-success m-3" id="user_del_success" style="display:none;"></div>
         <div class="container">
             <div class="alert alert-success" id="successMessage" style="display:none;">
             </div>
             <div class="alert alert-danger" id="errorMessage" style="display:none;">
             </div>
         
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
                 <div class="row py-4 align-items-end border-bottom mb-3">
@@ -35,20 +48,26 @@
                 
                     <label for="enddate">Select Date:</label>
                     <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
-                    <div class="input-overlay"></div>             
+                    <!-- <div class="input-overlay"></div>              -->
                 </div>
                 <div class="form-group relative col-md-6 pt-4 mb-0">
                     <label for="file">Choose Excel File:</label>
                     <input type="file" name="file" id="file" class="form-control">
-                    <div class="input-overlay-file"></div>  
+                    <!-- <div class="input-overlay-file"></div>   -->
                 </div>
-                <div class="col-md-6 mb-0">
+                <div class="col-md-3 pt-4 mb-0 ">
+                    <div class="relative imprt_wrapper text-end">
+                        <button class="btn btn-primary disabled" id="sampleFileDownloadBtn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Download Sample File</button>
+                        <div class="overlay" id="overlay"></div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-0">
                 <div class="relative imprt_wrapper text-end">
                     <button type="submit" class="btn btn-primary" id="importBtn"><i class="me-2 fa-solid fa-file-import"></i>Import</button>
                     <div class="overlay" id="overlay"></div>
                 </div>
-</div>
-                </div>
+            </div>
+        </div>
                 
             
             
@@ -65,31 +84,56 @@
         @include('layout.footer')
     </div>
 </div>
-<div id="page-loader">
-      <div id="page-loader-wrap">
-        <div class="spinner-grow text-primary" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-success" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-danger" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-warning" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-info" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-light" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    </div>
+
  
     <style>
-      div#page-loader {
+
+.spinner {
+  margin: 0 auto;
+  width: 70px;
+  text-align: center;
+}
+  .spinner div {
+    width: 10px;
+    height: 10px;
+    background-color: #333;
+    border-radius: 100%;
+    display: inline-block;
+    animation: sk-bouncedelay 1.2s infinite ease-in-out both;
+  }
+  .spinner  .bounce1 {
+    animation-delay: -0.32s;
+  }
+  .spinner  .bounce2 {
+    animation-delay: -0.16s;
+  }
+
+
+@-webkit-keyframes sk-bouncedelay 
+{0%, 80%, 100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1);
+  }
+}
+
+
+@keyframes sk-bouncedelay {0%, 80%, 100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1);
+  }
+}
+
+
+
+
+      
+    div#page-loader {
         top: 0;
         left: 0;
         position: fixed;
@@ -126,15 +170,15 @@
                 contentType: false,
                 success: function(response) {
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    // if(response.error){
-                    //     $('#page-loader').hide();
-                    //     $('#errorMessage').text(response.error);
-                    //     $('#errorMessage').css('display','block');
-                    //     setTimeout(function () {
-                    //     $('#errorMessage').fadeOut();
-                    //     }, 5000);
+                    if(response.error){
+                        $('#page-loader').hide();
+                        $('#errorMessage').text(response.error);
+                        $('#errorMessage').css('display','block');
+                        setTimeout(function () {
+                        $('#errorMessage').fadeOut();
+                        }, 5000);
                       
-                    // }
+                    }
                     let errorMessages = [];
 
                     if (response && response.error) {
@@ -164,7 +208,7 @@
                         $('#enddate,#file,#importBtn').prop('disabled', true);
                         setTimeout(function () {
                         $('#successMessage').fadeOut();
-                        window.location.reload();
+                        location.reload();
                         }, 2000); 
                        
                     }
@@ -179,32 +223,32 @@
         });
    
         //disable all field 
-        $('#enddate,#file,#importBtn').prop('disabled', true); 
+        // $('#enddate,#file,#importBtn').prop('disabled', true); 
         var endDateInput = document.getElementById('enddate');
             // Event handler for click on the overlay
 
         //check if supplier not select
-        $(".input-overlay").click(function() {
-        var customErrorMessage = "Please Select Supplier First.";
-        var errorList = $('#errorMessage');
-        errorList.text(customErrorMessage);
-        errorList.css('display', 'block');
-        setTimeout(function () {
-        errorList.fadeOut();
-        // errorList.css('display', 'none');
-        }, 2000);
-      });
+    //     $(".input-overlay").click(function() {
+    //     var customErrorMessage = "Please Select Supplier First.";
+    //     var errorList = $('#errorMessage');
+    //     errorList.text(customErrorMessage);
+    //     errorList.css('display', 'block');
+    //     setTimeout(function () {
+    //     errorList.fadeOut();
+    //     // errorList.css('display', 'none');
+    //     }, 2000);
+    //   });
        //check if date is not selected
-      $(".input-overlay-file").click(function() {
-        var customErrorMessage2 = "Please Select date First.";
-        var errorList2 = $('#errorMessage');
-        errorList2.text(customErrorMessage2);
-        errorList2.css('display', 'block');
-        setTimeout(function () {
-            errorList2.fadeOut();
-        // errorList2.css('display', 'none');
-        }, 2000);
-      });
+    //   $(".input-overlay-file").click(function() {
+    //     var customErrorMessage2 = "Please Select date First.";
+    //     var errorList2 = $('#errorMessage');
+    //     errorList2.text(customErrorMessage2);
+    //     errorList2.css('display', 'block');
+    //     setTimeout(function () {
+    //         errorList2.fadeOut();
+    //     // errorList2.css('display', 'none');
+    //     }, 2000);
+    //   });
         //check for all fields 
         $(".overlay").click(function() {
         var customErrorMessage3 = "Please Select all mandatory field.";
@@ -233,7 +277,7 @@
        // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
             var startDateInput = $('#enddate');
-            if ($(this).val().trim() !== '') {
+            if ($(this).val() == '2') {
                 $(".input-overlay").css("display","none");
                 startDateInput.prop('disabled', false);
             } else {
@@ -256,25 +300,22 @@
                 EndDateInput.prop('disabled', true);
             }
         });
-        $('#file').on('change', function() {
-            var ImportInput = $('#importBtn');  // Assuming you want to check the value of #file
+
+        $('#selectBox').on('change', function() {
+            var dataIdValue = $(this).val(); // Replace with your dynamic value
             
-            if ($(this).val().trim() !== '') {
-                $(".overlay").css("display","none");
-                ImportInput.prop('disabled', false);
-            } else {
-                $(".overlay").css("position","absolute");
-                ImportInput.prop('disabled', true);
+            if (dataIdValue != '') {
+                $('#sampleFileDownloadBtn').prop('disabled', false);
+                // Set data-id attribute
+                $('#sampleFileDownloadBtn').data('id', dataIdValue);
             }
         });
-        // $('#enddate').on('apply.daterangepicker', function(ev, picker) {
-        // var startDate = picker.startDate;
-        // var endDate = startDate.clone().add(1, 'month');
-        //   console.log(endDate);
-        // // Set the end date in the date range picker
-        // $('#enddate').data('daterangepicker').setEndDate(endDate);
-        // });
- 
+     
+        $('#sampleFileDownloadBtn').on('change', function() {
+            // Optionally, you can also retrieve the data-id attribute value
+            var retrievedDataIdValue = $(this).data('id');
+            window.location.href = "{{ route('file.download') }}/"+retrievedDataIdValue
+        });
    
          var exportTable =  $('#example').DataTable({
             "paging": true,   // Enable pagination
@@ -288,19 +329,50 @@
                 { title: 'Supplier Name' },
                 { title: 'File Name' },
                 { title: 'Processing' },
-                { title: 'Created At' },
+                { title: 'Uploaded By' },
+                { title: 'Deleted By' },
+                { title: 'Date' },
+                { title: 'Action' },
                 // { title: 'Updated At' },
                 // Add more columns as needed
-            ]
+            ],
+            "rowCallback": function(row, data, index) {
+                // Loop through each cell in the row
+                $('td', row).each(function() {
+                    // Check if the cell contains a button with a specific class
+                    if ($(this).find('button.invisible').length) {
+                        $(row).css('background-color','#f09b9b');
+                    }
+                });
+            }
+            
         });
         if (exportTable.data().count() > 40) {
-            console.log("here");
+            // console.log("here");
             $('#example_paginate').show(); // Enable pagination
         } else {
             console.log("here");
             $('#example_paginate').hide();
         }
         
+        $(document).on('click','.remove',function(){               
+            var id = $(this).attr('data-id');
+            
+            swal.fire({
+                title: "Oops....",
+                text: "Are you sure you want to delete this file?",
+                icon: "error",
+                showCancelButton: true,
+                confirmButtonText: 'YES',
+                cancelButtonText: 'NO',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $(this).attr('disabled', true); // Disable the element
+                    window.location.href = "{{ route('upload.delete') }}/"+id
+                } 
+            });
+        });
     });
 </script>
 </html>

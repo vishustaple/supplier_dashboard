@@ -44,7 +44,7 @@ class ProcessUploadedAccountFiles extends Command
         foreach ($workSheetArray as $key => $row) {
             if ($key == 0) {
                 continue;
-            }              
+            }
 
             $parent = DB::table('accounts')->where('customer_number', $row[8])->first();
 
@@ -57,9 +57,9 @@ class ProcessUploadedAccountFiles extends Command
                     'account_name' => $row[2],
                     'volume_rebate' => $row[4],
                     'member_rebate' => $row[10],
-                    'temp_end_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s'),
+                    'temp_end_date' => (isset($row[12]) && !empty($row[12])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s')) : (''),
                     'customer_number' => $row[0],
-                    'temp_active_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s'),
+                    'temp_active_date' => (isset($row[11]) && !empty($row[11])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s')) : (''),
                     'category_supplier' => $row[5],
                     'sales_representative' => $row[6],
                     'cpg_customer_service_rep' => $row[7],
@@ -68,15 +68,16 @@ class ProcessUploadedAccountFiles extends Command
                 ];
             } else {
                 $finalInsertArray[] = [
+                    'parent_id' => null,
                     'created_by' => 1,
                     'alies' => $row[1],
                     'record_type' => $row[3],
                     'account_name' => $row[2],
                     'volume_rebate' => $row[4],
                     'member_rebate' => $row[10],
-                    'temp_end_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s'),
+                    'temp_end_date' => (isset($row[12]) && !empty($row[12])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s')) : (''),
                     'customer_number' => $row[0],
-                    'temp_active_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s'),
+                    'temp_active_date' => (isset($row[11]) && !empty($row[11])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s')) : (''),
                     'category_supplier' => $row[5],
                     'sales_representative' => $row[6],
                     'cpg_customer_service_rep' => $row[7],
@@ -88,7 +89,7 @@ class ProcessUploadedAccountFiles extends Command
             if ($count == 100) {
                 $count = 0;
                 try {
-                    DB::table('accounts_one')->insert($finalInsertArray);
+                    DB::table('accounts')->insert($finalInsertArray);
                 } catch (QueryException $e) {   
                     Log::error('Error in YourScheduledTask: ' . $e->getMessage());
                     echo "Database insertion failed: " . $e->getMessage();
@@ -102,7 +103,7 @@ class ProcessUploadedAccountFiles extends Command
 
         if (!empty($finalInsertArray)) {
             try {
-                DB::table('accounts_one')->insert($finalInsertArray);
+                DB::table('accounts')->insert($finalInsertArray);
             } catch (QueryException $e) {   
                 Log::error('Error in YourScheduledTask: ' . $e->getMessage());
                 echo "Database insertion failed: " . $e->getMessage();

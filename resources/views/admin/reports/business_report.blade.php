@@ -1,8 +1,8 @@
-@extends('layout.app')
- @extends('layout.sidenav')
+@extends('layout.app', ['pageTitleCheck' => $pageTitle])
+
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
+    @include('layout.sidenavbar')
     <div id="layoutSidenav_content">
         <div class="container">
             <div class="m-1 mb-2 d-md-flex border-bottom pb-3 mb-3 align-items-center justify-content-between">

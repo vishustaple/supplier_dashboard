@@ -11251,3 +11251,8 @@ body {
 div#layoutSidenav_content{
   top: 75px;
 }
+
+#example_wrapper #example {
+  overflow: auto;
+  display: block;
+}

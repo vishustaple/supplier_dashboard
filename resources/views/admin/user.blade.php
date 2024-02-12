@@ -1,7 +1,7 @@
 <!-- resources/views/excel-import.blade.php -->
 
 
-@extends('layout.app')
+@extends('layout.app', ['pageTitleCheck' => 'User Data'])
 
  @section('content')
  <div id="layoutSidenav">

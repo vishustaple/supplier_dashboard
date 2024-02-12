@@ -17,12 +17,15 @@ class Order extends Model
     protected $fillable = [
         'date',
         'amount',
+        'data_id',
         'created_by',
         'supplier_id',
-        'date',
         'customer_number',
     ];
 
+    public function orderProductDetail() {
+        return $this->hasMany(ExcelData::class);
+    }
 
     public static function getFilterdData($filter = [], $csv=false){
         $orderColumnArray = [
