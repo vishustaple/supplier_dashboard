@@ -86,6 +86,8 @@
                     </div>
                     
         </div>
+        <div class="alert alert-success m-3" id="account_del_success" style="display:none;">
+                        </div>
         <div class="container">
       
             <table id="account_data" class="data_table_files">
@@ -340,52 +342,44 @@
     });
     
      //to remove user 
-     $(document).on('click','.remove',function(){               
-                var id = $(this).attr('data-id');
-                    swal.fire({
-                        title: "Oops....",
-                        text: "Are you sure you want to delete this Account?",
-                        icon: "error",
-                        showCancelButton: true,
-                        confirmButtonText: 'YES',
-                        cancelButtonText: 'NO',
-                        reverseButtons: true
-                        }).then((result) => {
-                                 if (result.isConfirmed) {
-                                    $.ajax({
-                                    url:"{{route('account.remove')}}",
-                                    data:{id:id},
-                                    success:function(data)
-                                    {
-                                        
-                                        // swal.fire({
-                                        //     position: 'top-end',
-                                        //     icon: 'success',
-                                        //     title: 'Remove Successfully',
-                                        //     showConfirmButton: false,
-                                        //     timer: 1500
-                                        // })
-                                        // location.reload();
-                                        // }, 1500);
-                                        
-                                        $('#user_del_success').text('User Delete Successfully!');
-                                        $('#user_del_success').css('display','block');
-                                                            setTimeout(function () {
-                                        $('#user_del_success').fadeOut();
-                                        location.reload();
-                                        }, 3000);
-                                        
-                                    },
-                                    error:function(error){
-                                    
-                                    }
-                                    });
-                            } 
-                            else {
+     $(document).on('click', '.remove', function () {
+    var id = $(this).attr('data-id');
+    swal.fire({
+        title: "Oops....",
+        text: "Are you sure you want to delete this Account?",
+        icon: "error",
+        showCancelButton: true,
+        confirmButtonText: 'YES',
+        cancelButtonText: 'NO',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{{ route('account.remove') }}",
+                data: { id: id },
+                success: function (response) {
+                    if (response.success) {
+                        $('#account_del_success').text('User Delete Successfully!');
+                        $('#account_del_success').css('display', 'block');
+                        setTimeout(function () {
+                            $('#account_del_success').fadeOut();
+                            location.reload();
+                        }, 3000);
+                    } else {
+                        // Handle other cases where response.success is false
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                    // Handle error
+                }
+            });
+        } else {
+            // Handle cancellation
+        }
+    });
+});
 
-                            }
-                    });
-                });
 </script>
 
 @endsection

@@ -45,7 +45,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
         Route::get('/accounts/csv' , [AccountController::class,'exportAccountCsv'])->name('account.export-csv');
         Route::get('/accounts/edit/{id}/{routename}' , [AccountController::class,'editAccount'])->name('account.edit');
-        Route::get('/account/remove',[AccountController::class,'removeAccount'])->name('account.remove');
+        Route::get('/accounts/remove',[AccountController::class,'removeAccount'])->name('account.remove');
+        Route::post('/accounts/update',[AccountController::class,'updateAccount'])->name('account.update');
         /** Account Section End */
 
         /** Report Section Start */
