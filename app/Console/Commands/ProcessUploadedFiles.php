@@ -88,17 +88,17 @@ class ProcessUploadedFiles extends Command
                  
                 /** This array for dynmically get column name for save data into tables */
                 $columnArray = [ 
-                    1 => ['customer_number' => 'SOLD TOACCOUNT', 'amount' => 'ON-CORESPEND', 'invoice_no' => '', 'invoice_date' => ''],
+                    1 => ['customer_name' => 'SOLD TO NAME','customer_number' => 'SOLD TOACCOUNT', 'amount' => 'ON-CORESPEND', 'invoice_no' => '', 'invoice_date' => ''],
 
-                    2 => ['customer_number' => 'Account Number', 'amount' => 'Actual Price Paid', 'invoice_no' => 'Invoice Number', 'invoice_date' => 'Bill Date'],
+                    2 => ['gd_customer_number' => 'Track Code', 'gd_customer_name' => 'Track Code Name', 'p_customer_number' => 'Sub track Code', 'p_customer_name' => 'Sub Track Code Name', 'customer_name' => 'Account Name', 'customer_number' => 'Account Number', 'amount' => 'Actual Price Paid', 'invoice_no' => 'Invoice Number', 'invoice_date' => 'Bill Date'],
 
-                    3 => ['customer_number' => 'CUSTOMER ID', 'amount' => 'Total Spend', 'invoice_no' => 'Invoice #', 'invoice_date' => 'Shipped Date'],
+                    3 => ['gd_customer_number' => 'CUSTOMER GRANDPARENT ID', 'gd_customer_name' => 'CUSTOMER GRANDPARENT NM', 'p_customer_number' => 'CUSTOMER PARENT ID', 'p_customer_name' => 'CUSTOMER PARENT NM', 'customer_number' => 'CUSTOMER ID', 'amount' => 'Total Spend', 'invoice_no' => 'Invoice #', 'invoice_date' => 'Shipped Date'],
 
-                    4 => ['customer_number' => 'MASTER_CUSTOMER', 'amount' => 'ADJGROSSSALES', 'invoice_no' => 'INVOICENUMBER', 'invoice_date' => 'INVOICEDATE'],
+                    4 => ['customer_name' => 'MASTER_CUSTOMER', 'customer_number' => 'MASTER_CUSTOMER', 'amount' => 'ADJGROSSSALES', 'invoice_no' => 'INVOICENUMBER', 'invoice_date' => 'INVOICEDATE'],
 
-                    5 => ['customer_number' => 'Customer Num', 'amount' => 'Current List', 'invoice_no' => 'Invoice Num', 'invoice_date' => 'Invoice Date'],
+                    5 => ['customer_name' => 'Customer Name', 'customer_number' => 'Customer Num', 'amount' => 'Current List', 'invoice_no' => 'Invoice Num', 'invoice_date' => 'Invoice Date'],
 
-                    6 => ['customer_number' => 'Leader customer 1', 'amount' => 'Sales Amount - P', 'invoice_no' => 'Billing Document', 'invoice_date' => 'Billing Date'],
+                    6 => ['customer_number2' => 'Leader customer 2', 'customer_number3' => 'Leader customer 3', 'customer_number4' => 'Leader customer 4', 'customer_number5' => 'Leader customer 5', 'customer_number6' => 'Leader customer 6', 'customer_number' => 'Leader customer 1', 'amount' => 'Sales Amount - P', 'invoice_no' => 'Billing Document', 'invoice_date' => 'Billing Date'],
 
                     7 => ['customer_number' => 'Account ID', 'amount' => '', 'invoice_no' => '', 'invoice_date' => ''],
                 ];
@@ -213,25 +213,50 @@ class ProcessUploadedFiles extends Command
                             foreach ($workSheetArray as $key => $row) {
                                 if($key > $startIndex){
                                     $workSheetArray1[] = $row;
+                                    if (!empty($columnArray[$fileValue->supplier_id]['gd_customer_number'])) {
+                                        $keyGrandParent = array_search($columnArray[$fileValue->supplier_id]['gd_customer_number'], $maxNonEmptyValue);
+                                    }
+
+                                    if (!empty($columnArray[$fileValue->supplier_id]['p_customer_number'])) {
+                                        $keyParent = array_search($columnArray[$fileValue->supplier_id]['p_customer_number'], $maxNonEmptyValue);
+                                    }
+
+                                    if (!empty($columnArray[$fileValue->supplier_id]['customer_number'])) {
+                                        $keyCustomer = array_search($columnArray[$fileValue->supplier_id]['customer_number'], $maxNonEmptyValue);
+                                    }
+
+
+                                    if (!empty($columnArray[$fileValue->supplier_id]['gd_customer_name'])) {
+                                        $keyGrandParentName = array_search($columnArray[$fileValue->supplier_id]['gd_customer_name'], $maxNonEmptyValue);
+                                    }
+
+                                    if (!empty($columnArray[$fileValue->supplier_id]['p_customer_name'])) {
+                                        $keyParentName = array_search($columnArray[$fileValue->supplier_id]['p_customer_name'], $maxNonEmptyValue);
+                                    }
+
+                                    if (!empty($columnArray[$fileValue->supplier_id]['customer_name'])) {
+                                        $keyCustomerName = array_search($columnArray[$fileValue->supplier_id]['customer_name'], $maxNonEmptyValue);
+                                    }
+
                                     if (($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
-                                        $gdPerent = Account::where('customer_number', $row[0])->first();
-                                        $perent = Account::where('customer_number', $row[2])->first();
-                                        $customer = Account::where('customer_number', $row[4])->first();
+                                        $gdPerent = Account::where('customer_number', $row[$keyGrandParent])->first();
+                                        $perent = Account::where('customer_number', $row[$keyParent])->first();
+                                        $customer = Account::where('customer_number', $row[$keyCustomer])->first();
 
                                         if (empty($gdPerent) && empty($perent) && empty($customer)) {
-                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[0], 'alies' => $row[1], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[$keyGrandParent], 'alies' => $row[$keyGrandParentName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
 
-                                            $lastInsertPerentId = Account::create(['customer_number' => $row[2], 'alies' => $row[3], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            $lastInsertPerentId = Account::create(['customer_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $row[4], 'alies' => $row[5], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($gdPerent) && empty($perent) && empty($customer)) {
-                                            $lastInsertPerentId = Account::create(['customer_number' => $row[2], 'alies' => $row[3], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
+                                            $lastInsertPerentId = Account::create(['customer_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $row[4], 'alies' => $row[5], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($gdPerent) && !empty($perent) && empty($customer)) {
-                                            Account::create(['customer_number' => $row[4], 'alies' => $row[5], 'parent_id' => $perent->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $perent->id, 'created_by' => $fileValue->created_by]);
 
                                         } else {
                                             // echo "hello";
@@ -239,16 +264,16 @@ class ProcessUploadedFiles extends Command
                                     }
                                     
                                     if ($fileValue->supplier_id == 4) {
-                                        $gdPerent = Account::where('customer_number', $row[0])->first();
-                                        $perent = Account::where('customer_number', $row[2])->first();
+                                        $gdPerent = Account::where('customer_number', $row[$keyParent])->first();
+                                        $perent = Account::where('customer_number', $row[$keyCustomer])->first();
 
                                         if (empty($gdPerent) && empty($perent)) {
-                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[0], 'alies' => $row[1], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $row[2], 'alies' => $row[3], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
 
                                         } elseif (!empty($gdPerent) && empty($perent)) {
-                                            Account::create(['customer_number' => $row[2], 'alies' => $row[3], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
+                                            Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
 
                                         } else {
                                             // echo "hello";
@@ -256,13 +281,33 @@ class ProcessUploadedFiles extends Command
                                     }
 
                                     if ($fileValue->supplier_id == 6) {
+                                        if (!empty($columnArray[$fileValue->supplier_id]['customer_number2'])) {
+                                            $keyCustomer2 = array_search($columnArray[$fileValue->supplier_id]['customer_number2'], $maxNonEmptyValue);
+                                        }
+
+                                        if (!empty($columnArray[$fileValue->supplier_id]['customer_number3'])) {
+                                            $keyCustomer3 = array_search($columnArray[$fileValue->supplier_id]['customer_number3'], $maxNonEmptyValue);
+                                        }
+
+                                        if (!empty($columnArray[$fileValue->supplier_id]['customer_number4'])) {
+                                            $keyCustomer4 = array_search($columnArray[$fileValue->supplier_id]['customer_number4'], $maxNonEmptyValue);
+                                        }
+
+                                        if (!empty($columnArray[$fileValue->supplier_id]['customer_number5'])) {
+                                            $keyCustomer5 = array_search($columnArray[$fileValue->supplier_id]['customer_number5'], $maxNonEmptyValue);
+                                        }
+
+                                        if (!empty($columnArray[$fileValue->supplier_id]['customer_number6'])) {
+                                            $keyCustomer6 = array_search($columnArray[$fileValue->supplier_id]['customer_number6'], $maxNonEmptyValue);
+                                        }
+
                                         /** Exploding the "$row" get this  */ 
-                                        $customerName1 = $c1 = explode(" ", $row[12]);
-                                        $customerName2 = $c2 = explode(" ", $row[13]);
-                                        $customerName3 = $c3 = explode(" ", $row[14]);
-                                        $customerName4 = $c4 = explode(" ", $row[15]);
-                                        $customerName5 = $c5 = explode(" ", $row[16]);
-                                        $customerName6 = $c6 = explode(" ", $row[17]);
+                                        $customerName1 = $c1 = explode(" ", $row[$keyCustomer]);
+                                        $customerName2 = $c2 = explode(" ", $row[$keyCustomer2]);
+                                        $customerName3 = $c3 = explode(" ", $row[$keyCustomer3]);
+                                        $customerName4 = $c4 = explode(" ", $row[$keyCustomer4]);
+                                        $customerName5 = $c5 = explode(" ", $row[$keyCustomer5]);
+                                        $customerName6 = $c6 = explode(" ", $row[$keyCustomer6]);
 
                                         $lc1 = Account::where('customer_number', $c1[0])->first();
                                         $lc2 = Account::where('customer_number', $c2[0])->first();
@@ -324,10 +369,10 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
 
-                                    if ($fileValue->supplier_id == 5) {
-                                        $perent = Account::where('customer_number', $row[1])->first();
-                                        if (empty($perent)) {
-                                            Account::create(['customer_number' => $row[1], 'alies' => $row[2], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                    if (in_array($fileValue->supplier_id, [1, 5])) {
+                                        $customer = Account::where('customer_number', $row[$keyCustomer])->first();
+                                        if (empty($customer)) {
+                                            Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
                                         }
                                     }
                                 }
@@ -526,7 +571,7 @@ class ProcessUploadedFiles extends Command
                     die;
                 }
             } else {
-                echo "No file left to upload.";
+                echo "No file left to process.";
             }
         } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
             echo "Error loading spreadsheet: " . $e->getMessage();

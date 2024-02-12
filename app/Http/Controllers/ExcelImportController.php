@@ -20,7 +20,7 @@ class ExcelImportController extends Controller
     public function index(){
       
         $categorySuppliers = CategorySupplier::all();
-        $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('created_at', 'desc')->get();
+        $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name', 'deletedByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
         // echo"<pre>";
         // print_r($uploadData);
         // die;
@@ -31,9 +31,10 @@ class ExcelImportController extends Controller
         foreach ($uploadData as $item) {
             if ($item->cron == 1) {
                 $cronString = 'Pending';
-            } elseif ($item->cron == 3) {
-                $cronString = 'Uploaded';
+            } elseif ($item->cron == 2) {
+                $cronString = 'Processing';
             } else {
+                $cronString = 'Uploaded';
                 // If you don't want to set a default value, you can leave this block empty or skip it.
             }
             // $cronString = $item->cron == 1 ? 'Pending' : 'Uploaded';
@@ -43,11 +44,9 @@ class ExcelImportController extends Controller
                 $item->file_name,
                 $cronString,
                 $item->createdByUser->first_name.' '.$item->createdByUser->last_name,
+                (isset($item->deletedByUser->id) && !empty($item->deletedByUser->id)) ? ($item->deletedByUser->first_name.' '.$item->deletedByUser->last_name) : (''),
                 $item->created_at->format('m/d/Y'),
-                '<form action="'.route('upload.delete').'" method="POST">
-                @csrf
-                <!-- Include the ID of the file you want to delete -->
-                <input type="hidden" name="file_id" value="'.$item->id.'"><button type="submit" class="btn btn-danger btn-xs remove ' . (isset($item->deleted_at) && !empty($item->deleted_at) ? 'disabled' : '') . '" title="Remove File" ' . (isset($item->deleted_at) && !empty($item->deleted_at) ? 'disabled="disabled"' : '') . '><i class="fa-solid fa-trash"></i></button>',
+                (isset($item->deleted_at) && !empty($item->deleted_at) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$item->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>'),
                 // $item->updated_at->format('m/d/Y'),
             ];
             $i++;
@@ -384,34 +383,95 @@ class ExcelImportController extends Controller
         return view('admin.account');
      }
 
-    public function deleteFile(Request $request) {
+    public function deleteFile(Request $request, $id) {
+        if (!isset($id)) {
+            $id = $request->id;
+        }
+
         try {
             /** Selecting the file data row using table id */
-            $fileData = UploadedFiles::where('id',$request->id)->first();
+            $fileData = UploadedFiles::where('id',$id)->first();
 
-            // Delete records from UploadedFiles table
-            DB::table('uploaded_files')->where('id', $request->id)->delete();
+            if (auth()->check()) {
+                $fileData->deleted_by = auth()->user()->id;
+            }
 
-            // Delete records from ExcelData table
-            DB::table('excel_data')->where('data_id', $request->id)->delete();
+            $destinationPath = public_path('\excel_sheets');
 
-            // Delete records from OrderDetails table
-            DB::table('order_details')->where('data_id', $request->id)->delete();
 
-            // Delete records from Order table
-            DB::table('orders')->where('data_id', $request->id)->delete();
+            $filePath = $destinationPath .'\\'. $fileData->file_name;
+            $fileData->save();
+
+            /** Delete records from UploadedFiles table */
+            UploadedFiles::where('id', $id)->delete();
+
+            if (in_array($fileData->cron, [2, 3])) {
+                /** Delete records from ExcelData table */
+                DB::table('order_product_details')->where('data_id', $id)->delete();
+    
+                /** Delete records from OrderDetails table */
+                DB::table('order_details')->where('data_id', $id)->delete();
+    
+                /** Delete records from Order table */
+                DB::table('orders')->where('data_id', $id)->delete();
+            }
+
+
+            if (Storage::exists($filePath)) {
+                try {
+                    Storage::delete($filePath);
+                    // File deleted successfully
+                } catch (\Exception $e) {
+                    // Log or handle the error
+                    Log::error('Error deleting file: ' . $e->getMessage());
+                    session()->flash('error', 'Error deleting file: ' . $e->getMessage());
+                }
+            } else {
+                // File does not exist
+                Log::warning('File does not exist at path: ' . $filePath);
+                session()->flash('error', 'File does not exist at path: ' . $filePath);
+            }
 
             /** Deleting uploded file from storage */
-            Storage::delete($fileData->file_name);
+            // Storage::delete($fileData->file_name);
         } catch (QueryException $e) {   
             Log::error('Database deletion failed:: ' . $e->getMessage());
 
-            // Error message
+            /** Error message */
             session()->flash('error', $e->getMessage());
         }
         
-        // Success message
+        /** Success message */
         session()->flash('success', 'File Delete Successfully.');
         return redirect()->back(); 
+    }
+
+    public function downloadSampleFile(Request $request, $id) {
+        if (!isset($id)) {
+            $id = $request->id;
+        }
+
+        $filename = [
+            1 => 'g_and_t_laboratories_sample.xlsx',
+            2 => 'grainger_sample.xlsx',
+            3 => 'od_sample.xlsx',
+            4 => 'staple_sample.xlsx',
+            5 => 'wb_sample.xlsx',
+            6 => 'lyreco_sample.xlsx'
+        ];
+
+        $destinationPath = public_path('/excel_sheets');
+
+        // Assuming the files are stored in the storage/app/public directory
+        $filePath = storage_path($destinationPath . '/' . $filename[$id]."");
+
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Generate the download response
+            return response()->download($filePath);
+        } else {
+            // Redirect or show error message
+            return redirect()->back()->with('error', 'File not found.');
+        }
     }
 }
