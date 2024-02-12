@@ -263,22 +263,22 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
                                     
-                                    if ($fileValue->supplier_id == 4) {
-                                        $gdPerent = Account::where('customer_number', $row[$keyParent])->first();
-                                        $perent = Account::where('customer_number', $row[$keyCustomer])->first();
+                                    // if ($fileValue->supplier_id == 4) {
+                                    //     $gdPerent = Account::where('customer_number', $row[$keyParent])->first();
+                                    //     $perent = Account::where('customer_number', $row[$keyCustomer])->first();
 
-                                        if (empty($gdPerent) && empty($perent)) {
-                                            $lastInsertGdPerentId = Account::create(['customer_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                    //     if (empty($gdPerent) && empty($perent)) {
+                                    //         $lastInsertGdPerentId = Account::create(['customer_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
 
-                                            Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
+                                    //         Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
 
-                                        } elseif (!empty($gdPerent) && empty($perent)) {
-                                            Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
+                                    //     } elseif (!empty($gdPerent) && empty($perent)) {
+                                    //         Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
 
-                                        } else {
-                                            // echo "hello";
-                                        }
-                                    }
+                                    //     } else {
+                                    //         // echo "hello";
+                                    //     }
+                                    // }
 
                                     if ($fileValue->supplier_id == 6) {
                                         if (!empty($columnArray[$fileValue->supplier_id]['customer_number2'])) {
@@ -369,7 +369,7 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
 
-                                    if (in_array($fileValue->supplier_id, [1, 5])) {
+                                    if (in_array($fileValue->supplier_id, [1, 4, 5])) {
                                         $customer = Account::where('customer_number', $row[$keyCustomer])->first();
                                         if (empty($customer)) {
                                             Account::create(['customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
