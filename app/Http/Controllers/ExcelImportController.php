@@ -391,49 +391,13 @@ class ExcelImportController extends Controller
         try {
             /** Selecting the file data row using table id */
             $fileData = UploadedFiles::where('id',$id)->first();
-
+            $fileData->delete = 1;
+            
             if (auth()->check()) {
                 $fileData->deleted_by = auth()->user()->id;
             }
-
-            $destinationPath = public_path('\excel_sheets');
-
-
-            $filePath = $destinationPath .'\\'. $fileData->file_name;
+            
             $fileData->save();
-
-            /** Delete records from UploadedFiles table */
-            UploadedFiles::where('id', $id)->delete();
-
-            if (in_array($fileData->cron, [2, 3])) {
-                /** Delete records from ExcelData table */
-                DB::table('order_product_details')->where('data_id', $id)->delete();
-    
-                /** Delete records from OrderDetails table */
-                DB::table('order_details')->where('data_id', $id)->delete();
-    
-                /** Delete records from Order table */
-                DB::table('orders')->where('data_id', $id)->delete();
-            }
-
-
-            // if (Storage::exists($filePath)) {
-            //     try {
-            //         Storage::delete($filePath);
-            //         // File deleted successfully
-            //     } catch (\Exception $e) {
-            //         // Log or handle the error
-            //         Log::error('Error deleting file: ' . $e->getMessage());
-            //         session()->flash('error', 'Error deleting file: ' . $e->getMessage());
-            //     }
-            // } else {
-            //     // File does not exist
-            //     Log::warning('File does not exist at path: ' . $filePath);
-            //     session()->flash('error', 'File does not exist at path: ' . $filePath);
-            // }
-
-            /** Deleting uploded file from storage */
-            // Storage::delete($fileData->file_name);
         } catch (QueryException $e) {   
             Log::error('Database deletion failed:: ' . $e->getMessage());
 
@@ -442,7 +406,7 @@ class ExcelImportController extends Controller
         }
         
         /** Success message */
-        session()->flash('success', 'File Delete Successfully.');
+        session()->flash('success', 'File Successfully Added Delete Quey.');
         return redirect()->back(); 
     }
 
