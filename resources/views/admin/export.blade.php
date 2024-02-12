@@ -84,31 +84,56 @@
         @include('layout.footer')
     </div>
 </div>
-<div id="page-loader">
-      <div id="page-loader-wrap">
-        <div class="spinner-grow text-primary" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-success" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-danger" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-warning" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-info" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-light" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    </div>
+
  
     <style>
-      div#page-loader {
+
+.spinner {
+  margin: 0 auto;
+  width: 70px;
+  text-align: center;
+}
+  .spinner div {
+    width: 10px;
+    height: 10px;
+    background-color: #333;
+    border-radius: 100%;
+    display: inline-block;
+    animation: sk-bouncedelay 1.2s infinite ease-in-out both;
+  }
+  .spinner  .bounce1 {
+    animation-delay: -0.32s;
+  }
+  .spinner  .bounce2 {
+    animation-delay: -0.16s;
+  }
+
+
+@-webkit-keyframes sk-bouncedelay 
+{0%, 80%, 100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1);
+  }
+}
+
+
+@keyframes sk-bouncedelay {0%, 80%, 100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1);
+  }
+}
+
+
+
+
+      
+    div#page-loader {
         top: 0;
         left: 0;
         position: fixed;
