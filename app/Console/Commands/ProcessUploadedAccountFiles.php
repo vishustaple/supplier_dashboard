@@ -68,6 +68,7 @@ class ProcessUploadedAccountFiles extends Command
                 ];
             } else {
                 $finalInsertArray[] = [
+                    'parent_id' => null,
                     'created_by' => 1,
                     'alies' => $row[1],
                     'record_type' => $row[3],
