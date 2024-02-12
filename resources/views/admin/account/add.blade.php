@@ -11,9 +11,9 @@
                 <a href="{{ route('account') }}" class="btn btn-secondary border-0 bg_yellow" title="Back"><i class="fas fa-arrow-left me-2"></i>Back</a>
             </div>
         </div>
-            <div class="alert alert-success" id="successMessage" style="display:none;">
+            <div class="alert alert-success mx-4" id="successMessage" style="display:none;">
             </div>
-            <div class="alert alert-danger" id="errorMessage" style="display:none;">
+            <div class="alert alert-danger mx-4" id="errorMessage" style="display:none;">
             </div>
             <form class="px-4" id="add_supplier" method="post">
                 @csrf
@@ -149,6 +149,7 @@
                    
                         $('#errorMessage').text(response.error);
                         $('#errorMessage').css('display','block');
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
                         setTimeout(function () {
                         $('#errorMessage').fadeOut();
                         }, 5000);
@@ -169,6 +170,7 @@
                     });
                     $('#errorMessage').html(errorMessages.join('<br>'));
                     $('#errorMessage').css('display','block');
+                    $('html, body').animate({ scrollTop: 0 }, 'slow');
                     setTimeout(function () {
                         $('#errorMessage').fadeOut();
                         }, 5000);
@@ -201,6 +203,7 @@
                     const errorresponse = JSON.parse(xhr.responseText);
                         $('#errorMessage').text(errorresponse.error);
                         $('#errorMessage').css('display','block');
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
                         setTimeout(function () {
                          $('#errorMessage').fadeOut();
                         }, 5000);
