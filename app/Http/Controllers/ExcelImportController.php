@@ -417,20 +417,20 @@ class ExcelImportController extends Controller
             }
 
 
-            if (Storage::exists($filePath)) {
-                try {
-                    Storage::delete($filePath);
-                    // File deleted successfully
-                } catch (\Exception $e) {
-                    // Log or handle the error
-                    Log::error('Error deleting file: ' . $e->getMessage());
-                    session()->flash('error', 'Error deleting file: ' . $e->getMessage());
-                }
-            } else {
-                // File does not exist
-                Log::warning('File does not exist at path: ' . $filePath);
-                session()->flash('error', 'File does not exist at path: ' . $filePath);
-            }
+            // if (Storage::exists($filePath)) {
+            //     try {
+            //         Storage::delete($filePath);
+            //         // File deleted successfully
+            //     } catch (\Exception $e) {
+            //         // Log or handle the error
+            //         Log::error('Error deleting file: ' . $e->getMessage());
+            //         session()->flash('error', 'Error deleting file: ' . $e->getMessage());
+            //     }
+            // } else {
+            //     // File does not exist
+            //     Log::warning('File does not exist at path: ' . $filePath);
+            //     session()->flash('error', 'File does not exist at path: ' . $filePath);
+            // }
 
             /** Deleting uploded file from storage */
             // Storage::delete($fileData->file_name);
