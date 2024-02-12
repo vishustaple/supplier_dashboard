@@ -55,13 +55,19 @@
                     <input type="file" name="file" id="file" class="form-control">
                     <!-- <div class="input-overlay-file"></div>   -->
                 </div>
-                <div class="col-md-6 mb-0">
+                <div class="col-md-3 pt-4 mb-0 ">
+                    <div class="relative imprt_wrapper text-end">
+                        <button class="btn btn-primary disabled" id="sampleFileDownloadBtn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Download Sample File</button>
+                        <div class="overlay" id="overlay"></div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-0">
                 <div class="relative imprt_wrapper text-end">
                     <button type="submit" class="btn btn-primary" id="importBtn"><i class="me-2 fa-solid fa-file-import"></i>Import</button>
                     <div class="overlay" id="overlay"></div>
                 </div>
-</div>
-                </div>
+            </div>
+        </div>
                 
             
             
@@ -269,19 +275,22 @@
                 EndDateInput.prop('disabled', true);
             }
         });
-        // $('#file').on('change', function() {
-        //     var ImportInput = $('#importBtn');  // Assuming you want to check the value of #file
+
+        $('#selectBox').on('change', function() {
+            var dataIdValue = $(this).val(); // Replace with your dynamic value
             
-        //     if ($(this).val().trim() !== '') {
-        //         $(".overlay").css("display","none");
-        //         ImportInput.prop('disabled', false);
-        //     } else {
-        //         $(".overlay").css("position","absolute");
-        //         ImportInput.prop('disabled', true);
-        //     }
-        // });
+            if (dataIdValue != '') {
+                $('#sampleFileDownloadBtn').prop('disabled', false);
+                // Set data-id attribute
+                $('#sampleFileDownloadBtn').data('id', dataIdValue);
+            }
+        });
      
- 
+        $('#sampleFileDownloadBtn').on('change', function() {
+            // Optionally, you can also retrieve the data-id attribute value
+            var retrievedDataIdValue = $(this).data('id');
+            window.location.href = "{{ route('file.download') }}/"+retrievedDataIdValue
+        });
    
          var exportTable =  $('#example').DataTable({
             "paging": true,   // Enable pagination
@@ -295,7 +304,8 @@
                 { title: 'Supplier Name' },
                 { title: 'File Name' },
                 { title: 'Processing' },
-                { title: 'User' },
+                { title: 'Uploaded By' },
+                { title: 'Deleted By' },
                 { title: 'Date' },
                 { title: 'Action' },
                 // { title: 'Updated At' },
@@ -305,7 +315,7 @@
                 // Loop through each cell in the row
                 $('td', row).each(function() {
                     // Check if the cell contains a button with a specific class
-                    if ($(this).find('button.disabled').length) {
+                    if ($(this).find('button.invisible').length) {
                         $(row).css('background-color','#f09b9b');
                     }
                 });
@@ -331,49 +341,11 @@
                 confirmButtonText: 'YES',
                 cancelButtonText: 'NO',
                 reverseButtons: true
-                }).then((result) => {
-                        if (result.isConfirmed) {
-                        $(this).attr('disabled', true); // Disable the element
-                        $.ajax({
-                        url:"{{ route('upload.delete') }}",
-                        data:{id:id},
-                        success:function(data)
-                        {
-                            // Parse the JSON string
-                            // var responseData = JSON.parse(data);
-
-                            // Access the data in the response
-                            console.log(data);
-                            
-                            $('#user_del_success').text('User Delete Successfully!');
-                            $('#user_del_success').css('display','block');
-                            setTimeout(function () {
-                                $('#user_del_success').fadeOut();
-                                location.reload();
-                            }, 3000);
-                            
-                        },
-                        error: function(xhr, status, error) {
-                            // Handle error response
-                            if (xhr.responseJSON.error) {
-                                console.log(xhr.responseJSON.errorMessage);
-                                // var errorMessage = xhr.responseJSON.errorMessage; // Extract the error message from JSON response
-                                // $('#errorMessage').text(errorMessage);
-                                // setTimeout(function () {
-                                //     $('#errorMessage').fadeOut();
-                                //     // location.reload();
-                                // }, 3000);
-                                // console.error(errorMessage); // Log the error message
-                                // // Display the error message to the user (e.g., in an alert box, modal, or HTML element)
-                                // // Example using alert:
-                                // alert('An error occurred: ' + errorMessage);
-                            }
-                        }
-                        });
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $(this).attr('disabled', true); // Disable the element
+                    window.location.href = "{{ route('upload.delete') }}/"+id
                 } 
-                else {
-
-                }
             });
         });
     });

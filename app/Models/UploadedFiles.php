@@ -31,23 +31,6 @@ class UploadedFiles extends Model
 
     protected $dates = ['deleted_at'];
 
-    public function runSoftDelete()
-    {
-        // Set the deleted_by value before soft deleting the record
-        $this->setDeletedBy();
-
-        // Perform the soft delete
-        $this->{$this->getDeletedAtColumn()} = $time = $this->freshTimestamp();
-        $this->update([$this->getDeletedAtColumn() => $this->fromDateTime($time)]);
-    }
-
-    protected function setDeletedBy()
-    {
-        if (auth()->check()) {
-            $this->deleted_by = auth()->user()->id;
-        }
-    }
-
     // Define the relationship with the supplier table
     public function supplier()
     {
@@ -58,5 +41,10 @@ class UploadedFiles extends Model
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function deletedByUser()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 }
