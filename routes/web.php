@@ -41,9 +41,13 @@ Route::group(['prefix' => 'admin'], function () {
 
         /** Account Section Start */
         Route::get('/account/{id?}' , [ExcelImportController::class,'allAccount'])->name('account');
+        Route::get('/createaccount' , [AccountController::class,'createAccount'])->name('account.create');
         Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
         Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
         Route::get('/accounts/csv' , [AccountController::class,'exportAccountCsv'])->name('account.export-csv');
+        Route::get('/accounts/edit/{id}/{routename}' , [AccountController::class,'editAccount'])->name('account.edit');
+        Route::get('/accounts/remove',[AccountController::class,'removeAccount'])->name('account.remove');
+        Route::post('/accounts/update',[AccountController::class,'updateAccount'])->name('account.update');
         /** Account Section End */
 
         /** Report Section Start */

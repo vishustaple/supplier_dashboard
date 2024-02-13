@@ -111,6 +111,9 @@ table thead tr th{
   border-color: #b17828 !important;
   /* white-space: nowrap !important; */
 }
+.bg_yellow{
+  background-color: #b17828 !important;
+}
 .calendar-table table thead tr th {
   background-color: transparent !important;
   color: #000 !important;
@@ -288,6 +291,49 @@ div#layoutSidenav_content {
 .row_details p b {
   min-width: 144px;
   display: inline-block;
+}
+.row_details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 35px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.3);
+}
+
+.row_details p {
+  width: 49%;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  margin-bottom: 7px;
+}
+.dropdown.custom_drop_down {
+  text-align: center;
+}
+
+.dropdown.custom_drop_down .dots {
+  font-size: 20px;
+  color: #000;
+}
+.dropdown.custom_drop_down .dropdown-menu.show {
+    padding: 0px;
+    min-width: 120px !important;
+}
+
+.dropdown.custom_drop_down .dropdown-menu.show a {
+    display: block;
+    color: #000;
+    padding: 7px 15px;
+}
+
+.dropdown.custom_drop_down .dropdown-menu.show a:hover{
+  text-decoration: none;
+  background-color: #b17828;
+  color: #fff;
+}
+.dropdown.custom_drop_down .dropdown-menu.show svg {
+    margin-right: 7px;
 }
 @media (max-width:992px) {
   div#example_wrapper {

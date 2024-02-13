@@ -20,6 +20,7 @@ class ExcelImportController extends Controller
     public function index(){
       
         $categorySuppliers = CategorySupplier::all();
+
         $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
         // echo"<pre>";
         // print_r($uploadData);
@@ -81,12 +82,12 @@ class ExcelImportController extends Controller
             [
                 'supplierselect'=>'required',
                 // 'startdate'=>'required',
-                // 'enddate'=>'required',
+                'enddate' => 'required_if:supplierselect,1',
                 'file' => 'required|file|mimes:xlsx,xls',
 
             ],
             [
-                // 'enddate.required' => 'The date field is required. ',
+                'enddate.required' => 'The date field is required. ',
                 'supplierselect.required' => 'Please select a supplier. It is a required field.',
                
             ]
@@ -282,7 +283,6 @@ class ExcelImportController extends Controller
             ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
             ->where('accounts.id','=', $id)
             ->first();
-               
             return view('admin.viewdetail',compact('account'));
     
         }

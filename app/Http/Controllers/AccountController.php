@@ -18,7 +18,26 @@ class AccountController extends Controller
         $validator = Validator::make(
             [
                 'customer_id'=> $request->customer_id,
-                'customer_name' => $request->input('customer_name'),
+                'customer_name' => $request->customer_name,
+                'account_name' => $request->account_name,
+                'volume_rebate' =>$request->volume_rebate,
+                'sales_representative' =>$request->sales_representative,
+                'customer_service_representative' =>$request->customer_service_representative ,
+                'member_rebate' =>$request->member_rebate,
+                'temp_active_date' =>$request->temp_active_date ,
+                'temp_end_date' =>$request->temp_end_date,
+                'internal_reporting_name' =>$request->internal_reporting_name,
+                'qbr' => $request->qbr,
+                'spend_name' =>$request->spend_name ,
+                'supplier_acct_rep'=> $request->supplier_acct_rep,
+                'management_fee' =>$request->management_fee ,
+                'record_type' =>$request->record_type,
+                'category_supplier' =>$request->category_supplier ,
+                'cpg_sales_representative' =>$request->cpg_sales_representative,
+                'cpg_customer_service_rep' => $request->cpg_customer_service_rep,
+                'sf_cat' => $request->sf_cat,
+                'rebate_freq' => $request->rebate_freq,
+                'comm_rate' =>$request->comm_rate,
                 // 'parent'=> $request->parent,
                 // 'grandparent'=>$request->grandparent,
 
@@ -47,8 +66,27 @@ class AccountController extends Controller
            
             Account::create([
                 'customer_number' => $request->customer_id,
-                'customer_name' => $request->customer_name,
+                'customer_name' => $request->alies,
                 'parent_id' => $request->input('grandparentselect') ?? null,
+                'account_name' => $request->account_name,
+                'volume_rebate' =>$request->volume_rebate,
+                'sales_representative' =>$request->sales_representative,
+                'customer_service_representative' =>$request->customer_service_representative ,
+                'member_rebate' =>$request->member_rebate,
+                'temp_active_date' =>$request->temp_active_date ,
+                'temp_end_date' =>$request->temp_end_date,
+                'internal_reporting_name' =>$request->internal_reporting_name,
+                'qbr' => $request->qbr,
+                'spend_name' =>$request->spend_name ,
+                'supplier_acct_rep'=> $request->supplier_acct_rep,
+                'management_fee' =>$request->management_fee ,
+                'record_type' =>$request->record_type,
+                'category_supplier' =>$request->category_supplier ,
+                'cpg_sales_representative' =>$request->cpg_sales_representative,
+                'cpg_customer_service_rep' => $request->cpg_customer_service_rep,
+                'sf_cat' => $request->sf_cat,
+                'rebate_freq' => $request->rebate_freq,
+                'comm_rate' =>$request->comm_rate,
                 'created_by'=>'1',
             ]);
             return response()->json(['success' => 'Add account Successfully!'], 200);
@@ -107,8 +145,99 @@ class AccountController extends Controller
         /** return $csvResponse; */
         return $response;
     }
+    /** creat account form  */
 
-    public function viewDetails(Request $request){
-        dd("here");
+    public function createAccount(){
+        $frompageTitle = 'account';
+        $currentpageTitle = 'Edit Account Data';
+        $grandparent = Account::select('id','alies')->get();
+        return view('admin.account.add',['fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'grandparent'=>$grandparent]);
     }
+    public function editAccount(Request $request){
+        
+        $accountId = $request->id;
+        $editAccountData = Account::where('id',$accountId)->first();
+        $grandparent = Account::select('id','alies')->get();
+        $frompageTitle = $request->routename;
+        $currentpageTitle = 'Edit Data';
+        return view('admin.account.edit',['fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'account' => $editAccountData,'grandparent'=>$grandparent] );
+    }
+    public function  Back()
+    {
+        $url = route('account');
+        return redirect($url);
+    }
+    public function removeAccount(Request $request){
+        $accountId = $request->id;
+        $account = Account::find($accountId);
+        if($account) {
+            $account->delete();
+            return response()->json(['success' => 'Account deleted successfully']);
+        } else {
+            return response()->json(['error' => 'Account not found'], 404);
+        }
+    }
+    public function updateAccount(Request $request){
+
+        $validator = Validator::make(
+            [
+                'customer_id'=> $request->customer_id,
+                'customer_name' => $request->customer_name,
+
+            ],
+            [
+                'customer_id' => 'required|unique:accounts,customer_number,' . $request->account_id,
+                'customer_name'=>'required|regex:/^[a-zA-Z0-9\s]+$/',
+            ],
+          
+             );
+
+        if( $validator->fails() ){  
+           
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+        if($request->parent){
+            if(empty($request->grandparentSelect)){
+            return response()->json(['error' => "The GrandParent Field is Required."], 200);
+            }
+        }
+        try {
+            $account = Account::find($request->account_id);
+          
+            if($account){
+              
+                $account->update([
+                 'customer_number' => $request->customer_id,
+                'customer_name' => $request->alies,
+                'parent_id' => $request->input('grandparentselect'),
+                'account_name' => $request->account_name,
+                'volume_rebate' =>$request->volume_rebate,
+                'sales_representative' =>$request->sales_representative,
+                'customer_service_representative' =>$request->customer_service_representative ,
+                'member_rebate' =>$request->member_rebate,
+                'temp_active_date' =>$request->temp_active_date ,
+                'temp_end_date' =>$request->temp_end_date,
+                'internal_reporting_name' =>$request->internal_reporting_name,
+                'qbr' => $request->qbr,
+                'spend_name' =>$request->spend_name ,
+                'supplier_acct_rep'=> $request->supplier_acct_rep,
+                'management_fee' =>$request->management_fee ,
+                'record_type' =>$request->record_type,
+                'category_supplier' =>$request->category_supplier ,
+                'cpg_sales_representative' =>$request->cpg_sales_representative,
+                'cpg_customer_service_rep' => $request->cpg_customer_service_rep,
+                'sf_cat' => $request->sf_cat,
+                'rebate_freq' => $request->rebate_freq,
+                'comm_rate' =>$request->comm_rate,
+                'created_by'=>'1',
+                ]);
+
+            }
+            return response()->json(['success' => 'Account Update Successfully!'], 200);
+           
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 200);
+        }
+    }
+
 }
