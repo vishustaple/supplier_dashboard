@@ -41,23 +41,17 @@ class ExcelImportController extends Controller
             $formattedData[] = [
                 // $i, 
                 getSupplierName($item->supplier_id),
-                $item->file_name,
+                '<div class="file_td">'.$item->file_name.'</div>',
                 $cronString,
                 $item->createdByUser->first_name.' '.$item->createdByUser->last_name,
                 (isset($item->deletedByUser->id) && !empty($item->deletedByUser->id)) ? ($item->deletedByUser->first_name.' '.$item->deletedByUser->last_name) : (''),
                 $item->created_at->format('m/d/Y'),
-                (isset($item->delete) && !empty($item->delete)) ? ('<div class="spinner">
-                <div class="bounce1"></div>
-                <div class="bounce2"></div>
-                <div class="bounce3"></div>
-              </div>
-              ') : ((isset($item->deleted_at) && !empty($item->deleted_at) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$item->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>')),
+                (isset($item->delete) && !empty($item->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : ((isset($item->deleted_at) && !empty($item->deleted_at) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$item->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>')),
                 // $item->updated_at->format('m/d/Y'),
             ];
             $i++;
         }
         $data=json_encode($formattedData);
-  
        
         return view('admin.export',compact('categorySuppliers','data'));
     }
@@ -415,8 +409,8 @@ class ExcelImportController extends Controller
         return redirect()->back(); 
     }
 
-    public function downloadSampleFile(Request $request, $id) {
-        if (!isset($id)) {
+    public function downloadSampleFile(Request $request, $id=null) {
+        if ($id != null) {
             $id = $request->id;
         }
 
@@ -431,16 +425,12 @@ class ExcelImportController extends Controller
 
         $destinationPath = public_path('/excel_sheets');
 
-        // Assuming the files are stored in the storage/app/public directory
-        $filePath = storage_path($destinationPath . '/' . $filename[$id]."");
-
-        // Check if the file exists
-        if (file_exists($filePath)) {
-            // Generate the download response
-            return response()->download($filePath);
-        } else {
-            // Redirect or show error message
-            return redirect()->back()->with('error', 'File not found.');
-        }
+        // Set the response headers
+        $headers = [
+            'Content-Type' => 'application/xlsx',
+            'Content-Disposition' => 'attachment; filename="'.$filename[$id].'"',
+        ];
+        
+        return response()->download($destinationPath.'/'.$filename[$id], $filename[$id], $headers);
     }
 }
