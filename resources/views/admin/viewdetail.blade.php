@@ -19,164 +19,301 @@
             <!-- Add redirect conditions here -->
             </div>
         </div>
-       
         <div class="container">
             @if (isset($orders) && !empty($orders))
-                <div class="row_details">
-                    @if (isset($orders->customer_number) && !empty($orders->customer_number))    
-                    <p><b>Customer Number</b>: {{ $orders->customer_number }}</p>
-                    @endif
-
-                    @if (isset($orders->customer_name) && !empty($orders->customer_name))
-                    <p><b>Customer Name</b>: {{ $orders->customer_name??'null' }}</p>
-                    @endif
-
-                    @if (isset($orders->supplier_name) && !empty($orders->supplier_name))
-                    <p><b>Supplier Name</b>: {{ $orders->supplier_name }}</p>
-                    @endif
-
-                    @if (isset($orders->amount) && !empty($orders->amount))
-                    <p><b>Amount</b>: {{ '$'.$orders->amount }}</p>
-                    @endif
-
-                    @if (isset($data->date) && !empty($data->date))
-                    <p><b>Date</b>: {{ date_format(date_create($data->date), 'm/d/Y') }}</p>
-                    @endif
-
-                    @if (isset($orders->internal_reporting_name) && !empty($orders->internal_reporting_name))
-                    <p><b>Internal Reporting Name</b>: {{ $orders->internal_reporting_name ?? 'null' }}</p>
-                    @endif
-
-                    @if (isset($orders->qbr) && !empty($orders->qbr))
-                    <p><b>QBR</b>: {{ $orders->qbr ??'null' }}</p>
-                    @endif
-
-                    @if (isset($orders->supplier_acct_rep) && !empty($orders->supplier_acct_rep))
-                    <p><b>Supplier Acc Rep</b>: {{ $orders->supplier_acct_rep??'null' }}</p>
-                    @endif
-
-                    @if (isset($orders->management_fee) && !empty($orders->management_fee))
-                    <p><b>Mangement Fee</b>: {{ $orders->management_fee??'null'  }}</p>
-                    @endif
-
-                    @if (isset($orders->record_type) && !empty($orders->record_type))
-                    <p><b>Record type </b>: {{ $orders->record_type ??'null' }}</p>
-                    @endif
-
-                    @if (isset($orders->cpg_sales_representative) && !empty($orders->cpg_sales_representative))
-                    <p><b>CPG Sales Representative </b>: {{ $orders->cpg_sales_representative??'null'  }}</p>
-                    @endif
-
-                    @if (isset($orders->cpg_customer_service_rep) && !empty($orders->cpg_customer_service_rep))
-                    <p><b>CPG Customer Service Rep </b>: {{ $orders->cpg_customer_service_rep??'null'  }}</p>
-                    @endif
-
-                    @if (isset($orders->sf_cat) && !empty($orders->sf_cat))
-                    <p><b>SF Cat</b>: {{ $orders->sf_cat??'null'  }}</p>
-                    @endif
-
-                    @if (isset($orders->rebate_freq) && !empty($orders->rebate_freq))
-                    <p><b>Rebate Freq</b>: {{ $orders->rebate_freq	??'null'  }}</p>
-                    @endif
-
-                    @if (isset($orders->member_rebate) && !empty($orders->member_rebate))
-                    <p><b>Member Rebate</b>: {{ $orders->member_rebate??'null'  }}</p>
-                    @endif
-
-                    @if (isset($orders->comm_rate) && !empty($orders->comm_rate))
-                    <p><b>Comm Rate</b>: {{ $orders->comm_rate??'null'  }}</p>
-                    @endif
-
-                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Column</th>
+                            <th scope="col">Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            @if (isset($orders->customer_number) && !empty($orders->customer_number))    
+                            <th scope="row">Customer Number</th>
+                            <td> {{ $orders->customer_number }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->customer_name) && !empty($orders->customer_name))
+                            <th scope="row">Customer Name</th>
+                            <td> {{ $orders->customer_name??'null' }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->supplier_name) && !empty($orders->supplier_name))
+                            <th scope="row">Supplier Name</th>
+                            <td> {{ $orders->supplier_name }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->amount) && !empty($orders->amount))
+                            <th scope="row">Amount</th>
+                            <td> {{ '$'.$orders->amount }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($data->date) && !empty($data->date))
+                            <th scope="row">Date</th>
+                            <td> {{ date_format(date_create($data->date), 'm/d/Y') }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->internal_reporting_name) && !empty($orders->internal_reporting_name))
+                            <th scope="row">Internal Reporting Name</th>
+                            <td> {{ $orders->internal_reporting_name ?? 'null' }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->qbr) && !empty($orders->qbr))
+                            <th scope="row">QBR</th>
+                            <td> {{ $orders->qbr ??'null' }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->supplier_acct_rep) && !empty($orders->supplier_acct_rep))
+                            <th scope="row">Supplier Acc Rep</th>
+                            <td> {{ $orders->supplier_acct_rep??'null' }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->management_fee) && !empty($orders->management_fee))
+                            <th scope="row">Mangement Fee</th>
+                            <td> {{ $orders->management_fee??'null'  }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->record_type) && !empty($orders->record_type))
+                            <th scope="row">Record type </th>
+                            <td> {{ $orders->record_type ??'null' }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->cpg_sales_representative) && !empty($orders->cpg_sales_representative))
+                            <th scope="row">CPG Sales Representative </th>
+                            <td> {{ $orders->cpg_sales_representative??'null'  }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->cpg_customer_service_rep) && !empty($orders->cpg_customer_service_rep))
+                            <th scope="row">CPG Customer Service Rep </th>
+                            <td> {{ $orders->cpg_customer_service_rep??'null'  }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->sf_cat) && !empty($orders->sf_cat))
+                            <th scope="row">SF Cat</th>
+                            <td> {{ $orders->sf_cat??'null'  }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->rebate_freq) && !empty($orders->rebate_freq))
+                            <th scope="row">Rebate Freq</th>
+                            <td> {{ $orders->rebate_freq	??'null'  }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->member_rebate) && !empty($orders->member_rebate))
+                            <th scope="row">Member Rebate</th>
+                            <td> {{ $orders->member_rebate??'null'  }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($orders->comm_rate) && !empty($orders->comm_rate))
+                            <th scope="row">Comm Rate</th>
+                            <td> {{ $orders->comm_rate??'null'  }}</td>
+                            @endif
+                       </tr>
+                    </tbody>
+                </table>
             @endif
-
             @if (isset($account) && !empty($account))
-                <div class="row_details">
-                    @if (isset($account->qbr) && !empty($account->qbr))    
-                    <p><b>Qbr</b>: {{ $account->qbr }}</p>
-                    @endif
-                    @if (isset($account->alies) && !empty($account->alies))
-                    <p><b>Customer Name</b>: {{ $account->alies}}</p>
-                    @endif
-                    @if (isset($account->sf_cat) && !empty($account->sf_cat))
-                    <p><b>Sf Cat</b>: {{ $account->sf_cat }}</p>
-                    @endif
-                    @if (isset($account->comm_rate) && !empty($account->comm_rate))
-                    <p><b>Comm Rate</b>: {{ $account->comm_rate }}</p>
-                    @endif
-                    @if (isset($account->spend_name) && !empty($account->spend_name))
-                    <p><b>Spend Name</b>: {{ $account->spend_name}}</p>
-                    @endif
-                    @if (isset($account->rebate_freq) && !empty($account->rebate_freq))
-                    <p><b>Rebate Freq</b>: {{ $account->rebate_freq }}</p>
-                    @endif
-                    @if (isset($account->record_type) && !empty($account->record_type))
-                    <p><b>Record Type</b>: {{ $account->record_type}}</p>
-                    @endif
-                    @if (isset($account->account_name) && !empty($account->account_name))
-                    <p><b>Account Name</b>: {{ $account->account_name }}</p>
-                    @endif
-                    @if (isset($account->member_rebate) && !empty($account->member_rebate))
-                    <p><b>Member Rebate</b>: {{ $account->member_rebate }}</p>
-                    @endif
-                    @if (isset($account->temp_end_date) && !empty($account->temp_end_date))
-                    <p><b>Temp End Date</b>: {{  date_format(date_create($account->temp_end_date), 'm/d/Y') }}</p>
-                    @endif
-                    @if (isset($account->volume_rebate) && !empty($account->volume_rebate))
-                    <p><b>Volume Rebate</b>: {{ $account->volume_rebate}}</p>
-                    @endif
-                    @if (isset($account->management_fee) && !empty($account->management_fee))
-                    <p><b>Management Fee</b>: {{ $account->management_fee }}</p>
-                    @endif
-                    @if (isset($account->customer_number) && !empty($account->customer_number))
-                    <p><b>Customer Number</b>: {{ $account->customer_number}}</p>
-                    @endif
-                    @if (isset($account->temp_active_date) && !empty($account->temp_active_date))
-                    <p><b>Temp Active Date</b>: {{  date_format(date_create($account->temp_active_date), 'm/d/Y')}}</p>
-                    @endif
-                    @if (isset($account->category_supplier) && !empty($account->category_supplier))
-                    <p><b>Category Supplier</b>: {{ $account->category_supplier}}</p>
-                    @endif
-                    @if (isset($account->supplier_acct_rep) && !empty($account->supplier_acct_rep))
-                    <p><b>Supplier Acct Rep</b>: {{ $account->supplier_acct_rep }}</p>
-                    @endif
-                    @if (isset($account->parent_name) && !empty($account->parent_name))
-                    <p><b>Parent Name</b>: {{ $account->parent_name }}</p>
-                    @endif
-                    @if (isset($account->grand_parent_name) && !empty($account->grand_parent_name))
-                    <p><b>Grand Parent Name</b>: {{ $account->grand_parent_name }}</p>
-                    @endif
-                    @if (isset($account->sales_representative) && !empty($account->sales_representative))
-                    <p><b>Sales Representative</b>: {{ $account->sales_representative }}</p>
-                    @endif
-                    @if (isset($account->internal_reporting_name) && !empty($account->internal_reporting_name))
-                    <p><b>Internal Reporting Name</b>: {{ $account->internal_reporting_name }}</p>
-                    @endif
-                    @if (isset($account->cpg_sales_representative) && !empty($account->cpg_sales_representative))
-                    <p><b>Cpg Sales Representative</b>: {{ $account->cpg_sales_representative}}</p>
-                    @endif
-                    @if (isset($account->cpg_customer_service_rep) && !empty($account->cpg_customer_service_rep))
-                    <p><b>Cpg Customer Service Rep</b>: {{ $account->cpg_customer_service_rep}}</p>
-                    @endif
-                    @if (isset($account->customer_service_representative) && !empty($account->customer_service_representative))
-                    <p><b>Customer Service Representative</b>: {{ $account->customer_service_representative}}</p>
-                    @endif
-                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Column</th>
+                            <th scope="col">Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            @if (isset($account->qbr) && !empty($account->qbr))    
+                            <th scope="row">Qbr</th>
+                            <td>{{ $account->qbr }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->alies) && !empty($account->alies))
+                            <th scope="row">Customer Name</th>
+                            <td>{{ $account->alies}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->sf_cat) && !empty($account->sf_cat))
+                            <th scope="row">Sf Cat</th>
+                            <td>{{ $account->sf_cat }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->comm_rate) && !empty($account->comm_rate))
+                            <th scope="row">Comm Rate</th>
+                            <td>{{ $account->comm_rate }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->spend_name) && !empty($account->spend_name))
+                            <th scope="row">Spend Name</th>
+                            <td>{{ $account->spend_name}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->rebate_freq) && !empty($account->rebate_freq))
+                            <th scope="row">Rebate Freq</th>
+                            <td>{{ $account->rebate_freq }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->record_type) && !empty($account->record_type))
+                            <th scope="row">Record Type</th>
+                            <td>{{ $account->record_type}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->account_name) && !empty($account->account_name))
+                            <th scope="row">Account Name</th>
+                            <td>{{ $account->account_name }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->member_rebate) && !empty($account->member_rebate))
+                            <th scope="row">Member Rebate</th>
+                            <td>{{ $account->member_rebate }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->temp_end_date) && !empty($account->temp_end_date))
+                            <th scope="row">Temp End Date</th>
+                            <td>{{  date_format(date_create($account->temp_end_date), 'm/d/Y') }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->volume_rebate) && !empty($account->volume_rebate))
+                            <th scope="row">Volume Rebate</th>
+                            <td>{{ $account->volume_rebate}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->management_fee) && !empty($account->management_fee))
+                            <th scope="row">Management Fee</th>
+                            <td>{{ $account->management_fee }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->customer_number) && !empty($account->customer_number))
+                            <th scope="row">Customer Number</th>
+                            <td>{{ $account->customer_number}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->temp_active_date) && !empty($account->temp_active_date))
+                            <th scope="row">Temp Active Date</th>
+                            <td>{{  date_format(date_create($account->temp_active_date), 'm/d/Y')}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->category_supplier) && !empty($account->category_supplier))
+                            <th scope="row">Category Supplier</th>
+                            <td>{{ $account->category_supplier}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->supplier_acct_rep) && !empty($account->supplier_acct_rep))
+                            <th scope="row">Supplier Acct Rep</th>
+                            <td>{{ $account->supplier_acct_rep }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->parent_name) && !empty($account->parent_name))
+                            <th scope="row">Parent Name</th>
+                            <td>{{ $account->parent_name }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->grand_parent_name) && !empty($account->grand_parent_name))
+                            <th scope="row">Grand Parent Name</th>
+                            <td>{{ $account->grand_parent_name }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->sales_representative) && !empty($account->sales_representative))
+                            <th scope="row">Sales Representative</th>
+                            <td>{{ $account->sales_representative }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->internal_reporting_name) && !empty($account->internal_reporting_name))
+                            <th scope="row">Internal Reporting Name</th>
+                            <td>{{ $account->internal_reporting_name }}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->cpg_sales_representative) && !empty($account->cpg_sales_representative))
+                            <th scope="row">Cpg Sales Representative</th>
+                            <td>{{ $account->cpg_sales_representative}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->cpg_customer_service_rep) && !empty($account->cpg_customer_service_rep))
+                            <th scope="row">Cpg Customer Service Rep</th>
+                            <td>{{ $account->cpg_customer_service_rep}}</td>
+                            @endif
+                            <tr>
+                            </tr>
+                            @if (isset($account->customer_service_representative) && !empty($account->customer_service_representative))
+                            <th scope="row">Customer Service Representative</th>
+                            <td>{{ $account->customer_service_representative}}</td>
+                            @endif
+                        </tr>
+                    </tbody>
+                </table>
             @endif
 
             @if (isset($catalog) && !empty($catalog))
-                @foreach ($catalog as $key => $value)
-                    <div class="row_details">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Column</th>
+                        <th scope="col">Values</th>
+                    </tr>
+                </thead>
+                <tbody>                   
+                    @foreach ($catalog as $key => $value)
                         @if (!isset($a) && empty($a))
-                            <p><b>Sku</b>: {{ $value['sku'] }}</p>
-                            <p><b>Price</b>: {{ $value['price'] }}</p>
-                            <p><b>Supplier Name</b>: {{ $value['supplier_name'] }}</p>
-                            <p><b>Description</b>: {{ $value['description'] }}</p>
+                        <tr>
+                            <th scope="row">Sku</th>
+                            <td>{{ $value['sku'] }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Price</th>
+                            <td>{{ $value['price'] }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Supplier Name</th>
+                            <td>{{ $value['supplier_name'] }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Description</th>
+                            <td>{{ $value['description'] }}</td>
+                        </tr>
                         @endif
                         <?php $a=1; ?>
-                        <p><b>{{ $value['key'] }}</b>: {{ $value['value'] }}</p>
-                    </div>
-                @endforeach
+                        <tr>
+                            <th scope="row">{{ $value['key'] }}</th><td>{{ $value['value'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
             @endif
         </div>
     </div>
