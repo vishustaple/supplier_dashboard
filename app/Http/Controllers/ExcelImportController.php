@@ -20,7 +20,7 @@ class ExcelImportController extends Controller
     public function index(){
       
         $categorySuppliers = CategorySupplier::all();
-        $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name', 'deletedByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
+        $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
         // echo"<pre>";
         // print_r($uploadData);
         // die;
@@ -44,7 +44,6 @@ class ExcelImportController extends Controller
                 '<div class="file_td">'.$item->file_name.'</div>',
                 $cronString,
                 $item->createdByUser->first_name.' '.$item->createdByUser->last_name,
-                (isset($item->deletedByUser->id) && !empty($item->deletedByUser->id)) ? ($item->deletedByUser->first_name.' '.$item->deletedByUser->last_name) : (''),
                 $item->created_at->format('m/d/Y'),
                 (isset($item->delete) && !empty($item->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : ((isset($item->deleted_at) && !empty($item->deleted_at) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$item->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>')),
                 // $item->updated_at->format('m/d/Y'),
