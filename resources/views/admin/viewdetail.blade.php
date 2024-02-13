@@ -11,10 +11,10 @@
         <div class="row align-items-end border-bottom pb-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
             @if (isset($orders) && !empty($orders))
-            <a href="{{ route('report.back') }}" class="btn btn-secondary">Back</a>
+            <a href="{{ route('report.back') }}" class="btn btn-secondary border-0 bg_yellow"><i class="fas fa-arrow-left me-2"></i>Back</a>
             @endif
             @if (isset($account) && !empty($account))
-            <a href="{{ route('account') }}" class="btn btn-secondary">Back</a>
+            <a href="{{ route('account') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
             @endif
             <!-- Add redirect conditions here -->
             </div>

@@ -101,6 +101,7 @@
             // Trigger CSV download
             downloadCatalogCsv();
         });
+        $('#catalog_data_length').hide();
 
         function downloadCatalogCsv() {
             // You can customize this URL to match your backend route for CSV download

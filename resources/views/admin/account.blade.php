@@ -11,9 +11,8 @@
         <div class="row align-items-end border-bottom pb-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                <i class="fa-solid fa-plus"></i> Account
-                </button>
+                <a href="{{ route('account.create')}}" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Account</a>
                 <button id="downloadAccountCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
             </div>
         </div>
@@ -87,6 +86,8 @@
                     </div>
                     
         </div>
+        <div class="alert alert-success m-3" id="account_del_success" style="display:none;">
+                        </div>
         <div class="container">
       
             <table id="account_data" class="data_table_files">
@@ -94,7 +95,7 @@
                     <tr>
                         <th>Customer Number</th>
                         <th>Customer Name</th>
-                        <th>Supplier Name</th>
+                        <th>Supplier</th>
                         <th>Parent Name</th>
                         <th>Grand Parent Name</th>
                         <th>Account Name</th>
@@ -340,6 +341,45 @@
         });
     });
     
+     //to remove user 
+     $(document).on('click', '.remove', function () {
+    var id = $(this).attr('data-id');
+    swal.fire({
+        title: "Oops....",
+        text: "Are you sure you want to delete this Account?",
+        icon: "error",
+        showCancelButton: true,
+        confirmButtonText: 'YES',
+        cancelButtonText: 'NO',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{{ route('account.remove') }}",
+                data: { id: id },
+                success: function (response) {
+                    if (response.success) {
+                        $('#account_del_success').text('User Delete Successfully!');
+                        $('#account_del_success').css('display', 'block');
+                        setTimeout(function () {
+                            $('#account_del_success').fadeOut();
+                            location.reload();
+                        }, 3000);
+                    } else {
+                        // Handle other cases where response.success is false
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                    // Handle error
+                }
+            });
+        } else {
+            // Handle cancellation
+        }
+    });
+});
+
 </script>
 
 @endsection
