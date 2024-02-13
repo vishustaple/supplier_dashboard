@@ -44,10 +44,10 @@
                     @endif
                     </select>
                 </div>
-                <div class="form-group relative col-md-6 mb-0">
+                <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
                 
                     <label for="enddate">Select Date:</label>
-                    <input class="form-control" id="enddate" name="enddate" placeholder="Enter Your End Date " >   
+                    <input class="form-control " id="enddate" name="enddate" placeholder="Enter Your End Date " >   
                     <!-- <div class="input-overlay"></div>              -->
                 </div>
                 <div class="form-group relative col-md-6 pt-4 mb-0">
@@ -163,12 +163,12 @@
         margin-top: 20%;
     }
     .file_td{
-  width: 388px;
-  display: block;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  text-overflow: ellipsis;
+        width: 388px;
+        display: block;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>
  <!-- Include Date Range Picker JavaScript -->
@@ -335,12 +335,15 @@
             }
 
             var startDateInput = $('#enddate');
-            if ($(this).val() == '2') {
+            if ($(this).val() == '1') {
                 $(".input-overlay").css("display","none");
-                startDateInput.prop('disabled', false);
+                // startDateInput.prop('disabled', false);
+                $('#enddates').removeClass('invisible');
+
             } else {
+
                 $(".input-overlay").css("position","absolute");
-                startDateInput.prop('disabled', true);
+                $('#enddates').addClass('invisible');
             }
             var selectedSupplier = $(this).val();
         });
