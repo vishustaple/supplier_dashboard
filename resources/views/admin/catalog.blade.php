@@ -22,6 +22,7 @@
                         <th>Sku</th>
                         <th>Description</th>
                         <th>Amount</th>
+                        <th>Detail</th>
                     </tr>
                 </thead>
             </table>
@@ -89,7 +90,9 @@
                 { data: 'sku', name: 'sku' },
                 { data: 'description', name: 'description' },
                 { data: 'price', name: 'price' },
+                { data: 'id', name: 'id' },
             ],
+
 
         });
 

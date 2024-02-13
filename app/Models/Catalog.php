@@ -77,9 +77,9 @@ class Catalog extends Model
             $formatuserdata[$key]['description'] = $data->description;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['price'] = '$'.$data->price;
-            // if ($csv == false) {    
-            //     $formatuserdata[$key]['id'] = '<a class="btn btn-primary" title="View Details" href= '.route('catalog.list', ['reportType' => 'Catalog List','id' => $data->id]).'><i class="fa-regular  fa-eye"></i></a>';
-            // }
+            if ($csv == false) {    
+                $formatuserdata[$key]['id'] = '<a class="btn btn-primary" title="View Details" href= '.route('catalog.list', ['catalogType' => 'Catalog List','id' => $data->id]).'><i class="fa-regular  fa-eye"></i></a>';
+            }
             // $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
         }
 

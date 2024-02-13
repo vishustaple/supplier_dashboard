@@ -16,13 +16,14 @@ class CatalogController extends Controller
         $setPageTitleArray = [
             'catalog' => 'Catalog List',
         ];
-        
+
         if (isset($id)) {
             $catalog = Catalog::query() 
             ->leftJoin('suppliers', 'catalog.supplier_id', '=', 'suppliers.id')
+            ->leftJoin('catalog_details', 'catalog.id', '=', 'catalog_details.catalog_id')
             ->where('catalog.id', '=', $id)
-            ->select('catalog.id as id', 'catalog.sku as sku' ,'catalog.description as description' ,'suppliers.supplier_name as supplier_name' ,'catalog.price as price')->first();
-
+            ->whereNotNull('catalog_details.table_value')
+            ->select('catalog_details.table_key as key', 'catalog_details.table_value as value', 'catalog.sku as sku','catalog.price as price','suppliers.supplier_name as supplier_name','catalog.description as description')->get()->toArray();
             return view('admin.viewdetail',compact('catalog'));
         }
 
