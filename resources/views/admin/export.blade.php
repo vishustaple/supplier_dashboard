@@ -55,21 +55,40 @@
                     <input type="file" name="file" id="file" class="form-control">
                     <!-- <div class="input-overlay-file"></div>   -->
                 </div>
-                <div class="col-md-3 pt-4 mb-0 ">
-                    <div class="relative imprt_wrapper text-end">
-                        <button class="btn btn-primary disabled" id="sampleFileDownloadBtn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Download Sample File</button>
-                        <div class="overlay" id="overlay"></div>
+                <div class="col-md-6 pt-4 mb-0 d-flex justify-content-end">
+                    <div class="relative imprt_wrapper text-end me-2">
+                        <button type="button" class="btn btn-primary invisible" id="sampleFileDownloadBtn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Sample File</button>
                     </div>
-                </div>
-                <div class="col-md-3 mb-0">
-                <div class="relative imprt_wrapper text-end">
+                    <div class="relative imprt_wrapper text-end me-2">
+                        <button type="button" class="btn btn-primary invisible" id="necessaryFieldBtn" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa fa-list" aria-hidden="true"></i> Mandatory Columns</button>
+                    </div>
+                    <div class="relative imprt_wrapper text-end">
                     <button type="submit" class="btn btn-primary" id="importBtn"><i class="me-2 fa-solid fa-file-import"></i>Import</button>
                     <div class="overlay" id="overlay"></div>
                 </div>
-            </div>
+                </div>
         </div>
                 
-            
+        <!-- Modal -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Columns List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="necessaryFieldList">
+                        <li class="list-group-item">An item</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary">Understood</button> -->
+                </div>
+                </div>
+            </div>
+        </div>    
             
                 <!-- Transparent overlay on top of the disabled input -->
 
@@ -84,54 +103,49 @@
         @include('layout.footer')
     </div>
 </div>
+<style>
+    .spinner {
+        margin: 0 auto;
+        width: 70px;
+        text-align: center;
+    }
 
- 
-    <style>
+    .spinner div {
+        width: 10px;
+        height: 10px;
+        background-color: #333;
+        border-radius: 100%;
+        display: inline-block;
+        animation: sk-bouncedelay 1.2s infinite ease-in-out both;
+    }
 
-.spinner {
-  margin: 0 auto;
-  width: 70px;
-  text-align: center;
-}
-  .spinner div {
-    width: 10px;
-    height: 10px;
-    background-color: #333;
-    border-radius: 100%;
-    display: inline-block;
-    animation: sk-bouncedelay 1.2s infinite ease-in-out both;
-  }
-  .spinner  .bounce1 {
-    animation-delay: -0.32s;
-  }
-  .spinner  .bounce2 {
-    animation-delay: -0.16s;
-  }
+    .spinner  .bounce1 {
+        animation-delay: -0.32s;
+    }
 
+    .spinner  .bounce2 {
+        animation-delay: -0.16s;
+    }
 
-@-webkit-keyframes sk-bouncedelay 
-{0%, 80%, 100% {
-    transform: scale(0);
-  }
+    @-webkit-keyframes sk-bouncedelay {
+        0%, 80%, 100% {
+            transform: scale(0);
+        }
 
-  40% {
-    transform: scale(1);
-  }
-}
+        40% {
+            transform: scale(1);
+        }
+    }
 
+    @keyframes sk-bouncedelay {
+        0%, 80%, 100% {
+            transform: scale(0);
+        }
 
-@keyframes sk-bouncedelay {0%, 80%, 100% {
-    transform: scale(0);
-  }
-
-  40% {
-    transform: scale(1);
-  }
-}
-
-
-
-
+        40% {
+            transform: scale(1);
+        }
+    }
       
     div#page-loader {
         top: 0;
@@ -142,13 +156,21 @@
         background: #00000080;
         z-index: 999999;
     }
+
     div#page-loader-wrap {
         text-align: center;
         /* vertical-align: center !important; */
         margin-top: 20%;
     }
-
-    </style>
+    .file_td{
+  width: 388px;
+  display: block;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+    }
+</style>
  <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
@@ -276,6 +298,42 @@
         $('#selectBox').val('');
        // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
+            var dataIdValue = $(this).val(); // Replace with your dynamic value
+            
+            // Creating a multidimensional array
+            var multiArray = [
+                [],
+                ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND'],
+                ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
+                ['CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
+                ['MASTER_CUSTOMER', 'MASTER_CUSTOMER', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
+                ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
+                ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
+                ['Account ID'],
+            ],
+
+            // Define the list items content (you can fetch this dynamically if needed)
+            listItemsContent = multiArray[dataIdValue];
+            console.log(listItemsContent);
+            // Clear existing list items (if any)
+            $("#necessaryFieldList").empty();
+
+            // Add new list items
+            $.each(listItemsContent, function(index, content) {
+                $("#necessaryFieldList").append("<li>" + content + "</li>");
+            });
+
+            if (dataIdValue != '') {
+                necessaryFieldBtn
+                $('#necessaryFieldBtn').removeClass('invisible');
+                $('#sampleFileDownloadBtn').removeClass('invisible');
+                // Set data-id attribute
+                $('#sampleFileDownloadBtn').attr('data-id', dataIdValue);
+            } else {
+                $('#sampleFileDownloadBtn').addClass('invisible');
+                $('#necessaryFieldBtn').addClass('invisible');
+            }
+
             var startDateInput = $('#enddate');
             if ($(this).val() == '2') {
                 $(".input-overlay").css("display","none");
@@ -286,8 +344,21 @@
             }
             var selectedSupplier = $(this).val();
         });
-
        
+        $('#sampleFileDownloadBtn').on('click', function() {
+            // Optionally, you can also retrieve the data-id attribute value
+            var retrievedDataIdValue = $(this).data('id');
+            var xlsxUrl = "{{ route('file.download') }}";
+
+            // Append the ID to the URL if it's not null
+            if (retrievedDataIdValue !== null) {
+                xlsxUrl += "/" + retrievedDataIdValue;
+            }
+
+            // Open a new window to download the XLSX file
+            window.open(xlsxUrl, '_blank');
+        });
+
         $('#enddate').val('');
         $('#enddate').on('change', function() {
             var EndDateInput = $('#file');  // Assuming you want to check the value of #file
@@ -300,23 +371,11 @@
                 EndDateInput.prop('disabled', true);
             }
         });
-
-        $('#selectBox').on('change', function() {
-            var dataIdValue = $(this).val(); // Replace with your dynamic value
-            
-            if (dataIdValue != '') {
-                $('#sampleFileDownloadBtn').prop('disabled', false);
-                // Set data-id attribute
-                $('#sampleFileDownloadBtn').data('id', dataIdValue);
-            }
-        });
      
-        $('#sampleFileDownloadBtn').on('change', function() {
-            // Optionally, you can also retrieve the data-id attribute value
-            var retrievedDataIdValue = $(this).data('id');
-            window.location.href = "{{ route('file.download') }}/"+retrievedDataIdValue
-        });
    
+       
+
+
          var exportTable =  $('#example').DataTable({
             "paging": true,   // Enable pagination
             "ordering": true, // Enable sorting
