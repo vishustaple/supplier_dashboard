@@ -216,8 +216,14 @@ class ExcelImportController extends Controller
             // dd($supplierValues);
 
             // if(array_values($supplierValues) === array_values($cleanedArray)){
-           
-            if (empty(array_diff($supplierValues, $cleanedArray))) {
+//                 echo"<pre>";
+//             print_r($supplierValues);
+//             // print_r($cleanedArray);
+//             $diff = array_diff($supplierValues, $cleanedArray);
+// print_r($diff);
+//             var_dump(empty(array_diff($supplierValues, $cleanedArray)));
+//             die;
+            if (empty(array_diff($cleanedArray, $supplierValues))) {
                 /** Get the authenticated user */
                 $user = Auth::user();
                 $endDateRange = $request->input('enddate');

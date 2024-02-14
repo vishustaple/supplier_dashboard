@@ -81,8 +81,6 @@ class ProcessUploadedFiles extends Command
                 'cron' => UploadedFiles::CRON
                 ]);
 
-
-
                 /** Add column name here those row you want to skip */
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
                  
