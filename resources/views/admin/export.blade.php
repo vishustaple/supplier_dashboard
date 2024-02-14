@@ -304,7 +304,7 @@
                 ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND', 'OFF-CORESPEND'],
                 ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
                 ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-                ['MASTER_CUSTOMER', 'MASTER_CUSTOMER', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
+                ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
                 ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
                 ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
                 ['Account ID'],
