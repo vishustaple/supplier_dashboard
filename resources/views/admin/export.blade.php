@@ -33,80 +33,73 @@
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
                 <div class="row py-4 align-items-end border-bottom mb-3">
-                <div class="form-group col-md-6 mb-0">
-                    <label for="selectBox">Select Supplier:</label>
-                    <select id="selectBox" name="supplierselect" class="form-control"> 
-                    <option value="" selected>--Select--</option>
-                    @if(isset($categorySuppliers))
-                    @foreach($categorySuppliers as $categorySupplier)
-                    <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
-                    @endforeach
-                    @endif
-                    </select>
-                </div>
-                <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
-                
-                    <label for="enddate">Select Date:</label>
-                    <input class="form-control " id="enddate" name="enddate" placeholder="Enter Your End Date " >   
-                    <!-- <div class="input-overlay"></div>              -->
-                </div>
-                <div class="form-group relative col-md-6 pt-4 mb-0">
-                    <label for="file">Choose Excel File:</label>
-                    <input type="file" name="file" id="file" class="form-control">
-                    <!-- <div class="input-overlay-file"></div>   -->
-                </div>
-                <div class="col-md-6 pt-4 mb-0 d-flex justify-content-end">
-                    <div class="relative imprt_wrapper text-end me-2">
-                        <a id="sampleFileDownloadBtn" class="btn btn-primary invisible" href="#"><i class="fa fa-cloud-download" aria-hidden="true"></i> Sample File</a>
-                        <!-- <button type="button" class="btn btn-primary invisible" id="sampleFileDownloadBtn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Sample File</button> -->
+                    <div class="form-group col-md-6 mb-0">
+                        <label for="selectBox">Select Supplier:</label>
+                        <select id="selectBox" name="supplierselect" class="form-control"> 
+                        <option value="" selected>--Select--</option>
+                        @if(isset($categorySuppliers))
+                        @foreach($categorySuppliers as $categorySupplier)
+                        <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                        @endforeach
+                        @endif
+                        </select>
                     </div>
-                    <div class="relative imprt_wrapper text-end me-2">
-                        <button type="button" class="btn btn-primary invisible" id="necessaryFieldBtn" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa fa-list" aria-hidden="true"></i> Columns List</button>
+                    <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
+                        <label for="enddate">Select Date:</label>
+                        <input class="form-control " id="enddate" name="enddate" placeholder="Enter Your End Date " >   
+                        <!-- <div class="input-overlay"></div>              -->
                     </div>
-                    <div class="relative imprt_wrapper text-end">
-                        <button type="submit" class="btn btn-primary" id="importBtn"><i class="me-2 fa-solid fa-file-import"></i>Import</button>
-                    <div class="overlay" id="overlay"></div>
-                </div>
-                </div>
-        </div>
-                
-        <!-- Modal -->
-        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-scrollable">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Fields List</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-2">
-                    <div class="row list_filed m-3 p-2 border border-secondary">
-                   <div class="col-md-9 px-0">
-                    <h5 class="list_heading ">Fields</h5>
-                    <ul class="list-group" id="necessaryFieldList">
-                    </ul>
-                   </div>
-                   <div class="col-md-3 px-0 ">
-                    <h5 class="list_heading">Required</h5>
-                    <ul class="list-group ps-3" id="necessaryFieldList1">
-                    </ul>
-                   </div>
+                    <div class="form-group relative col-md-6 pt-4 mb-0">
+                        <label for="file">Choose Excel File:</label>
+                        <input type="file" name="file" id="file" class="form-control">
+                        <!-- <div class="input-overlay-file"></div>   -->
                     </div>
-                    
+                    <div class="col-md-6 pt-4 mb-0 d-flex justify-content-end">
+                        <div class="relative imprt_wrapper text-end me-2">
+                            <a id="sampleFileDownloadBtn" class="btn btn-primary invisible" href="#"><i class="fa fa-cloud-download" aria-hidden="true"></i> Sample File</a>
+                            <!-- <button type="button" class="btn btn-primary invisible" id="sampleFileDownloadBtn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Sample File</button> -->
+                        </div>
+                        <div class="relative imprt_wrapper text-end me-2">
+                            <button type="button" class="btn btn-primary invisible" id="necessaryFieldBtn" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa fa-list" aria-hidden="true"></i> Columns List</button>
+                        </div>
+                        <div class="relative imprt_wrapper text-end">
+                            <button type="submit" class="btn btn-primary" id="importBtn"><i class="me-2 fa-solid fa-file-import"></i>Import</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <!-- <button type="button" class="btn btn-primary">Understood</button> -->
-                </div>
+            </form>
+            
+            <!-- Modal -->
+            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Fields List</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-2">
+                        <div class="row list_filed m-3 p-2 border border-secondary">
+                    <div class="col-md-9 px-0">
+                        <h5 class="list_heading ">Fields</h5>
+                        <ul class="list-group" id="necessaryFieldList">
+                        </ul>
+                    </div>
+                    <div class="col-md-3 px-0 ">
+                        <h5 class="list_heading">Required</h5>
+                        <ul class="list-group ps-3" id="necessaryFieldList1">
+                        </ul>
+                    </div>
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <!-- <button type="button" class="btn btn-primary">Understood</button> -->
+                    </div>
+                    </div>
                 </div>
             </div>
-        </div>    
-            
-                <!-- Transparent overlay on top of the disabled input -->
 
-            
-            
-                
-            </form>
             <table id="example" class="data_table_files">
             <!-- Your table content goes here -->
             </table>
@@ -189,18 +182,18 @@
         min-height: 31px;
     }
     #necessaryFieldList .list-group-item:nth-child(2n),
-    #necessaryFieldList1 .list-group-item:nth-child(2n) {
-	background-color: #cccccc5e !important;
-}
-.list_filed .list_heading{
-     background-color: #b17828; 
-     padding: 5px 10px 5px 10px;
-     color: #fff;
-     font-size: 17px;
-}
-#necessaryFieldList1 .list-group-item {
-  color: #008000;
-}
+        #necessaryFieldList1 .list-group-item:nth-child(2n) {
+        background-color: #cccccc5e !important;
+    }
+    .list_filed .list_heading{
+        background-color: #b17828; 
+        padding: 5px 10px 5px 10px;
+        color: #fff;
+        font-size: 17px;
+    }
+    #necessaryFieldList1 .list-group-item {
+    color: #008000;
+    }
 </style>
  <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
@@ -210,13 +203,10 @@
     $(document).ready(function() {
         $('#page-loader').hide();
         $('#importBtn').on( "click", function(event) {
-            alert("fsdfdf");
             event.preventDefault();
             $('#page-loader').show();
             var formData = new FormData($('#import_form')[0]);
-
-            console.log(formData);
-            
+        
             $.ajax({
                 type: 'POST',
                 url: "{{route('import.excel')}}", // Replace with your actual route name
@@ -276,64 +266,26 @@
                 }
             });
         });
-   
-        //disable all field 
-        // $('#enddate,#file,#importBtn').prop('disabled', true); 
-        var endDateInput = document.getElementById('enddate');
-            // Event handler for click on the overlay
-
-        //check if supplier not select
-    //     $(".input-overlay").click(function() {
-    //     var customErrorMessage = "Please Select Supplier First.";
-    //     var errorList = $('#errorMessage');
-    //     errorList.text(customErrorMessage);
-    //     errorList.css('display', 'block');
-    //     setTimeout(function () {
-    //     errorList.fadeOut();
-    //     // errorList.css('display', 'none');
-    //     }, 2000);
-    //   });
-       //check if date is not selected
-    //   $(".input-overlay-file").click(function() {
-    //     var customErrorMessage2 = "Please Select date First.";
-    //     var errorList2 = $('#errorMessage');
-    //     errorList2.text(customErrorMessage2);
-    //     errorList2.css('display', 'block');
-    //     setTimeout(function () {
-    //         errorList2.fadeOut();
-    //     // errorList2.css('display', 'none');
-    //     }, 2000);
-    //   });
-        //check for all fields 
-        // $(".overlay").click(function() {
-        //     var customErrorMessage3 = "Please Select all mandatory field.";
-        //     console.log(customErrorMessage3);
-        //     var errorList3 = $('#errorMessage');
-        //     errorList3.text(customErrorMessage3);
-        //     errorList3.css('display', 'block');
-        //     setTimeout(function () {
-        //         errorList3.fadeOut();
-        //         // errorList2.css('display', 'none');
-        //     }, 2000);
-        // });
-
-        //add rangepicker on field 
-        $('#enddate').daterangepicker({  
-            showDropdowns: false,
-            linkedCalendars: false,
-            isInvalidDate: function(date) {
-                // Disable dates more than one month from the selected start date
-                var startDate = $('#enddate').data('daterangepicker').startDate;
-                var endDateLimit = moment(startDate).add(1, 'month');
-                return date.isAfter(endDateLimit);
-            }
-        });
 
         $('#selectBox').val('');
        // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
             var dataIdValue = $(this).val(); // Replace with your dynamic value
             
+            if (dataIdValue == 1) {
+                //add rangepicker on field 
+                $('#enddate').daterangepicker({  
+                    showDropdowns: false,
+                    linkedCalendars: false,
+                    isInvalidDate: function(date) {
+                        // Disable dates more than one month from the selected start date
+                        var startDate = $('#enddate').data('daterangepicker').startDate;
+                        var endDateLimit = moment(startDate).add(1, 'month');
+                        return date.isAfter(endDateLimit);
+                    }
+                });
+            }
+
             // Creating a multidimensional array
             var multiArray = [
                 [],
