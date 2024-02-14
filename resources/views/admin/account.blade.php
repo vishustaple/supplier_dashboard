@@ -115,7 +115,7 @@
         // console.log(selectedValue);
         // $.ajax({
         //     type: 'GET',
-        //         url: '{{route('getparent')}}', 
+        //         url: '{dsdsd{roscsdsdsute('getparent')}}', 
         //         data:{ selectedValue: selectedValue },
         //         success: function(response) {},
         //         error: function(xhr, status, error) {
