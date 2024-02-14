@@ -58,37 +58,54 @@ class ExcelImportController extends Controller
         $endDateRange = $request->input('enddate');
 
         // /** Split the date range string into start and end dates */
-        if(!empty($endDateRange ))
-        {
-        list($startDate, $endDate) = explode(' - ', $endDateRange);
-        
-        /** Convert the date strings to the 'YYYY-MM-DD' format */
-        $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
-        $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
+        if(!empty($endDateRange )){
+            list($startDate, $endDate) = explode(' - ', $endDateRange);
+            
+            /** Convert the date strings to the 'YYYY-MM-DD' format */
+            $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
+            $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
         }
+        
         $supplierId = $request->supplierselect;
         
         /** Validate the uploaded file */
-        $validator = Validator::make(
-            [
-                'supplierselect'=>$request->supplierselect,
-                // 'startdate' => $formattedStartDate,
-                'enddate' => $request->input('enddate'),
-                'file'      =>  $request->file('file'),
-            ],
-            [
-                'supplierselect'=>'required',
-                // 'startdate'=>'required',
-                'enddate' => 'required_if:supplierselect,1',
-                'file' => 'required|file|mimes:xlsx,xls',
-
-            ],
-            [
-                'enddate.required' => 'The date field is required. ',
-                'supplierselect.required' => 'Please select a supplier. It is a required field.',
-               
-            ]
-        );
+        if ($request->supplierselect == 1) {
+            $validator = Validator::make(
+                [
+                    'supplierselect'=>$request->supplierselect,
+                    // 'startdate' => $formattedStartDate,
+                    'enddate' => $request->input('enddate'),
+                    'file'      =>  $request->file('file'),
+                ],
+                [
+                    'supplierselect'=>'required',
+                    // 'startdate'=>'required',
+                    'enddate' => 'required_if:supplierselect,1',
+                    'file' => 'required|file|mimes:xlsx,xls',
+    
+                ],
+                [
+                    'enddate.required' => 'The date field is required. ',
+                    'supplierselect.required' => 'Please select a supplier. It is a required field.',
+                   
+                ]
+            );
+        } else {
+            $validator = Validator::make(
+                [
+                    'supplierselect'=>$request->supplierselect,
+                    'file'      =>  $request->file('file'),
+                ],
+                [
+                    'supplierselect'=>'required',
+                    'file' => 'required|file|mimes:xlsx,xls',
+    
+                ],
+                [
+                    'supplierselect.required' => 'Please select a supplier. It is a required field.',
+                ]
+            );
+        }
 
         if( $validator->fails() ){  
             $categorySuppliers = CategorySupplier::all();
@@ -197,7 +214,8 @@ class ExcelImportController extends Controller
             // dd($supplierValues);
 
             // if(array_values($supplierValues) === array_values($cleanedArray)){
-            if (array_diff($supplierValues, $cleanedArray)) {
+           
+            if (empty(array_diff($supplierValues, $cleanedArray))) {
                 /** Get the authenticated user */
                 $user = Auth::user();
                 $endDateRange = $request->input('enddate');
