@@ -55,6 +55,8 @@ class ExcelImportController extends Controller
     public function import(Request $request)
     {
         // dd($request->all());
+        ini_set('memory_limit', '1024M');
+
         $endDateRange = $request->input('enddate');
 
         // /** Split the date range string into start and end dates */
