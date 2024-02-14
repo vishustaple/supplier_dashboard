@@ -64,7 +64,7 @@
                         <button type="button" class="btn btn-primary invisible" id="necessaryFieldBtn" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa fa-list" aria-hidden="true"></i> Columns List</button>
                     </div>
                     <div class="relative imprt_wrapper text-end">
-                    <button type="submit" class="btn btn-primary" id="importBtn"><i class="me-2 fa-solid fa-file-import"></i>Import</button>
+                        <button type="submit" class="btn btn-primary" id="importBtn"><i class="me-2 fa-solid fa-file-import"></i>Import</button>
                     <div class="overlay" id="overlay"></div>
                 </div>
                 </div>
@@ -209,10 +209,12 @@
     <script>
     $(document).ready(function() {
         $('#page-loader').hide();
-        $( '#importBtn' ).on( "click", function( event ) {
+        $('#importBtn').on( "click", function(event) {
+            alert("fsdfdf");
             event.preventDefault();
             $('#page-loader').show();
             var formData = new FormData($('#import_form')[0]);
+
             console.log(formData);
             
             $.ajax({
@@ -303,27 +305,28 @@
     //     }, 2000);
     //   });
         //check for all fields 
-        $(".overlay").click(function() {
-        var customErrorMessage3 = "Please Select all mandatory field.";
-        console.log(customErrorMessage3);
-        var errorList3 = $('#errorMessage');
-        errorList3.text(customErrorMessage3);
-        errorList3.css('display', 'block');
-        setTimeout(function () {
-        errorList3.fadeOut();
-        // errorList2.css('display', 'none');
-        }, 2000);
-        });
+        // $(".overlay").click(function() {
+        //     var customErrorMessage3 = "Please Select all mandatory field.";
+        //     console.log(customErrorMessage3);
+        //     var errorList3 = $('#errorMessage');
+        //     errorList3.text(customErrorMessage3);
+        //     errorList3.css('display', 'block');
+        //     setTimeout(function () {
+        //         errorList3.fadeOut();
+        //         // errorList2.css('display', 'none');
+        //     }, 2000);
+        // });
+
         //add rangepicker on field 
         $('#enddate').daterangepicker({  
-        showDropdowns: false,
-        linkedCalendars: false,
-        isInvalidDate: function(date) {
-        // Disable dates more than one month from the selected start date
-        var startDate = $('#enddate').data('daterangepicker').startDate;
-        var endDateLimit = moment(startDate).add(1, 'month');
-        return date.isAfter(endDateLimit);
-        }
+            showDropdowns: false,
+            linkedCalendars: false,
+            isInvalidDate: function(date) {
+                // Disable dates more than one month from the selected start date
+                var startDate = $('#enddate').data('daterangepicker').startDate;
+                var endDateLimit = moment(startDate).add(1, 'month');
+                return date.isAfter(endDateLimit);
+            }
         });
 
         $('#selectBox').val('');
@@ -346,7 +349,7 @@
 
             multiArray1 = [
                 [],
-                ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND'],
+                ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND', 'OFF-CORESPEND'],
                 ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
                 ['CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
                 ['MASTER_CUSTOMER', 'MASTER_CUSTOMER', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
@@ -367,8 +370,6 @@
             $.each(listItemsContent, function(index, content) {
                 $("#necessaryFieldList").append("<li class='list-group-item'>" + content + "</li>");
                 let containsKey = multiArray2.includes(content);
-                console.log(content);
-                console.log(containsKey);
                 if (containsKey) {
                     $("#necessaryFieldList1").append("<li class='list-group-item'><i class='fa-solid fa-check'></i></li>");
                 } else {
