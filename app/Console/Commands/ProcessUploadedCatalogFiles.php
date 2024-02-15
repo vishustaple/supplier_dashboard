@@ -35,11 +35,11 @@ class ProcessUploadedCatalogFiles extends Command
         
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
-        ini_set('memory_limit', '1024M');
+        ini_set('memory_limit', '19024M');
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
-        $supplierId = 4;
+        $supplierId = 3;
 
         /** Loading excel file using path and name of file from table "uploaded_file" */
         $spreadSheet = $reader->load($destinationPath . '/' . 'CatelogStaples.xlsx', 2);    
@@ -84,7 +84,7 @@ class ProcessUploadedCatalogFiles extends Command
                     continue;
                 }
 
-                if ($supplierId == 1) {
+                if ($supplierId == 3) {
                     $catalogLastInsertId = Catalog::create([
                         'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
                         'price' => (isset($row[4]) && !empty($row[4])) ? ($row[4]) : ('0'),
