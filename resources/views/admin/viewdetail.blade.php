@@ -21,6 +21,8 @@
         </div>
         <div class="container">
             @if (isset($orders) && !empty($orders))
+            <div class="row">
+                <div class="col-md-8">
                 <table class="table">
                     <thead>
                         <tr>
@@ -127,8 +129,12 @@
                        </tr>
                     </tbody>
                 </table>
+            </div>
+            </div>
             @endif
             @if (isset($account) && !empty($account))
+            <div class="row">
+                <div class="col-md-8">
                 <table class="table">
                     <thead>
                         <tr>
@@ -277,9 +283,13 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            </div>
             @endif
 
             @if (isset($catalog) && !empty($catalog))
+            <div class="row">
+                <div class="col-md-8">
             <table class="table">
                 <thead>
                     <tr>
@@ -314,6 +324,8 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
+            </div>
             @endif
         </div>
     </div>
