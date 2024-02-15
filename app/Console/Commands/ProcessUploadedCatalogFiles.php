@@ -152,5 +152,7 @@ class ProcessUploadedCatalogFiles extends Command
             unset($finalInsertArray);
 
         }
+
+        ini_set('memory_limit', '1024M');
     }
 }
