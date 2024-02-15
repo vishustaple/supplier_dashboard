@@ -99,7 +99,7 @@
                         <th>Parent Name</th>
                         <th>Grand Parent Name</th>
                         <th>Account Name</th>
-                        <th>Record Type</th>
+                        <th>Category</th>
                         <th>Action</th>
                     </tr>
                 </thead>
