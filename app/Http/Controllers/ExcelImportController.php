@@ -38,6 +38,10 @@ class ExcelImportController extends Controller
                 $cronString = 'Uploaded';
             }
 
+            if (isset($item->deleted_at) && !empty($item->deleted_at)) {
+                $cronString = 'Deleted';
+            }
+            
             $formattedData[] = [
                 getSupplierName($item->supplier_id),
                 '<div class="file_td">'.$item->file_name.'</div>',
@@ -48,6 +52,7 @@ class ExcelImportController extends Controller
             ];
             $i++;
         }
+
         $data=json_encode($formattedData);
        
         return view('admin.export',compact('categorySuppliers','data'));
@@ -110,7 +115,7 @@ class ExcelImportController extends Controller
         }
 
         if( $validator->fails() ){  
-            $categorySuppliers = CategorySupplier::all();
+            $categorySuppliers = $categorySuppliers = CategorySupplier::where('show', 0)->get();
             // return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
             return response()->json(['error' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }

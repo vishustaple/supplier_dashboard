@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use DB;
 use Validator;
 use League\Csv\Writer;
-use App\Models\Account;
+use App\Models\{Account, CategorySupplier};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
@@ -113,7 +113,7 @@ class AccountController extends Controller
             Account::create([
                 'qbr' => $request->qbr,
                 'created_by'=> $user->id,
-                'alies' => $request->alies,
+                'alies' => $request->customer_name,
                 'sf_cat' => $request->sf_cat,
                 'comm_rate' =>$request->comm_rate,
                 'spend_name' =>$request->spend_name ,
@@ -190,16 +190,18 @@ class AccountController extends Controller
     public function createAccount(){
         $frompageTitle = 'account';
         $currentpageTitle = 'Edit Account Data';
+        $categorySuppliers = CategorySupplier::where('show', 0)->get();
         $grandparent = Account::select('id','alies')->get();
-        return view('admin.account.add',['fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'grandparent'=>$grandparent]);
+        return view('admin.account.add',['categorySuppliers' => $categorySuppliers, 'fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'grandparent'=>$grandparent]);
     }
     public function editAccount(Request $request){
         $accountId = $request->id;
         $editAccountData = Account::where('id',$accountId)->first();
         $grandparent = Account::select('id','alies')->get();
+        $categorySuppliers = $categorySuppliers = CategorySupplier::where('show', 0)->get();
         $frompageTitle = $request->routename;
         $currentpageTitle = 'Edit Data';
-        return view('admin.account.edit',['fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'account' => $editAccountData,'grandparent'=>$grandparent] );
+        return view('admin.account.edit',['categorySuppliers' => $categorySuppliers, 'fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'account' => $editAccountData,'grandparent'=>$grandparent] );
     }
     public function  Back()
     {
@@ -248,7 +250,7 @@ class AccountController extends Controller
                 $account->update([
                     'created_by'=> $user->id,
                     'qbr' => $request->qbr,
-                    'alies' => $request->alies,
+                    'alies' => $request->customer_name,
                     'sf_cat' => $request->sf_cat,
                     'comm_rate' =>$request->comm_rate,
                     'spend_name' =>$request->spend_name ,

@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('supplier_acct_rep')->nullable();
             $table->string('management_fee')->nullable();
             $table->string('record_type')->nullable();
-            $table->string('category_supplier')->nullable();
+            $table->unsignedBigInteger('category_supplier');
             $table->string('cpg_sales_representative')->nullable();
             $table->string('cpg_customer_service_rep')->nullable();
             $table->string('sf_cat')->nullable();
@@ -40,6 +40,7 @@ return new class extends Migration
 
             $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('parent_id')->references('id')->on('accounts');
+            $table->foreign('category_supplier')->references('id')->on('suppliers');
             /** Add other foreign key constraints if needed */
         });
     }

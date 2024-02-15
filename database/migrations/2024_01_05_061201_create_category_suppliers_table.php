@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
             $table->string('supplier_name', 255);
+            $table->tinyInteger('show')->default(0); // Assuming TINYINT(2) is used for show
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 
