@@ -31,6 +31,13 @@ class DeleteUploadedFilesData extends Command
     {
         /** Selecting the file data row using table id */
         $fileData = UploadedFiles::where('delete', 1)->first();
+
+        /** Update delete two means start deleting data into excel */
+        DB::table('uploaded_files')->where('id', $fileData->id)
+        ->update([
+        'delete' => UploadedFiles::CRON
+        ]);
+
         if (!empty($fileData->id)) {
             try {
                 $id = $fileData->id;
@@ -73,6 +80,12 @@ class DeleteUploadedFilesData extends Command
     
                 /** Deleting uploded file from storage */
                 // Storage::delete($fileData->file_name);
+
+                /** Update the 'delete' field three after deleting done */
+                DB::table('uploaded_files')->where('id', $fileData->id)
+                ->update([
+                'delete' => 0
+                ]);
             } catch (QueryException $e) {   
                 Log::error('Database deletion failed:: ' . $e->getMessage());
     
