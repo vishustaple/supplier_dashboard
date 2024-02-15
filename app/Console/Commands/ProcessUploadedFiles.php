@@ -90,7 +90,7 @@ class ProcessUploadedFiles extends Command
 
                     2 => ['gd_customer_number' => 'Track Code', 'gd_customer_name' => 'Track Code Name', 'p_customer_number' => 'Sub track Code', 'p_customer_name' => 'Sub Track Code Name', 'customer_name' => 'Account Name', 'customer_number' => 'Account Number', 'amount' => 'Actual Price Paid', 'invoice_no' => 'Invoice Number', 'invoice_date' => 'Bill Date'],
 
-                    3 => ['gd_customer_number' => 'CUSTOMER GRANDPARENT ID', 'gd_customer_name' => 'CUSTOMER GRANDPARENT NM', 'p_customer_number' => 'CUSTOMER PARENT ID', 'p_customer_name' => 'CUSTOMER PARENT NM', 'customer_number' => 'CUSTOMER ID', 'amount' => 'Total Spend', 'invoice_no' => 'Invoice #', 'invoice_date' => 'Shipped Date'],
+                    3 => ['gd_customer_number' => 'CUSTOMER GRANDPARENT ID', 'gd_customer_name' => 'CUSTOMER GRANDPARENT NM', 'p_customer_number' => 'CUSTOMER PARENT ID', 'p_customer_name' => 'CUSTOMER PARENT NM', 'customer_number' => 'CUSTOMER ID', 'customer_name' => 'CUSTOMER NM', 'amount' => 'Total Spend', 'invoice_no' => 'Invoice #', 'invoice_date' => 'Shipped Date'],
 
                     4 => ['customer_number' => 'MASTER_CUSTOMER', 'customer_name' => 'MASTER_NAME', 'amount' => 'ADJGROSSSALES', 'invoice_no' => 'INVOICENUMBER', 'invoice_date' => 'INVOICEDATE'],
 
@@ -561,7 +561,7 @@ class ProcessUploadedFiles extends Command
                 }
 
                 try {
-                    /** Update the 'cron' field three after processing */
+                    /** Update the 'cron' field three after processing done */
                     DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => UploadedFiles::PROCESSED]);
 
                     $this->info('Uploaded files processed successfully.');
