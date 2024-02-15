@@ -93,12 +93,12 @@ class Account extends Model
         ];
 
         $query = self::with('parent.parent') // Eager load relationships
-        ->select('accounts.id as id', 'accounts.record_type as record_type', 'accounts.created_at as date', 'accounts.category_supplier as supplier_name', 'accounts.customer_number as customer_number', "accounts.alies as customer_name", 'accounts.account_name as account_name',
+        ->select('accounts.id as id', 'accounts.record_type as record_type', 'accounts.created_at as date', 'suppliers.supplier_name as supplier_name', 'accounts.customer_number as customer_number', "accounts.alies as customer_name", 'accounts.account_name as account_name',
         DB::raw("parent.alies as parent_name"),
         DB::raw("grandparent.alies as grand_parent_name"))
         ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
-        ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id');
-
+        ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'accounts.category_supplier');
         // Search functionality
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
