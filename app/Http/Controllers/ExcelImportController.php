@@ -19,7 +19,7 @@ class ExcelImportController extends Controller
 {
     public function index(){
       
-        $categorySuppliers = CategorySupplier::all();
+        $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
 
         $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
         // echo"<pre>";
