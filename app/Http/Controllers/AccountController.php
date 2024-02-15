@@ -190,7 +190,7 @@ class AccountController extends Controller
     public function createAccount(){
         $frompageTitle = 'account';
         $currentpageTitle = 'Edit Account Data';
-        $categorySuppliers = CategorySupplier::where('show', 0)->get();
+        $categorySuppliers = CategorySupplier::all();
         $grandparent = Account::select('id','alies')->get();
         return view('admin.account.add',['categorySuppliers' => $categorySuppliers, 'fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'grandparent'=>$grandparent]);
     }
@@ -198,7 +198,7 @@ class AccountController extends Controller
         $accountId = $request->id;
         $editAccountData = Account::where('id',$accountId)->first();
         $grandparent = Account::select('id','alies')->get();
-        $categorySuppliers = $categorySuppliers = CategorySupplier::where('show', 0)->get();
+        $categorySuppliers = CategorySupplier::all();
         $frompageTitle = $request->routename;
         $currentpageTitle = 'Edit Data';
         return view('admin.account.edit',['categorySuppliers' => $categorySuppliers, 'fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'account' => $editAccountData,'grandparent'=>$grandparent] );
