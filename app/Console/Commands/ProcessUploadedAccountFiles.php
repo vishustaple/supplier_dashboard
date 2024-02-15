@@ -54,7 +54,8 @@ class ProcessUploadedAccountFiles extends Command
             if ($supplier) {
                 $supplierId = $supplier->id;
             } else {
-                $supplierId = DB::table('suppliers')->insertGetId(['supplier_name' => $row[5], 'show' => 1, 'created_by' => 1]);
+                $supplierId = DB::table('suppliers')->insertGetId(['supplier_name' => $row[5], 'show' => 1, 'created_by' => 1,'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')]);
             }
             if (!empty($parent)) {
                 $finalInsertArray[] = [
