@@ -39,10 +39,10 @@ class ProcessUploadedCatalogFiles extends Command
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
-        $supplierId = 5;
+        $supplierId = 4;
 
         /** Loading excel file using path and name of file from table "uploaded_file" */
-        $spreadSheet = $reader->load($destinationPath . '/' . 'CatalogWBM.xlsx', 2);    
+        $spreadSheet = $reader->load($destinationPath . '/' . 'CatelogStaples.xlsx', 2);    
       
         
         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
