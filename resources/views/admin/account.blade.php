@@ -95,10 +95,10 @@
                     <tr>
                         <th>Customer Number</th>
                         <th>Customer Name</th>
+                        <th>Account Name</th>
                         <th>Supplier</th>
                         <th>Parent Name</th>
                         <th>Grand Parent Name</th>
-                        <th>Account Name</th>
                         <th>Category</th>
                         <th>Action</th>
                     </tr>
@@ -194,10 +194,10 @@
             columns: [
                 { data: 'customer_number', name: 'customer_number' },
                 { data: 'customer_name', name: 'customer_name' },
+                { data: 'account_name', name: 'account_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'parent_name', name: 'parent_name' },
                 { data: 'grand_parent_name', name: 'grand_parent_name' },
-                { data: 'account_name', name: 'account_name' },
                 { data: 'record_type', name: 'record_type' },
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
