@@ -42,7 +42,7 @@ class ProcessUploadedCatalogFiles extends Command
         $supplierId = 4;
 
         /** Loading excel file using path and name of file from table "uploaded_file" */
-        $spreadSheet = $reader->load($destinationPath . '/' . 'CatelogStaples.xlsx', 2);    
+        $spreadSheet = $reader->load($destinationPath . '/' . 'CatalogWBM.xlsx', 2);    
       
         
         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
