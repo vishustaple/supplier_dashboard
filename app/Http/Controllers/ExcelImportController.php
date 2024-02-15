@@ -123,8 +123,11 @@ class ExcelImportController extends Controller
             $sheetCount = $spreadSheet->getSheetCount(); 
         
             /** Variables to store information about the row with the highest number of columns */
-            $workSheetArray = $workSheet->toArray();
-            
+            if ($request->supplierselect == 7 && $sheetCount > 2) {
+                $workSheetArray = $spreadSheet->getSheet(2)->toArray();
+            } else {
+                $workSheetArray = $workSheet->toArray();
+            }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -190,7 +193,8 @@ class ExcelImportController extends Controller
             '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
             '3' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
             '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
-            '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
+            // '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
+            '5' => ['Customer Name', 'Customer Num', 'Current List'],
             '6' => ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
             '7'=>  ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
             '8' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
@@ -216,14 +220,7 @@ class ExcelImportController extends Controller
             // dd($supplierValues);
 
             // if(array_values($supplierValues) === array_values($cleanedArray)){
-//                 echo"<pre>";
-//             print_r($supplierValues);
-//             // print_r($cleanedArray);
-//             $diff = array_diff($supplierValues, $cleanedArray);
-// print_r($diff);
-//             var_dump(empty(array_diff($supplierValues, $cleanedArray)));
-//             die;
-            if (empty(array_diff($cleanedArray, $supplierValues))) {
+            if (empty(array_diff($supplierValues, $cleanedArray))) {
                 /** Get the authenticated user */
                 $user = Auth::user();
                 $endDateRange = $request->input('enddate');
