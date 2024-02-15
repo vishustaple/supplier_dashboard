@@ -34,7 +34,7 @@
                 @csrf
                 <div class="row py-4 align-items-end border-bottom mb-3">
                     <div class="form-group col-md-6 mb-0">
-                        <label for="selectBox">Select Supplier:</label>
+                        <label for="selectBox">Supplier Format:</label>
                         <select id="selectBox" name="supplierselect" class="form-control"> 
                         <option value="" selected>--Select--</option>
                         @if(isset($categorySuppliers))
@@ -46,18 +46,15 @@
                     </div>
                     <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
                         <label for="enddate">Select Date:</label>
-                        <input class="form-control " id="enddate" name="enddate" placeholder="Enter Your End Date " >   
-                        <!-- <div class="input-overlay"></div>              -->
+                        <input class="form-control " id="enddate" name="enddate" placeholder="Enter Your End Date " >
                     </div>
                     <div class="form-group relative col-md-6 pt-4 mb-0">
-                        <label for="file">Choose Excel File:</label>
+                        <label for="file">Usage Data Import:</label>
                         <input type="file" name="file" id="file" class="form-control">
-                        <!-- <div class="input-overlay-file"></div>   -->
                     </div>
                     <div class="col-md-6 pt-4 mb-0 d-flex justify-content-end">
                         <div class="relative imprt_wrapper text-end me-2">
                             <a id="sampleFileDownloadBtn" class="btn btn-primary invisible" href="#"><i class="fa fa-cloud-download" aria-hidden="true"></i> Sample File</a>
-                            <!-- <button type="button" class="btn btn-primary invisible" id="sampleFileDownloadBtn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Sample File</button> -->
                         </div>
                         <div class="relative imprt_wrapper text-end me-2">
                             <button type="button" class="btn btn-primary invisible" id="necessaryFieldBtn" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa fa-list" aria-hidden="true"></i> Columns List</button>
@@ -381,9 +378,9 @@
             "pageLength": 40,
             "data": <?php if(isset($data)){ echo $data; }  ?>,
             "columns": [
-                { title: 'Supplier Name' },
+                { title: 'Supplier' },
                 { title: 'File Name' },
-                { title: 'Processing' },
+                { title: 'Status' },
                 { title: 'Uploaded By' },
                 { title: 'Date' },
                 { title: 'Action' },
