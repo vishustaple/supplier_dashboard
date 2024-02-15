@@ -107,6 +107,7 @@
         @include('layout.footer')
     </div>
 </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
     .spinner {
         margin: 0 auto;
@@ -205,7 +206,11 @@
         $('#importBtn').on( "click", function(event) {
             event.preventDefault();
             $('#page-loader').show();
-            var formData = new FormData($('#import_form')[0]);
+            var button = document.getElementById('importBtn'),
+            formData = new FormData($('#import_form')[0]);
+            
+            button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading';
+            button.disabled = true;
         
             $.ajax({
                 type: 'POST',
@@ -227,24 +232,29 @@
                     let errorMessages = [];
 
                     if (response && response.error) {
-                    $('#page-loader').hide();
-                    // Iterate over each field in the error object
-                    Object.keys(response.error).forEach(field => {
-                    // Get the error messages for the current field
-                    let fieldErrorMessages = response.error[field];
+                        button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
+                        button.disabled = false;
 
-                    // Concatenate the field name and its error messages
-                    let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
-                    console.log(errorMessageText);
+                        $('#page-loader').hide();
+                        // Iterate over each field in the error object
+                        Object.keys(response.error).forEach(field => {
+                            // Get the error messages for the current field
+                            let fieldErrorMessages = response.error[field];
 
-                    // Accumulate the error messages
-                    errorMessages.push(errorMessageText);
-                    });
-                    $('#errorMessage').html(errorMessages.join('<br>'));
-                    $('#errorMessage').css('display','block');
+                            // Concatenate the field name and its error messages
+                            let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
+                            console.log(errorMessageText);
+
+                            // Accumulate the error messages
+                            errorMessages.push(errorMessageText);
+                        });
+                        $('#errorMessage').html(errorMessages.join('<br>'));
+                        $('#errorMessage').css('display','block');
                     }
 
                     if(response.success){
+                        document.getElementById('importBtn').disabled = false;
+                        button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
                         $('#page-loader').hide();
                         $('#successMessage').text(response.success);
                         $('#successMessage').css('display','block');
@@ -252,13 +262,12 @@
                         //disable all field 
                         $('#enddate,#file,#importBtn').prop('disabled', true);
                         setTimeout(function () {
-                        $('#successMessage').fadeOut();
-                        location.reload();
+                            $('#successMessage').fadeOut();
+                            location.reload();
                         }, 2000); 
-                       
                     }
                     // Handle success response
-                    console.log(response);
+                    // console.log(response);
                 },
                 error: function(xhr, status, error) {
                     // Handle error response
@@ -366,7 +375,7 @@
 
          var exportTable =  $('#example').DataTable({
             "paging": true,   // Enable pagination
-            "ordering": true, // Enable sorting
+            "ordering": false, // Enable sorting
             "searching": true, // Enable search
             "lengthChange":false,
             "pageLength": 40,
