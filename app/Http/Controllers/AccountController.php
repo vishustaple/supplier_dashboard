@@ -157,7 +157,9 @@ class AccountController extends Controller
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */
         $data = Account::getFilterdAccountsData($filter, $csv);
-
+        // echo"<pre>";
+        // print_r($data);
+        // die;
         /** Create a stream for output */
         $stream = fopen('php://temp', 'w+');
 
@@ -165,7 +167,7 @@ class AccountController extends Controller
         $csvWriter = Writer::createFromStream($stream);
         
         /** Add column headings */
-        $csvWriter->insertOne(['Customer Number', 'Customer Name', 'Supplier Name', 'Account Name', 'Record Type', 'Date']);
+        $csvWriter->insertOne(['Customer Number', 'Customer Name', 'Account Name', 'Grand Parent Name', 'Parent Name', 'Volume Rebate', 'Sales Representative', 'Customer Service Representative', 'Member Rebate', 'Temp Active Date', 'Temp End Date', 'Internal Reporting Name', 'Qbr', 'Spend Name', 'Supplier Acct Rep', 'Management Fee', 'Category', 'Supplier', 'Cpg Sales Representative', 'Cpg Customer Service Rep', 'Sf Cat', 'Rebate Freq', 'Comm Rate']);
 
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);

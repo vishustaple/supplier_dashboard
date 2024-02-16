@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use DB;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -92,13 +93,44 @@ class Account extends Model
             6 => 'created_at',
         ];
 
-        $query = self::with('parent.parent') // Eager load relationships
-        ->select('accounts.id as id', 'accounts.record_type as record_type', 'accounts.created_at as date', 'suppliers.supplier_name as supplier_name', 'accounts.customer_number as customer_number', "accounts.alies as customer_name", 'accounts.account_name as account_name',
-        DB::raw("parent.alies as parent_name"),
-        DB::raw("grandparent.alies as grand_parent_name"))
-        ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
-        ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'accounts.category_supplier');
+        if ($csv) {
+            $query = self::with('parent.parent') // Eager load relationships
+            ->select('accounts.id as id',
+            'accounts.customer_number as customer_number',
+            'accounts.alies as customer_name',
+            'accounts.account_name as account_name',
+            'accounts.volume_rebate as volume_rebate',
+            'accounts.sales_representative as sales_representative',
+            'accounts.customer_service_representative as customer_service_representative',
+            'accounts.member_rebate as member_rebate',
+            'accounts.temp_active_date as temp_active_date',
+            'accounts.temp_end_date as temp_end_date',
+            'accounts.internal_reporting_name as internal_reporting_name',
+            'accounts.qbr as qbr',
+            'accounts.spend_name as spend_name',
+            'accounts.supplier_acct_rep as supplier_acct_rep',
+            'accounts.management_fee as management_fee',
+            'accounts.record_type as record_type',
+            'accounts.cpg_sales_representative as cpg_sales_representative',
+            'accounts.cpg_customer_service_rep as cpg_customer_service_rep',
+            'accounts.sf_cat as sf_cat',
+            'accounts.rebate_freq as rebate_freq',
+            'accounts.comm_rate as comm_rate',
+            'suppliers.supplier_name as category_supplier',
+            DB::raw("parent.alies as parent_name"),
+            DB::raw("grandparent.alies as grand_parent_name"))
+            ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
+            ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'accounts.category_supplier');
+        } else {
+            $query = self::with('parent.parent') // Eager load relationships
+            ->select('accounts.id as id', 'accounts.record_type as record_type', 'accounts.created_at as date', 'suppliers.supplier_name as supplier_name', 'accounts.customer_number as customer_number', "accounts.alies as customer_name", 'accounts.account_name as account_name',
+            DB::raw("parent.alies as parent_name"),
+            DB::raw("grandparent.alies as grand_parent_name"))
+            ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
+            ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'accounts.category_supplier');
+        }
         // Search functionality
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
@@ -133,15 +165,41 @@ class Account extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            $formatuserdata[$key]['record_type'] = $data->record_type;
-            $formatuserdata[$key]['parent_name'] = $data->parent_name;
-            $formatuserdata[$key]['account_name'] = $data->account_name;
-            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
-            $formatuserdata[$key]['customer_name'] = $data->customer_name;
-            $formatuserdata[$key]['customer_number'] = $data->customer_number;
-            $formatuserdata[$key]['grand_parent_name'] = $data->grand_parent_name;
-            $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
-            if ($csv == false) {    
+            if($csv){
+                $formatuserdata[] = [
+                    'customer_number' => isset($data->customer_number) ? "\t" .$data->customer_number : null,
+                    'customer_name' => $data->customer_name,
+                    'account_name' => $data->account_name,
+                    'grand_parent_name' => $data->grand_parent_name,
+                    'parent_name' => $data->parent_name,
+                    'volume_rebate' => $data->volume_rebate,
+                    'sales_representative' => $data->sales_representative,
+                    'customer_service_representative' => $data->customer_service_representative,
+                    'member_rebate' => $data->member_rebate,
+                    'temp_active_date' => isset($data->temp_active_date) && !empty($data->temp_active_date) ? Carbon::parse($data->temp_active_date)->format('Y-m-d') : null ,
+                    'temp_end_date' => isset($data->temp_end_date) && !empty($data->temp_end_date) ? Carbon::parse($data->temp_end_date)->format('Y-m-d') : null ,
+                    'internal_reporting_name' => $data->internal_reporting_name,
+                    'qbr' => $data->qbr,
+                    'spend_name' => $data->spend_name,
+                    'supplier_acct_rep' => $data->supplier_acct_rep,
+                    'management_fee' => $data->management_fee,
+                    'category' => $data->record_type,
+                    'supplier' => $data->category_supplier,
+                    'cpg_sales_representative' => $data->cpg_sales_representative,
+                    'cpg_customer_service_rep' => $data->cpg_customer_service_rep,
+                    'sf_cat' => $data->sf_cat,
+                    'rebate_freq' => $data->rebate_freq,
+                    'comm_rate' => $data->comm_rate,
+            ];
+            } else {
+                $formatuserdata[$key]['record_type'] = $data->record_type;
+                $formatuserdata[$key]['parent_name'] = $data->parent_name;
+                $formatuserdata[$key]['account_name'] = $data->account_name;
+                $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
+                $formatuserdata[$key]['customer_name'] = $data->customer_name;
+                $formatuserdata[$key]['customer_number'] = $data->customer_number;
+                $formatuserdata[$key]['grand_parent_name'] = $data->grand_parent_name;
+                $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
                 $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit Account" class=" " href= '.route('account.edit', ['id' => $data->id,'routename' => 'account']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Account"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
             }
         }
