@@ -45,9 +45,9 @@ class ProcessUploadedCatalogFiles extends Command
             5 => ['CatalogWBM.xlsx'], 
             4 => ['CatelogStaples.xlsx']
         ];
-        foreach ($fileNameArray as $key => $value) {
+        for ($i=0; $i < count($fileNameArray[3]); $i++) { 
             /** Loading excel file using path and name of file from table "uploaded_file" */
-            $spreadSheet = $reader->load($destinationPath . '/' . $value, 2);    
+            $spreadSheet = $reader->load($destinationPath . '/' . $fileNameArray[3][$i], 2);    
           
             
             $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
