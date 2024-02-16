@@ -35,14 +35,14 @@ class ProcessUploadedCatalogFiles extends Command
         
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
-        ini_set('memory_limit', '19024M');
+        ini_set('memory_limit', '1024M');
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
-        $supplierId = 5;
+        $supplierId = 4;
 
         /** Loading excel file using path and name of file from table "uploaded_file" */
-        $spreadSheet = $reader->load($destinationPath . '/' . 'CatalogWBM.xlsx', 2);    
+        $spreadSheet = $reader->load($destinationPath . '/' . 'CatelogStaples.xlsx', 2);    
       
         
         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
