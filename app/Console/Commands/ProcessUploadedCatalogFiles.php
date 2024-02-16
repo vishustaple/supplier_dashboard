@@ -35,7 +35,7 @@ class ProcessUploadedCatalogFiles extends Command
         
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
-        ini_set('memory_limit', '19024M');
+        ini_set('memory_limit', '20024M');
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
