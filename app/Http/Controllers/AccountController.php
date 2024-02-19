@@ -178,7 +178,7 @@ class AccountController extends Controller
         }
     }
     public function updateAccount(Request $request){
-
+       
         $validator = Validator::make(
             [
                 'customer_id'=> $request->customer_id,
@@ -203,13 +203,13 @@ class AccountController extends Controller
         }
         try {
             $account = Account::find($request->account_id);
-          
+       
             if($account){
               
                 $account->update([
                  'customer_number' => $request->customer_id,
                 'customer_name' => $request->alies,
-                'parent_id' => $request->input('grandparentselect'),
+                'parent_id' => $request->input('grandparentSelect'),
                 'account_name' => $request->account_name,
                 'volume_rebate' =>$request->volume_rebate,
                 'sales_representative' =>$request->sales_representative,
