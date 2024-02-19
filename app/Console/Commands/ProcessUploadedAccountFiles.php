@@ -38,16 +38,25 @@ class ProcessUploadedAccountFiles extends Command
         /** Loading excel file using path and name of file from table "uploaded_file" */
         $spreadSheet = $reader->load($destinationPath . '/' . 'accountinfo.xlsx', 2);    
 
+        
         $workSheetArray = $spreadSheet->getSheet(0)->toArray();
         $count = 0;
 
         foreach ($workSheetArray as $key => $row) {
             if ($key == 0) {
                 continue;
-            }              
+            }
 
             $parent = DB::table('accounts')->where('customer_number', $row[8])->first();
 
+            $supplier = DB::table('suppliers')->select('id')->where('supplier_name', $row[5])->first();
+
+            if ($supplier) {
+                $supplierId = $supplier->id;
+            } else {
+                $supplierId = DB::table('suppliers')->insertGetId(['supplier_name' => $row[5], 'show' => 1, 'created_by' => 1,'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')]);
+            }
             if (!empty($parent)) {
                 $finalInsertArray[] = [
                     'parent_id' => $parent->parent_id,
@@ -57,10 +66,10 @@ class ProcessUploadedAccountFiles extends Command
                     'account_name' => $row[2],
                     'volume_rebate' => $row[4],
                     'member_rebate' => $row[10],
-                    'temp_end_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s'),
+                    'temp_end_date' => (isset($row[12]) && !empty($row[12])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s')) : (''),
                     'customer_number' => $row[0],
-                    'temp_active_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s'),
-                    'category_supplier' => $row[5],
+                    'temp_active_date' => (isset($row[11]) && !empty($row[11])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s')) : (''),
+                    'category_supplier' => $supplierId,
                     'sales_representative' => $row[6],
                     'cpg_customer_service_rep' => $row[7],
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -68,16 +77,17 @@ class ProcessUploadedAccountFiles extends Command
                 ];
             } else {
                 $finalInsertArray[] = [
+                    'parent_id' => null,
                     'created_by' => 1,
                     'alies' => $row[1],
                     'record_type' => $row[3],
                     'account_name' => $row[2],
                     'volume_rebate' => $row[4],
                     'member_rebate' => $row[10],
-                    'temp_end_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s'),
+                    'temp_end_date' => (isset($row[12]) && !empty($row[12])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s')) : (''),
                     'customer_number' => $row[0],
-                    'temp_active_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s'),
-                    'category_supplier' => $row[5],
+                    'temp_active_date' => (isset($row[11]) && !empty($row[11])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s')) : (''),
+                    'category_supplier' => $supplierId,
                     'sales_representative' => $row[6],
                     'cpg_customer_service_rep' => $row[7],
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
