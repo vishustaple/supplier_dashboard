@@ -45,7 +45,7 @@ class ProcessUploadedCatalogFiles extends Command
             // 3 => ['odCatelog4.xlsx', 'odCatelog3.xlsx'],
             // 3 => ['odCatelog6.xlsx'],
             // 3 => ['odCatelog8.xlsx'],
-            3 => ['odCatelog9.xlsx', 'odCatelog10.xlsx'], 
+            3 => ['odCatelog10.xlsx'], 
             // 3 => ['odCatelog11.xlsx', 'odCatelog12.xlsx'],
             // 3 => ['odCatelog13.xlsx', 'odCatelog14.xlsx'],
             // 3 => ['odCatelog15.xlsx', 'odCatelog16.xlsx'], 
@@ -56,7 +56,7 @@ class ProcessUploadedCatalogFiles extends Command
             5 => ['CatalogWBM.xlsx'], 
             4 => ['CatelogStaples.xlsx']
         ];
-        for ($i=0; $i < count($fileNameArray[3]); $i++) { 
+        for ($i=0; $i <= count($fileNameArray[3]); $i++) { 
             /** Loading excel file using path and name of file from table "uploaded_file" */
             $spreadSheet = $reader->load($destinationPath . '/' . $fileNameArray[3][$i], 2);    
           
