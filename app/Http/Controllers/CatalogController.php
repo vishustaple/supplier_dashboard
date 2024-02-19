@@ -45,15 +45,57 @@ class CatalogController extends Controller
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */
         $data = Catalog::getFilterdCatalogData($filter, $csv);
+        // echo"<pre>";
+        // print_r($data);
+        // die;
 
         /** Create a stream for output */
         $stream = fopen('php://temp', 'w+');
 
         /** Create a new CSV writer instance */
         $csvWriter = Writer::createFromStream($stream);
+
+        $heading = $data['heading'];
         
-        /** Add column headings */
-        $csvWriter->insertOne(['Sku', 'Description', 'Supplier Name', 'Price']);
+        unset($data['heading']);
+         /** Add column headings */
+         $csvWriter->insertOne($heading);
+        // if ($data['supplier'] == 4) {
+        //     $csvWriter->insertOne(['SKUNUMBER',
+        //     'ITEMDESCRIPTION',
+        //     'STAPLESADVANTAGEITEMDESCRIPTION',
+        //     'SELLUOM',
+        //     'QTYINSELLUOM',
+        //     'AVGSELLPRICE',
+        //     'PRIMARYPRODCAT',
+        //     'SECONDARYPRODCAT',
+        //     'PRODCLASS',
+        //     'STAPLESOWNBRAND']);
+        // } elseif($data['supplier'] == 3) {
+        //     /** Add column headings */
+        //     $csvWriter->insertOne([
+        //         'Sku Number',
+        //         'UM ',
+        //         'Vendor Prd#',
+        //         'Item',
+        //         'Platinum Price',
+        //         'Platinum Price Method',
+        //         'Preferred Price',
+        //         'Preferred Price Method',
+        //         'Dept Description',
+        //         'Class Description',
+        //         'Sugg',
+        //         'Vendor Name',
+        //         'MBE',
+        //         'WBE',
+        //         'Recycled',
+        //     ]);
+        // } elseif($data['supplier'] == 5) {
+
+        // } else {
+            
+        // }
+        
 
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);

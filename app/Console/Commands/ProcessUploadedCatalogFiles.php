@@ -41,7 +41,7 @@ class ProcessUploadedCatalogFiles extends Command
 
         $supplierId = 3;
         $fileNameArray = [
-            3 => ['odCatelog1.xlsx', 'odCatelog2.xlsx', 'odCatelog3.xlsx', 'odCatelog4.xlsx', 'odCatelog5.xlsx', 'odCatelog6.xlsx', 'odCatelog7.xlsx', 'odCatelog8.xlsx', 'odCatelog9.xlsx', 'odCatelog10.xlsx', 'odCatelog11.xlsx', 'odCatelog12.xlsx', 'odCatelog13.xlsx', 'odCatelog14.xlsx', 'odCatelog15.xlsx', 'odCatelog16.xlsx', 'odCatelog17.xlsx', 'odCatelog18.xlsx', 'odCatelog19.xlsx', 'odCatelog20.xlsx', 'odCatelog21.xlsx', 'odCatelog22.xlsx', 'odCatelog23.xlsx', 'odCatelogk24.xlsx'],
+            3 => ['odCatelog1.xlsx', 'odCatelog2.xlsx', 'odCatelog3.xlsx', 'odCatelog4.xlsx', 'odCatelog5.xlsx', 'odCatelog6.xlsx'],
             5 => ['CatalogWBM.xlsx'], 
             4 => ['CatelogStaples.xlsx']
         ];
