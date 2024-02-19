@@ -51,16 +51,16 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                 ],
 
                 4 =>[
-                    'selluom' => 'selluom',
-                    'skunumber' => 'sku_number',
-                    'prodclass' => 'prod_class',
-                    'qtyinselluom' => 'qty_in_selluom',
-                    'avgsellprice' => 'avg_sell_price',
-                    'primaryprodcat' => 'primary_prod_cat',
-                    'staplesownbrand' => 'staple_own_brand',
-                    'itemdescription' => 'item_description',
-                    'secondaryprodcat' => 'secondary_prod_cat',
-                    'staplesadvantageitemdescription' => 'staples_advantages_item_description',
+                    'SELLUOM' => 'selluom',
+                    'SKUNUMBER' => 'sku_number',
+                    'PRODCLASS' => 'prod_class',
+                    'QTYINSELLUOM' => 'qty_in_selluom',
+                    'AVGSELLPRICE' => 'avg_sell_price',
+                    'PRIMARYPRODCAT' => 'primary_prod_cat',
+                    'STAPLESOWNBRAND' => 'staple_own_brand',
+                    'ITEMDESCRIPTION' => 'item_description',
+                    'SECONDARYPRODCAT' => 'secondary_prod_cat',
+                    'STAPLESADVANTAGEITEMDESCRIPTION' => 'staples_advantages_item_description',
                 ],
                  
                 5 =>[
@@ -95,7 +95,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
     
                 foreach ($formatuserdata as $key => $value) {
                     for ($i=0; $i < count($value); $i++) {
-                        $finalArray[$key][$catelogTableKeyArray[$curruentSupplierId][trim(strtolower($value[$i]['table_key']))]] = $value[$i]['table_value'];
+                        $finalArray[$key][$catelogTableKeyArray[$curruentSupplierId][trim($value[$i]['table_key'])]] = $value[$i]['table_value'];
                         $finalArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                         $finalArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
                     }
