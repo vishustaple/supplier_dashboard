@@ -2,16 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use Validator;
 use League\Csv\Writer;
-use App\Models\Account;
+use App\Models\{Account, CategorySupplier};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 // use App\Rules\AtLeastOneChecked;
 
 class AccountController extends Controller
 {
+    public function allAccount(Request $request, $id=null){
+        if (!isset($id)) {
+            $id = $request->query('id');
+        }
+
+        if(isset($id)){
+            $account = Account::with('parent.parent')->select(
+                'accounts.qbr as qbr',
+                'accounts.alies as alies',
+                'accounts.sf_cat as sf_cat',
+                'accounts.comm_rate as comm_rate',
+                'accounts.parent_id as parent_id',
+                'accounts.spend_name as spend_name',
+                'accounts.created_at as created_at',
+                'accounts.created_by as created_by',
+                'accounts.updated_at as updated_at',
+                'accounts.rebate_freq as rebate_freq',
+                'accounts.record_type as record_type',
+                DB::raw("parent.alies as parent_name"),
+                'accounts.account_name as account_name',
+                'accounts.member_rebate as member_rebate',
+                'accounts.temp_end_date as temp_end_date',
+                'accounts.volume_rebate as volume_rebate',
+                'accounts.management_fee as management_fee',
+                'accounts.customer_number as customer_number',
+                'accounts.temp_active_date as temp_active_date',
+                'accounts.category_supplier as category_supplier',
+                'accounts.supplier_acct_rep as supplier_acct_rep',
+                DB::raw("grandparent.alies as grand_parent_name"),
+                'accounts.sales_representative as sales_representative',
+                'accounts.internal_reporting_name as internal_reporting_name',
+                'accounts.cpg_sales_representative as cpg_sales_representative',
+                'accounts.cpg_customer_service_rep as cpg_customer_service_rep',
+                'accounts.customer_service_representative as customer_service_representative',  
+            )->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')->where('accounts.id','=', $id)->first();
+
+            return view('admin.viewdetail',compact('account'));
+        }
+        
+        return view('admin.account');
+    }
+
     public function addAccount(Request $request){
 
     //   dd($request->all());
@@ -57,51 +101,47 @@ class AccountController extends Controller
            
             return response()->json(['error' => $validator->errors()], 200);
         }
+
         if($request->parent){
             if(empty($request->grandparentSelect)){
-            return response()->json(['error' => "The GrandParent Field is Required."], 200);
+                return response()->json(['error' => "The GrandParent Field is Required."], 200);
             }
         }
+
         try{
-           
+            $user = Auth::user();
             Account::create([
-                'customer_number' => $request->customer_id,
-                'customer_name' => $request->alies,
-                'parent_id' => $request->input('grandparentselect') ?? null,
+                'qbr' => $request->qbr,
+                'created_by'=> $user->id,
+                'alies' => $request->customer_name,
+                'sf_cat' => $request->sf_cat,
+                'comm_rate' =>$request->comm_rate,
+                'spend_name' =>$request->spend_name ,
+                'record_type' =>$request->record_type,
+                'rebate_freq' => $request->rebate_freq,
                 'account_name' => $request->account_name,
                 'volume_rebate' =>$request->volume_rebate,
-                'sales_representative' =>$request->sales_representative,
-                'customer_service_representative' =>$request->customer_service_representative ,
                 'member_rebate' =>$request->member_rebate,
-                'temp_active_date' =>$request->temp_active_date ,
                 'temp_end_date' =>$request->temp_end_date,
-                'internal_reporting_name' =>$request->internal_reporting_name,
-                'qbr' => $request->qbr,
-                'spend_name' =>$request->spend_name ,
-                'supplier_acct_rep'=> $request->supplier_acct_rep,
+                'customer_number' => $request->customer_id,
                 'management_fee' =>$request->management_fee ,
-                'record_type' =>$request->record_type,
+                'temp_active_date' =>$request->temp_active_date ,
+                'supplier_acct_rep'=> $request->supplier_acct_rep,
                 'category_supplier' =>$request->category_supplier ,
+                'sales_representative' =>$request->sales_representative,
+                'parent_id' => $request->input('grandparentSelect') ?? null,
+                'internal_reporting_name' =>$request->internal_reporting_name,
                 'cpg_sales_representative' =>$request->cpg_sales_representative,
                 'cpg_customer_service_rep' => $request->cpg_customer_service_rep,
-                'sf_cat' => $request->sf_cat,
-                'rebate_freq' => $request->rebate_freq,
-                'comm_rate' =>$request->comm_rate,
-                'created_by'=>'1',
+                'customer_service_representative' =>$request->customer_service_representative ,
             ]);
-            return response()->json(['success' => 'Add account Successfully!'], 200);
 
+            return response()->json(['success' => 'Add account Successfully!'], 200);
         } catch (QueryException $e) {   
             return response()->json(['error' => $e->getMessage()], 200);
-        
         }
     }
    
-    public function getParent(Request $request){
-        // dd($request->all());
-        // dd("here");
-    }
-
     public function getAccountsWithAjax(Request $request){
         if ($request->ajax()) {
             $formatuserdata = Account::getFilterdAccountsData($request->all());
@@ -117,7 +157,9 @@ class AccountController extends Controller
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */
         $data = Account::getFilterdAccountsData($filter, $csv);
-
+        // echo"<pre>";
+        // print_r($data);
+        // die;
         /** Create a stream for output */
         $stream = fopen('php://temp', 'w+');
 
@@ -125,7 +167,7 @@ class AccountController extends Controller
         $csvWriter = Writer::createFromStream($stream);
         
         /** Add column headings */
-        $csvWriter->insertOne(['Customer Number', 'Customer Name', 'Supplier Name', 'Account Name', 'Record Type', 'Date']);
+        $csvWriter->insertOne(['Customer Number', 'Customer Name', 'Account Name', 'Grand Parent Name', 'Parent Name', 'Volume Rebate', 'Sales Representative', 'Customer Service Representative', 'Member Rebate', 'Temp Active Date', 'Temp End Date', 'Internal Reporting Name', 'Qbr', 'Spend Name', 'Supplier Acct Rep', 'Management Fee', 'Category', 'Supplier', 'Cpg Sales Representative', 'Cpg Customer Service Rep', 'Sf Cat', 'Rebate Freq', 'Comm Rate']);
 
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);
@@ -150,17 +192,18 @@ class AccountController extends Controller
     public function createAccount(){
         $frompageTitle = 'account';
         $currentpageTitle = 'Edit Account Data';
+        $categorySuppliers = CategorySupplier::all();
         $grandparent = Account::select('id','alies')->get();
-        return view('admin.account.add',['fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'grandparent'=>$grandparent]);
+        return view('admin.account.add',['categorySuppliers' => $categorySuppliers, 'fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'grandparent'=>$grandparent]);
     }
     public function editAccount(Request $request){
-        
         $accountId = $request->id;
         $editAccountData = Account::where('id',$accountId)->first();
         $grandparent = Account::select('id','alies')->get();
+        $categorySuppliers = CategorySupplier::all();
         $frompageTitle = $request->routename;
         $currentpageTitle = 'Edit Data';
-        return view('admin.account.edit',['fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'account' => $editAccountData,'grandparent'=>$grandparent] );
+        return view('admin.account.edit',['categorySuppliers' => $categorySuppliers, 'fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'account' => $editAccountData,'grandparent'=>$grandparent] );
     }
     public function  Back()
     {
@@ -205,31 +248,31 @@ class AccountController extends Controller
             $account = Account::find($request->account_id);
           
             if($account){
-              
+                $user = Auth::user();
                 $account->update([
-                 'customer_number' => $request->customer_id,
-                'customer_name' => $request->alies,
-                'parent_id' => $request->input('grandparentselect'),
-                'account_name' => $request->account_name,
-                'volume_rebate' =>$request->volume_rebate,
-                'sales_representative' =>$request->sales_representative,
-                'customer_service_representative' =>$request->customer_service_representative ,
-                'member_rebate' =>$request->member_rebate,
-                'temp_active_date' =>$request->temp_active_date ,
-                'temp_end_date' =>$request->temp_end_date,
-                'internal_reporting_name' =>$request->internal_reporting_name,
-                'qbr' => $request->qbr,
-                'spend_name' =>$request->spend_name ,
-                'supplier_acct_rep'=> $request->supplier_acct_rep,
-                'management_fee' =>$request->management_fee ,
-                'record_type' =>$request->record_type,
-                'category_supplier' =>$request->category_supplier ,
-                'cpg_sales_representative' =>$request->cpg_sales_representative,
-                'cpg_customer_service_rep' => $request->cpg_customer_service_rep,
-                'sf_cat' => $request->sf_cat,
-                'rebate_freq' => $request->rebate_freq,
-                'comm_rate' =>$request->comm_rate,
-                'created_by'=>'1',
+                    'created_by'=> $user->id,
+                    'qbr' => $request->qbr,
+                    'alies' => $request->customer_name,
+                    'sf_cat' => $request->sf_cat,
+                    'comm_rate' =>$request->comm_rate,
+                    'spend_name' =>$request->spend_name ,
+                    'record_type' =>$request->record_type,
+                    'rebate_freq' => $request->rebate_freq,
+                    'account_name' => $request->account_name,
+                    'member_rebate' =>$request->member_rebate,
+                    'volume_rebate' =>$request->volume_rebate,
+                    'temp_end_date' =>$request->temp_end_date,
+                    'customer_number' => $request->customer_id,
+                    'management_fee' =>$request->management_fee ,
+                    'temp_active_date' =>$request->temp_active_date ,
+                    'category_supplier' =>$request->category_supplier ,
+                    'supplier_acct_rep'=> $request->supplier_acct_rep,
+                    'parent_id' => $request->input('grandparentSelect'),
+                    'sales_representative' =>$request->sales_representative,
+                    'internal_reporting_name' =>$request->internal_reporting_name,
+                    'cpg_sales_representative' =>$request->cpg_sales_representative,
+                    'cpg_customer_service_rep' => $request->cpg_customer_service_rep,
+                    'customer_service_representative' =>$request->customer_service_representative ,
                 ]);
 
             }

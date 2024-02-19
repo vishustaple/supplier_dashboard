@@ -5,7 +5,7 @@
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar')
+    @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
     <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-2">Manage Accounts</h3>
         <div class="row align-items-end border-bottom pb-3 mb-4">
@@ -95,11 +95,11 @@
                     <tr>
                         <th>Customer Number</th>
                         <th>Customer Name</th>
+                        <th>Account Name</th>
                         <th>Supplier</th>
                         <th>Parent Name</th>
                         <th>Grand Parent Name</th>
-                        <th>Account Name</th>
-                        <th>Record Type</th>
+                        <th>Category</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -115,7 +115,7 @@
         // console.log(selectedValue);
         // $.ajax({
         //     type: 'GET',
-        //         url: '{{route('getparent')}}', 
+        //         url: '{dsdsd{roscsdsdsute('getparent')}}', 
         //         data:{ selectedValue: selectedValue },
         //         success: function(response) {},
         //         error: function(xhr, status, error) {
@@ -194,10 +194,10 @@
             columns: [
                 { data: 'customer_number', name: 'customer_number' },
                 { data: 'customer_name', name: 'customer_name' },
+                { data: 'account_name', name: 'account_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'parent_name', name: 'parent_name' },
                 { data: 'grand_parent_name', name: 'grand_parent_name' },
-                { data: 'account_name', name: 'account_name' },
                 { data: 'record_type', name: 'record_type' },
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],

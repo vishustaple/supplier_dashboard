@@ -16,13 +16,14 @@ class CatalogController extends Controller
         $setPageTitleArray = [
             'catalog' => 'Catalog List',
         ];
-        
+
         if (isset($id)) {
             $catalog = Catalog::query() 
             ->leftJoin('suppliers', 'catalog.supplier_id', '=', 'suppliers.id')
+            ->leftJoin('catalog_details', 'catalog.id', '=', 'catalog_details.catalog_id')
             ->where('catalog.id', '=', $id)
-            ->select('catalog.id as id', 'catalog.sku as sku' ,'catalog.description as description' ,'suppliers.supplier_name as supplier_name' ,'catalog.price as price')->first();
-
+            ->whereNotNull('catalog_details.table_value')
+            ->select('catalog_details.table_key as key', 'catalog_details.table_value as value', 'catalog.sku as sku','catalog.price as price','suppliers.supplier_name as supplier_name','catalog.description as description')->get()->toArray();
             return view('admin.viewdetail',compact('catalog'));
         }
 
@@ -38,22 +39,28 @@ class CatalogController extends Controller
 
     public function exportCatalogCsv(Request $request){
         /** Retrieve data based on the provided parameters */
-        $filter = [];
+        $filter['search']['value'] = $request->query('search');
         $csv = true;
 
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */
         $data = Catalog::getFilterdCatalogData($filter, $csv);
+        // echo"<pre>";
+        // print_r($data);
+        // die;
 
         /** Create a stream for output */
         $stream = fopen('php://temp', 'w+');
 
         /** Create a new CSV writer instance */
         $csvWriter = Writer::createFromStream($stream);
-        
-        /** Add column headings */
-        $csvWriter->insertOne(['Sku', 'Description', 'Supplier Name', 'Price']);
 
+        $heading = $data['heading'];
+        unset($data['heading']);
+
+        /** Add column headings */
+        $csvWriter->insertOne($heading);
+        
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);
 
