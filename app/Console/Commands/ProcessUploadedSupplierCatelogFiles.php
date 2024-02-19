@@ -79,7 +79,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
             $query = CatalogDetail::query()
             ->leftJoin('catalog', 'catalog.id', '=', 'catalog_details.catalog_id')
             ->select('catalog_details.catalog_id as id', 'catalog_details.table_key as table_key', 'catalog_details.table_value as table_value');
-            $query->where('catalog.supplier_id', '=', 4);
+            $query->where('catalog.supplier_id', '=', $curruentSupplierId);
     
             $chunkSize = 10000;
             $query->chunk($chunkSize, function ($catalogDetails)  use ($catelogTableKeyArray, $curruentSupplierId) {
