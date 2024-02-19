@@ -104,8 +104,15 @@
                     <input type="text" placeholder="Enter Record Type" class="form-control" name="record_type" value="{{$account->record_type}}">
                 </div>
                 <div class="form-group col-md-6">
-                    <label>Category Supplier</label>
-                    <input type="text" placeholder="Enter Category Supplier" class="form-control" name="category_supplier" value="{{$account->category_supplier}}">
+                    <label for="selectBox">Category Supplier</label>
+                    <select id="selectBox" name="category_supplier" class="form-control"> 
+                        <option value="" selected>--Select--</option>
+                        @if(isset($categorySuppliers))
+                            @foreach($categorySuppliers as $categorySupplier)
+                                <option <?php if($account->category_supplier == $categorySupplier->id){ echo"selected"; } ?> value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
                 </div>
                 <div class="form-group col-md-6">
                     <label>CPG Sales Representative</label>

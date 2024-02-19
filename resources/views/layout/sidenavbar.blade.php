@@ -21,12 +21,12 @@
                                 <div class="sb-nav-link-icon"><i class="fa fa-book" aria-hidden="true"></i></div>
                                 Catalog List
                             </a>
-
+                            @if(Auth::check() && Auth::user()->user_type != App\Models\User::USER_TYPE_USER)
                             <a class="nav-link " href="{{route('user.show')}}">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
                                 Manage Users
                             </a>
-                         
+                            @endif
                             <!-- Submenu for Manage Supplier -->
                             <a class="nav-link {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Business Report', 'Optimization Report', 'Consolidated Supplier Report', 'Supplier Rebate Report', 'Validation Rebate Report', 'Commission Report'])) ? 'active' : '' }}" data-toggle="collapse" href="#submenuSupplier">
                                <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
