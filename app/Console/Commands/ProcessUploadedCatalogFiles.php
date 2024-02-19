@@ -57,8 +57,8 @@ class ProcessUploadedCatalogFiles extends Command
             // 3 => ['odCatelog20.xlsx'], 
             // 3 => ['odCatelog21.xlsx'], 
             // 3 => ['odCatelog22.xlsx'], 
-            3 => ['odCatelog23.xlsx'],
-            // 3 => ['odCatelogk24.xlsx'],
+            // 3 => ['odCatelog23.xlsx'],
+            3 => ['odCatelogk24.xlsx'],
             5 => ['CatalogWBM.xlsx'], 
             4 => ['CatelogStaples.xlsx']
         ];
