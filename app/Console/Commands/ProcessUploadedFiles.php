@@ -122,14 +122,14 @@ class ProcessUploadedFiles extends Command
                         if ($daysDifference <= 7) {
                             $weeklyCheck = true;
                         } else {
-                            $weeklyCheck = false;
-                            $ordersData = DB::table('order_details')->select('order_id')->where('order_file_name', $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"))->get();
+                            // $weeklyCheck = false;
+                            // $ordersData = DB::table('order_details')->select('order_id')->where('order_file_name', $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"))->get();
 
-                            OrderDetails::where('order_file_name', $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"))->delete();
+                            // OrderDetails::where('order_file_name', $fileValue->supplier_id."_weekly_".date_format(date_create($fileValue->start_date),"Y/m"))->delete();
 
-                            foreach ($ordersData as $order) {
-                                Order::destroy($order->order_id);
-                            }
+                            // foreach ($ordersData as $order) {
+                            //     Order::destroy($order->order_id);
+                            // }
                         }   
 
                         unset($spreadSheet, $reader);
