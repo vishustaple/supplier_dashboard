@@ -78,7 +78,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                 'Category Umbrella' => 'category_umbrella',
             ]
         ];
-        for ($i=0; $i <=count($supplierId) ; $i++) {
+        for ($i=0; $i <count($supplierId) ; $i++) {
             $curruentSupplierId = $supplierId[$i];
             $query = CatalogDetail::query()
             ->leftJoin('catalog', 'catalog.id', '=', 'catalog_details.catalog_id')
