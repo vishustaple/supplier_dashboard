@@ -84,13 +84,13 @@ class Account extends Model
 
     public static function getFilterdAccountsData($filter = [], $csv=false){
         $orderColumnArray = [
-            0 => 'id',
-            1 => 'customer_number',
-            2 => "alies",
-            3 => 'category_supplier',
-            4 => 'account_name',
-            5 => 'record_type',
-            6 => 'created_at',
+            0 => 'accounts.customer_number',
+            1 => "accounts.alies",
+            2 => 'accounts.category_supplier',
+            3 => 'accounts.account_name',
+            4 => 'accounts.record_type',
+            5 => 'accounts.created_at',
+            6 => 'accounts.id',
         ];
 
         if ($csv) {
