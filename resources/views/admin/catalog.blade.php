@@ -2,7 +2,7 @@
 
 @section('content')
 <div id="layoutSidenav">
-    @include('layout.sidenavbar')
+    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="container">
             <div class="m-1 mb-2 d-md-flex border-bottom pb-3 mb-3 align-items-center justify-content-between">
@@ -22,6 +22,7 @@
                         <th>Sku</th>
                         <th>Description</th>
                         <th>Amount</th>
+                        <th>Detail</th>
                     </tr>
                 </thead>
             </table>
@@ -89,7 +90,9 @@
                 { data: 'sku', name: 'sku' },
                 { data: 'description', name: 'description' },
                 { data: 'price', name: 'price' },
+                { data: 'id', name: 'id' },
             ],
+
 
         });
 
@@ -103,7 +106,7 @@
         function downloadCatalogCsv() {
             // You can customize this URL to match your backend route for CSV download
             var csvUrl = '{{ route('catalog.export-csv') }}';
-
+            csvUrl += '?search=' + dataTable.search();
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
         }

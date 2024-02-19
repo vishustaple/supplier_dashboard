@@ -24,45 +24,44 @@ Route::get('/', function () {
 })->name('login');
 
 Route::get('/register' , [HomeController::class,'register'])->name('register');
-Route::post('/user-register' , [HomeController::class,'userRegister'])->name('user.register');
 Route::post('/user-login' , [HomeController::class,'userLogin'])->name('user.login');
 Route::get('/user-logout' , [HomeController::class,'userLogout'])->name('user.logout');
+Route::post('/user-register' , [HomeController::class,'userRegister'])->name('user.register');
   
 
 
 Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
-        // Routes under the 'admin' prefix
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
+        Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
         Route::get('/upload-sheet' , [ExcelImportController::class,'index'])->name('upload.sheets');
         Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
-        Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
+        Route::get('/delete-file/{id?}' , [ExcelImportController::class,'deleteFile'])->name('upload.delete');
+        Route::get('/download/{id?}', [ExcelImportController::class, 'downloadSampleFile'])->name('file.download');
 
         /** Account Section Start */
-        Route::get('/account/{id?}' , [ExcelImportController::class,'allAccount'])->name('account');
-        Route::get('/createaccount' , [AccountController::class,'createAccount'])->name('account.create');
+        Route::get('/account/{id?}' , [AccountController::class,'allAccount'])->name('account');
         Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
-        Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
-        Route::get('/accounts/csv' , [AccountController::class,'exportAccountCsv'])->name('account.export-csv');
-        Route::get('/accounts/edit/{id}/{routename}' , [AccountController::class,'editAccount'])->name('account.edit');
+        Route::get('/createaccount' , [AccountController::class,'createAccount'])->name('account.create');
         Route::get('/accounts/remove',[AccountController::class,'removeAccount'])->name('account.remove');
         Route::post('/accounts/update',[AccountController::class,'updateAccount'])->name('account.update');
+        Route::get('/accounts/csv' , [AccountController::class,'exportAccountCsv'])->name('account.export-csv');
+        Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
+        Route::get('/accounts/edit/{id}/{routename}' , [AccountController::class,'editAccount'])->name('account.edit');
         /** Account Section End */
 
         /** Report Section Start */
-        Route::get('/report/{reportType}/{id?}' , [ReportController::class,'index'])->name('report.type');
+        Route::get('/back' , [ReportController::class,'Back'])->name('report.back');
         Route::post('/report/filter', [ReportController::class, 'dataFilter'])->name('report.filter');
         Route::get('/reports/csv' , [ReportController::class,'exportCsv'])->name('report.export-csv');
-        Route::get('/back' , [ReportController::class,'Back'])->name('report.back');
-        
+        Route::get('/report/{reportType}/{id?}' , [ReportController::class,'index'])->name('report.type');
         /** Report Section End */
     
+        //not in use now this route     
         Route::get('/userlist' , [HomeController::class,'userview'])->name('user.show');
-        //not in use now this route 
-        Route::get('/getparent',[AccountController::class,'getParent'])->name('getparent');
+        Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
         Route::get('/updateuser', [HomeController::class, 'UpdateUser'])->name('user.updateuser');
         Route::post('/updateuserdata', [HomeController::class, 'UpdateUserData'])->name('user.updateuserdata');
-        Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
 
         /** Catalog Section Start */
         Route::get('/catalog/{catalogType}/{id?}' , [CatalogController::class,'index'])->name('catalog.list');
