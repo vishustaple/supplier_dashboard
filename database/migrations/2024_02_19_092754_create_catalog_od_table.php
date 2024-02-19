@@ -16,12 +16,14 @@ return new class extends Migration
             $table->string('sku_number', 225)->nullable();
             $table->string('um', 225)->nullable();
             $table->string('vendor_prd', 225)->nullable();
+            $table->string('item', 225)->nullable();
             $table->string('platinum_price', 225)->nullable();
             $table->string('platinum_price_method', 225)->nullable();
             $table->string('preferred_price', 225)->nullable();
             $table->string('preferred_price_method', 225)->nullable();
             $table->string('dept_description', 225)->nullable();
             $table->string('class_description', 225)->nullable();
+            $table->string('sugg', 225)->nullable();
             $table->string('vendor_name', 225)->nullable();
             $table->string('mbe', 225)->nullable();
             $table->string('wbe', 225)->nullable();
