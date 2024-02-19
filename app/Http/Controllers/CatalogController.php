@@ -39,7 +39,7 @@ class CatalogController extends Controller
 
     public function exportCatalogCsv(Request $request){
         /** Retrieve data based on the provided parameters */
-        $filter = [];
+        $filter['search']['value'] = $request->query('search');
         $csv = true;
 
         /** Fetch data using the parameters and transform it into CSV format */
@@ -56,47 +56,11 @@ class CatalogController extends Controller
         $csvWriter = Writer::createFromStream($stream);
 
         $heading = $data['heading'];
-        
         unset($data['heading']);
-         /** Add column headings */
-         $csvWriter->insertOne($heading);
-        // if ($data['supplier'] == 4) {
-        //     $csvWriter->insertOne(['SKUNUMBER',
-        //     'ITEMDESCRIPTION',
-        //     'STAPLESADVANTAGEITEMDESCRIPTION',
-        //     'SELLUOM',
-        //     'QTYINSELLUOM',
-        //     'AVGSELLPRICE',
-        //     'PRIMARYPRODCAT',
-        //     'SECONDARYPRODCAT',
-        //     'PRODCLASS',
-        //     'STAPLESOWNBRAND']);
-        // } elseif($data['supplier'] == 3) {
-        //     /** Add column headings */
-        //     $csvWriter->insertOne([
-        //         'Sku Number',
-        //         'UM ',
-        //         'Vendor Prd#',
-        //         'Item',
-        //         'Platinum Price',
-        //         'Platinum Price Method',
-        //         'Preferred Price',
-        //         'Preferred Price Method',
-        //         'Dept Description',
-        //         'Class Description',
-        //         'Sugg',
-        //         'Vendor Name',
-        //         'MBE',
-        //         'WBE',
-        //         'Recycled',
-        //     ]);
-        // } elseif($data['supplier'] == 5) {
 
-        // } else {
-            
-        // }
+        /** Add column headings */
+        $csvWriter->insertOne($heading);
         
-
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);
 
