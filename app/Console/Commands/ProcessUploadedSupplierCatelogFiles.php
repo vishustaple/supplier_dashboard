@@ -32,6 +32,24 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         for ($i=0; $i <=count($supplierId) ; $i++) {
             $curruentSupplierId = $supplierId[$i]; 
             $catelogTableKeyArray = [
+                3 =>[
+                    'UM' => 'um',
+                    'Sku Number' => 'sku_number',
+                    'Vendor Prd#' => 'vendor_prd',
+                    'Item' => 'item', 
+                    'Platinum Price' => 'platinum_price',
+                    'Platinum Price Method' => 'platinum_price_method',
+                    'Preferred Price' => 'preferred_price',
+                    'Preferred Price Method' => 'preferred_price_method',
+                    'Dept Description' => 'dept_description',
+                    'Class Description' => 'class_description',
+                    'Sugg' => 'sugg',
+                    'Vendor Name' => 'vendor_name',
+                    'MBE' => 'mbe',
+                    'WBE' => 'wbe',
+                    'Recycled' => 'recycled',
+                ],
+
                 4 =>[
                     'selluom' => 'selluom',
                     'skunumber' => 'sku_number',
@@ -44,6 +62,10 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                     'secondaryprodcat' => 'secondary_prod_cat',
                     'staplesadvantageitemdescription' => 'staples_advantages_item_description',
                 ],
+                 
+                5 =>[
+                    
+                ]
             ];
             $query = CatalogDetail::query()
             ->leftJoin('catalog', 'catalog.id', '=', 'catalog_details.catalog_id')
@@ -64,7 +86,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
     
                 foreach ($formatuserdata as $key => $value) {
                     for ($i=0; $i < count($value); $i++) {
-                        $finalArray[$key][$catelogTableKeyArray[$curruentSupplierId][strtolower($value[$i]['table_key'])]] = $value[$i]['table_value'];
+                        $finalArray[$key][$catelogTableKeyArray[$curruentSupplierId][trim(strtolower($value[$i]['table_key']))]] = $value[$i]['table_value'];
                         $finalArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                         $finalArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
                     }
