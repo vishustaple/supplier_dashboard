@@ -43,7 +43,7 @@ class ProcessUploadedCatalogFiles extends Command
         $fileNameArray = [
             // 3 => ['odCatelog1.xlsx', 'odCatelog2.xlsx'],
             // 3 => ['odCatelog4.xlsx', 'odCatelog3.xlsx'],
-            3 => ['odCatelog5.xlsx', 'odCatelog6.xlsx'],
+            3 => ['odCatelog6.xlsx'],
             // 3 => ['odCatelog7.xlsx', 'odCatelog8.xlsx'],
             // 3 => ['odCatelog9.xlsx', 'odCatelog10.xlsx'], 
             // 3 => ['odCatelog11.xlsx', 'odCatelog12.xlsx'],
