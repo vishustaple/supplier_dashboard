@@ -34,20 +34,20 @@ class ProcessUploadedSupplierCatelogFiles extends Command
             $catelogTableKeyArray = [
                 3 =>[
                     'UM' => 'um',
+                    'WBE' => 'wbe',
+                    'MBE' => 'mbe',
+                    'Sugg' => 'sugg',
+                    'Item' => 'item', 
+                    'Recycled' => 'recycled',
                     'Sku Number' => 'sku_number',
                     'Vendor Prd#' => 'vendor_prd',
-                    'Item' => 'item', 
+                    'Vendor Name' => 'vendor_name',
                     'Platinum Price' => 'platinum_price',
-                    'Platinum Price Method' => 'platinum_price_method',
                     'Preferred Price' => 'preferred_price',
-                    'Preferred Price Method' => 'preferred_price_method',
                     'Dept Description' => 'dept_description',
                     'Class Description' => 'class_description',
-                    'Sugg' => 'sugg',
-                    'Vendor Name' => 'vendor_name',
-                    'MBE' => 'mbe',
-                    'WBE' => 'wbe',
-                    'Recycled' => 'recycled',
+                    'Preferred Price Method' => 'preferred_price_method',
+                    'Platinum Price Method' => 'platinum_price_method',
                 ],
 
                 4 =>[
@@ -64,7 +64,16 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                 ],
                  
                 5 =>[
-                    
+                    'UOM' => 'uom',
+                    'WB QPU' => 'wb_qpu',  
+                    'FullSKU' => 'full_sku',
+                    'Category' => 'category',
+                    'Unit Price' => 'unit_price',
+                    'List Price' => 'list_price',
+                    'ProductCode' => 'product_code',
+                    'Manufacturer' => 'manufacturer',
+                    'ITEM DESCRIPTION' => 'item_description',
+                    'Category Umbrella' => 'category_umbrella',
                 ]
             ];
             $query = CatalogDetail::query()
@@ -96,19 +105,5 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                 unset($finalArray);
             });
         }
-
-        // SourceModel::chunk($chunkSize, function ($sourceModels) {
-        //     foreach ($sourceModels as $sourceModel) {
-        //         // Map and modify data as needed before inserting into the destination table
-        //         $data = [
-        //             'column1' => $sourceModel->column1,
-        //             'column2' => $sourceModel->column2,
-        //             // Add other columns as needed
-        //         ];
-
-        //         // Insert data into the destination table
-        //         DestinationModel::insert($data);
-        //     }
-        // });
     }
 }
