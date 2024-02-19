@@ -44,7 +44,7 @@ class ProcessUploadedCatalogFiles extends Command
             // 3 => ['odCatelog1.xlsx', 'odCatelog2.xlsx'],
             // 3 => ['odCatelog4.xlsx', 'odCatelog3.xlsx'],
             // 3 => ['odCatelog6.xlsx'],
-            3 => ['odCatelog7.xlsx', 'odCatelog8.xlsx'],
+            3 => ['odCatelog8.xlsx'],
             // 3 => ['odCatelog9.xlsx', 'odCatelog10.xlsx'], 
             // 3 => ['odCatelog11.xlsx', 'odCatelog12.xlsx'],
             // 3 => ['odCatelog13.xlsx', 'odCatelog14.xlsx'],
@@ -64,7 +64,7 @@ class ProcessUploadedCatalogFiles extends Command
             $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
             unset($workSheetArray, $maxNonEmptyValue);
             for ($i=0; $i < $sheetCount; $i++) { 
-                $workSheetArray = $spreadSheet->getSheet($i)->toArray();
+                $workSheetArray = $spreadSheet->getSheet(0)->toArray();
                 $count = $maxNonEmptyCount = 0;
                 
                 foreach ($workSheetArray as $key=>$values) {
