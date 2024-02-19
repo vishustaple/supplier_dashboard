@@ -86,11 +86,12 @@ class Account extends Model
         $orderColumnArray = [
             0 => 'accounts.customer_number',
             1 => "accounts.alies",
-            2 => 'accounts.category_supplier',
-            3 => 'accounts.account_name',
-            4 => 'accounts.record_type',
-            5 => 'accounts.created_at',
-            6 => 'accounts.id',
+            2 => 'accounts.account_name',
+            3 => 'accounts.category_supplier',
+            4 => 'parent.alies',
+            5 => 'grandparent.alies',
+            6 => 'accounts.record_type',
+            7 => 'accounts.id',
         ];
 
         if ($csv) {
