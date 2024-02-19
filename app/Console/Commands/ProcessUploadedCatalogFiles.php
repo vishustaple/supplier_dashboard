@@ -103,28 +103,32 @@ class ProcessUploadedCatalogFiles extends Command
                     }
     
                     if ($supplierId == 3) {
-                        $catalogLastInsertId = Catalog::create([
-                            'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
-                            'price' => (isset($row[4]) && !empty($row[4])) ? ($row[4]) : ('0'),
-                            'created_by' => 1,
-                            'supplier_id' => $supplierId,
-                            'description' => (isset($row[8]) && !empty($row[8])) ? ($row[8]) : ('0')
-                        ]);
+                        if (empty($row[0]) && empty($row[4]) && empty($row[8])) {
+                            continue;
+                        } else {
+                            $catalogLastInsertId = Catalog::create([
+                                'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : (''),
+                                'price' => (isset($row[4]) && !empty($row[4])) ? ($row[4]) : (''),
+                                'created_by' => 1,
+                                'supplier_id' => $supplierId,
+                                'description' => (isset($row[8]) && !empty($row[8])) ? ($row[8]) : ('')
+                            ]);
+                        }
                     } elseif ($supplierId == 4) {
                         $catalogLastInsertId = Catalog::create([
-                            'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
-                            'price' => (isset($row[5]) && !empty($row[5])) ? ($row[5]) : ('0'),
+                            'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : (''),
+                            'price' => (isset($row[5]) && !empty($row[5])) ? ($row[5]) : (''),
                             'created_by' => 1,
                             'supplier_id' => $supplierId,
-                            'description' => (isset($row[1]) && !empty($row[1])) ? ($row[1]) : ('0')
+                            'description' => (isset($row[1]) && !empty($row[1])) ? ($row[1]) : ('')
                         ]);
                     } elseif ($supplierId == 5) {
                         $catalogLastInsertId = Catalog::create([
-                            'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : ('0'),
-                            'price' => (isset($row[5]) && !empty($row[5])) ? ($row[5]) : ('0'),
+                            'sku' => (isset($row[0]) && !empty($row[0])) ? ($row[0]) : (''),
+                            'price' => (isset($row[5]) && !empty($row[5])) ? ($row[5]) : (''),
                             'created_by' => 1,
                             'supplier_id' => $supplierId,
-                            'description' => (isset($row[3]) && !empty($row[3])) ? ($row[3]) : ('0')
+                            'description' => (isset($row[3]) && !empty($row[3])) ? ($row[3]) : ('')
                         ]);
                     } else {
     
