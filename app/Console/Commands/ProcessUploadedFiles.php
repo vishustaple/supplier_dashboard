@@ -98,9 +98,7 @@ class ProcessUploadedFiles extends Command
 
                     6 => ['customer_number2' => 'Leader customer 2', 'customer_number3' => 'Leader customer 3', 'customer_number4' => 'Leader customer 4', 'customer_number5' => 'Leader customer 5', 'customer_number6' => 'Leader customer 6', 'customer_number' => 'Leader customer 1', 'amount' => 'Sales Amount - P', 'invoice_no' => 'Billing Document', 'invoice_date' => 'Billing Date'],
 
-                    7 => ['customer_number' => 'Account ID', 'amount' => '', 'invoice_no' => '', 'invoice_date' => ''],
-
-                    8 => ['gd_customer_number' => 'CUSTOMER GRANDPARENT ID', 'gd_customer_name' => 'CUSTOMER GRANDPARENT NM', 'p_customer_number' => 'CUSTOMER PARENT ID', 'p_customer_name' => 'CUSTOMER PARENT NM', 'customer_number' => 'CUSTOMER ID', 'amount' => 'Total Spend', 'invoice_no' => 'Invoice #', 'invoice_date' => 'Shipped Date'],
+                    7 => ['gd_customer_number' => 'GP ID', 'gd_customer_name' => 'GP Name', 'p_customer_number' => 'Parent Id', 'p_customer_name' => 'Parent Name', 'customer_number' => 'Account ID', 'customer_name' => 'Account Name', 'amount' => '', 'invoice_no' => '', 'invoice_date' => ''],
                 ];
 
                 try {
@@ -191,12 +189,15 @@ class ProcessUploadedFiles extends Command
                             if ($fileValue->supplier_id == 7) {
                                 $weeklyPriceColumnArray = [];
                                 foreach ($maxNonEmptyValue as $key => $value) {
-                                    if ($key >= 16) {
+                                    if ($key >= 6) {
                                         $weeklyPriceColumnArray[$key] = $value;
                                         // $weeklyArrayKey++;
                                     }
                                 }
                             }
+
+                            // print_r($weeklyPriceColumnArray);
+                            // die;
 
                             /** Unset the "$maxNonEmptyCount" for memory save */
                             unset($maxNonEmptyCount);
