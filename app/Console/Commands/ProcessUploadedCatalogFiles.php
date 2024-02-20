@@ -217,7 +217,7 @@ class ProcessUploadedCatalogFiles extends Command
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
-        $supplierId = 5;
+        $supplierId = 4;
         $fileNameArray = [
             // 3 => ['odCatelog1.xlsx'],
             // 3 => ['odCatelog2.xlsx'],
@@ -243,8 +243,8 @@ class ProcessUploadedCatalogFiles extends Command
             // 3 => ['odCatelog22.xlsx'], 
             // 3 => ['odCatelog23.xlsx'],
             // 3 => ['odCatelogk24.xlsx'],
-            5 => ['CatalogWBM.xlsx'], 
-            // 4 => ['CatelogStaples.xlsx']
+            // 5 => ['CatalogWBM.xlsx'], 
+            4 => ['CatelogStaples.xlsx']
         ];
         for ($i=0; $i < count($fileNameArray[$supplierId]); $i++) { 
             /** Loading excel file using path and name of file from table "uploaded_file" */
