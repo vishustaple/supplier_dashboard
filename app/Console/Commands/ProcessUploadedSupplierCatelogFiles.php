@@ -31,8 +31,11 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         // $supplierId = [3, 4, 5];
         // $tableName = [3 => 'catalog_od', 4 =>'catalog_staples', 5 =>'catalog_wbm']; 
 
-        $supplierId = [4, 5];
-        $tableName = [4 =>'catalog_staples', 5 =>'catalog_wbm']; 
+        $supplierId = [3];
+        $tableName = [3 => 'catalog_od']; 
+
+        // $supplierId = [4, 5];
+        // $tableName = [4 =>'catalog_staples', 5 =>'catalog_wbm']; 
         $catelogTableKeyArray = [
             3 =>[
                 'UM' => 'um',
