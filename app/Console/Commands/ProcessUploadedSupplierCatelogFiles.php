@@ -110,7 +110,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                 }
                 
                 DB::table($tableName[$curruentSupplierId])->insert($finalArray);  
-                unset($finalArray);
+                unset($finalArray, $formatuserdata);
             });
         }
     }
