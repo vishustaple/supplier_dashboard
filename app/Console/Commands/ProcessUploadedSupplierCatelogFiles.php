@@ -91,16 +91,19 @@ class ProcessUploadedSupplierCatelogFiles extends Command
     
             $chunkSize = 1000;
             $query->chunk($chunkSize, function ($catalogDetails)  use ($catelogTableKeyArray, $curruentSupplierId, $tableName) {
-                // Process each chunk of catalog details here
+                /** Process each chunk of catalog details here */
                 foreach ($catalogDetails->toArray() as $catalogDetail) {
                     $formatuserdata[$catalogDetail['id']][] = [
                         'table_key' => $catalogDetail['table_key'],
                         'table_value' => $catalogDetail['table_value'],
                     ];
-                    // Process each catalog detail
-                    // For example, you can access properties like $catalogDetail->catalog_id, $catalogDetail->table_key, etc.
+                    /** Process each catalog detail */
+                    /** For example, you can access properties like $catalogDetail->catalog_id, $catalogDetail->table_key, etc. */
                 }
-    
+
+                print_r($formatuserdata);
+                die;
+
                 foreach ($formatuserdata as $key => $value) {
                     for ($i=0; $i < count($value); $i++) {
                         $finalArray[$key][$catelogTableKeyArray[$curruentSupplierId][trim($value[$i]['table_key'])]] = $value[$i]['table_value'];
