@@ -30,12 +30,12 @@ class ProcessUploadedSupplierCatelogFiles extends Command
     {
         // $supplierId = [3, 4, 5];
         // $tableName = [3 => 'catalog_od', 4 =>'catalog_staples', 5 =>'catalog_wbm']; 
-        ini_set('memory_limit', '19024M');
-        $supplierId = [3];
-        $tableName = [3 => 'catalog_od']; 
+        ini_set('memory_limit', '1024M');
+        // $supplierId = [3];
+        // $tableName = [3 => 'catalog_od']; 
 
-        // $supplierId = [4, 5];
-        // $tableName = [4 =>'catalog_staples', 5 =>'catalog_wbm']; 
+        $supplierId = [4, 5];
+        $tableName = [4 =>'catalog_staples', 5 =>'catalog_wbm']; 
 
         $catelogTableKeyArray = [
             3 =>[
@@ -115,27 +115,6 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                 
                 DB::table($tableName[$curruentSupplierId])->insert($finalArray);  
             });
-
-            /** Process each chunk of catalog details here */
-            foreach ($catalogDetails as $catalogDetail) {
-                $formatuserdata[$catalogDetail->id][] = [
-                    'table_key' => $catalogDetail->table_key,
-                    'table_value' => $catalogDetail->table_value,
-                ];
-                /** Process each catalog detail */
-                /** For example, you can access properties like $catalogDetail->catalog_id, $catalogDetail->table_key, etc. */
-            }
-
-            foreach ($formatuserdata as $key => $value) {
-                $finalArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
-                $finalArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
-
-                for ($i=0; $i < count($value); $i++) {
-                    $finalArray[$key][$catelogTableKeyArray[$curruentSupplierId][trim($value[$i]['table_key'])]] = $value[$i]['table_value'];
-                }
-            }
-            
-            DB::table($tableName[$curruentSupplierId])->insert($finalArray);
         }
     }
 }
