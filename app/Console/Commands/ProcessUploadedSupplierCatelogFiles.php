@@ -91,8 +91,6 @@ class ProcessUploadedSupplierCatelogFiles extends Command
     
             $chunkSize = 100*count($catelogTableKeyArray[$curruentSupplierId]);
             $query->chunk($chunkSize, function ($catalogDetails)  use ($catelogTableKeyArray, $curruentSupplierId, $tableName) {
-                print_r($catalogDetails->toArray());
-                die;
                 /** Process each chunk of catalog details here */
                 foreach ($catalogDetails->toArray() as $catalogDetail) {
                     $formatuserdata[$catalogDetail['id']][] = [
@@ -102,10 +100,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                     /** Process each catalog detail */
                     /** For example, you can access properties like $catalogDetail->catalog_id, $catalogDetail->table_key, etc. */
                 }
-
-                print_r($formatuserdata);
-                die;
-
+              
                 foreach ($formatuserdata as $key => $value) {
                     for ($i=0; $i < count($value); $i++) {
                         $finalArray[$key][$catelogTableKeyArray[$curruentSupplierId][trim($value[$i]['table_key'])]] = $value[$i]['table_value'];
@@ -114,8 +109,6 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                     }
                 }
                 
-                print_r($finalArray);
-                die;
                 DB::table($tableName[$curruentSupplierId])->insert($finalArray);  
                 unset($finalArray);
             });
