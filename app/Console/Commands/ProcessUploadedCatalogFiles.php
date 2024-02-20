@@ -373,7 +373,7 @@ class ProcessUploadedCatalogFiles extends Command
                     
                     
     
-                    if ($count == 100) {
+                    if ($count == 1000) {
                         $count = 0;
                         try {
                             DB::table('catalog_details')->insert($finalInsertArray);
