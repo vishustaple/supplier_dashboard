@@ -36,6 +36,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
 
         // $supplierId = [4, 5];
         // $tableName = [4 =>'catalog_staples', 5 =>'catalog_wbm']; 
+
         $catelogTableKeyArray = [
             3 =>[
                 'UM' => 'um',
@@ -107,7 +108,9 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                         $finalArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
                     }
                 }
-    
+                
+                print_r($finalArray);
+                die;
                 DB::table($tableName[$curruentSupplierId])->insert($finalArray);  
                 unset($finalArray);
             });
