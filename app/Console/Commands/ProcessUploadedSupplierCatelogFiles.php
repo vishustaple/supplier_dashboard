@@ -91,6 +91,8 @@ class ProcessUploadedSupplierCatelogFiles extends Command
     
             $chunkSize = 1000;
             $query->chunk($chunkSize, function ($catalogDetails)  use ($catelogTableKeyArray, $curruentSupplierId, $tableName) {
+                print_r($catalogDetails->toArray());
+                die;
                 /** Process each chunk of catalog details here */
                 foreach ($catalogDetails->toArray() as $catalogDetail) {
                     $formatuserdata[$catalogDetail['id']][] = [
