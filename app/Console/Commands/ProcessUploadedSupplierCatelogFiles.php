@@ -30,7 +30,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
     {
         // $supplierId = [3, 4, 5];
         // $tableName = [3 => 'catalog_od', 4 =>'catalog_staples', 5 =>'catalog_wbm']; 
-
+        ini_set('memory_limit', '19024M');
         $supplierId = [3];
         $tableName = [3 => 'catalog_od']; 
 
