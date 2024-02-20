@@ -89,7 +89,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
             ->select('catalog_details.catalog_id as id', 'catalog_details.table_key as table_key', 'catalog_details.table_value as table_value');
             $query->where('catalog.supplier_id', '=', $curruentSupplierId);
     
-            $chunkSize = 100*count($catelogTableKeyArray[$curruentSupplierId]);
+            $chunkSize = 10000*count($catelogTableKeyArray[$curruentSupplierId]);
             $query->chunk($chunkSize, function ($catalogDetails)  use ($catelogTableKeyArray, $curruentSupplierId, $tableName) {
                 /** Process each chunk of catalog details here */
                 foreach ($catalogDetails->toArray() as $catalogDetail) {
