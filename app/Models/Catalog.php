@@ -63,6 +63,8 @@ class Catalog extends Model
                     $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
                 }
             });
+
+            $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
         // Get total records count (without filtering)
