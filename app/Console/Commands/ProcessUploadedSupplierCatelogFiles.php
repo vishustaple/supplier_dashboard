@@ -82,6 +82,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
                 'Category Umbrella' => 'category_umbrella',
             ]
         ];
+
         for ($i=0; $i <count($supplierId) ; $i++) {
             $curruentSupplierId = $supplierId[$i];
             $query = CatalogDetail::query()
@@ -91,26 +92,28 @@ class ProcessUploadedSupplierCatelogFiles extends Command
     
             $chunkSize = 1000*count($catelogTableKeyArray[$curruentSupplierId]);
             $query->chunk($chunkSize, function ($catalogDetails)  use ($catelogTableKeyArray, $curruentSupplierId, $tableName) {
+                $formatuserdata = $finalArray = [];
+
                 /** Process each chunk of catalog details here */
-                foreach ($catalogDetails->toArray() as $catalogDetail) {
-                    $formatuserdata[$catalogDetail['id']][] = [
-                        'table_key' => $catalogDetail['table_key'],
-                        'table_value' => $catalogDetail['table_value'],
+                foreach ($catalogDetails as $catalogDetail) {
+                    $formatuserdata[$catalogDetail->id][] = [
+                        'table_key' => $catalogDetail->table_key,
+                        'table_value' => $catalogDetail->table_value,
                     ];
                     /** Process each catalog detail */
                     /** For example, you can access properties like $catalogDetail->catalog_id, $catalogDetail->table_key, etc. */
                 }
-              
+
                 foreach ($formatuserdata as $key => $value) {
+                    $finalArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
+                    $finalArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
+
                     for ($i=0; $i < count($value); $i++) {
                         $finalArray[$key][$catelogTableKeyArray[$curruentSupplierId][trim($value[$i]['table_key'])]] = $value[$i]['table_value'];
-                        $finalArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
-                        $finalArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
                     }
                 }
                 
                 DB::table($tableName[$curruentSupplierId])->insert($finalArray);  
-                unset($finalArray, $formatuserdata);
             });
         }
     }
