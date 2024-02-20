@@ -39,9 +39,10 @@ class ProcessUploadedCatalogFiles extends Command
         // print_r($fileValue->created_by);die;
         $reader = new Xlsx(); /** Creating object of php excel library class */
 
-        $supplierId = 4;
+        $supplierId = 3;
         $fileNameArray = [
-            // 3 => ['odCatelog1.xlsx', 'odCatelog2.xlsx'],
+            // 3 => ['odCatelog1.xlsx'],
+            3 => ['odCatelog2.xlsx'],
             // 3 => ['odCatelog4.xlsx', 'odCatelog3.xlsx'],
             // 3 => ['odCatelog6.xlsx'],
             // 3 => ['odCatelog8.xlsx'],
