@@ -71,6 +71,10 @@ Route::group(['prefix' => 'admin'], function () {
         /** Catalog Section End */
         // ...
         // Route::get('/{routename}/viewdetail/{id}' ,  [AccountController::class,'viewDetails'])->name('view.detail');
+        /**get column Route */
+        Route::get('getcolumn',[ExcelImportController::class,'getColumns'])->name('manage.columns');
+        Route::post('storecolumn',[ExcelImportController::class,'saveColumns'])->name('store.columns');
+        
     });
 });
 
