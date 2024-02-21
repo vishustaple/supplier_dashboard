@@ -241,8 +241,6 @@ class ExcelImportController extends Controller
                         /** Remove line breaks and trim whitespace */
                         return str_replace(["\r", "\n"], '', $value);
                     }, $finalExcelKeyArray1);
-        
-                    
 
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
@@ -250,6 +248,7 @@ class ExcelImportController extends Controller
 
                         if (empty($arrayDiff)) {
                             $validationCheck = true;
+                            break;
                         }
                     }
                 }
