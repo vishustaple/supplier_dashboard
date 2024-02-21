@@ -203,9 +203,9 @@ class ExcelImportController extends Controller
                 
 
                 for ($i=0; $i < $sheetCount; $i++) {
-                    if ($skipSheet == $i && $supplierId == 3) {
-                        continue;
-                    }
+                    // if ($skipSheet == $i && $supplierId == 3) {
+                    //     continue;
+                    // }
 
                     $workSheet = $spreadSheet->getSheet($i);
         
