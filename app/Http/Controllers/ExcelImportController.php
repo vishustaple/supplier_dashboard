@@ -11,13 +11,40 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use App\Models\{CategorySupplier, UploadedFiles};
+use App\Models\{CategorySupplier, UploadedFiles,ManageColumns};
 
 
 class ExcelImportController extends Controller
 {
     public function index(){
-      
+        $supplierIDsGrouped = ManageColumns::groupBy('supplier_id')->pluck('supplier_id')->toArray();
+        // dd($supplierIDsGrouped);
+
+            $allSupplierData = [];
+            foreach ($supplierIDsGrouped as $supplier) {
+            $columns = ManageColumns::where('supplier_id',$supplier)->pluck('field_name')->toArray();
+             $allSupplierData[] = $columns;
+            }
+            $jsArray = '[';
+    
+            // Add the first empty array
+            $jsArray .= "[],";
+            
+            // Add the remaining arrays
+            foreach ($allSupplierData as $subArray) {
+                if (!empty($subArray)) {
+                    // Remove single quotes from each string element
+                    $cleanedSubArray = array_map(function ($item) {
+                    return str_replace("'", "", $item);
+                    }, $subArray);
+                    $jsArray .= "['" . implode("','", $subArray) . "'],";
+                } else {
+                    $jsArray .= "[],";
+                }
+            }
+            $jsArray .= ']';
+ 
+          
         $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
 
         $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
@@ -53,8 +80,8 @@ class ExcelImportController extends Controller
         }
 
         $data=json_encode($formattedData);
-       
-        return view('admin.export',compact('categorySuppliers','data'));
+ 
+        return view('admin.export',compact('categorySuppliers','data','jsArray'));
     }
     public function import(Request $request)
     {
@@ -332,5 +359,25 @@ class ExcelImportController extends Controller
         ];
         
         return response()->download($destinationPath.'/'.$filename[$id], $filename[$id], $headers);
+    }
+
+    public function getColumns(Request $request){
+        $columns = ManageColumns::where('supplier_id',$request->dataIdValue)->get();
+        return response()->json($columns);
+    }
+    public function saveColumns(Request $request){
+        $id = $request->id;
+        $columnValue = $request->columnValue;
+        $column = ManageColumns::find($id);
+        if ($column) {
+            $column->field_name = $columnValue;
+            $column->save();
+  
+            return response()->json(['message' => 'Column value updated successfully'], 200);
+        } else {
+       
+            return response()->json(['error' => 'Column not found'], 404);
+        }
+
     }
 }
