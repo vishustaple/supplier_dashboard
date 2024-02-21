@@ -74,7 +74,6 @@ class ProcessUploadedFiles extends Command
             // $yearsDifference = $interval->y;
             
             if ($fileValue !== null) {
-
                 /** Update cron two means start processing data into excel */
                 DB::table('uploaded_files')->where('id', $fileValue->id)
                 ->update([
@@ -148,6 +147,16 @@ class ProcessUploadedFiles extends Command
                         // print_r($sheetCount);
                         // die;
 
+                        $supplierFilesNamesArray = [
+                            1 => 'Usage By Location and Item',
+                            2 => 'Invoice Detail Report',
+                            // 3 => '',
+                            4 => 'All Shipped Order Detail',
+                            5 => 'Centerpoint_Summary_Report',
+                            6 => 'Blad1',
+                            7 => 'Weekly Sales Account Summary', 
+                        ];
+
                         for ($i = 0; $i <= $sheetCount; $i++) {
                             $count = $maxNonEmptyCount = 0;
 
@@ -157,7 +166,17 @@ class ProcessUploadedFiles extends Command
                                 continue;
                             }
 
-                            $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
+                            if ($fileValue->supplier_id != 3) {
+                                $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$fileValue->supplier_id]);
+                            }
+                
+                            if (isset($sheet) && $sheet) {
+                                $workSheetArray = $sheet->toArray();
+                            } else {
+                                $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
+                            }
+                            
+
                             foreach ($workSheetArray as $key=>$values) {
                                 /** Checking not empty columns */
                                 $nonEmptyCount = count(array_filter(array_values($values), function ($item) {
