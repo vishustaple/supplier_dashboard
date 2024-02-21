@@ -52,7 +52,7 @@ class DeleteUploadedFilesData extends Command
         /** Update delete two means start deleting data into excel */
         DB::table('uploaded_files')->where('id', $fileData->id)->update(['delete' => UploadedFiles::CRON]);
 
-        if (!empty($fileData->id)) {
+        if (isset($fileData->id) && !empty($fileData->id)) {
             try {
                 $id = $fileData->id;
                 $fileData->delete = 0;
@@ -97,6 +97,10 @@ class DeleteUploadedFilesData extends Command
                 /** Error message */
                 session()->flash('error', $e->getMessage());
             }
+
+            $this->info('File deleted successfully.');
+        } else {
+            $this->info('No file for delete successfully.');
         }
     }
 }

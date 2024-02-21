@@ -61,9 +61,32 @@ class ExcelImportController extends Controller
         // dd($request->all());
         ini_set('memory_limit', '1024M');
 
+        $supplierId = $request->supplierselect;
+        $supplierFilesNamesArray = [
+            1 => 'Usage By Location and Item',
+            2 => 'Invoice Detail Report',
+            // 3 => '',
+            4 => 'All Shipped Order Detail',
+            5 => 'Centerpoint_Summary_Report',
+            6 => 'Blad1',
+            7 => 'Weekly Sales Account Summary', 
+        ];
+
+        $suppliers=[
+            '1' => ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND'],
+            '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
+            '3' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
+            '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
+            // '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
+            '5' => ['Customer Name', 'Customer Num', 'Current List'],
+            '6' => ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
+            '7'=>  ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
+            '8' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
+        ];
+
         $endDateRange = $request->input('enddate');
 
-        // /** Split the date range string into start and end dates */
+        /** Split the date range string into start and end dates */
         if(!empty($endDateRange )){
             list($startDate, $endDate) = explode(' - ', $endDateRange);
             
@@ -72,7 +95,6 @@ class ExcelImportController extends Controller
             $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
         }
         
-        $supplierId = $request->supplierselect;
         
         /** Validate the uploaded file */
         if ($request->supplierselect == 1) {
@@ -122,53 +144,125 @@ class ExcelImportController extends Controller
         try{
             $reader = new Xlsx(); 
             $spreadSheet = $reader->load($request->file('file'), 2);
-            $workSheet = $spreadSheet->getActiveSheet();
-            $sheetName = $workSheet->getTitle();
-            $sheetCount = $spreadSheet->getSheetCount(); 
-        
-            /** Variables to store information about the row with the highest number of columns */
-            if ($request->supplierselect == 7 && $sheetCount > 2) {
-                $workSheetArray = $spreadSheet->getSheet(2)->toArray();
-            } else {
-                $workSheetArray = $workSheet->toArray();
+
+            if ($supplierId != 3) {
+                $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$supplierId]);
             }
+
+            $validationCheck = $arrayDiff = false;
+            
+            if (isset($sheet) && $sheet) {
+                $workSheet = $sheet;
+                $workSheetArray = $workSheet->toArray();
+        
+                $maxNonEmptyCount = 0;
+        
+                foreach ($workSheetArray as $key=>$value) {
+                    /** Checking not empty columns */
+                    $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
+                        return !empty($item);
+                    }));
+                    
+                    /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+                    if ($nonEmptyCount > $maxNonEmptyCount) {
+                        $maxNonEmptyvalue = $value;
+                        $maxNonEmptyCount = $nonEmptyCount;
+                    } 
+                    
+                    /** Stop loop after reading 31 rows from excel file */
+                    if($key > 30){
+                        break;
+                    }
+                }
+    
+                /** Remove empty key from the array of excel sheet column name */
+                $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
+                    return !empty($item);
+                }, ARRAY_FILTER_USE_BOTH));
+                            
+                /** Clean up the values */
+                $cleanedArray = array_map(function ($value) {
+                    /** Remove line breaks and trim whitespace */
+                    return str_replace(["\r", "\n"], '', $value);
+                }, $finalExcelKeyArray);
+
+                if (isset($suppliers[$request->supplierselect])) {
+                    $supplierValues = $suppliers[$request->supplierselect];
+                    $arrayDiff = array_diff($supplierValues, $cleanedArray);
+                    // echo"<pre> hello1";
+                    // print_r($arrayDiff);
+                    // die;
+                    if (empty($arrayDiff)) {
+                        $validationCheck = true;
+                    }
+                }
+            } else {
+                // $sheetName = $workSheet->getTitle();
+                $sheetCount = $spreadSheet->getSheetCount(); 
+                $skipSheet = $sheetCount - 1;
+                
+
+                for ($i=0; $i < $sheetCount; $i++) {
+                    if ($skipSheet == $i && $supplierId == 3) {
+                        continue;
+                    }
+
+                    $workSheet = $spreadSheet->getSheet($i);
+        
+                    $workSheetArray1 = $workSheet->toArray();
+        
+                    $maxNonEmptyCount = 0;
+            
+                    foreach ($workSheetArray1 as $key=>$value) {
+                        /** Checking not empty columns */
+                        $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
+                            return !empty($item);
+                        }));
+                        
+                        /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+                        if ($nonEmptyCount > $maxNonEmptyCount) {
+                            $maxNonEmptyvalue1 = $value;
+                            $maxNonEmptyCount = $nonEmptyCount;
+                        } 
+                        
+                        /** Stop loop after reading 31 rows from excel file */
+                        if($key > 20){
+                            break;
+                        }
+                    }
+        
+                    /** Remove empty key from the array of excel sheet column name */
+                    $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
+                        return !empty($item);
+                    }, ARRAY_FILTER_USE_BOTH));
+                                
+                    /** Clean up the values */
+                    $cleanedArray = array_map(function ($value) {
+                        /** Remove line breaks and trim whitespace */
+                        return str_replace(["\r", "\n"], '', $value);
+                    }, $finalExcelKeyArray1);
+        
+                    
+
+                    if (isset($suppliers[$request->supplierselect])) {
+                        $supplierValues = $suppliers[$request->supplierselect];
+                        $arrayDiff = array_diff($supplierValues, $cleanedArray);
+
+                        if (empty($arrayDiff)) {
+                            $validationCheck = true;
+                        }
+                    }
+                }
+            }
+
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
 
-        $startIndexValueArray = $valueArrayKey = $maxNonEmptyCount = 0;
-
-        foreach ($workSheetArray as $key=>$value) {
-            /** Checking not empty columns */
-            $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
-                return !empty($item);
-            }));
-            
-            /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
-            if ($nonEmptyCount > $maxNonEmptyCount) {
-                $maxNonEmptyvalue = $value;
-                $startIndexValueArray = $key;
-                $maxNonEmptyCount = $nonEmptyCount;
-            } 
-            
-            /** Stop loop after reading 31 rows from excel file */
-            if($key > 30){
-                break;
-            }
+        if ($validationCheck == false) {
+            $missingColumns = implode(', ', $arrayDiff);
+            return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
         }
-        
-        /** Remove empty key from the array of excel sheet column name */
-        $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
-            return !empty($item);
-        }, ARRAY_FILTER_USE_BOTH));
-                    
-        // print_r($finalExcelKeyArray);
-        // die();
-        /** Clean up the values */
-        $cleanedArray = array_map(function ($value) {
-            /** Remove line breaks and trim whitespace */
-            return str_replace(["\r", "\n"], '', $value);
-        }, $finalExcelKeyArray);
 
         /** Output the cleaned array */
         // echo"<pre>";
@@ -192,17 +286,7 @@ class ExcelImportController extends Controller
         // ];
 
 
-        $suppliers=[
-            '1' => ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND'],
-            '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
-            '3' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-            '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
-            // '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
-            '5' => ['Customer Name', 'Customer Num', 'Current List'],
-            '6' => ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
-            '7'=>  ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
-            '8' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-        ];
+       
 
         /** Get the uploaded file */
         $file = $request->file('file');
@@ -224,7 +308,7 @@ class ExcelImportController extends Controller
             // dd($supplierValues);
 
             // if(array_values($supplierValues) === array_values($cleanedArray)){
-            if (empty(array_diff($supplierValues, $cleanedArray))) {
+            // if (empty(array_diff($supplierValues, $cleanedArray))) {
                 /** Get the authenticated user */
                 $user = Auth::user();
                 $endDateRange = $request->input('enddate');
@@ -250,16 +334,18 @@ class ExcelImportController extends Controller
 
                 } catch (QueryException $e) {   
                     return response()->json(['error' => $e->getMessage()], 200);
-                    // return redirect()->back()->with('error', $e->getMessage());
                 }
                 return response()->json(['success' => 'Excel file imported successfully!'], 200);
                 // return redirect()->back()->with('success', 'Excel file imported successfully!');
-            } else {
-                return response()->json(['error' => 'Please upload a file that corresponds to the selected supplier.'], 200);
-                // return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
-            }
+            // } else {
+            //     $arrayDiff = array_diff($supplierValues, $cleanedArray);
+            //     $missingColumns = implode(', ', $arrayDiff);
+            //     return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
+            //     // return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
+            // }
         } else {
-            echo "Supplier ID ".$request->supplierselect." not found in the array.";
+            return response()->json(['error' => 'Please select supplier.'], 200);
+            // echo "Supplier ID ".$request->supplierselect." not found in the array.";
         }
     }
     public function allSupplier(){
