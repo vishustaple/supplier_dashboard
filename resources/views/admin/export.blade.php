@@ -68,7 +68,7 @@
             
             <!-- Modal -->
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-dialog modal-dialog-scrollable modal_custom">
                     <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="staticBackdropLabel">Fields List</h5>
@@ -76,21 +76,23 @@
                     </div>
                     <div class="modal-body p-2">
                         <div class="row list_filed m-3 p-2 border border-secondary">
-                    <div class="col-md-9 px-0">
-                        <h5 class="list_heading ">Fields</h5>
-                        <ul class="list-group" id="necessaryFieldList">
-                        </ul>
-                    </div>
-                    <div class="col-md-3 px-0 ">
-                        <h5 class="list_heading">Required</h5>
-                        <ul class="list-group ps-3" id="necessaryFieldList1">
-                        </ul>
-                    </div>
+                    <table class="table column_table">
+                        <thead>
+                            <tr>
+                                <th>Fields</th>
+                                <th>Required</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Table rows will be appended here -->
+                        </tbody>
+                    </table>
                         </div>
                         
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                         <!-- <button type="button" class="btn btn-primary" id="saveChangesBtn">Save Changes</button> -->
                         <!-- <button type="button" class="btn btn-primary">Understood</button> -->
                     </div>
                     </div>
@@ -192,6 +194,17 @@
     #necessaryFieldList1 .list-group-item {
     color: #008000;
     }
+    .modal_custom.modal-dialog.modal-dialog-scrollable {
+    max-width: 800px;
+}
+
+.modal_custom.modal-dialog.modal-dialog-scrollable .edit_column {
+    padding: 0px;
+}
+
+.column_table tbody#tableBody tr td:nth-child(2n) {
+    color: green;
+}
 </style>
  <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
@@ -291,46 +304,25 @@
                     }
                 });
             }
+             
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('manage.columns') }}', // Replace with your actual route name
+                data: { dataIdValue: dataIdValue },
+                success: function(response) {
+                     console.log(response);
+                    $("#tableBody").empty();
+                    response.forEach(function(column) {
+                    var requiredIcon = column.required == 1 ? '<i class="fa-solid fa-check"></i>' : '';
+                    var editButton = '<button class="btn btn-link edit_column" data-id="' + column.id + '"><i class="fas fa-edit"></i></button>';
 
-            // Creating a multidimensional array
-            var multiArray = [
-                [],
-                ['SOLD TOACCOUNT','SOLD TO NAME','SHIP TOACCOUNT','SHIP TO NAME','SHIP TO ADDRESS','CATEGORIES','SUB GROUP 1','PRODUCT','DESCRIPTION','GREEN (Y/N)','QUANTITYSHIPPED','ON-CORESPEND','OFF-CORESPEND'],            
-                ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name','Account Number', 'Account Name', 'Material', 'Material Description','Material Segment', 'Brand Name', 'Bill Date', 'Billing Document','Purchase Order Number', 'Sales Document', 'Name of Orderer', ' Sales Office','Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty','Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price','Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $','Discount %', 'Invoice Number'],
-                ['CUSTOMER GRANDPARENT ID','CUSTOMER GRANDPARENT NM','CUSTOMER PARENT ID','CUSTOMER PARENT NM','CUSTOMER ID','CUSTOMER NM','DEPT','CLASS','SUBCLASS','SKU','Manufacture Item#','Manufacture Name','Product Description','Core Flag','Maxi Catalog/WholesaleFlag','UOM','PRIVATE BRAND','GREEN SHADE','QTY Shipped','Unit Net Price','(Unit) Web Price','Total Spend','Shipto Location','Contact Name','Shipped Date','Invoice #','Payment Method'],
-                ['MASTER_CUSTOMER', 'MASTER_NAME', 'BILLTONUMBER', 'BILLTONAME', 'SHIPTONUMBER', 'SHIPTONAME', 'SHIPTOADDRESSLINE1', 'SHIPTOADDRESSLINE2', 'SHIPTOADDRESSLINE3', 'SHIPTOCITY', 'SHIPTOSTATE', 'SHIPTOZIPCODE', 'LASTSHIPDATE', 'SHIPTOCREATEDATE', 'SHIPTOSTATUS', 'LINEITEMBUDGETCENTER', 'CUSTPOREL', 'CUSTPO', 'ORDERCONTACT', 'ORDERCONTACTPHONE', 'SHIPTOCONTACT', 'ORDERNUMBER', 'ORDERDATE', 'SHIPPEDDATE', 'TRANSSHIPTOLINE3', 'SHIPMENTNUMBER', 'TRANSTYPECODE', 'ORDERMETHODDESC', 'PYMTTYPE', 'PYMTMETHODDESC', 'INVOICENUMBER', 'SUMMARYINVOICENUMBER', 'INVOICEDATE', 'CVNCECARDFLAG', 'SKUNUMBER', 'ITEMDESCRIPTION', 'STAPLESADVANTAGEITEMDESCRIPTION', 'SELLUOM', 'QTYINSELLUOM', 'STAPLESOWNBRAND', 'DIVERSITYCD', 'DIVERSITY', 'DIVERSITYSUBTYPECD', 'DIVERSITYSUBTYPE', 'CONTRACTFLAG', 'SKUTYPE', 'TRANSSOURCESYSCD', 'TRANSACTIONSOURCESYSTEM', 'ITEMFREQUENCY', 'NUMBERORDERSSHIPPED', 'QTY', 'ADJGROSSSALES', 'AVGSELLPRICE'],
-                ['Customer Num','Customer Name','Item Num','Item Name','Category','Category Umbrella','Price Method','Uo M','Current List','Qty','Ext Price',],
-                ['Payer', 'Name Payer', 'Sold-to pt', 'Name Sold-to party', 'Ship-to', 'Name Ship-to', 'Name 3 + Name 4 - Ship-to', 'Street - Ship-to', 'District - Ship-to', 'PostalCode - Ship-to', 'City - Ship-to', 'Country - Ship-to', 'Leader customer 1', 'Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Product hierarchy', 'Section', 'Family', 'Category', 'Sub Category', 'Material', 'Material Description', 'Ownbrand', 'Green product', 'NBS', 'Customer Material', 'Customer description', 'Sales unit', 'Qty. in SKU', 'Sales deal', 'Purchase order type', 'Qty in Sales Unit - P', 'Quantity in SKU - P', 'Number of orders - P', 'Sales Amount - P', 'Tax amount - P', 'Net sales - P', 'Avg Selling Price - P', 'Document Date', 'Sales Document', 'PO number', 'BPO number', 'Invoice list', 'Billing Document', 'Billing Date', 'CAC number', 'CAC description', 'Billing month - P'],
-                ['GP ID','GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name', '202301','202302','202303','202304','202305','202306','202307','202308','202309','202310','202311','202312','202313','202314','202315','202316','202317','202318','202319','202320','202321','202322','202323','202324','202325','202326','2023027','202328','202329','202330','202331','202332','202333','202334','202335','202336','202337','202338','202339','202340','202341','202342','202343','202344','202345','202346','202347','202348','202349','202350','202351','202352'],
-            ],
-
-            multiArray1 = [
-                [],
-                ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND', 'OFF-CORESPEND'],
-                ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
-                ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-                ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
-                ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
-                ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
-                ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
-            ],
-
-            // Define the list items content (you can fetch this dynamically if needed)
-            listItemsContent = multiArray[dataIdValue],
-            multiArray2 = multiArray1[dataIdValue];
-
-            // Clear existing list items (if any)
-            $("#necessaryFieldList, #necessaryFieldList1").empty();
-
-            // Add new list items
-            $.each(listItemsContent, function(index, content) {
-                $("#necessaryFieldList").append("<li class='list-group-item'>" + content + "</li>");
-                let containsKey = multiArray2.includes(content);
-                if (containsKey) {
-                    $("#necessaryFieldList1").append("<li class='list-group-item'><i class='fa-solid fa-check'></i></li>");
-                } else {
-                    $("#necessaryFieldList1").append("<li class='list-group-item'></li>");
-                }
+                    // Append table row
+                    $("#tableBody").append("<tr><td>" + column.field_name + "</td><td>" + requiredIcon + "</td><td>" + editButton + "</td></tr>");
+                    });
+                    },
+                    error: function(xhr, status, error) {
+                
+                    }
             });
 
             if (dataIdValue != '') {
@@ -356,7 +348,7 @@
             }
             var selectedSupplier = $(this).val();
         });
-
+        
         $('#enddate').val('');
         $('#enddate').on('change', function() {
             var EndDateInput = $('#file');  // Assuming you want to check the value of #file
@@ -401,10 +393,92 @@
             // console.log("here");
             $('#example_paginate').show(); // Enable pagination
         } else {
-            console.log("here");
+          
             $('#example_paginate').hide();
         }
-        
+        $(document).on('click','.edit_column',function(){
+            var id = $(this).attr('data-id'); 
+            var td = $(this).closest("tr").find("td:first-child");
+            var fieldValue = td.text().trim();
+    
+            // Replace content with input field
+            td.html("<form method='post'><input type='text' class='form-control' id='final_column' value='" + fieldValue + "' required></form>");
+            var td3 = $(this).closest("tr").find("td:last-child");
+             td3.html("<button id='edit_save' class='edit_save btn btn-success me-2' data-id='" + id + "'>save</button><button class='close_edit btn btn-danger'>close</button>");
+
+        });
+         
+          //on edit click
+        // Handle close edit button click
+        $(document).on("click", ".close_edit", function() {
+            var td = $(this).closest("tr").find("td:first-child");
+            var fieldValue = td.find("input").val(); // Get the current value from the input field
+
+            // Set the td value back
+            td.html(fieldValue);
+
+            // Restore the original buttons
+            var id = $(this).closest("tr").find(".edit_column").attr('data-id');
+            var td3 = $(this).closest("tr").find("td:last-child");
+            td3.html("<button class='btn btn-link edit_column' data-id='" + id + "'><i class='fas fa-edit'></i></button>");
+        });
+      
+        //on save click
+       // Handle save edit button click
+        $(document).on("click", ".edit_save", function(event) {
+            event.stopPropagation(); // Prevent multiple form submissions
+            var id = $(this).data('id');
+       
+            // var id = $(this).closest("tr").find(".edit_column").attr('data-id');
+            var columnValue = $(this).closest("tr").find("#final_column").val();
+            var self = this;
+            // Debugging: Log the column value
+             console.log("Column Value:", columnValue);
+            // var columnValue = $('#final_column').val();
+            // console.log(columnValue);
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('store.columns') }}',
+                data: { id: id, columnValue: columnValue },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log(response);
+                    $(self).closest("tr").find("td:first-child").text(columnValue);
+            
+            // Remove the input field
+            $(self).closest("tr").find("#final_column").parent().remove();
+
+            // Append the edit button to the third cell
+            var editButtonHtml = '<button class="edit_column btn btn-link" data-id="' + id + '"><i class="fas fa-edit"></i></button>';
+            $(self).closest("tr").find("td:last-child").html(editButtonHtml);
+                    // Handle success response
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                }
+            });
+        });
+        // $(".edit_close").click(function() {
+        //     // Initialize an empty array to store field values
+        //     var fieldValues = [];
+        //     var dataIds = [];
+        //     // Traverse through each table row
+        //     $("#tableBody tr").each(function() {
+        //         // Get the value of the input box in the current row
+        //         var value = $(this).find("#final_column").val();
+        //         var dataId = $(this).find(".edit_column").data('data-id');
+        //         // Add the value to the fieldValues array
+        //         fieldValues.push(value);
+        //         dataIds.push(dataId);
+        //     });
+
+        //     // Log or process the field values as needed
+        //     console.log(fieldValues);
+        //     console.log(dataIds);
+        // });
+
         $(document).on('click','.remove',function(){               
             var id = $(this).attr('data-id');
             
