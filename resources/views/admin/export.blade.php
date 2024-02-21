@@ -223,7 +223,7 @@
                         $('#errorMessage').css('display','block');
                         setTimeout(function () {
                         $('#errorMessage').fadeOut();
-                        }, 5000);
+                        }, 10000);
                       
                     }
                     let errorMessages = [];
