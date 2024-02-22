@@ -70,15 +70,17 @@
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable modal_custom">
                     <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">Fields List</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-header flex-wrap">
+                        <h3 class="modal-title" id="staticBackdropLabel">Fields List</h3>
+                        <h5 id="sup_name" class="w-100 pt-2"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close_popup"></button>
                     </div>
                     <div class="modal-body p-2">
-                        <div class="row list_filed m-3 p-2 border border-secondary">
+                        <div class="row list_filed m-3  border border-secondary">
                     <table class="table column_table">
                         <thead>
                             <tr>
+                                <th>Sr. No</th>
                                 <th>Fields</th>
                                 <th>Required</th>
                                 <th>Action</th>
@@ -92,7 +94,8 @@
                         
                     </div>
                     <div class="modal-footer">
-                         <!-- <button type="button" class="btn btn-primary" id="saveChangesBtn">Save Changes</button> -->
+                         <button type="button" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+                         <button type="button" class="btn btn-danger" id="closeBtn">Close</button>
                         <!-- <button type="button" class="btn btn-primary">Understood</button> -->
                     </div>
                     </div>
@@ -202,8 +205,17 @@
     padding: 0px;
 }
 
-.column_table tbody#tableBody tr td:nth-child(2n) {
+.column_table tbody#tableBody tr td:nth-child(3n) {
     color: green;
+}
+table.table.column_table thead {
+    position: sticky;
+    top: -10px;
+}
+button#close_popup {
+    position: absolute;
+    right: 15px;
+    top: 15px;
 }
 </style>
  <!-- Include Date Range Picker JavaScript -->
@@ -289,21 +301,25 @@
         $('#selectBox').val('');
        // $('#startdate,#enddate,#file').prop('disabled', true);     
         $('#selectBox').on('change', function() {
+           
+            var suppliername =  $(this).find("option:selected").text()
+            console.log(suppliername);
+            $('#sup_name').text(suppliername);
             var dataIdValue = $(this).val(); // Replace with your dynamic value
             
-            if (dataIdValue == 1) {
-                //add rangepicker on field 
-                $('#enddate').daterangepicker({  
-                    showDropdowns: false,
-                    linkedCalendars: false,
-                    isInvalidDate: function(date) {
-                        // Disable dates more than one month from the selected start date
-                        var startDate = $('#enddate').data('daterangepicker').startDate;
-                        var endDateLimit = moment(startDate).add(1, 'month');
-                        return date.isAfter(endDateLimit);
-                    }
-                });
-            }
+            // if (dataIdValue == 1) {
+            //     //add rangepicker on field 
+            //     $('#enddate').daterangepicker({  
+            //         showDropdowns: false,
+            //         linkedCalendars: false,
+            //         isInvalidDate: function(date) {
+            //             // Disable dates more than one month from the selected start date
+            //             var startDate = $('#enddate').data('daterangepicker').startDate;
+            //             var endDateLimit = moment(startDate).add(1, 'month');
+            //             return date.isAfter(endDateLimit);
+            //         }
+            //     });
+            // }
              
             $.ajax({
                 type: 'GET',
@@ -312,12 +328,15 @@
                 success: function(response) {
                      console.log(response);
                     $("#tableBody").empty();
+                    var i=1;
                     response.forEach(function(column) {
+                   
                     var requiredIcon = column.required == 1 ? '<i class="fa-solid fa-check"></i>' : '';
                     var editButton = '<button class="btn btn-link edit_column" data-id="' + column.id + '"><i class="fas fa-edit"></i></button>';
 
                     // Append table row
-                    $("#tableBody").append("<tr><td>" + column.field_name + "</td><td>" + requiredIcon + "</td><td>" + editButton + "</td></tr>");
+                    $("#tableBody").append("<tr><td>" + i +"</td><td>" + column.field_name + "</td><td>" + requiredIcon + "</td><td>" + editButton + "</td></tr>");
+                    i++;
                     });
                     },
                     error: function(xhr, status, error) {
@@ -337,15 +356,15 @@
                 $('#necessaryFieldBtn').addClass('invisible');
             }
 
-            var startDateInput = $('#enddate');
-            if ($(this).val() == '1') {
-                $(".input-overlay").css("display","none");
-                // startDateInput.prop('disabled', false);
-                $('#enddates').removeClass('invisible');
-            } else {
-                $(".input-overlay").css("position","absolute");
-                $('#enddates').addClass('invisible');
-            }
+            // var startDateInput = $('#enddate');
+            // if ($(this).val() == '1') {
+            //     $(".input-overlay").css("display","none");
+            //     // startDateInput.prop('disabled', false);
+            //     $('#enddates').removeClass('invisible');
+            // } else {
+            //     $(".input-overlay").css("position","absolute");
+            //     $('#enddates').addClass('invisible');
+            // }
             var selectedSupplier = $(this).val();
         });
         
@@ -461,24 +480,22 @@
                 }
             });
         });
-        // $(".edit_close").click(function() {
-        //     // Initialize an empty array to store field values
-        //     var fieldValues = [];
-        //     var dataIds = [];
-        //     // Traverse through each table row
-        //     $("#tableBody tr").each(function() {
-        //         // Get the value of the input box in the current row
-        //         var value = $(this).find("#final_column").val();
-        //         var dataId = $(this).find(".edit_column").data('data-id');
-        //         // Add the value to the fieldValues array
-        //         fieldValues.push(value);
-        //         dataIds.push(dataId);
-        //     });
+        $("#close_popup").click(function() {
+       
+       // Loop through each table row
+$("table tbody tr").each(function() {
+    var td = $(this).find("td:first-child");
+    var fieldValue = td.find("input").val(); // Get the current value from the input field
 
-        //     // Log or process the field values as needed
-        //     console.log(fieldValues);
-        //     console.log(dataIds);
-        // });
+    // Set the td value back
+    td.html(fieldValue);
+
+    // Restore the original buttons
+    var id = $(this).find(".edit_save").attr('data-id');
+    var td3 = $(this).find("td:last-child");
+    td3.html("<button class='btn btn-link edit_column' data-id='" + id + "'><i class='fas fa-edit'></i></button>");
+});
+        });
 
         $(document).on('click','.remove',function(){               
             var id = $(this).attr('data-id');
