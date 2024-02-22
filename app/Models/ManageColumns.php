@@ -14,7 +14,7 @@ class ManageColumns extends Model
         'required',
         'field_name',
     ];
-    public static function getColumns(){
+    public static function getRequiredColumns(){
         $supplierIDsGrouped = ManageColumns::groupBy('supplier_id')->pluck('supplier_id')->toArray();
 
         $allSupplierData = [];
