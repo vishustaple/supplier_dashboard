@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use App\Helpers\ArrayHelper;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use App\Models\{CategorySupplier, UploadedFiles,ManageColumns};
@@ -17,34 +18,7 @@ use App\Models\{CategorySupplier, UploadedFiles,ManageColumns};
 class ExcelImportController extends Controller
 {
     public function index(){
-        $supplierIDsGrouped = ManageColumns::groupBy('supplier_id')->pluck('supplier_id')->toArray();
-        // dd($supplierIDsGrouped);
-
-            $allSupplierData = [];
-            foreach ($supplierIDsGrouped as $supplier) {
-            $columns = ManageColumns::where('supplier_id',$supplier)->pluck('field_name')->toArray();
-             $allSupplierData[] = $columns;
-            }
-            $jsArray = '[';
-    
-            // Add the first empty array
-            $jsArray .= "[],";
-            
-            // Add the remaining arrays
-            foreach ($allSupplierData as $subArray) {
-                if (!empty($subArray)) {
-                    // Remove single quotes from each string element
-                    $cleanedSubArray = array_map(function ($item) {
-                    return str_replace("'", "", $item);
-                    }, $subArray);
-                    $jsArray .= "['" . implode("','", $subArray) . "'],";
-                } else {
-                    $jsArray .= "[],";
-                }
-            }
-            $jsArray .= ']';
  
-          
         $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
 
         $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
@@ -217,19 +191,17 @@ class ExcelImportController extends Controller
 
         //     '7'=>['GP ID','GP Name','202301','202302','202303','202304','202305','202306','202307','202308','202309','202310','202311','202312','202313','202314','202315','202316','202317','202318','202319','202320','202321','202322','202323','202324','202325','202326','2023027','202328','202329','202330','202331','202332','202333','202334','202335','202336','202337','202338','202339','202340','202341','202342','202343','202344','202345','202346','202347','202348','202349','202350','202351','202352'],
         // ];
-
-
-        $suppliers=[
-            '1' => ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND'],
-            '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
-            '3' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-            '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
-            // '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
-            '5' => ['Customer Name', 'Customer Num', 'Current List'],
-            '6' => ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
-            '7'=>  ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
-            '8' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-        ];
+        $supplier= ManageColumns::getColumns();
+        // $suppliers=[
+        //     '1' => ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND'],
+        //     '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
+        //     '3' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
+        //     '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
+        //     // '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
+        //     '5' => ['Customer Name', 'Customer Num', 'Current List'],
+        //     '6' => ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
+        //     '7'=>  ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
+        // ];
 
         /** Get the uploaded file */
         $file = $request->file('file');
