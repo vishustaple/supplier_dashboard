@@ -22,7 +22,7 @@
                                 Catalog List
                             </a>
                             @if(Auth::check() && Auth::user()->user_type != App\Models\User::USER_TYPE_USER)
-                            <a class="nav-link " href="{{route('user.show')}}">
+                            <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'User Data') ? 'active' : '' }}" href="{{route('user.show')}}">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
                                 Manage Users
                             </a>

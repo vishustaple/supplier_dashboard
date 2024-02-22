@@ -74,7 +74,6 @@ class ProcessUploadedFiles extends Command
             // $yearsDifference = $interval->y;
             
             if ($fileValue !== null) {
-
                 /** Update cron two means start processing data into excel */
                 DB::table('uploaded_files')->where('id', $fileValue->id)
                 ->update([
@@ -98,9 +97,7 @@ class ProcessUploadedFiles extends Command
 
                     6 => ['customer_number2' => 'Leader customer 2', 'customer_number3' => 'Leader customer 3', 'customer_number4' => 'Leader customer 4', 'customer_number5' => 'Leader customer 5', 'customer_number6' => 'Leader customer 6', 'customer_number' => 'Leader customer 1', 'amount' => 'Sales Amount - P', 'invoice_no' => 'Billing Document', 'invoice_date' => 'Billing Date'],
 
-                    7 => ['customer_number' => 'Account ID', 'amount' => '', 'invoice_no' => '', 'invoice_date' => ''],
-
-                    8 => ['gd_customer_number' => 'CUSTOMER GRANDPARENT ID', 'gd_customer_name' => 'CUSTOMER GRANDPARENT NM', 'p_customer_number' => 'CUSTOMER PARENT ID', 'p_customer_name' => 'CUSTOMER PARENT NM', 'customer_number' => 'CUSTOMER ID', 'amount' => 'Total Spend', 'invoice_no' => 'Invoice #', 'invoice_date' => 'Shipped Date'],
+                    7 => ['gd_customer_number' => 'GP ID', 'gd_customer_name' => 'GP Name', 'p_customer_number' => 'Parent Id', 'p_customer_name' => 'Parent Name', 'customer_number' => 'Account ID', 'customer_name' => 'Account Name', 'amount' => '', 'invoice_no' => '', 'invoice_date' => ''],
                 ];
 
                 try {
@@ -150,6 +147,16 @@ class ProcessUploadedFiles extends Command
                         // print_r($sheetCount);
                         // die;
 
+                        $supplierFilesNamesArray = [
+                            1 => 'Usage By Location and Item',
+                            2 => 'Invoice Detail Report',
+                            // 3 => '',
+                            4 => 'All Shipped Order Detail',
+                            5 => 'Centerpoint_Summary_Report',
+                            6 => 'Blad1',
+                            7 => 'Weekly Sales Account Summary', 
+                        ];
+
                         for ($i = 0; $i <= $sheetCount; $i++) {
                             $count = $maxNonEmptyCount = 0;
 
@@ -159,7 +166,17 @@ class ProcessUploadedFiles extends Command
                                 continue;
                             }
 
-                            $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
+                            if ($fileValue->supplier_id != 3) {
+                                $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$fileValue->supplier_id]);
+                            }
+                
+                            if (isset($sheet) && $sheet) {
+                                $workSheetArray = $sheet->toArray();
+                            } else {
+                                $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
+                            }
+                            
+
                             foreach ($workSheetArray as $key=>$values) {
                                 /** Checking not empty columns */
                                 $nonEmptyCount = count(array_filter(array_values($values), function ($item) {
@@ -191,12 +208,15 @@ class ProcessUploadedFiles extends Command
                             if ($fileValue->supplier_id == 7) {
                                 $weeklyPriceColumnArray = [];
                                 foreach ($maxNonEmptyValue as $key => $value) {
-                                    if ($key >= 16) {
+                                    if ($key >= 6) {
                                         $weeklyPriceColumnArray[$key] = $value;
                                         // $weeklyArrayKey++;
                                     }
                                 }
                             }
+
+                            // print_r($weeklyPriceColumnArray);
+                            // die;
 
                             /** Unset the "$maxNonEmptyCount" for memory save */
                             unset($maxNonEmptyCount);
