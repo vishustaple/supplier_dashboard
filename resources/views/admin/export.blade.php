@@ -398,6 +398,7 @@
         }
         $(document).on('click','.edit_column',function(){
             var id = $(this).attr('data-id'); 
+            console.log(id);
             var td = $(this).closest("tr").find("td:first-child");
             var fieldValue = td.text().trim();
     
@@ -418,7 +419,7 @@
             td.html(fieldValue);
 
             // Restore the original buttons
-            var id = $(this).closest("tr").find(".edit_column").attr('data-id');
+            var id = $(this).closest("tr").find(".edit_save").attr('data-id');
             var td3 = $(this).closest("tr").find("td:last-child");
             td3.html("<button class='btn btn-link edit_column' data-id='" + id + "'><i class='fas fa-edit'></i></button>");
         });
@@ -427,9 +428,9 @@
        // Handle save edit button click
         $(document).on("click", ".edit_save", function(event) {
             event.stopPropagation(); // Prevent multiple form submissions
-            var id = $(this).data('id');
+            // var id = $(this).data('id');
        
-            // var id = $(this).closest("tr").find(".edit_column").attr('data-id');
+            var id = $(this).closest("tr").find(".edit_save").attr('data-id');
             var columnValue = $(this).closest("tr").find("#final_column").val();
             var self = this;
             // Debugging: Log the column value
@@ -447,12 +448,12 @@
                     console.log(response);
                     $(self).closest("tr").find("td:first-child").text(columnValue);
             
-            // Remove the input field
-            $(self).closest("tr").find("#final_column").parent().remove();
+                   // Remove the input field
+                    $(self).closest("tr").find("#final_column").parent().remove();
 
-            // Append the edit button to the third cell
-            var editButtonHtml = '<button class="edit_column btn btn-link" data-id="' + id + '"><i class="fas fa-edit"></i></button>';
-            $(self).closest("tr").find("td:last-child").html(editButtonHtml);
+                    // Append the edit button to the third cell
+                    var editButtonHtml = '<button class="edit_column btn btn-link" data-id="' + id + '"><i class="fas fa-edit"></i></button>';
+                    $(self).closest("tr").find("td:last-child").html(editButtonHtml);
                     // Handle success response
                 },
                 error: function(xhr, status, error) {
