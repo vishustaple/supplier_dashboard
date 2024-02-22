@@ -27,9 +27,6 @@
                     <label>Customer Name</label>
                     <input type="text" placeholder="Enter Customer name" class="form-control" name="customer_name" id="customer_name" value="{{$account->alies}}">
                 </div>
-                <!-- <div class="form-group col-md-6">
-                   
-                </div> -->
                 <div class="form-group col-md-6">
                 <div class="form-check form-check-inline">
                     <input type="checkbox" id="parent" class="form-check-input radio-checkbox" name="parent" value="1" data-parent-id="{{ $account->parent_id }}" @if($account->parent_id) checked @endif>
