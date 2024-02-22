@@ -45,7 +45,7 @@ class ManageColumns extends Model
     }
     public static function cleanRows(array $array){
         foreach ($array as &$row) {
-            $row = str_replace(' ', '', $row);
+            $row = str_replace([' ', '_'], '', $row);
             $row = preg_replace('/[^\w\s]/', '', $row);
             $row = strtolower($row);
         }

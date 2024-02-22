@@ -267,6 +267,8 @@ class ExcelImportController extends Controller
         /** Output the cleaned array */
         // echo"<pre>";
         // print_r($cleanedArray);
+        // $clean= ManageColumns::cleanRows($cleanedArray);
+        // print_r($clean);
         // die;
 
         // $suppliers=[
