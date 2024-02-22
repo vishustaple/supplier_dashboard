@@ -78,4 +78,9 @@ Route::group(['prefix' => 'admin'], function () {
     });
 });
 
+/** Default redirection */
+Route::fallback(function () {
+    return redirect()->back();
+});
+
 Route::get('/random-function' , [CategorySupplierController::class,'index'])->name('random.number');
