@@ -77,7 +77,7 @@
                     </div>
                     <div class="modal-body p-2">
                         <div class="row list_filed m-3  border border-secondary">
-                    <table class="table column_table">
+                    <table class="table column_table" id="table_column">
                         <thead>
                             <tr>
                                 <th>Sr. No</th>
@@ -483,7 +483,7 @@ button#close_popup {
         $("#close_popup").click(function() {
        
        // Loop through each table row
-$("table tbody tr").each(function() {
+$("#table_column tbody tr").each(function() {
     var td = $(this).find("td:first-child");
     var fieldValue = td.find("input").val(); // Get the current value from the input field
 

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{Account, Order, OrderDetails, UploadedFiles, RecordType};
+use App\Models\{Account, Order, OrderDetails, UploadedFiles};
 
 class ProcessUploadedFiles extends Command
 {
