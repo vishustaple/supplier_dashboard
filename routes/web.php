@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{ExcelImportController, CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
+use App\Http\Controllers\{ExcelImportController, SalesTeamController, CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
 use Illuminate\Support\Facades\Auth; 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +75,12 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('getcolumn',[ExcelImportController::class,'getColumns'])->name('manage.columns');
         Route::post('storecolumn',[ExcelImportController::class,'saveColumns'])->name('store.columns');
         
+        /** Sales team */
+        Route::get('/sales-team' , [SalesTeamController::class,'index'])->name('sales.index');
+        Route::post('/add-sales' , [SalesTeamController::class,'addsales'])->name('sales.add');
+        Route::post('/sales/update',[SalesTeamController::class,'updateSales'])->name('sales.update');
+        Route::post('/sales/filter' , [SalesTeamController::class,'salesAjaxFilter'])->name('sales.filter');
+        Route::get('/sales/edit/{id}/{routename}' , [SalesTeamController::class,'editSales'])->name('sales.edit');
     });
 });
 

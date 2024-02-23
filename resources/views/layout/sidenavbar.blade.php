@@ -12,6 +12,11 @@
                                 Manage Accounts
                             </a>
                           
+                            <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Sales Team') ? 'active' : '' }}" href="{{route('sales.index')}}">
+                                <div class="sb-nav-link-icon"><i class="fa fa-address-card" aria-hidden="true"></i></div>
+                                Manage Sales
+                            </a>
+
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Data') ? 'active' : '' }}" href="{{route('supplier')}}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Manage Supplier
