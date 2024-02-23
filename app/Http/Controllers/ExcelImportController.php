@@ -372,18 +372,16 @@ class ExcelImportController extends Controller
         return response()->json($columns);
     }
     public function saveColumns(Request $request){
-        $id = $request->id;
-        $columnValue = $request->columnValue;
-        $column = ManageColumns::find($id);
-        if ($column) {
-            $column->field_name = $columnValue;
-            $column->save();
-  
-            return response()->json(['message' => 'Column value updated successfully'], 200);
-        } else {
-       
-            return response()->json(['error' => 'Column not found'], 404);
-        } 
+        foreach ($request->all() as $key => $value) {
+            $id = $value['fieldId'];
+            $columnValue = $value['fieldValue'];
+            $column = ManageColumns::find($id);
+            if ($column) {
+                $column->field_name = $columnValue;
+                $column->save();
+            } 
+        }
+        return response()->json(['status' => 'success', 'message' => 'Column value updated successfully'], 200);
 
     }
 }
