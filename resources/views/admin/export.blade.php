@@ -97,7 +97,8 @@
                     </div>
                     <div class="modal-footer">
                          <button type="button" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
-                         <button type="button" class="btn btn-danger" id="closeBtn">Close</button>
+                         <!-- <button type="button" class="btn btn-danger" id="closeBtn">Close</button> -->
+                         <button type="button" class="btn btn-danger " data-bs-dismiss="modal" aria-label="Close" id="close_popup2">Close</button>
                         <!-- <button type="button" class="btn btn-primary">Understood</button> -->
                     </div>
                     </div>
