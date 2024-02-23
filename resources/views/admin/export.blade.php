@@ -16,6 +16,7 @@
             <div class="alert alert-success" id="successMessage" style="display:none;">
             </div>
             <div class="alert alert-danger" id="errorMessage" style="display:none;">
+          
             </div>
         
             @if(session('error'))
@@ -69,6 +70,7 @@
             <!-- Modal -->
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable modal_custom">
+                    <form>
                     <div class="modal-content">
                     <div class="modal-header flex-wrap">
                         <h3 class="modal-title" id="staticBackdropLabel">Fields List</h3>
@@ -99,6 +101,7 @@
                         <!-- <button type="button" class="btn btn-primary">Understood</button> -->
                     </div>
                     </div>
+                    </form>
                 </div>
             </div>
 
@@ -217,6 +220,14 @@ button#close_popup {
     right: 15px;
     top: 15px;
 }
+button#closeErrorMessage {
+    position: absolute;
+    right: 20px;
+    top: 5px;
+}
+div#errorMessage {
+    position: relative;
+}
 </style>
  <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
@@ -243,17 +254,29 @@ button#close_popup {
                 success: function(response) {
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                     if(response.error){
+                       
+                        console.log("error from first");
                         $('#page-loader').hide();
                         $('#errorMessage').text(response.error);
                         $('#errorMessage').css('display','block');
-                        setTimeout(function () {
+                         // Adding close button
+                        $('#errorMessage').append('<button type="button" id="closeErrorMessage"class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+
+                        // Functionality to close the error message when close button is clicked
+                        $('#closeErrorMessage').on('click', function() {
                         $('#errorMessage').fadeOut();
-                        }, 10000);
+                        $('#import_form')[0].reset();
+                        });
+                        // setTimeout(function () {
+                        // $('#errorMessage').fadeOut();
+                        // }, 10000);
                       
                     }
                     let errorMessages = [];
 
                     if (response && response.error) {
+
+                        console.log("error from second");
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
                         button.disabled = false;
 
@@ -272,6 +295,13 @@ button#close_popup {
                         });
                         $('#errorMessage').html(errorMessages.join('<br>'));
                         $('#errorMessage').css('display','block');
+                        $('#errorMessage').append('<button type="button" id="closeErrorMessage"class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+
+                        // Functionality to close the error message when close button is clicked
+                        $('#closeErrorMessage').on('click', function() {
+                        $('#errorMessage').fadeOut();
+                        $('#import_form')[0].reset();
+                        });
                     }
 
                     if(response.success){
@@ -323,7 +353,7 @@ button#close_popup {
              
             $.ajax({
                 type: 'GET',
-                url: '{{ route('manage.columns') }}', // Replace with your actual route name
+                url: '{{ route("manage.columns") }}', // Replace with your actual route name
                 data: { dataIdValue: dataIdValue },
                 success: function(response) {
                      console.log(response);
@@ -332,7 +362,7 @@ button#close_popup {
                     response.forEach(function(column) {
                    
                     var requiredIcon = column.required == 1 ? '<i class="fa-solid fa-check"></i>' : '';
-                    var editButton = '<button class="btn btn-link edit_column" data-id="' + column.id + '"><i class="fas fa-edit"></i></button>';
+                    var editButton = '<button class="btn btn-link edit_column" type="button" data-id="' + column.id + '"><i class="fas fa-edit"></i></button>';
 
                     // Append table row
                     $("#tableBody").append("<tr><td>" + i +"</td><td>" + column.field_name + "</td><td>" + requiredIcon + "</td><td>" + editButton + "</td></tr>");
@@ -418,83 +448,147 @@ button#close_popup {
         $(document).on('click','.edit_column',function(){
             var id = $(this).attr('data-id'); 
             console.log(id);
-            var td = $(this).closest("tr").find("td:first-child");
+            var td = $(this).closest("tr").find("td:eq(1)");
             var fieldValue = td.text().trim();
-    
+           
             // Replace content with input field
-            td.html("<form method='post'><input type='text' class='form-control' id='final_column' value='" + fieldValue + "' required></form>");
-            var td3 = $(this).closest("tr").find("td:last-child");
-             td3.html("<button id='edit_save' class='edit_save btn btn-success me-2' data-id='" + id + "'>save</button><button class='close_edit btn btn-danger'>close</button>");
-
+            td.html("<input type='text' name='field_names[]' data-id="+ id +" class='form-control' id='final_column' value='" + fieldValue + "' required>");
+            
+            // var td3 = $(this).closest("tr").find("td:last-child");
+            //  td3.html("<button id='edit_save' class='edit_save btn btn-success me-2' data-id='" + id + "'>save</button><button class='close_edit btn btn-danger'>close</button>");
+             // Disable the button
+             $(this).prop('disabled', true);
         });
          
           //on edit click
         // Handle close edit button click
-        $(document).on("click", ".close_edit", function() {
-            var td = $(this).closest("tr").find("td:first-child");
+        // $(document).on("click", ".close_edit", function() {
+        //     var td = $(this).closest("tr").find("td:eq(1)");
+        //     var fieldValue = td.find("input").val(); // Get the current value from the input field
+
+        //     // Set the td value back
+        //     td.html(fieldValue);
+
+        //     // Restore the original buttons
+        //     var id = $(this).closest("tr").find(".edit_save").attr('data-id');
+        //     var td3 = $(this).closest("tr").find("td:last-child");
+        //     td3.html("<button class='btn btn-link edit_column' data-id='" + id + "'><i class='fas fa-edit'></i></button>");
+        // });
+      
+        $("#saveChangesBtn").click(function() {
+       
+        var dataToSave = []; // Array to store the data to be saved
+        var fieldValues = {};
+        var isValid = true;
+        // Iterate over each input field with name 'field_name[]'
+        $('input[name="field_names[]"]').each(function(index) {
+            var fieldValue = $(this).val(); // Get the value of the input field
+            console.log(fieldValue);
+            var fieldId = $(this).data('id'); // Get the name attribute of the input field
+            let inputField = $(this);
+            console.log();
+             // Check if the field value is blank
+             if (fieldValue === '') {
+                isValid = false;
+            
+                // alert("Field value cannot be blank.");
+                var closestDiv = $(this).next('.empty-value');
+                if (closestDiv.length <= 0) {
+                    inputField.after('<div class="error-message empty-value mt-2 alert alert-danger">Field value cannot be blank.</div>');
+                }
+                // $('#staticBackdrop').animate({ scrollTop: inputField }, 'slow');
+
+                $('#staticBackdrop').animate({
+                    scrollTop : $('.error-message').offset().top - $('#staticBackdrop').offset().top + $('#staticBackdrop').scrollTop()
+                },'slow');
+              
+                // scrollToError(inputField);
+               // return false; // Exit the loop early
+            } else {
+                var closestDivs = $(this).next('.empty-value');
+                closestDivs.remove();
+                isValid = true;
+                 // Check if the field value is duplicate
+                    if (fieldValues.hasOwnProperty(fieldValue)) {
+                        isValid = false;
+                        // alert("Field value '" + fieldValue + "' is already used. Please enter a unique value.");
+                        var closestDiv = $(this).next('.same-value');
+                        if (closestDiv.length <= 0) {
+                            inputField.after('<div class="error-message same-value mt-2 alert alert-danger">Field value \'' + fieldValue + '\' is already used. Please enter a unique value.</div>');
+                        }
+                        // $('#staticBackdrop').animate({ scrollTop: inputField }, 'slow');
+                        $('#staticBackdrop').animate({
+                            scrollTop : $('.error-message').offset().top - $('#staticBackdrop').offset().top + $('#staticBackdrop').scrollTop()
+                        },'slow');
+                        
+                        // scrollToError(inputField);
+                        //return false; // Exit the loop early
+                    } else {
+                        isValid = true;
+                        var closestDiv = $(this).next('.same-value');
+                        closestDiv.remove();
+                    }
+                }
+            // Store the field value for validation
+            fieldValues[fieldValue] = true;
+
+            // Store the data in an object
+            var inputData = {
+                fieldId: fieldId,
+                fieldValue: fieldValue
+            };
+
+            // Push the object to the array
+            dataToSave.push(inputData);
+        });
+
+        if (isValid == true) {
+            // Example AJAX call to send data to the server
+            $.ajax({
+                type: "POST",
+                url: '{{ route("store.columns") }}',
+                data: JSON.stringify(dataToSave), // Convert array to JSON string
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                contentType: "application/json",
+                success: function(response) {
+                    console.log(response);
+                    var serverResponse = JSON.stringify(response);
+                    console.log(response);
+                    if (response.status == "success") {
+                     location.reload();
+                    }
+                    // Handle success response from the server
+                    console.log("Data saved successfully:", response);
+
+                    // Optionally, you can show a success message or perform other actions
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response from the server
+                    console.error("Error saving data:", error);
+                    // Optionally, you can show an error message or perform other actions
+                }
+            });
+        }
+    });
+    
+        //reset table after closing popup
+        $("#close_popup").click(function() {
+
+            // Loop through each table row
+            $("#table_column tbody tr").each(function() {
+            var td = $(this).find("td:eq(1)");
             var fieldValue = td.find("input").val(); // Get the current value from the input field
 
             // Set the td value back
             td.html(fieldValue);
 
             // Restore the original buttons
-            var id = $(this).closest("tr").find(".edit_save").attr('data-id');
-            var td3 = $(this).closest("tr").find("td:last-child");
+            var id = $(this).find(".edit_save").attr('data-id');
+            var td3 = $(this).find("td:last-child");
             td3.html("<button class='btn btn-link edit_column' data-id='" + id + "'><i class='fas fa-edit'></i></button>");
-        });
-      
-        //on save click
-       // Handle save edit button click
-        $(document).on("click", ".edit_save", function(event) {
-            event.stopPropagation(); // Prevent multiple form submissions
-            // var id = $(this).data('id');
-       
-            var id = $(this).closest("tr").find(".edit_save").attr('data-id');
-            var columnValue = $(this).closest("tr").find("#final_column").val();
-            var self = this;
-            // Debugging: Log the column value
-             console.log("Column Value:", columnValue);
-            // var columnValue = $('#final_column').val();
-            // console.log(columnValue);
-            $.ajax({
-                type: 'POST',
-                url: '{{ route('store.columns') }}',
-                data: { id: id, columnValue: columnValue },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    console.log(response);
-                    $(self).closest("tr").find("td:first-child").text(columnValue);
-            
-                   // Remove the input field
-                    $(self).closest("tr").find("#final_column").parent().remove();
-
-                    // Append the edit button to the third cell
-                    var editButtonHtml = '<button class="edit_column btn btn-link" data-id="' + id + '"><i class="fas fa-edit"></i></button>';
-                    $(self).closest("tr").find("td:last-child").html(editButtonHtml);
-                    // Handle success response
-                },
-                error: function(xhr, status, error) {
-                    // Handle error response
-                }
             });
-        });
-        $("#close_popup").click(function() {
-       
-       // Loop through each table row
-$("#table_column tbody tr").each(function() {
-    var td = $(this).find("td:first-child");
-    var fieldValue = td.find("input").val(); // Get the current value from the input field
-
-    // Set the td value back
-    td.html(fieldValue);
-
-    // Restore the original buttons
-    var id = $(this).find(".edit_save").attr('data-id');
-    var td3 = $(this).find("td:last-child");
-    td3.html("<button class='btn btn-link edit_column' data-id='" + id + "'><i class='fas fa-edit'></i></button>");
-});
         });
 
         $(document).on('click','.remove',function(){               
