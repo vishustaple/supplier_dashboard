@@ -14,36 +14,37 @@
         <div class="alert alert-danger mx-4" id="errorMessage" style="display:none;"></div>
         <form class="" id="add_sales" method="post">
             @csrf
-            <div class="form-group">
-                <label>First Name</label>
-                <input type="text" placeholder="Enter First Name" class="form-control" name="first_name" id="first_name" required>
-            </div>
+            <div class="col-md-12 row">
+                <div class="form-group col-md-6">
+                    <label>First Name</label>
+                    <input type="text" placeholder="Enter First Name" class="form-control" name="first_name" id="first_name" required>
+                </div>
 
-            <div class="form-group">
-                <label>Last Name</label>
-                <input type="text" placeholder="Enter Last name" class="form-control" name="last_name" id="last_name" required>
-            </div>
+                <div class="form-group col-md-6">
+                    <label>Last Name</label>
+                    <input type="text" placeholder="Enter Last name" class="form-control" name="last_name" id="last_name" required>
+                </div>
 
-            <div class="form-group">
-                <label>Email</label>
-                <input type="text" placeholder="Enter Email" class="form-control" name="email" id="email" required>
-            </div>
+                <div class="form-group col-md-6">
+                    <label>Email</label>
+                    <input type="text" placeholder="Enter Email" class="form-control" name="email" id="email" required>
+                </div>
 
-            <div class="form-group">
-                <label>Phone Number</label>
-                <input type="tel" placeholder="Enter Phone Number" class="form-control" name="phone_number" pattern="[0-9]{10}" id="phone_number" required>
+                <div class="form-group col-md-6">
+                    <label>Phone Number</label>
+                    <input type="tel" placeholder="Enter Phone Number" class="form-control" name="phone_number" pattern="[0-9]{10}" id="phone_number" required>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="selectBox">Status</label>
+                    <select id="selectBox" name="status" class="form-control"> 
+                        <option value="">--Select--</option>
+                        <option value="1">Active</option>
+                        <option value="0">In-Active</option>
+                    </select>
+                </div>
             </div>
-            
-            <div class="form-group col-md-6">
-                <label for="selectBox">Status</label>
-                <select id="selectBox" name="status" class="form-control"> 
-                    <option value="">--Select--</option>
-                    <option value="1">Active</option>
-                    <option value="0">In-Active</option>
-                </select>
-            </div>
-
-            <div class="text-center">
+            <div class="text-left col-md-6">
                 <button type="submit" class="btn btn-primary mx-auto" id="sales_add">Submit</button>
             </div>
         </form> 
@@ -104,7 +105,7 @@
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                     setTimeout(function () {
                         $('#successMessage').fadeOut();
-                        window.location.href = "{{ route('account') }}";
+                        window.location.href = "{{ route('sales.index') }}";
                     }, 5000); 
                     
                 }

@@ -39,9 +39,9 @@
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
+            lengthMenu: [25, 50, 100],
             processing: true,
             serverSide: true,
-            lengthMenu: [],
             pageLength: 50,
             ajax: {
                 url: '{{ route("sales.filter") }}',
@@ -120,7 +120,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: "{{ route('account.remove') }}",
+                url: "{{ route('sales.remove') }}",
                 data: { id: id },
                 success: function (response) {
                     if (response.success) {

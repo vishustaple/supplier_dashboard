@@ -80,6 +80,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/add-team' , [SalesTeamController::class,'getSalesPage'])->name('sales.team');
         Route::post('/add-sales' , [SalesTeamController::class,'addsales'])->name('sales.add');
         Route::post('/sales/update',[SalesTeamController::class,'updateSales'])->name('sales.update');
+        Route::get('/accounts/remove',[SalesTeamController::class,'removeAccount'])->name('sales.remove');
         Route::post('/sales/filter' , [SalesTeamController::class,'salesAjaxFilter'])->name('sales.filter');
         Route::get('/sales/edit/{id}/{routename}' , [SalesTeamController::class,'editSales'])->name('sales.edit');
     });
