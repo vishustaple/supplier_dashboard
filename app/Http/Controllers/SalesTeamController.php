@@ -15,7 +15,8 @@ class SalesTeamController extends Controller
     public function index(){
         return view('admin.sales_repersantative.salesTeam', ['pageTitle' => 'Sales Team']);
     }
-
+    
+    
     public function salesAjaxFilter(Request $request){
         if ($request->ajax()) {
             $formatuserdata = SalesTeam::getFilterdSalesData($request->all());
@@ -72,8 +73,14 @@ class SalesTeamController extends Controller
             return response()->json(['error' => $e->getMessage()], 200);
         }
     }
+    public function getSalesPage(Request $request){
+        $fromTitle = 'SalesTeam';
+        $currentTitle ='Sales Team';
+        return view('admin.sales_repersantative.add',compact('fromTitle','currentTitle'));
 
+    }
     public function addsales(Request $request){
+       
         $validator = Validator::make(
             [
                 'first_name' => $request->first_name,

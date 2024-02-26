@@ -1,8 +1,8 @@
-@extends('layout.app', ['pageTitleCheck'=> (($currentTitle == 'Edit Account Data')?'Edit Accounts Data':'')])
+@extends('layout.app', ['pageTitleCheck'=> (($currentTitle == 'Sales Team')?'Sales Team':'')])
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck'=> (($fromTitle == 'account')?'Accounts Data':'')] )
+    @include('layout.sidenavbar', ['pageTitleCheck'=> (($fromTitle == 'SalesTeam')?'Sales Data':'')] )
     <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-2">Add Account</h3>
         <div class="row align-items-end border-bottom pb-3 mb-4">
