@@ -74,7 +74,7 @@
             ],
         });
 
-    $('#account_data_length').hide();
+    $('#sales_data_length').hide();
     
 
     });
@@ -86,7 +86,7 @@
 
     function downloadAccountCsv() {
         // You can customize this URL to match your backend route for CSV download
-        var csvUrl = '{{ route('account.export-csv') }}';
+        var csvUrl = '{{ route("account.export-csv") }}';
 
         // Open a new window to download the CSV file
         window.open(csvUrl, '_blank');
@@ -111,7 +111,7 @@
     var id = $(this).attr('data-id');
     swal.fire({
         title: "Oops....",
-        text: "Are you sure you want to delete this Account?",
+        text: "Are you sure you want to delete this sales representative?",
         icon: "error",
         showCancelButton: true,
         confirmButtonText: 'YES',
@@ -124,7 +124,7 @@
                 data: { id: id },
                 success: function (response) {
                     if (response.success) {
-                        $('#account_del_success').text('User Delete Successfully!');
+                        $('#account_del_success').text('Sales Representative Delete Successfully!');
                         $('#account_del_success').css('display', 'block');
                         setTimeout(function () {
                             $('#account_del_success').fadeOut();
