@@ -77,6 +77,7 @@ Route::group(['prefix' => 'admin'], function () {
         
         /** Sales team */
         Route::get('/sales-team' , [SalesTeamController::class,'index'])->name('sales.index');
+        Route::get('/add-team' , [SalesTeamController::class,'getSalesPage'])->name('sales.team');
         Route::post('/add-sales' , [SalesTeamController::class,'addsales'])->name('sales.add');
         Route::post('/sales/update',[SalesTeamController::class,'updateSales'])->name('sales.update');
         Route::post('/sales/filter' , [SalesTeamController::class,'salesAjaxFilter'])->name('sales.filter');
