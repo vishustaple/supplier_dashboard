@@ -117,11 +117,11 @@ class SalesTeamController extends Controller
         }
     }
 
-    public function removeAccount(Request $request){
+    public function removeSales(Request $request){
         $saleId = $request->id;
-        $account = SalesTeam::find($saleId);
-        if($account) {
-            $account->delete();
+        $sale = SalesTeam::find($saleId);
+        if($sale) {
+            $sale->delete();
             return response()->json(['success' => 'Account deleted successfully']);
         } else {
             return response()->json(['error' => 'Account not found'], 404);
