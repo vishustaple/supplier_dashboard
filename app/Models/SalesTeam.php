@@ -10,6 +10,15 @@ class SalesTeam extends Model
     use HasFactory;
     
     protected $table = 'sales_team';
+
+    protected $fillable = [
+        'email',
+        'phone',
+        'status',
+        'last_name',
+        'first_name',
+    ];
+    
     public static function getFilterdSalesData($filter=[], $csv=false){
         $orderColumnArray = [
             0 => 'sales_team.first_name',
@@ -63,17 +72,18 @@ class SalesTeam extends Model
 
         // Get filtered records count
         $filteredRecords = $query->count();
-
-        
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
             $formatuserdata[$key]['name'] = $data->first_name.' '.$data->last_name;
             $formatuserdata[$key]['email'] = $data->email;
             $formatuserdata[$key]['phone'] = $data->phone;
             $formatuserdata[$key]['status'] = ($data->status == 1) ? ("Active") : ("In-Active");    
-            $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit Account" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
+            $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit Account" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
         }
-  
+        
+        // echo"<pre>";
+        // print_r($formatuserdata);
+        // die;
         // Return the result along with total and filtered counts
         return [
             'data' => $formatuserdata,

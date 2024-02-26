@@ -37,7 +37,7 @@ class SalesTeamController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
-                'phone' => $request->phone,
+                'phone' => $request->phone_number,
                 'status' => $request->status,
             ],
             [
@@ -58,7 +58,7 @@ class SalesTeamController extends Controller
 
             if($sales){
                 $sales->update([
-                    'phone' => $request->phone,
+                    'phone' => $request->phone_number,
                     'email' => $request->email,
                     'status' => $request->status,
                     'last_name' => $request->last_name,
@@ -79,7 +79,7 @@ class SalesTeamController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
-                'phone' => $request->phone,
+                'phone' => $request->phone_number,
                 'status' => $request->status,
             ],
             [
@@ -100,7 +100,7 @@ class SalesTeamController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
-                'phone' => $request->phone,
+                'phone' => $request->phone_number,
                 'status' => $request->status,
             ]);
 

@@ -1,5 +1,4 @@
-@extends('layout.app', ['pageTitleCheck'=> (($currentTitle == 'Edit Account Data')?'Edit Account Data':'')])
-
+@extends('layout.app', ['pageTitleCheck'=> (($currentTitle == 'Edit sales Data')?'Edit Account Data':'')])
  @section('content')
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck'=> (($fromTitle == 'account')?'Accounts Data':'')] )
@@ -14,56 +13,57 @@
         </div>
         <div class="alert alert-danger mx-4" id="errorMessage" style="display:none;">
         </div>
-        <form class="" id="edit_sales" method="post">
+        <form class="" id="edit_sales">
             @csrf
             <input type="hidden" value="{{$sales->id}}" name="id" id="id">
-            <div class="form-group">
-                <label>First Name</label>
-                <input type="text" placeholder="Enter First Name" class="form-control" value="{{$sales->first_name}}" name="first_name" id="first_name" required>
-            </div>
+            <div class="col-md-12 row">
+                <div class="form-group col-md-6">
+                    <label>First Name</label>
+                    <input type="text" placeholder="Enter First Name" class="form-control" value="{{$sales->first_name}}" name="first_name" id="first_name" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Last Name</label>
+                    <input type="text" placeholder="Enter Last name" class="form-control" value="{{$sales->last_name}}" name="last_name" id="last_name" required>
+                </div>
 
-            <div class="form-group">
-                <label>Last Name</label>
-                <input type="text" placeholder="Enter Last name" class="form-control" value="{{$sales->last_name}}" name="last_name" id="last_name" required>
-            </div>
+                <div class="form-group col-md-6">
+                    <label>Email</label>
+                    <input type="text" placeholder="Enter Email" class="form-control" value="{{$sales->email}}" name="email" id="email" required>
+                </div>
 
-            <div class="form-group">
-                <label>Email</label>
-                <input type="text" placeholder="Enter Email" class="form-control" value="{{$sales->email}}" name="email" id="email" required>
-            </div>
+                <div class="form-group col-md-6">
+                    <label>Phone Number</label>
+                    <input type="tel" placeholder="Enter Phone Number" class="form-control" value="{{$sales->phone}}" name="phone_number" pattern="[0-9]{10}" id="phone_number" required>
+                </div>
 
-            <div class="form-group">
-                <label>Phone Number</label>
-                <input type="tel" placeholder="Enter Phone Number" class="form-control" value="{{$sales->phone}}" name="phone_number" pattern="[0-9]{10}" id="phone_number" required>
-            </div>
-            
-            <div class="form-group col-md-6">
-                <label for="selectBox">Status</label>
-                <select id="selectBox" name="status" class="form-control"> 
-                    <option value="">--Select--</option>
-                    <?php 
-                        if($sales->status == 1){ 
-                            $selectedActive = "selected";
-                            $selectedInActive = "";
-                        } else { 
-                            $selectedActive = "";
-                            $selectedInActive = "selected";
-                        }
-                    ?>
-                    <option value="1" {{$selectedActive}}>Active</option>
-                    <option value="0" {{$selectedInActive}}>In-Active</option>
-                </select>
-            </div>
+                <div class="form-group col-md-6">
+                    <label for="selectBox">Status</label>
+                    <select id="selectBox" name="status" class="form-control"> 
+                        <option value="">--Select--</option>
+                        <?php 
+                            if($sales->status == 1){ 
+                                $selectedActive = "selected";
+                                $selectedInActive = "";
+                            } else { 
+                                $selectedActive = "";
+                                $selectedInActive = "selected";
+                            }
+                        ?>
+                        <option value="1" {{$selectedActive}}>Active</option>
+                        <option value="0" {{$selectedInActive}}>In-Active</option>
+                    </select>
+                </div>
 
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary mx-auto" id="sales_edit">Submit</button>
             </div>
+            <div class="text-left col-md-6">
+                <button type="submit" class="btn btn-primary mx-auto" id="sales_edits">Submit</button>
+            </div>    
         </form>
     </div>
 </div>
 <script>
 $(document).ready(function() {
-    $('#sales_edit').on('submit',function(e){ 
+    $('#edit_sales').on('submit',function(e){ 
         e.preventDefault();
         var formData = new FormData($('#edit_sales')[0]);
         console.log(formData);
