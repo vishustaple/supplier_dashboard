@@ -148,7 +148,7 @@
             console.log(formData);
             $.ajax({
                 type: 'POST',
-                url: '{{ route('account.update') }}',
+                url: '{{ route("account.update") }}',
                 data: formData,
                 processData: false,
                 contentType: false,
