@@ -12,7 +12,19 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesTeamController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
+        $saleId = $request->id;
+        if (isset($saleId) && !empty($saleId)) {
+            $salesData = SalesTeam::query() 
+            ->where('id', $saleId)
+            ->select('first_name', 'last_name', 'email', 'phone', 'status')->get()->toArray();
+            
+            // echo"<pre>";
+            // print_r($salesData);
+            // die;
+            return view('admin.viewdetail', compact('salesData'));
+        }
+
         return view('admin.sales_repersantative.salesTeam', ['pageTitle' => 'Sales Team']);
     }
     
