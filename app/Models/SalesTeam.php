@@ -10,6 +10,13 @@ class SalesTeam extends Model
     use HasFactory;
     
     protected $table = 'sales_team';
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'status',
+      ];
     public static function getFilterdSalesData($filter=[], $csv=false){
         $orderColumnArray = [
             0 => 'sales_team.first_name',
