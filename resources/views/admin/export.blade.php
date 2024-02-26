@@ -477,13 +477,19 @@ div#errorMessage {
         // });
       
         $("#saveChangesBtn").click(function() {
-       
+            // Define the htmlspecialchars function
+        function htmlspecialchars(str) {
+            var elem = document.createElement('div');
+            elem.innerText = str;
+            return elem.innerHTML;
+        }
         var dataToSave = []; // Array to store the data to be saved
         var fieldValues = {};
         var isValid = true;
         // Iterate over each input field with name 'field_name[]'
         $('input[name="field_names[]"]').each(function(index) {
             var fieldValue = $(this).val(); // Get the value of the input field
+            fieldValue = htmlspecialchars(fieldValue); 
             console.log(fieldValue);
             var fieldId = $(this).data('id'); // Get the name attribute of the input field
             let inputField = $(this);
