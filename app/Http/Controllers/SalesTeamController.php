@@ -54,11 +54,11 @@ class SalesTeamController extends Controller
                 'status' => $request->status,
             ],
             [
-                'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/|trim',
-                'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/|trim',
-                'email' => 'required|regex:/^\S+@\S+\.\S+$/|trim',
-                'phone' => 'required|trim',
-                'status' => 'required|trim',
+                'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
+                'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
+                'email' => 'required|regex:/^\S+@\S+\.\S+$/',
+                'phone' => 'required',
+                'status' => 'required',
             ],
         );
 
@@ -85,47 +85,47 @@ class SalesTeamController extends Controller
             return response()->json(['error' => $e->getMessage()], 200);
         }
     }
-    public function getSalesPage(Request $request){
-        $fromTitle = 'SalesTeam';
-        $currentTitle ='Sales Team';
-        return view('admin.sales_repersantative.add',compact('fromTitle','currentTitle'));
 
-    }
     public function addsales(Request $request){
-       
-        $validator = Validator::make(
-            [
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone' => $request->phone_number,
-                'status' => $request->status,
-            ],
-            [
-                'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/|trim',
-                'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/|trim',
-                'email' => 'required|regex:/^\S+@\S+\.\S+$/|trim',
-                'phone' => 'required|trim',
-                'status' => 'required|trim',
-            ],
-        );
-
-        if( $validator->fails() ){  
-            return response()->json(['error' => $validator->errors()], 200);
-        }
-
-        try{
-            SalesTeam::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone' => $request->phone_number,
-                'status' => $request->status,
-            ]);
-
-            return response()->json(['success' => 'Add Sales Repersantative Successfully'], 200);
-        } catch (QueryException $e) {   
-            return response()->json(['error' => $e->getMessage()], 200);
+        if ($request->ajax()) {            
+            $validator = Validator::make(
+                [
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone_number,
+                    'status' => $request->status,
+                ],
+                [
+                    'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
+                    'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
+                    'email' => 'required|regex:/^\S+@\S+\.\S+$/',
+                    'phone' => 'required',
+                    'status' => 'required',
+                ],
+            );
+    
+            if( $validator->fails() ){  
+                return response()->json(['error' => $validator->errors()], 200);
+            }
+    
+            try{
+                SalesTeam::create([
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone_number,
+                    'status' => $request->status,
+                ]);
+    
+                return response()->json(['success' => 'Add Sales Repersantative Successfully'], 200);
+            } catch (QueryException $e) {   
+                return response()->json(['error' => $e->getMessage()], 200);
+            }
+        } else {
+            $fromTitle = 'SalesTeam';
+            $currentTitle ='Sales Team';
+            return view('admin.sales_repersantative.add',compact('fromTitle','currentTitle'));
         }
     }
 
