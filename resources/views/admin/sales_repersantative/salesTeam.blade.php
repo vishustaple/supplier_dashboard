@@ -75,7 +75,11 @@
         });
 
     $('#sales_data_length').hide();
-    
+    if (accountTable.data().count() > 40) {
+            $('#sales_data_paginate').show(); // Enable pagination
+        } else {
+            $('#sales_data_paginate').hide();
+        }
 
     });
 
