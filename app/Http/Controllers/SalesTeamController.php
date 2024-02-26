@@ -134,9 +134,9 @@ class SalesTeamController extends Controller
         $sale = SalesTeam::find($saleId);
         if($sale) {
             $sale->delete();
-            return response()->json(['success' => 'Account deleted successfully']);
+            return response()->json(['success' => 'Sales Repersantative deleted successfully']);
         } else {
-            return response()->json(['error' => 'Account not found'], 404);
+            return response()->json(['error' => 'Sales Repersantative not found'], 404);
         }
     }
 }
