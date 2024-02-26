@@ -305,7 +305,8 @@ class ExcelImportController extends Controller
             $formattedData[] = [
                 // $suppliers->id, 
                 $suppliers->supplier_name,
-                $suppliers->created_at->format('m/d/Y'),
+                $suppliers->created_at ? $suppliers->created_at->format('m/d/Y') : 'null', 
+                // $suppliers->created_at->format('m/d/Y'),
             ];
         }
        
