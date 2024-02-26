@@ -11,7 +11,7 @@
         <div class="row align-items-end border-bottom pb-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
-                <a href="{{ route('sales.team')}}" class="btn btn-primary">
+                <a href="{{ route('sales.add') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Sales Repersentative Account</a>
                 <button id="downloadSaleTeamCsvBtn" class="btn-success btn disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
             </div>
