@@ -75,14 +75,16 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('getcolumn',[ExcelImportController::class,'getColumns'])->name('manage.columns');
         Route::post('storecolumn',[ExcelImportController::class,'saveColumns'])->name('store.columns');
         
-        /** Sales team */
+        /** Sales team Section Start */
         Route::get('/sales-team' , [SalesTeamController::class,'index'])->name('sales.index');
-        Route::get('/add-team' , [SalesTeamController::class,'getSalesPage'])->name('sales.team');
         Route::post('/add-sales' , [SalesTeamController::class,'addsales'])->name('sales.add');
+        Route::get('/add-team' , [SalesTeamController::class,'getSalesPage'])->name('sales.team');
+        Route::get('/sales/remove',[SalesTeamController::class,'removeSales'])->name('sales.remove');
         Route::post('/sales/update',[SalesTeamController::class,'updateSales'])->name('sales.update');
-        Route::get('/accounts/remove',[SalesTeamController::class,'removeAccount'])->name('sales.remove');
         Route::post('/sales/filter' , [SalesTeamController::class,'salesAjaxFilter'])->name('sales.filter');
         Route::get('/sales/edit/{id}/{routename}' , [SalesTeamController::class,'editSales'])->name('sales.edit');
+        
+        /** Sales team Section End */
     });
 });
 
