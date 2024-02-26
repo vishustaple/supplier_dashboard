@@ -13,7 +13,7 @@
                 <!-- Button trigger modal -->
                 <a href="{{ route('sales.team')}}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Sales Repersentative Account</a>
-                <button id="downloadSaleTeamCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                <button id="downloadSaleTeamCsvBtn" class="btn-success btn disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
             </div>
         </div>
         <div class="alert alert-success m-3" id="account_del_success" style="display:none;"></div>
