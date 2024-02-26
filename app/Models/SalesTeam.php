@@ -47,7 +47,7 @@ class SalesTeam extends Model
                 }
             });
 
-            // $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
+            $query->orWhere('sales_team.last_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
         // Get total records count (without filtering)
