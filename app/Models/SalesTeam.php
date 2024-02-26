@@ -43,11 +43,19 @@ class SalesTeam extends Model
 
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
                 foreach ($orderColumnArray as $column) {
+                    if ($column == "sales_team.first_name") {
+                        continue;
+                    }
+
+                    git
                     $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
                 }
             });
-
-            $query->orWhere('sales_team.last_name', 'LIKE', '%' . $searchTerm . '%');
+          
+            $query->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$searchTerm%"]);
+            
+            // $query->whereRaw("OR CONCAT(sales_team.first_name, ' ', sales_team.last_name) LIKE ?", ["%".$searchTerm."%"]);
+            // $query->orWhere('sales_team.last_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
         // Get total records count (without filtering)
