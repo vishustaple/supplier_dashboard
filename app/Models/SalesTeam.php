@@ -47,7 +47,6 @@ class SalesTeam extends Model
                         continue;
                     }
 
-                    
                     $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
                 }
             });
