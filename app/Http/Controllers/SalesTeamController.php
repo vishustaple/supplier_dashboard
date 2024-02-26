@@ -54,11 +54,11 @@ class SalesTeamController extends Controller
                 'status' => $request->status,
             ],
             [
-                'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-                'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-                'email' => 'required|regex:/^\S+@\S+\.\S+$/',
-                'phone' => 'required',
-                'status' => 'required',
+                'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/|trim',
+                'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/|trim',
+                'email' => 'required|regex:/^\S+@\S+\.\S+$/|trim',
+                'phone' => 'required|trim',
+                'status' => 'required|trim',
             ],
         );
 
@@ -102,11 +102,11 @@ class SalesTeamController extends Controller
                 'status' => $request->status,
             ],
             [
-                'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-                'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-                'email' => 'required|regex:/^\S+@\S+\.\S+$/',
-                'phone' => 'required',
-                'status' => 'required',
+                'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/|trim',
+                'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/|trim',
+                'email' => 'required|regex:/^\S+@\S+\.\S+$/|trim',
+                'phone' => 'required|trim',
+                'status' => 'required|trim',
             ],
         );
 
