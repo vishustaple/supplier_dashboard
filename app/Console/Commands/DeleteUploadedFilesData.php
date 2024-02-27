@@ -49,10 +49,10 @@ class DeleteUploadedFilesData extends Command
         /** Selecting the file data row using table id */
         $fileData = UploadedFiles::where('delete', 1)->first();
 
-        /** Update delete two means start deleting data into excel */
-        DB::table('uploaded_files')->where('id', $fileData->id)->update(['delete' => UploadedFiles::CRON]);
-
+        
         if (isset($fileData->id) && !empty($fileData->id)) {
+            /** Update delete two means start deleting data into excel */
+            DB::table('uploaded_files')->where('id', $fileData->id)->update(['delete' => UploadedFiles::CRON]);
             try {
                 $id = $fileData->id;
                 $fileData->delete = 0;
