@@ -14,7 +14,7 @@
                           
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Sales Team') ? 'active' : '' }}" href="{{route('sales.index')}}">
                                 <div class="sb-nav-link-icon"><i class="fa fa-address-card" aria-hidden="true"></i></div>
-                                Manage Sales
+                                Manage Sales Repersantative
                             </a>
 
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Data') ? 'active' : '' }}" href="{{route('supplier')}}">
