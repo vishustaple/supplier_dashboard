@@ -95,11 +95,11 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['invoice_no'] = $value->field_name;
                     }
 
-                    if (in_array($value->id, [24, 68, 103, 128, 195])) {
+                    if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {
                         $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
                     }
 
-                    if (in_array($value->supplier_id, [1,7])) {
+                    if (in_array($value->supplier_id, [7])) {
                         $columnArray[$value->supplier_id]['invoice_date'] = '';
                     }
 
