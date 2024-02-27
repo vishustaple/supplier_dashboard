@@ -16,6 +16,9 @@
             @if (isset($account) && !empty($account))
             <a href="{{ route('account') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
             @endif
+            @if (isset($salesData) && !empty($salesData))
+            <a href="{{ route('sales.index') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
+            @endif
             <!-- Add redirect conditions here -->
             </div>
         </div>
