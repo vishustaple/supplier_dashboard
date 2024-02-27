@@ -564,7 +564,12 @@ div#errorMessage {
                     var serverResponse = JSON.stringify(response);
                     console.log(response);
                     if (response.status == "success") {
-                     location.reload();
+                        $("#close_popup").trigger("click");
+                        $('#successMessage').text(response.message);
+                        $('#successMessage').css('display','block');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000); // 3000 milliseconds = 3 seconds
                     }
                     // Handle success response from the server
                     console.log("Data saved successfully:", response);
@@ -581,8 +586,8 @@ div#errorMessage {
     });
     
         //reset table after closing popup
-        $("#close_popup").click(function() {
-
+        $("#close_popup,#close_popup2").click(function() {
+            location.reload();
             // Loop through each table row
             $("#table_column tbody tr").each(function() {
             var td = $(this).find("td:eq(1)");
