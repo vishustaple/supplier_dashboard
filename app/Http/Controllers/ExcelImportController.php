@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use App\Helpers\ArrayHelper;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use App\Models\{CategorySupplier, UploadedFiles,ManageColumns};
@@ -17,34 +18,6 @@ use App\Models\{CategorySupplier, UploadedFiles,ManageColumns};
 class ExcelImportController extends Controller
 {
     public function index(){
-        $supplierIDsGrouped = ManageColumns::groupBy('supplier_id')->pluck('supplier_id')->toArray();
-        // dd($supplierIDsGrouped);
-
-            $allSupplierData = [];
-            foreach ($supplierIDsGrouped as $supplier) {
-            $columns = ManageColumns::where('supplier_id',$supplier)->pluck('field_name')->toArray();
-             $allSupplierData[] = $columns;
-            }
-            $jsArray = '[';
-    
-            // Add the first empty array
-            $jsArray .= "[],";
-            
-            // Add the remaining arrays
-            foreach ($allSupplierData as $subArray) {
-                if (!empty($subArray)) {
-                    // Remove single quotes from each string element
-                    $cleanedSubArray = array_map(function ($item) {
-                    return str_replace("'", "", $item);
-                    }, $subArray);
-                    $jsArray .= "['" . implode("','", $subArray) . "'],";
-                } else {
-                    $jsArray .= "[],";
-                }
-            }
-            $jsArray .= ']';
- 
-          
         $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
 
         $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
@@ -81,7 +54,7 @@ class ExcelImportController extends Controller
 
         $data=json_encode($formattedData);
  
-        return view('admin.export',compact('categorySuppliers','data','jsArray'));
+        return view('admin.export',compact('categorySuppliers','data'));
     }
     public function import(Request $request)
     {
@@ -92,24 +65,25 @@ class ExcelImportController extends Controller
         $supplierFilesNamesArray = [
             1 => 'Usage By Location and Item',
             2 => 'Invoice Detail Report',
-            // 3 => '',
             4 => 'All Shipped Order Detail',
             5 => 'Centerpoint_Summary_Report',
             6 => 'Blad1',
             7 => 'Weekly Sales Account Summary', 
         ];
 
-        $suppliers=[
-            '1' => ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND', 'OFF-CORESPEND'],
-            '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
-            '3' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-            '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
-            // '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
-            '5' => ['Customer Name', 'Customer Num', 'Current List'],
-            '6' => ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
-            '7'=>  ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
-            '8' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-        ];
+        $suppliers= ManageColumns::getRequiredColumns();
+        // $suppliers=[
+        //     '1' => ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND', 'OFF-CORESPEND'],
+        //     '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
+        //     '3' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
+        //     '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
+        //     // '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
+        //     '5' => ['Customer Name', 'Customer Num', 'Current List'],
+        //     '6' => ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
+        //     '7'=>  ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
+        //     '8' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
+        // ];
+
 
         $endDateRange = $request->input('enddate');
 
@@ -124,43 +98,21 @@ class ExcelImportController extends Controller
         
         
         /** Validate the uploaded file */
-        if ($request->supplierselect == 1) {
-            $validator = Validator::make(
-                [
-                    'supplierselect'=>$request->supplierselect,
-                    // 'startdate' => $formattedStartDate,
-                    'enddate' => $request->input('enddate'),
-                    'file'      =>  $request->file('file'),
-                ],
-                [
-                    'supplierselect'=>'required',
-                    // 'startdate'=>'required',
-                    'enddate' => 'required_if:supplierselect,1',
-                    'file' => 'required|file|mimes:xlsx,xls',
-    
-                ],
-                [
-                    'enddate.required' => 'The date field is required. ',
-                    'supplierselect.required' => 'Please select a supplier. It is a required field.',
-                   
-                ]
-            );
-        } else {
-            $validator = Validator::make(
-                [
-                    'supplierselect'=>$request->supplierselect,
-                    'file'      =>  $request->file('file'),
-                ],
-                [
-                    'supplierselect'=>'required',
-                    'file' => 'required|file|mimes:xlsx,xls',
-    
-                ],
-                [
-                    'supplierselect.required' => 'Please select a supplier. It is a required field.',
-                ]
-            );
-        }
+        $validator = Validator::make(
+            [
+                'supplierselect'=>$request->supplierselect,
+                'file'      =>  $request->file('file'),
+            ],
+            [
+                'supplierselect'=>'required',
+                'file' => 'required|file|mimes:xlsx,xls',
+
+            ],
+            [
+                'supplierselect.required' => 'Please select a supplier. It is a required field.',
+            ]
+        );
+        
 
         if( $validator->fails() ){  
             $categorySuppliers = $categorySuppliers = CategorySupplier::where('show', 0)->get();
@@ -230,10 +182,6 @@ class ExcelImportController extends Controller
                 
 
                 for ($i=0; $i < $sheetCount; $i++) {
-                    // if ($skipSheet == $i && $supplierId == 3) {
-                    //     continue;
-                    // }
-
                     $workSheet = $spreadSheet->getSheet($i);
         
                     $workSheetArray1 = $workSheet->toArray();
@@ -293,26 +241,9 @@ class ExcelImportController extends Controller
         /** Output the cleaned array */
         // echo"<pre>";
         // print_r($cleanedArray);
+        // $clean= ManageColumns::cleanRows($cleanedArray);
+        // print_r($clean);
         // die;
-
-        // $suppliers=[
-        //     '1' => ['SOLD TOACCOUNT','SOLD TO NAME','SHIP TOACCOUNT','SHIP TO NAME','SHIP TO ADDRESS','CATEGORIES','SUB GROUP 1','PRODUCT','DESCRIPTION','GREEN (Y/N)','QUANTITYSHIPPED','ON-CORESPEND','OFF-CORESPEND'],
-            
-        //     '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name','Account Number', 'Account Name', 'Material', 'Material Description','Material Segment', 'Brand Name', 'Bill Date', 'Billing Document','Purchase Order Number', 'Sales Document', 'Name of Orderer', ' Sales Office','Sales Office Name', 'Bill Line No. ', 'Active Price Point', 'Billing Qty','Purchase Amount', 'Freight Billed', 'Tax Billed', 'Total Invoice Price','Actual Price Paid', 'Reference Price', 'Ext Reference Price', 'Diff $','Discount %', 'Invoice Number'],
-            
-        //     '3' => ['CUSTOMER GRANDPARENT ID','CUSTOMER GRANDPARENT NM','CUSTOMER PARENT ID','CUSTOMER PARENT NM','CUSTOMER ID','CUSTOMER NM','DEPT','CLASS','SUBCLASS','SKU','Manufacture Item#','Manufacture Name','Product Description','Core Flag','Maxi Catalog/WholesaleFlag','UOM','PRIVATE BRAND','GREEN SHADE','QTY Shipped','Unit Net Price','(Unit) Web Price','Total Spend','Shipto Location','Contact Name','Shipped Date','Invoice #','Payment Method'],
-            
-        //     '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'BILLTONUMBER', 'BILLTONAME', 'SHIPTONUMBER', 'SHIPTONAME', 'SHIPTOADDRESSLINE1', 'SHIPTOADDRESSLINE2', 'SHIPTOADDRESSLINE3', 'SHIPTOCITY', 'SHIPTOSTATE', 'SHIPTOZIPCODE', 'LASTSHIPDATE', 'SHIPTOCREATEDATE', 'SHIPTOSTATUS', 'LINEITEMBUDGETCENTER', 'CUSTPOREL', 'CUSTPO', 'ORDERCONTACT', 'ORDERCONTACTPHONE', 'SHIPTOCONTACT', 'ORDERNUMBER', 'ORDERDATE', 'SHIPPEDDATE', 'TRANSSHIPTOLINE3', 'SHIPMENTNUMBER', 'TRANSTYPECODE', 'ORDERMETHODDESC', 'PYMTTYPE', 'PYMTMETHODDESC', 'INVOICENUMBER', 'SUMMARYINVOICENUMBER', 'INVOICEDATE', 'CVNCECARDFLAG', 'SKUNUMBER', 'ITEMDESCRIPTION', 'STAPLESADVANTAGEITEMDESCRIPTION', 'SELLUOM', 'QTYINSELLUOM', 'STAPLESOWNBRAND', 'DIVERSITYCD', 'DIVERSITY', 'DIVERSITYSUBTYPECD', 'DIVERSITYSUBTYPE', 'CONTRACTFLAG', 'SKUTYPE', 'TRANSSOURCESYSCD', 'TRANSACTIONSOURCESYSTEM', 'ITEMFREQUENCY', 'NUMBERORDERSSHIPPED', 'QTY', 'ADJGROSSSALES', 'AVGSELLPRICE'],
-            
-        //     '5' => ['Customer Num','Customer Name','Item Num','Item Name','Category','Category Umbrella','Price Method','Uo M','Current List','Qty','Ext Price',],
-            
-        //     '6' => ['Payer', 'Name Payer', 'Sold-to pt', 'Name Sold-to party', 'Ship-to', 'Name Ship-to', 'Name 3 + Name 4 - Ship-to', 'Street - Ship-to', 'District - Ship-to', 'PostalCode - Ship-to', 'City - Ship-to', 'Country - Ship-to', 'Leader customer 1', 'Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Product hierarchy', 'Section', 'Family', 'Category', 'Sub Category', 'Material', 'Material Description', 'Ownbrand', 'Green product', 'NBS', 'Customer Material', 'Customer description', 'Sales unit', 'Qty. in SKU', 'Sales deal', 'Purchase order type', 'Qty in Sales Unit - P', 'Quantity in SKU - P', 'Number of orders - P', 'Sales Amount - P', 'Tax amount - P', 'Net sales - P', 'Avg Selling Price - P', 'Document Date', 'Sales Document', 'PO number', 'BPO number', 'Invoice list', 'Billing Document', 'Billing Date', 'CAC number', 'CAC description', 'Billing month - P'],
-
-        //     '7'=>['GP ID','GP Name','202301','202302','202303','202304','202305','202306','202307','202308','202309','202310','202311','202312','202313','202314','202315','202316','202317','202318','202319','202320','202321','202322','202323','202324','202325','202326','2023027','202328','202329','202330','202331','202332','202333','202334','202335','202336','202337','202338','202339','202340','202341','202342','202343','202344','202345','202346','202347','202348','202349','202350','202351','202352'],
-        // ];
-
-
-       
 
         /** Get the uploaded file */
         $file = $request->file('file');
@@ -333,45 +264,35 @@ class ExcelImportController extends Controller
             // dd(array_diff($supplierValues,$cleanedArray));
             // dd($supplierValues);
 
-            // if(array_values($supplierValues) === array_values($cleanedArray)){
-            // if (empty(array_diff($supplierValues, $cleanedArray))) {
-                /** Get the authenticated user */
-                $user = Auth::user();
-                $endDateRange = $request->input('enddate');
-                if(!empty($endDateRange)){
-                    // Split the date range string into start and end dates
-                    list($startDate, $endDate) = explode(' - ', $endDateRange);
-                    // Convert the date strings to the 'YYYY-MM-DD' format
-                    $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
-                    $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-                }
-                try{
-                    UploadedFiles::create([
-                        'supplier_id' => $request->supplierselect,
-                        'cron' => UploadedFiles::UPLOAD,
-                        'start_date' => $formattedStartDate??"",
-                        'end_date' => $formattedEndDate??"",
-                        'file_name' => $fileName,
-                        'created_by' => $user->id,
-                    ]); 
+            /** Get the authenticated user */
+            $user = Auth::user();
+            $endDateRange = $request->input('enddate');
+            if(!empty($endDateRange)){
+                // Split the date range string into start and end dates
+                list($startDate, $endDate) = explode(' - ', $endDateRange);
+                // Convert the date strings to the 'YYYY-MM-DD' format
+                $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
+                $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
+            }
+            try{
+                UploadedFiles::create([
+                    'supplier_id' => $request->supplierselect,
+                    'cron' => UploadedFiles::UPLOAD,
+                    'start_date' => $formattedStartDate??"",
+                    'end_date' => $formattedEndDate??"",
+                    'file_name' => $fileName,
+                    'created_by' => $user->id,
+                ]); 
 
-                    /** Move the file with the new name */
-                    $file->move($destinationPath, $fileName);
+                /** Move the file with the new name */
+                $file->move($destinationPath, $fileName);
 
-                } catch (QueryException $e) {   
-                    return response()->json(['error' => $e->getMessage()], 200);
-                }
-                return response()->json(['success' => 'Excel file imported successfully!'], 200);
-                // return redirect()->back()->with('success', 'Excel file imported successfully!');
-            // } else {
-            //     $arrayDiff = array_diff($supplierValues, $cleanedArray);
-            //     $missingColumns = implode(', ', $arrayDiff);
-            //     return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
-            //     // return redirect()->back()->with('error', 'Please upload a file that corresponds to the selected supplier.');
-            // }
+            } catch (QueryException $e) {   
+                return response()->json(['error' => $e->getMessage()], 200);
+            }
+            return response()->json(['success' => 'Excel file imported successfully!'], 200);
         } else {
             return response()->json(['error' => 'Please select supplier.'], 200);
-            // echo "Supplier ID ".$request->supplierselect." not found in the array.";
         }
     }
     public function allSupplier(){
@@ -384,7 +305,8 @@ class ExcelImportController extends Controller
             $formattedData[] = [
                 // $suppliers->id, 
                 $suppliers->supplier_name,
-                $suppliers->created_at->format('m/d/Y'),
+                $suppliers->created_at ? $suppliers->created_at->format('m/d/Y') : 'null', 
+                // $suppliers->created_at->format('m/d/Y'),
             ];
         }
        
@@ -437,7 +359,7 @@ class ExcelImportController extends Controller
 
         $destinationPath = public_path('/excel_sheets');
 
-        // Set the response headers
+        /** Set the response headers */
         $headers = [
             'Content-Type' => 'application/xlsx',
             'Content-Disposition' => 'attachment; filename="'.$filename[$id].'"',
@@ -451,18 +373,16 @@ class ExcelImportController extends Controller
         return response()->json($columns);
     }
     public function saveColumns(Request $request){
-        $id = $request->id;
-        $columnValue = $request->columnValue;
-        $column = ManageColumns::find($id);
-        if ($column) {
-            $column->field_name = $columnValue;
-            $column->save();
-  
-            return response()->json(['message' => 'Column value updated successfully'], 200);
-        } else {
-       
-            return response()->json(['error' => 'Column not found'], 404);
+        foreach ($request->all() as $key => $value) {
+            $id = $value['fieldId'];
+            $columnValue = $value['fieldValue'];
+            $column = ManageColumns::find($id);
+            if ($column) {
+                $column->field_name = $columnValue;
+                $column->save();
+            } 
         }
+        return response()->json(['status' => 'success', 'message' => 'Column value updated successfully'], 200);
 
     }
 }

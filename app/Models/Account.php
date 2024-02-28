@@ -18,24 +18,6 @@ class Account extends Model
      *
      * @var array<int, string>
      */
-    // 'qbr',
-    // 'sf_cat',
-    // 'comm_rate',
-    // 'parent_id',
-    // 'spend_name',
-    // 'created_by',
-    // 'record_type',
-    // 'rebate_freq',
-    // 'customer_name',
-    // 'member_rebate',
-    // 'management_fee',
-    // 'record_type_id',
-    // 'customer_number',
-    // 'supplier_acct_rep',
-    // 'category_supplier',
-    // 'internal_reporting_name',
-    // 'cpg_sales_representative',
-    // 'cpg_customer_service_rep',
     
     protected $fillable = [
         'qbr',
@@ -95,7 +77,7 @@ class Account extends Model
         ];
 
         if ($csv) {
-            $query = self::with('parent.parent') // Eager load relationships
+            $query = self::with('parent.parent') /** Eager load relationships */
             ->select('accounts.id as id',
             'accounts.customer_number as customer_number',
             'accounts.alies as customer_name',
@@ -124,7 +106,7 @@ class Account extends Model
             ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'accounts.category_supplier');
         } else {
-            $query = self::with('parent.parent') // Eager load relationships
+            $query = self::with('parent.parent') /** Eager load relationships */
             ->select('accounts.id as id', 'accounts.record_type as record_type', 'accounts.created_at as date', 'suppliers.supplier_name as supplier_name', 'accounts.customer_number as customer_number', "accounts.alies as customer_name", 'accounts.account_name as account_name',
             DB::raw("parent.alies as parent_name"),
             DB::raw("grandparent.alies as grand_parent_name"))
@@ -132,7 +114,7 @@ class Account extends Model
             ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'accounts.category_supplier');
         }
-        // Search functionality
+        /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
 
@@ -145,25 +127,25 @@ class Account extends Model
             $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
-        // Get total records count (without filtering)
+        /** Get total records count (without filtering) */
         $totalRecords = $query->count();
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            // Order by column and direction
+            /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
         if (isset($filter['start']) && isset($filter['length'])) {
-            // Get paginated results based on start, length
+            /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
         }
-        // Print the SQL query
+        /** Print the SQL query */
         // dd($query->toSql());    
 
-        // Get filtered records count
+        /** Get filtered records count */
         $filteredRecords = $query->count();
         
         $formatuserdata=[];
@@ -210,7 +192,7 @@ class Account extends Model
         if ($csv == true) {
             return $formatuserdata;
         } else {
-            // Return the result along with total and filtered counts
+            /** Return the result along with total and filtered counts */
             return [
                 'data' => $formatuserdata,
                 'recordsTotal' => $totalRecords,
