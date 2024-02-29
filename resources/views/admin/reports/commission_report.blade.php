@@ -111,7 +111,7 @@
         console.log(formData);
         $.ajax({
                 type: 'POST',
-                url: '{{ route('account.add') }}', // Replace with your actual route name
+                url: '{{ route("account.add") }}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,

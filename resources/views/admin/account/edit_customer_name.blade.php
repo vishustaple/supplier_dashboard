@@ -5,11 +5,15 @@
         @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
         <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-3">Edit Customer Name</h3>
-
-        <div class="alert alert-success" id="successMessage" style="display:none;"></div>
-        <div class="alert alert-danger" id="errorMessage" style="display:none;"></div>
- 
-        <div class="py-5">
+        <div class="row align-items-end border-bottom pb-3 mb-4">
+            <div class="col-md-12 mb-0 text-end">
+                <a href="{{ route('account') }}"  class="btn btn-primary border-0 bg_yellow" title="Back"><i class="fas fa-arrow-left me-2"></i>Back</a>
+            </div>
+        </div>
+        <div class="alert alert-success mx-4" id="successMessage" style="display:none;"></div>
+        <div class="alert alert-danger mx-4" id="errorMessage" style="display:none;"></div>
+      
+        <div class="px-4">
             <div class="edit_table container">
         <table class="dataTable no-footer">
             <thead>
