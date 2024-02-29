@@ -267,7 +267,7 @@ div#errorMessage {
                         }
 
                         $('#page-loader').hide();
-
+                        $('#errorMessage').html('');
                         $('#errorMessage').html(errorMessage);
                         $('#errorMessage').css('display','block');
                         $('#errorMessage').append('<button type="button" id="closeErrorMessage"class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
@@ -275,7 +275,6 @@ div#errorMessage {
                         // Functionality to close the error message when close button is clicked
                         $('#closeErrorMessage').on('click', function() {
                             $('#errorMessage').fadeOut();
-                            $('#errorMessage').html('');
                             $('#import_form')[0].reset();
                         });
                     }
