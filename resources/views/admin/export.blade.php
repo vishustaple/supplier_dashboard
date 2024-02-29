@@ -242,66 +242,41 @@ div#errorMessage {
             $('#page-loader').show();
             var button = document.getElementById('importBtn'),
             formData = new FormData($('#import_form')[0]);
-            
             button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading';
             button.disabled = true;
-        
             $.ajax({
                 type: 'POST',
                 url: "{{route('import.excel')}}", // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
+                dataType: 'json',
                 success: function(response) {
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                     if(response.error){
-                       
-                        console.log("error from first");
-                        $('#page-loader').hide();
-                        $('#errorMessage').text(response.error);
-                        $('#errorMessage').css('display','block');
-                         // Adding close button
-                        $('#errorMessage').append('<button type="button" id="closeErrorMessage"class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
-
-                        // Functionality to close the error message when close button is clicked
-                        $('#closeErrorMessage').on('click', function() {
-                        $('#errorMessage').fadeOut();
-                        $('#import_form')[0].reset();
-                        });
-                        // setTimeout(function () {
-                        // $('#errorMessage').fadeOut();
-                        // }, 10000);
-                      
-                    }
-                    let errorMessages = [];
-
-                    if (response && response.error) {
-
-                        console.log("error from second");
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
                         button.disabled = false;
+                        var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                            errorMessage = response.error;
+                        }
 
                         $('#page-loader').hide();
-                        // Iterate over each field in the error object
-                        Object.keys(response.error).forEach(field => {
-                            // Get the error messages for the current field
-                            let fieldErrorMessages = response.error[field];
 
-                            // Concatenate the field name and its error messages
-                            let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
-                            console.log(errorMessageText);
-
-                            // Accumulate the error messages
-                            errorMessages.push(errorMessageText);
-                        });
-                        $('#errorMessage').html(errorMessages.join('<br>'));
+                        $('#errorMessage').html(errorMessage);
                         $('#errorMessage').css('display','block');
                         $('#errorMessage').append('<button type="button" id="closeErrorMessage"class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
 
                         // Functionality to close the error message when close button is clicked
                         $('#closeErrorMessage').on('click', function() {
-                        $('#errorMessage').fadeOut();
-                        $('#import_form')[0].reset();
+                            $('#errorMessage').fadeOut();
+                            $('#errorMessage').html('');
+                            $('#import_form')[0].reset();
                         });
                     }
 
