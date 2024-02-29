@@ -15,7 +15,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class AccountController extends Controller
 {
     public function editCustomerName(){
-        return view('admin.account.edit_customer_name');
+        $missingAccount = Account::whereNull('alies')->orWhere('alies', '')->get();
+        return view('admin.account.edit_customer_name',compact('missingAccount'));
     }
 
     public function allAccount(Request $request, $id=null){
@@ -286,5 +287,18 @@ class AccountController extends Controller
             return response()->json(['error' => $e->getMessage()], 200);
         }
     }
+    public function updateMissingAccount(Request $request){
+       $missingid = $request->id;
+       $missingvalue =$request->ColumnValue;
+       try {
+        $updateMissingAccount = Account::where('id', $missingid)->update(['alies' => $missingvalue]);
+        if($updateMissingAccount){
 
+            return response()->json(['success' => 'Customer Name Update Successfully!'], 200);
+        }
+       } catch (\Throwable $e) {
+        return response()->json(['error' => $e->getMessage()], 200);
+       }
+
+    }
 }
