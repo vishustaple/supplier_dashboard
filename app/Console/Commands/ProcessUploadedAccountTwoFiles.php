@@ -63,6 +63,8 @@ class ProcessUploadedAccountTwoFiles extends Command
                 'member_rebate' => $row[12],
                 'temp_active_date' => (isset($row[13]) && !empty($row[13])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[13]))->format('Y-m-d H:i:s')) : (''),
                 'temp_end_date' => (isset($row[14]) && !empty($row[14])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[14]))->format('Y-m-d H:i:s')) : (''),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
             ];
            
             if ($count == 100) {
