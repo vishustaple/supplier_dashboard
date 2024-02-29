@@ -43,11 +43,15 @@ class SalesTeam extends Model
 
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
                 foreach ($orderColumnArray as $column) {
+                    if ($column == "sales_team.first_name") {
+                        continue;
+                    }
+
                     $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
                 }
             });
-
-            // $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
+          
+            $query->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$searchTerm%"]);
         }
 
         // Get total records count (without filtering)
@@ -78,7 +82,7 @@ class SalesTeam extends Model
             $formatuserdata[$key]['email'] = $data->email;
             $formatuserdata[$key]['phone'] = $data->phone;
             $formatuserdata[$key]['status'] = ($data->status == 1) ? ("Active") : ("In-Active");    
-            $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit Account" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
+            $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('sales.index', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
         }
         
         // echo"<pre>";

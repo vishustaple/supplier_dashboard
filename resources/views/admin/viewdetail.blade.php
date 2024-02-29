@@ -16,6 +16,9 @@
             @if (isset($account) && !empty($account))
             <a href="{{ route('account') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
             @endif
+            @if (isset($salesData) && !empty($salesData))
+            <a href="{{ route('sales.index') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
+            @endif
             <!-- Add redirect conditions here -->
             </div>
         </div>
@@ -321,6 +324,49 @@
                         <tr>
                             <th scope="row">{{ $value['key'] }}</th><td>{{ $value['value'] }}</td>
                         </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            </div>
+            </div>
+            @endif
+            <?php //echo"<pre>"; print_r($salesData);?>
+            @if (isset($salesData) && !empty($salesData))
+            <div class="row">
+                <div class="col-md-8">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Column</th>
+                            <th scope="col">Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($salesData as $key => $value)
+                        @if ((isset($value['first_name']) && !empty($value['first_name'])))
+                            <tr>
+                                <th scope="row">Name</th>
+                                <td>{{ $value['first_name'] . ' ' . $value['last_name'] }}</td>
+                            </tr>
+                        @endif
+                        @if (isset($value['phone']) && !empty($value['phone']))
+                            <tr>
+                                <th scope="row">Phone</th>
+                                <td>{{ $value['phone'] }}</td>
+                            </tr>
+                        @endif
+                        @if (isset($value['email']) && !empty($value['email']))
+                            <tr>
+                                <th scope="row">Email</th>
+                                <td>{{ $value['email'] }}</td>
+                            </tr>
+                        @endif
+                        @if (isset($value['status']) && !empty($value['status']))
+                            <tr>
+                                <th scope="row">Status</th>
+                                <td>{{ $value['status'] == 1 ? 'Active' : 'Inactive' }}</td>
+                            </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>

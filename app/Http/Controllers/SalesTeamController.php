@@ -12,7 +12,19 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesTeamController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
+        $saleId = $request->id;
+        if (isset($saleId) && !empty($saleId)) {
+            $salesData = SalesTeam::query() 
+            ->where('id', $saleId)
+            ->select('first_name', 'last_name', 'email', 'phone', 'status')->get()->toArray();
+            
+            // echo"<pre>";
+            // print_r($salesData);
+            // die;
+            return view('admin.viewdetail', compact('salesData'));
+        }
+
         return view('admin.sales_repersantative.salesTeam', ['pageTitle' => 'Sales Team']);
     }
     
@@ -73,47 +85,47 @@ class SalesTeamController extends Controller
             return response()->json(['error' => $e->getMessage()], 200);
         }
     }
-    public function getSalesPage(Request $request){
-        $fromTitle = 'SalesTeam';
-        $currentTitle ='Sales Team';
-        return view('admin.sales_repersantative.add',compact('fromTitle','currentTitle'));
 
-    }
     public function addsales(Request $request){
-       
-        $validator = Validator::make(
-            [
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone' => $request->phone_number,
-                'status' => $request->status,
-            ],
-            [
-                'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-                'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-                'email' => 'required|regex:/^\S+@\S+\.\S+$/',
-                'phone' => 'required',
-                'status' => 'required',
-            ],
-        );
-
-        if( $validator->fails() ){  
-            return response()->json(['error' => $validator->errors()], 200);
-        }
-
-        try{
-            SalesTeam::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone' => $request->phone_number,
-                'status' => $request->status,
-            ]);
-
-            return response()->json(['success' => 'Add Sales Repersantative Successfully'], 200);
-        } catch (QueryException $e) {   
-            return response()->json(['error' => $e->getMessage()], 200);
+        if ($request->ajax()) {            
+            $validator = Validator::make(
+                [
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone_number,
+                    'status' => $request->status,
+                ],
+                [
+                    'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
+                    'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
+                    'email' => 'required|regex:/^\S+@\S+\.\S+$/',
+                    'phone' => 'required',
+                    'status' => 'required',
+                ],
+            );
+    
+            if( $validator->fails() ){  
+                return response()->json(['error' => $validator->errors()], 200);
+            }
+    
+            try{
+                SalesTeam::create([
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone_number,
+                    'status' => $request->status,
+                ]);
+    
+                return response()->json(['success' => 'Add Sales Repersantative Successfully'], 200);
+            } catch (QueryException $e) {   
+                return response()->json(['error' => $e->getMessage()], 200);
+            }
+        } else {
+            $fromTitle = 'SalesTeam';
+            $currentTitle ='Sales Team';
+            return view('admin.sales_repersantative.add',compact('fromTitle','currentTitle'));
         }
     }
 
