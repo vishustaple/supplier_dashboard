@@ -168,7 +168,7 @@
             lengthMenu: [],
             pageLength: 50,
             ajax: {
-                url: '{{ route('account.filter') }}',
+                url: '{{ route("account.filter") }}',
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -244,7 +244,7 @@
         console.log(formData);
         $.ajax({
                 type: 'POST',
-                url: '{{ route('account.add') }}', // Replace with your actual route name
+                url: '{{ route("account.add") }}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -319,7 +319,7 @@
 
         function downloadAccountCsv() {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route('account.export-csv') }}';
+            var csvUrl = '{{ route("account.export-csv") }}';
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
