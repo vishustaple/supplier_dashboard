@@ -451,13 +451,19 @@ div#errorMessage {
         // });
       
         $("#saveChangesBtn").click(function() {
-       
+            // Define the htmlspecialchars function
+        function htmlspecialchars(str) {
+            var elem = document.createElement('div');
+            elem.innerText = str;
+            return elem.innerHTML;
+        }
         var dataToSave = []; // Array to store the data to be saved
         var fieldValues = {};
         var isValid = true;
         // Iterate over each input field with name 'field_name[]'
         $('input[name="field_names[]"]').each(function(index) {
             var fieldValue = $(this).val(); // Get the value of the input field
+            fieldValue = htmlspecialchars(fieldValue); 
             console.log(fieldValue);
             var fieldId = $(this).data('id'); // Get the name attribute of the input field
             let inputField = $(this);
@@ -532,7 +538,12 @@ div#errorMessage {
                     var serverResponse = JSON.stringify(response);
                     console.log(response);
                     if (response.status == "success") {
-                     location.reload();
+                        $("#close_popup").trigger("click");
+                        $('#successMessage').text(response.message);
+                        $('#successMessage').css('display','block');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000); // 3000 milliseconds = 3 seconds
                     }
                     // Handle success response from the server
                     console.log("Data saved successfully:", response);
@@ -549,8 +560,8 @@ div#errorMessage {
     });
     
         //reset table after closing popup
-        $("#close_popup").click(function() {
-
+        $("#close_popup,#close_popup2").click(function() {
+            location.reload();
             // Loop through each table row
             $("#table_column tbody tr").each(function() {
             var td = $(this).find("td:eq(1)");

@@ -49,7 +49,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
         Route::get('/accounts/edit/{id}/{routename}' , [AccountController::class,'editAccount'])->name('account.edit');
         Route::get('/accounts/customer-edit' , [AccountController::class,'editCustomerName'])->name('account.customer-edit');
-        
+        ROute::post('/accounts/update-missing-account',[AccountController::class,'updateMissingAccount'])->name('account.missing');
         /** Account Section End */
 
         /** Report Section Start */
