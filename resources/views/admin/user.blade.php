@@ -209,7 +209,7 @@
         // console.log(formData);
         $.ajax({
                 type: 'POST',
-                url: '{{ route('user.register') }}', // Replace with your actual route name
+                url: '{{ route("user.register") }}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -281,7 +281,7 @@
             // alert(id);
             $.ajax({
                 type: 'GET',
-                url: '{{ route('user.updateuser') }}',
+                url: '{{ route("user.updateuser") }}',
                 data: { id: id },
                 success: function(response) {
                     if (response.error) {
@@ -327,7 +327,7 @@
             // console.log(formData);
                 $.ajax({
                 type: 'POST',
-                url: '{{ route('user.updateuserdata') }}',
+                url: '{{ route("user.updateuserdata") }}',
                 data: formData,
                 processData: false,
                 contentType: false,

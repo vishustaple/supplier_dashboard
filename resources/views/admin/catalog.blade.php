@@ -69,7 +69,7 @@
             serverSide: true,
             pageLength: 50,
             ajax: {
-                url: '{{ route('catalog.filter') }}',
+                url: '{{ route("catalog.filter") }}',
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -105,7 +105,7 @@
 
         function downloadCatalogCsv() {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route('catalog.export-csv') }}';
+            var csvUrl = '{{ route("catalog.export-csv") }}';
             csvUrl += '?search=' + dataTable.search();
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');

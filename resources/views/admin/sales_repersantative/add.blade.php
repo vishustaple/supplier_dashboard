@@ -57,7 +57,7 @@
         var formData = new FormData($('#add_sales')[0]);
         $.ajax({
             type: 'POST',
-            url: '{{ route('sales.add') }}', // Replace with your actual route name
+            url: '{{ route("sales.add") }}', // Replace with your actual route name
             data: formData,
             processData: false,
             contentType: false,
