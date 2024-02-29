@@ -213,7 +213,7 @@ class ExcelImportController extends Controller
                                         $query->orWhere('date', '>=', $startDate);
                                     }
                                 }
-                            })->where('supplier_id', $request->supplierselect)->get();
+                            })->where('supplier_id', $request->supplierselect);
         
                             if ($fileExist->count() > 0) {
                                 break;
@@ -234,7 +234,7 @@ class ExcelImportController extends Controller
                             $query->orWhere('date', '>=', $startDate);
                         }
                     }
-                })->where('supplier_id', $request->supplierselect)->get();
+                })->where('supplier_id', $request->supplierselect);
 
                 if ($fileExist->count() > 0) {
                     return response()->json(['error' => "You have already uploaded this file."], 200);
@@ -322,7 +322,7 @@ class ExcelImportController extends Controller
                                             $query->orWhere('date', '>=', $startDate);
                                         }
                                     }
-                                })->where('supplier_id', $request->supplierselect)->get();
+                                })->where('supplier_id', $request->supplierselect);
 
                                 if ($fileExist->count() > 0) {
                                     break;
@@ -342,7 +342,7 @@ class ExcelImportController extends Controller
                                 $query->orWhere('date', '>=', $startDate);
                             }
                         }
-                    })->where('supplier_id', $request->supplierselect)->get();
+                    })->where('supplier_id', $request->supplierselect);
              
                     if ($fileExist->count() > 0) {
                         return response()->json(['error' => "You have already uploaded this file."], 200);

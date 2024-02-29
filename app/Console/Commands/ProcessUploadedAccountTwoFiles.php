@@ -1,0 +1,119 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+
+class ProcessUploadedAccountTwoFiles extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:process-uploaded-account-two-files';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        /** This is the folder path where we save the file */
+        $destinationPath = public_path('/excel_sheets');
+        $reader = new Xlsx(); /** Creating object of php excel library class */
+
+        /** Loading excel file using path and name of file from table "uploaded_file" */
+        $spreadSheet = $reader->load($destinationPath . '/' . 'accountinfo.xlsx', 2);    
+
+        
+        $workSheetArray = $spreadSheet->getSheet(0)->toArray();
+        $count = 0;
+
+        foreach ($workSheetArray as $key => $row) {
+            if ($key == 0) {
+                continue;
+            }
+
+            $parent = DB::table('accounts')->where('customer_number', $row[8])->first();
+
+            $supplier = DB::table('suppliers')->select('id')->where('supplier_name', $row[5])->first();
+
+            if ($supplier) {
+                $supplierId = $supplier->id;
+            } else {
+                $supplierId = DB::table('suppliers')->insertGetId(['supplier_name' => $row[5], 'show' => 1, 'created_by' => 1,'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')]);
+            }
+            if (!empty($parent)) {
+                $finalInsertArray[] = [
+                    'parent_id' => $parent->parent_id,
+                    'created_by' => 1,
+                    'alies' => $row[1],
+                    'record_type' => $row[3],
+                    'account_name' => $row[2],
+                    'volume_rebate' => $row[4],
+                    'member_rebate' => $row[10],
+                    'temp_end_date' => (isset($row[12]) && !empty($row[12])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s')) : (''),
+                    'customer_number' => $row[0],
+                    'temp_active_date' => (isset($row[11]) && !empty($row[11])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s')) : (''),
+                    'category_supplier' => $supplierId,
+                    'sales_representative' => $row[6],
+                    'cpg_customer_service_rep' => $row[7],
+                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                ];
+            } else {
+                $finalInsertArray[] = [
+                    'parent_id' => null,
+                    'created_by' => 1,
+                    'alies' => $row[1],
+                    'record_type' => $row[3],
+                    'account_name' => $row[2],
+                    'volume_rebate' => $row[4],
+                    'member_rebate' => $row[10],
+                    'temp_end_date' => (isset($row[12]) && !empty($row[12])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[12]))->format('Y-m-d H:i:s')) : (''),
+                    'customer_number' => $row[0],
+                    'temp_active_date' => (isset($row[11]) && !empty($row[11])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[11]))->format('Y-m-d H:i:s')) : (''),
+                    'category_supplier' => $supplierId,
+                    'sales_representative' => $row[6],
+                    'cpg_customer_service_rep' => $row[7],
+                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                ];  
+            }
+
+            if ($count == 100) {
+                $count = 0;
+                try {
+                    DB::table('accounts')->insert($finalInsertArray);
+                } catch (QueryException $e) {   
+                    Log::error('Error in YourScheduledTask: ' . $e->getMessage());
+                    echo "Database insertion failed: " . $e->getMessage();
+                    die;
+                }
+                
+                unset($finalInsertArray);
+            }
+            $count++; 
+        }
+
+        if (!empty($finalInsertArray)) {
+            try {
+                DB::table('accounts')->insert($finalInsertArray);
+            } catch (QueryException $e) {   
+                Log::error('Error in YourScheduledTask: ' . $e->getMessage());
+                echo "Database insertion failed: " . $e->getMessage();
+            }
+        }
+
+        unset($finalInsertArray);
+
+    }
+}
