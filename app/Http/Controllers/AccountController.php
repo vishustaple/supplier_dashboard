@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AccountController extends Controller
 {
+    public function editCustomerName(){
+        return view('admin.account.edit_customer_name');
+    }
+
     public function allAccount(Request $request, $id=null){
         if (!isset($id)) {
             $id = $request->query('id');

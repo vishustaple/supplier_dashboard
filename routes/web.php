@@ -48,6 +48,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/accounts/csv' , [AccountController::class,'exportAccountCsv'])->name('account.export-csv');
         Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
         Route::get('/accounts/edit/{id}/{routename}' , [AccountController::class,'editAccount'])->name('account.edit');
+        Route::get('/accounts/customer-edit' , [AccountController::class,'editCustomerName'])->name('account.customer-edit');
+        
         /** Account Section End */
 
         /** Report Section Start */
@@ -76,14 +78,13 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('storecolumn',[ExcelImportController::class,'saveColumns'])->name('store.columns');
         
         /** Sales team Section Start */
-        Route::get('/sales-team' , [SalesTeamController::class,'index'])->name('sales.index');
-        Route::post('/add-sales' , [SalesTeamController::class,'addsales'])->name('sales.add');
-        Route::get('/add-team' , [SalesTeamController::class,'getSalesPage'])->name('sales.team');
+        Route::get('/sales-team/{id?}' , [SalesTeamController::class,'index'])->name('sales.index');
+        Route::match(['get', 'post'], '/add-sales' , [SalesTeamController::class,'addsales'])->name('sales.add');
         Route::get('/sales/remove',[SalesTeamController::class,'removeSales'])->name('sales.remove');
         Route::post('/sales/update',[SalesTeamController::class,'updateSales'])->name('sales.update');
         Route::post('/sales/filter' , [SalesTeamController::class,'salesAjaxFilter'])->name('sales.filter');
         Route::get('/sales/edit/{id}/{routename}' , [SalesTeamController::class,'editSales'])->name('sales.edit');
-        
+
         /** Sales team Section End */
     });
 });

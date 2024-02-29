@@ -12,7 +12,8 @@ use Illuminate\Database\QueryException;
 use App\Helpers\ArrayHelper;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use App\Models\{CategorySupplier, UploadedFiles,ManageColumns};
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use App\Models\{CategorySupplier, UploadedFiles, ManageColumns, Order};
 
 
 class ExcelImportController extends Controller
@@ -129,10 +130,25 @@ class ExcelImportController extends Controller
             }
 
             $validationCheck = $arrayDiff = false;
+    
+            $columnValues = DB::table('manage_columns')->select('id', 'supplier_id', 'field_name')->where('supplier_id', $request->supplierselect)->get();
+    
+            foreach ($columnValues as $key => $value) {
+                if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {
+                    $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
+                }
+    
+                if (in_array($value->supplier_id, [7])) {
+                    $columnArray[$value->supplier_id]['invoice_date'] = '';
+                }
+            }
             
+            // echo"<pre>";
+            // print_r($columnArray);
+            // die;
             if (isset($sheet) && $sheet) {
                 $workSheet = $sheet;
-                $workSheetArray = $workSheet->toArray();
+                $workSheetArrays = $workSheetArray = $workSheet->toArray();
         
                 $maxNonEmptyCount = 0;
         
@@ -144,7 +160,8 @@ class ExcelImportController extends Controller
                     
                     /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
                     if ($nonEmptyCount > $maxNonEmptyCount) {
-                        $maxNonEmptyvalue = $value;
+                        $maxNonEmptyvalues = $maxNonEmptyvalue = $value;
+                        $startIndexValueArray = $key;
                         $maxNonEmptyCount = $nonEmptyCount;
                     } 
                     
@@ -165,27 +182,83 @@ class ExcelImportController extends Controller
                     return str_replace(["\r", "\n"], '', $value);
                 }, $finalExcelKeyArray);
 
+                $chunkSize = 0; // Adjust as needed
+                $dates=[];
+                foreach ($workSheetArrays as $key => $row) {
+                    if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
+                        $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
+                    }
+
+                    if ($request->supplierselect == 2) {
+                        $startIndex = $startIndexValueArray + 1;
+                    } else {
+                        $startIndex = $startIndexValueArray;
+                    }
+        
+                    if($key > $startIndex){
+                        if (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) {
+                            if ($row[$keyInvoiceDate] && $request->supplierselect == 4) {
+                                $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
+                            } else {
+                                $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                            }
+                        } else {
+                            $dates[] = '';
+                        }
+                        
+                        if ($chunkSize == 1000) {
+                            $fileExist = Order::where(function ($query) use ($dates) {
+                                foreach ($dates as $startDate) {
+                                    if (!empty($startDate)) {
+                                        $query->orWhere('date', '>=', $startDate);
+                                    }
+                                }
+                            })->where('supplier_id', $request->supplierselect)->get();
+        
+                            if ($fileExist->count() > 0) {
+                                break;
+                                return response()->json(['error' => "You have already uploaded this file."], 200);
+                            }
+
+                            unset($dates);
+                            $chunkSize = 0;
+                        }
+        
+                        $chunkSize++;
+                    }
+                }
+
+                $fileExist = Order::where(function ($query) use ($dates) {
+                    foreach ($dates as $startDate) {
+                        if (!empty($startDate)) {
+                            $query->orWhere('date', '>=', $startDate);
+                        }
+                    }
+                })->where('supplier_id', $request->supplierselect)->get();
+
+                if ($fileExist->count() > 0) {
+                    return response()->json(['error' => "You have already uploaded this file."], 200);
+                }
+
                 if (isset($suppliers[$request->supplierselect])) {
                     $supplierValues = $suppliers[$request->supplierselect];
                     $arrayDiff = array_diff($supplierValues, $cleanedArray);
-                    // echo"<pre> hello1";
-                    // print_r($arrayDiff);
-                    // die;
                     if (empty($arrayDiff)) {
                         $validationCheck = true;
                     }
                 }
             } else {
                 // $sheetName = $workSheet->getTitle();
-                $sheetCount = $spreadSheet->getSheetCount(); 
+                $sheetCount = $spreadSheet->getSheetCount();
+                 
                 $skipSheet = $sheetCount - 1;
                 
 
                 for ($i=0; $i < $sheetCount; $i++) {
                     $workSheet = $spreadSheet->getSheet($i);
         
-                    $workSheetArray1 = $workSheet->toArray();
-        
+                    $workSheetArrays = $workSheetArray1 = $workSheet->toArray();
+
                     $maxNonEmptyCount = 0;
             
                     foreach ($workSheetArray1 as $key=>$value) {
@@ -196,7 +269,8 @@ class ExcelImportController extends Controller
                         
                         /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
                         if ($nonEmptyCount > $maxNonEmptyCount) {
-                            $maxNonEmptyvalue1 = $value;
+                            $maxNonEmptyvalues = $maxNonEmptyvalue1 = $value;
+                            $startIndexValueArray = $key;
                             $maxNonEmptyCount = $nonEmptyCount;
                         } 
                         
@@ -216,6 +290,63 @@ class ExcelImportController extends Controller
                         /** Remove line breaks and trim whitespace */
                         return str_replace(["\r", "\n"], '', $value);
                     }, $finalExcelKeyArray1);
+
+                    if ($request->supplierselect == 2) {
+                        $startIndex = $startIndexValueArray + 1;
+                    } else {
+                        $startIndex = $startIndexValueArray;
+                    }
+
+                    $chunkSize = 0; // Adjust as needed
+                    $dates = [];
+                    foreach ($workSheetArrays as $key => $row) {
+                        if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
+                            $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
+                        }
+            
+                        if($key > $startIndex){
+                            if (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) {
+                                if ($row[$keyInvoiceDate] && $request->supplierselect == 4) {
+                                    $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
+                                } else {
+                                    $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                                }
+                            } else {
+                                $dates[] = '';
+                            }
+                        
+                            if ($chunkSize == 1000) {
+                                $fileExist = Order::where(function ($query) use ($dates) {
+                                    foreach ($dates as $startDate) {
+                                        if (!empty($startDate)) {
+                                            $query->orWhere('date', '>=', $startDate);
+                                        }
+                                    }
+                                })->where('supplier_id', $request->supplierselect)->get();
+
+                                if ($fileExist->count() > 0) {
+                                    break;
+                                    return response()->json(['error' => "You have already uploaded this file."], 200);
+                                }
+                            
+                                $chunkSize = 0;
+                            }
+            
+                            $chunkSize++;
+                        }
+                    }
+
+                    $fileExist = Order::where(function ($query) use ($dates) {
+                        foreach ($dates as $startDate) {
+                            if (!empty($startDate)) {
+                                $query->orWhere('date', '>=', $startDate);
+                            }
+                        }
+                    })->where('supplier_id', $request->supplierselect)->get();
+             
+                    if ($fileExist->count() > 0) {
+                        return response()->json(['error' => "You have already uploaded this file."], 200);
+                    }
 
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
@@ -237,6 +368,7 @@ class ExcelImportController extends Controller
             $missingColumns = implode(', ', $arrayDiff);
             return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
         }
+      
 
         /** Output the cleaned array */
         // echo"<pre>";
