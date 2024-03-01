@@ -11,7 +11,7 @@ class Account extends Model
 {
     use HasFactory;
 
-    protected $table = 'accounts';
+    protected $table = 'master_account_detail';
 
      /**
      * The attributes that are mass assignable.
@@ -20,31 +20,31 @@ class Account extends Model
      */
     
     protected $fillable = [
-        'qbr',
-        'alies',
-        'sf_cat',
-        'comm_rate',
-        'parent_id',
-        'spend_name',
-        'created_at',
-        'created_by',
-        'updated_at',
-        'rebate_freq',
-        'record_type',
-        'account_name',
-        'member_rebate',
-        'temp_end_date',
-        'volume_rebate',
-        'management_fee',
-        'customer_number',
-        'temp_active_date',
-        'category_supplier',
-        'supplier_acct_rep',
-        'sales_representative',
-        'internal_reporting_name',
-        'cpg_sales_representative',
-        'cpg_customer_service_rep',
-        'customer_service_representative',
+        // 'qbr',
+        // 'alies',
+        // 'sf_cat',
+        // 'comm_rate',
+        // 'parent_id',
+        // 'spend_name',
+        // 'created_at',
+        // 'created_by',
+        // 'updated_at',
+        // 'rebate_freq',
+        // 'record_type',
+        // 'account_name',
+        // 'member_rebate',
+        // 'temp_end_date',
+        // 'volume_rebate',
+        // 'management_fee',
+        // 'customer_number',
+        // 'temp_active_date',
+        // 'category_supplier',
+        // 'supplier_acct_rep',
+        // 'sales_representative',
+        // 'internal_reporting_name',
+        // 'cpg_sales_representative',
+        // 'cpg_customer_service_rep',
+        // 'customer_service_representative',
     ];
     
     public function parent(){
@@ -66,49 +66,45 @@ class Account extends Model
 
     public static function getFilterdAccountsData($filter = [], $csv=false){
         $orderColumnArray = [
-            0 => 'accounts.customer_number',
-            1 => "accounts.alies",
-            2 => 'accounts.account_name',
-            3 => 'accounts.category_supplier',
-            4 => 'parent.alies',
-            5 => 'grandparent.alies',
-            6 => 'accounts.record_type',
-            7 => 'accounts.id',
+            0 => 'master_account_detail.account_number',
+            1 => "master_account_detail.customer_name",
+            2 => 'master_account_detail.account_name',
+            3 => 'master_account_detail.category_supplier',
+            4 => 'master_account_detail.parent_name',
+            5 => 'master_account_detail.grandparent_name',
+            6 => 'master_account_detail.record_type',
+            7 => 'master_account_detail.id',
         ];
 
         if ($csv) {
             $query = self::with('parent.parent') /** Eager load relationships */
-            ->select('accounts.id as id',
-            'accounts.customer_number as customer_number',
-            'accounts.alies as customer_name',
-            'accounts.account_name as account_name',
-            'accounts.volume_rebate as volume_rebate',
-            'accounts.sales_representative as sales_representative',
-            'accounts.customer_service_representative as customer_service_representative',
-            'accounts.member_rebate as member_rebate',
-            'accounts.temp_active_date as temp_active_date',
-            'accounts.temp_end_date as temp_end_date',
-            'accounts.internal_reporting_name as internal_reporting_name',
-            'accounts.qbr as qbr',
-            'accounts.spend_name as spend_name',
-            'accounts.supplier_acct_rep as supplier_acct_rep',
-            'accounts.management_fee as management_fee',
-            'accounts.record_type as record_type',
-            'accounts.cpg_sales_representative as cpg_sales_representative',
-            'accounts.cpg_customer_service_rep as cpg_customer_service_rep',
-            'accounts.sf_cat as sf_cat',
-            'accounts.rebate_freq as rebate_freq',
-            'accounts.comm_rate as comm_rate',
+            ->select('master_account_detail.id as id',
+            'master_account_detail.account_number as customer_number',
+            'master_account_detail.customer_name as customer_name',
+            'master_account_detail.account_name as account_name',
+            'master_account_detail.volume_rebate as volume_rebate',
+            'master_account_detail.member_rebate as member_rebate',
+            'master_account_detail.temp_active_date as temp_active_date',
+            'master_account_detail.temp_end_date as temp_end_date',
+            'master_account_detail.record_type as record_type',
+            'master_account_detail.cpg_sales_representative as cpg_sales_representative',
+            'master_account_detail.cpg_customer_service_rep as cpg_customer_service_rep',
             'suppliers.supplier_name as category_supplier',
-            DB::raw("parent.alies as parent_name"),
-            DB::raw("grandparent.alies as grand_parent_name"))
-            ->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')
-            ->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'accounts.category_supplier');
+            'master_account_detail.parent_name as parent_name',
+            'master_account_detail.grandparent_name as grand_parent_name')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
         } else {
-            $query = self::with('parent.parent') /** Eager load relationships */
-            ->select('accounts.id as id', 'accounts.record_type as record_type', 'accounts.created_at as date', 'suppliers.supplier_name as supplier_name', 'accounts.customer_number as customer_number', "accounts.alies as customer_name", 'accounts.account_name as account_name')
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'accounts.category_supplier');
+            $query = self::query() /** Eager load relationships */
+            ->select('master_account_detail.parent_name as parent_name',
+             'master_account_detail.grandparent_name as grand_parent_name',
+             'master_account_detail.id as id',
+             'master_account_detail.record_type as record_type',
+             'master_account_detail.created_at as date',
+             'suppliers.supplier_name as supplier_name',
+             'master_account_detail.account_number as customer_number',
+             'master_account_detail.customer_name as customer_name',
+             'master_account_detail.account_name as account_name')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
         }
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
