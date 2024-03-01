@@ -32,7 +32,7 @@
                 @else
                 @foreach($missingAccount as $missingarray)
                     <tr>
-                        <td>{{$missingarray->customer_number}}</td>
+                        <td>{{$missingarray->account_number}}</td>
                         <td class="missing_value"><input class="form-control" type="text" placeholder="Customer Name" value=""></td>
                         <td>{{$missingarray->account_name}}</td>
                         <td>{{getSupplierName($missingarray->category_supplier)}}</td>
