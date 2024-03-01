@@ -54,16 +54,16 @@
                     'first_name' => $request->first_name,
                     // 'last_name' => $request->last_name,
                     'email' => $request->email,
-                    'password' => $request->password,
-                    'confirm_password' => $request->confirm_password,
+                    // 'password' => $request->password,
+                    // 'confirm_password' => $request->confirm_password,
                     'user_role' => $request->user_role,
                 ],
                 [
                     'first_name'=>'required|string|max:255',
                     // 'last_name'=>'required|string|max:255',
                     'email' => 'required|string|email|max:255|unique:users',
-                    'password' => 'required|string|min:8',
-                    'confirm_password' => 'required|string|min:8|same:password',
+                    // 'password' => 'required|string|min:8',
+                    // 'confirm_password' => 'required|string|min:8|same:password',
                     'user_role' => 'required',
                 ]
             );
@@ -81,7 +81,7 @@
                         'first_name' => $request->first_name,
                         'last_name' => $request->last_name,
                         'email' => $request->email,
-                        'password' => bcrypt($request->password), // Hash the password before saving
+                       // 'password' => bcrypt($request->password), // Hash the password before saving
                         'user_type'=> $userType,
                     ]);
                 
@@ -142,17 +142,17 @@
                     'first_name' => $request->first_name,
                     'last_name' => $request->last_name,
                     'email' => $request->email,
-                    'password' => $request->password,
-                    'confirm_password' => $request->confirm_password,
+                    // 'password' => $request->password,
+                    // 'confirm_password' => $request->confirm_password,
                     'user_role' => $request->update_user_role,
                 ],
                 [
                     'first_name'=>'required|string|max:255',
                     // 'last_name'=>'required|string|max:255',
                     'email' => 'required|string|email|max:255|unique:users,email,'.$request->update_user_id,
-                    'password' => $request->password != null ? 'required|string|min:8' : '',
-                    // 'password' => 'required_if:password,filled|string|min:8',
-                    'confirm_password' => $request->confirm_password != null ?'string|min:8|same:password':'',
+                    // 'password' => $request->password != null ? 'required|string|min:8' : '',
+                    // // 'password' => 'required_if:password,filled|string|min:8',
+                    // 'confirm_password' => $request->confirm_password != null ?'string|min:8|same:password':'',
                     'user_role' => 'required',
                 ]
             );
