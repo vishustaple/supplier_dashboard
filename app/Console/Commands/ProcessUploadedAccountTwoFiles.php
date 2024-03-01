@@ -46,6 +46,15 @@ class ProcessUploadedAccountTwoFiles extends Command
             if ($key == 0) {
                 continue;
             }
+
+            $supplier = DB::table('suppliers')->select('id')->where('supplier_name', $row[5])->first();
+
+            if ($supplier) {
+                $supplierId = $supplier->id;
+            } else {
+                $supplierId = DB::table('suppliers')->insertGetId(['supplier_name' => $row[5], 'show' => 1, 'created_by' => 1,'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')]);
+            }
             
             $finalInsertArray[] = [
                 'account_number' => $row[0],
@@ -53,7 +62,7 @@ class ProcessUploadedAccountTwoFiles extends Command
                 'account_name' => $row[2],
                 'record_type' => $row[3],
                 'volume_rebate' => $row[4],
-                'category_supplier' => $row[5],
+                'category_supplier' => $supplierId,
                 'cpg_sales_representative' => $row[6],
                 'cpg_customer_service_rep' => $row[7],
                 'parent_id' => $row[8],
