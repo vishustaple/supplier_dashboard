@@ -84,6 +84,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/sales/update',[SalesTeamController::class,'updateSales'])->name('sales.update');
         Route::post('/sales/filter' , [SalesTeamController::class,'salesAjaxFilter'])->name('sales.filter');
         Route::get('/sales/edit/{id}/{routename}' , [SalesTeamController::class,'editSales'])->name('sales.edit');
+        Route::get('/sales/updatestatus' , [SalesTeamController::class,'status_sales'])->name('sales.status');
 
         /** Sales team Section End */
     });

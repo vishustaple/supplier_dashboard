@@ -220,9 +220,10 @@ div#userModal .modal-header button.close,
   border-radius: 50%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
   opacity: 1;
   color: #fff;
+  padding: 5px !important;
 }
 div#userModal .modal-content,
 #updateuserModal .modal-content,
@@ -334,6 +335,17 @@ div#layoutSidenav_content {
 }
 .dropdown.custom_drop_down .dropdown-menu.show svg {
     margin-right: 7px;
+}
+.notification-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 4px 8px;
+  font-size: 12px;
+  transform: translate(50%, -50%);
 }
 @media (max-width:992px) {
   div#example_wrapper {

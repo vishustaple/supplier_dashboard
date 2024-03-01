@@ -8,13 +8,18 @@
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
     <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-2">Manage Accounts</h3>
-        <div class="row align-items-end border-bottom pb-3 mb-4">
+        <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
                 <a href="{{ route('account.create')}}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Account</a>
                 <button id="downloadAccountCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                <a href="{{ route('account.customer-edit')}}" class="bell_icon_link btn btn-info"><i class="fa-solid fa-bell"></i></a>
+                    <a href="{{ route('account.customer-edit')}}" class="bell_icon_link btn btn-info position-relative">
+                       <i class="fa-solid fa-bell"></i>
+                        @if($totalmissingaccount > 0)
+                            <span class="notification-count">{{ $totalmissingaccount }}</span>
+                        @endif
+                    </a>
             </div>
         </div>
         <div class="mx-auto d-flex justify-content-between align-items-center">

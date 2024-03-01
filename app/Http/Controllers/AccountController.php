@@ -15,7 +15,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class AccountController extends Controller
 {
     public function editCustomerName(){
-        $missingAccount = Account::whereNull('alies')->orWhere('alies', '')->get();
+        $missingAccount = Account::whereNull('customer_name')->orWhere('customer_name', '')->get();
+        
         return view('admin.account.edit_customer_name',compact('missingAccount'));
     }
 
@@ -25,40 +26,29 @@ class AccountController extends Controller
         }
 
         if(isset($id)){
-            $account = Account::with('parent.parent')->select(
-                'accounts.qbr as qbr',
-                'accounts.alies as alies',
-                'accounts.sf_cat as sf_cat',
-                'accounts.comm_rate as comm_rate',
-                'accounts.parent_id as parent_id',
-                'accounts.spend_name as spend_name',
-                'accounts.created_at as created_at',
-                'accounts.created_by as created_by',
-                'accounts.updated_at as updated_at',
-                'accounts.rebate_freq as rebate_freq',
-                'accounts.record_type as record_type',
-                DB::raw("parent.alies as parent_name"),
-                'accounts.account_name as account_name',
-                'accounts.member_rebate as member_rebate',
-                'accounts.temp_end_date as temp_end_date',
-                'accounts.volume_rebate as volume_rebate',
-                'accounts.management_fee as management_fee',
-                'accounts.customer_number as customer_number',
-                'accounts.temp_active_date as temp_active_date',
-                'accounts.category_supplier as category_supplier',
-                'accounts.supplier_acct_rep as supplier_acct_rep',
-                DB::raw("grandparent.alies as grand_parent_name"),
-                'accounts.sales_representative as sales_representative',
-                'accounts.internal_reporting_name as internal_reporting_name',
-                'accounts.cpg_sales_representative as cpg_sales_representative',
-                'accounts.cpg_customer_service_rep as cpg_customer_service_rep',
-                'accounts.customer_service_representative as customer_service_representative',  
-            )->leftJoin('accounts as parent', 'parent.id', '=', 'accounts.parent_id')->leftJoin('accounts as grandparent', 'grandparent.id', '=', 'parent.parent_id')->where('accounts.id','=', $id)->first();
+            $account = Account::select(
+                'master_account_detail.id as id',
+                'master_account_detail.account_number as customer_number',
+                'master_account_detail.customer_name as customer_name',
+                'master_account_detail.account_name as account_name',
+                'master_account_detail.volume_rebate as volume_rebate',
+                'master_account_detail.member_rebate as member_rebate',
+                'master_account_detail.temp_active_date as temp_active_date',
+                'master_account_detail.temp_end_date as temp_end_date',
+                'master_account_detail.record_type as record_type',
+                'master_account_detail.cpg_sales_representative as cpg_sales_representative',
+                'master_account_detail.cpg_customer_service_rep as cpg_customer_service_rep',
+                'suppliers.supplier_name as category_supplier',
+                'master_account_detail.parent_name as parent_name',
+                'master_account_detail.grandparent_name as grand_parent_name')
+                ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+            ->where('master_account_detail.id','=', $id)->first();
 
             return view('admin.viewdetail',compact('account'));
         }
-        
-        return view('admin.account');
+        $missingAccount = Account::whereNull('customer_name')->orWhere('customer_name', '')->get();
+        $totalmissingaccount=count($missingAccount);
+        return view('admin.account' ,compact('totalmissingaccount'));
     }
 
     public function addAccount(Request $request){
@@ -118,7 +108,7 @@ class AccountController extends Controller
             Account::create([
                 'qbr' => $request->qbr,
                 'created_by'=> $user->id,
-                'alies' => $request->customer_name,
+                'customer_name' => $request->customer_name,
                 'sf_cat' => $request->sf_cat,
                 'comm_rate' =>$request->comm_rate,
                 'spend_name' =>$request->spend_name ,
@@ -198,13 +188,13 @@ class AccountController extends Controller
         $frompageTitle = 'account';
         $currentpageTitle = 'Edit Account Data';
         $categorySuppliers = CategorySupplier::all();
-        $grandparent = Account::select('id','alies')->get();
+        $grandparent = Account::select('id','customer_name')->get();
         return view('admin.account.add',['categorySuppliers' => $categorySuppliers, 'fromTitle' => $frompageTitle,'currentTitle' => $currentpageTitle,'grandparent'=>$grandparent]);
     }
     public function editAccount(Request $request){
         $accountId = $request->id;
         $editAccountData = Account::where('id',$accountId)->first();
-        $grandparent = Account::select('id','alies')->get();
+        $grandparent = Account::select('id','customer_name')->get();
         $categorySuppliers = CategorySupplier::all();
         $frompageTitle = $request->routename;
         $currentpageTitle = 'Edit Data';
@@ -257,7 +247,7 @@ class AccountController extends Controller
                 $account->update([
                     'created_by'=> $user->id,
                     'qbr' => $request->qbr,
-                    'alies' => $request->customer_name,
+                    'customer_name' => $request->customer_name,
                     'sf_cat' => $request->sf_cat,
                     'comm_rate' =>$request->comm_rate,
                     'spend_name' =>$request->spend_name ,
@@ -291,7 +281,7 @@ class AccountController extends Controller
        $missingid = $request->id;
        $missingvalue =$request->ColumnValue;
        try {
-        $updateMissingAccount = Account::where('id', $missingid)->update(['alies' => $missingvalue]);
+        $updateMissingAccount = Account::where('id', $missingid)->update(['customer_name' => $missingvalue]);
         if($updateMissingAccount){
 
             return response()->json(['success' => 'Customer Name Update Successfully!'], 200);
