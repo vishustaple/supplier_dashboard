@@ -45,6 +45,20 @@ class Account extends Model
         // 'cpg_sales_representative',
         // 'cpg_customer_service_rep',
         // 'customer_service_representative',
+        'account_number',
+        'customer_name',
+        'record_type',
+        'volume_rebate',
+        'category_supplier',
+        'cpg_sales_representative',
+        'cpg_customer_service_rep',
+        'parent_id',
+        'parent_name',
+        'grandparent_id',
+        'grandparent_name',
+        'member_rebate',
+        'temp_active_date',
+        'temp_end_date',
     ];
     
     public function parent(){

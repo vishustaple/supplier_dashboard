@@ -139,4 +139,23 @@ class SalesTeamController extends Controller
             return response()->json(['error' => 'Sales Repersantative not found'], 404);
         }
     }
+
+    public function status_sales(Request $request){
+        try{
+            $getstatus = SalesTeam::find($request->id); 
+            $status = ($getstatus->status == SalesTeam::STATUS_ACTIVE) ? SalesTeam::STATUS_INACTIVE : SalesTeam::STATUS_ACTIVE;
+            $data = SalesTeam::where('id', $request->id)->update([
+                'status' => $status
+            ]);
+
+            if ($data) {
+                return response()->json(['success' => 'Status updated successfully']);
+            } else {
+                return response()->json(['error' => 'Failed to update status'], 500);
+            }
+            }
+        catch (\Throwable $th) {
+            return $this->error($th->getMessage());
+        }
+    }
 }
