@@ -52,7 +52,7 @@
                                                 <label for="inputEmail">Email address</label>
                                                 <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
                                             </div>
-                                            <div class="row mb-3">
+                                            <!-- <div class="row mb-3">
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-3 mb-md-0">
                                                         <label for="inputPassword">Password</label>
@@ -65,7 +65,7 @@
                                                         <input class="form-control" id="inputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="form-group mb-3">
                                                 <label for="userrole">User Role</label>
                                                     <select id="user_role" name="user_role" class="form-control"> 
@@ -125,7 +125,7 @@
                                     <label for="inputEmail">Email address</label>
                                     <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
                                 </div>
-                                <div class="row mb-3">
+                                <!-- <div class="row mb-3">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3 mb-md-0">
                                             <label for="inputPassword">Password</label>
@@ -138,7 +138,7 @@
                                             <input class="form-control" id="updateinputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="form-group mb-3">
                                     <label for="userrole">User Role</label>
                                         <select id="update_user_role" name="update_user_role" class="form-control"> 
