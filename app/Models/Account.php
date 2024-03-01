@@ -11,7 +11,7 @@ class Account extends Model
 {
     use HasFactory;
 
-    protected $table = 'accounts';
+    protected $table = 'master_account_detail';
 
      /**
      * The attributes that are mass assignable.
@@ -20,31 +20,45 @@ class Account extends Model
      */
     
     protected $fillable = [
-        'qbr',
-        'alies',
-        'sf_cat',
-        'comm_rate',
-        'parent_id',
-        'spend_name',
-        'created_at',
-        'created_by',
-        'updated_at',
-        'rebate_freq',
+        // 'qbr',
+        // 'alies',
+        // 'sf_cat',
+        // 'comm_rate',
+        // 'parent_id',
+        // 'spend_name',
+        // 'created_at',
+        // 'created_by',
+        // 'updated_at',
+        // 'rebate_freq',
+        // 'record_type',
+        // 'account_name',
+        // 'member_rebate',
+        // 'temp_end_date',
+        // 'volume_rebate',
+        // 'management_fee',
+        // 'customer_number',
+        // 'temp_active_date',
+        // 'category_supplier',
+        // 'supplier_acct_rep',
+        // 'sales_representative',
+        // 'internal_reporting_name',
+        // 'cpg_sales_representative',
+        // 'cpg_customer_service_rep',
+        // 'customer_service_representative',
+        'account_number',
+        'customer_name',
         'record_type',
-        'account_name',
-        'member_rebate',
-        'temp_end_date',
         'volume_rebate',
-        'management_fee',
-        'customer_number',
-        'temp_active_date',
         'category_supplier',
-        'supplier_acct_rep',
-        'sales_representative',
-        'internal_reporting_name',
         'cpg_sales_representative',
         'cpg_customer_service_rep',
-        'customer_service_representative',
+        'parent_id',
+        'parent_name',
+        'grandparent_id',
+        'grandparent_name',
+        'member_rebate',
+        'temp_active_date',
+        'temp_end_date',
     ];
     
     public function parent(){
