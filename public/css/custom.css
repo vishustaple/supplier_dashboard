@@ -220,9 +220,10 @@ div#userModal .modal-header button.close,
   border-radius: 50%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
   opacity: 1;
   color: #fff;
+  padding: 5px !important;
 }
 div#userModal .modal-content,
 #updateuserModal .modal-content,
