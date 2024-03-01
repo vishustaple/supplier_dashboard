@@ -14,7 +14,12 @@
                 <a href="{{ route('account.create')}}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Account</a>
                 <button id="downloadAccountCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                <a href="{{ route('account.customer-edit')}}" class="bell_icon_link btn btn-info"><i class="fa-solid fa-bell"></i></a>
+                    <a href="{{ route('account.customer-edit')}}" class="bell_icon_link btn btn-info position-relative">
+                       <i class="fa-solid fa-bell"></i>
+                        @if($totalmissingaccount > 0)
+                            <span class="notification-count">{{ $totalmissingaccount }}</span>
+                        @endif
+                    </a>
             </div>
         </div>
         <div class="mx-auto d-flex justify-content-between align-items-center">

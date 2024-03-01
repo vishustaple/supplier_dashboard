@@ -16,6 +16,7 @@ class AccountController extends Controller
 {
     public function editCustomerName(){
         $missingAccount = Account::whereNull('alies')->orWhere('alies', '')->get();
+        
         return view('admin.account.edit_customer_name',compact('missingAccount'));
     }
 
@@ -57,8 +58,9 @@ class AccountController extends Controller
 
             return view('admin.viewdetail',compact('account'));
         }
-        
-        return view('admin.account');
+        $missingAccount = Account::whereNull('alies')->orWhere('alies', '')->get();
+        $totalmissingaccount=count($missingAccount);
+        return view('admin.account' ,compact('totalmissingaccount'));
     }
 
     public function addAccount(Request $request){
