@@ -10,8 +10,8 @@
             </div>
             <div class="row align-items-end border-bottom pb-3 mb-4">
                     <div class="col-md-12 mb-0 text-end">
-                    <button id="downloadCatalogCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                    </div>
+                    <!-- <button id="downloadCatalogCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                    </div> -->
                     <!-- Button trigger modal -->
                    
                 </div>
