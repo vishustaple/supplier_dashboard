@@ -25,7 +25,8 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone Number</th>
-                        <th>Action</th>
+                        <!-- <th>Action</th> -->
+                        <th>Status</th>
                     </tr>
                 </thead>
             </table>
@@ -33,6 +34,7 @@
         
     </div>
 </div>
+<div id="page-loader" style="display:none"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>
 <script>
     $(document).ready(function() {
         var accountTable = $('#sales_data').DataTable({
@@ -95,7 +97,30 @@
         // Open a new window to download the CSV file
         window.open(csvUrl, '_blank');
     }
-
+    //toggle disable enable 
+    function toggleDisableEnable(id){
+        var id = id;
+        $('#page-loader').show();
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+        });
+            $.ajax({
+            url:'{{route("sales.status")}}',
+            data:{id:id},
+            dataType: "JSON",
+            success:function(data)
+            { 
+            $('#page-loader').hide();
+            location.reload();
+        
+            },
+            error:function(error){
+            $('#page-loader').hide();
+        }
+        });
+    }
     // JavaScript to make checkboxes act like radio buttons
     const radioCheckboxes = document.querySelectorAll('.radio-checkbox');
 
@@ -147,6 +172,7 @@
             // Handle cancellation
         }
     });
+    
 });
 
 </script>
