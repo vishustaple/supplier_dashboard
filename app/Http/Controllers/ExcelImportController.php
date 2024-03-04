@@ -237,7 +237,7 @@ class ExcelImportController extends Controller
                             $chunkSize = 0;
                         }
         
-                        $chunkSize++;
+                        $chunkSize++; 
                     }
                 }
 
