@@ -87,35 +87,28 @@
                        // 'password' => bcrypt($request->password), // Hash the password before saving
                         'user_type'=> $userType,
                     ]);
-                    // $email="vishumehandiratta360@gmail.com";
-                    $email = "vishustaple@yopmail.com";
+
+                    $email='supplieradmin@yopmail.com';
+
                     try{
                         Log::info('Attempting to send email...');
                         // Mail::send('mail.pendingfile', ['suppliername' => "test"], function ($m) use ($email) {
                         //     $m->from($email, 'Supplier Admin'); // Use $email variable here
                         //     $m->to('vishustaple@yopmail.com')->subject('Pending Files else');
                         // });
-                        // Mail::to($user->email)->send(new WelcomeMail());
 
-                        // Mail::to($user->email)->send('dsdsdsds');
-                        Mail::send('mail.pendingfile', ['suppliername' => "test"], function($message) use ($email) {
+                       
+                        Mail::send('mail.updatepassword', ['test' => "test"], function($message) use ($email) {
                             $message->to($email)
-                                    ->subject('Welcome to our application');
+                                    ->subject('Password Creation Form');
                         });
 
-                        // Mail::send('mail.pendingfile', ['suppliername' => "test"], function($message) {
-                        //     $message->to('ankitsainisaini3333@gmail.com', 'Tutorials Point')->subject
-                        //        ('Laravel Testing Mail with Attachment');
-                        //     // $message->attach('C:\laravel-master\laravel\public\uploads\image.png');
-                        //     // $message->attach('C:\laravel-master\laravel\public\uploads\test.txt');
-                        //     $message->from('vishumehandiratta360@gmail.com','Virat Gandhi');
-                        //  });
                          
                         Log::info('Email sent successfully');
                     } catch (\Exception $e) {
                         /** Handle the exception here */
                         Log::error('Email sending failed: ' . $e->getMessage());
-                        $this->error('Email sending failed: ' . $e->getMessage());
+                        // $this->error('Email sending failed: ' . $e->getMessage());
                     }
                     return response()->json(['success' => 'Add User Successfully!'], 200);
                 
@@ -223,5 +216,9 @@
             
                 $data = User::where('id',$request->id)->delete();
                 return response()->json(['success' => true]);
+        }
+
+        public function createPassword(Request $request){
+            return view('admin.createpassword');
         }
     }
