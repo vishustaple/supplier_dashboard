@@ -87,7 +87,7 @@
                        // 'password' => bcrypt($request->password), // Hash the password before saving
                         'user_type'=> $userType,
                     ]);
-                    $email="vishumehandiratta360@gmail.com";
+                    $email='supplieradmin@yopmail.com';
                     try{
                         Log::info('Attempting to send email...');
                         // Mail::send('mail.pendingfile', ['suppliername' => "test"], function ($m) use ($email) {
@@ -95,19 +95,16 @@
                         //     $m->to('vishustaple@yopmail.com')->subject('Pending Files else');
                         // });
                        
-                        Mail::send('mail.pendingfile', ['suppliername' => "test"], function($message) {
-                            $message->to('ankitsainisaini3333@gmail.com', 'Tutorials Point')->subject
-                               ('Laravel Testing Mail with Attachment');
-                            // $message->attach('C:\laravel-master\laravel\public\uploads\image.png');
-                            // $message->attach('C:\laravel-master\laravel\public\uploads\test.txt');
-                            // $message->from('vishumehandiratta360@gmail.com','Virat Gandhi');
-                         });
+                        Mail::send('mail.updatepassword', ['test' => "test"], function($message) use ($email) {
+                            $message->to($email)
+                                    ->subject('Password Creation Form');
+                        });
                          
                         Log::info('Email sent successfully');
                     } catch (\Exception $e) {
                         /** Handle the exception here */
                         Log::error('Email sending failed: ' . $e->getMessage());
-                        $this->error('Email sending failed: ' . $e->getMessage());
+                        // $this->error('Email sending failed: ' . $e->getMessage());
                     }
                     return response()->json(['success' => 'Add User Successfully!'], 200);
                 
@@ -215,5 +212,9 @@
             
                 $data = User::where('id',$request->id)->delete();
                 return response()->json(['success' => true]);
+        }
+
+        public function createPassword(Request $request){
+            return view('admin.createpassword');
         }
     }
