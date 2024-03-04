@@ -53,9 +53,10 @@ class ExcelImportController extends Controller
             $i++;
         }
 
+        $pageTitle = "Upload Sheets";
         $data=json_encode($formattedData);
  
-        return view('admin.export',compact('categorySuppliers','data'));
+        return view('admin.export',compact('categorySuppliers','data', 'pageTitle'));
     }
     public function import(Request $request)
     {
@@ -146,6 +147,8 @@ class ExcelImportController extends Controller
             // echo"<pre>";
             // print_r($columnArray);
             // die;
+
+           
             if (isset($sheet) && $sheet) {
                 $workSheet = $sheet;
                 $workSheetArrays = $workSheetArray = $workSheet->toArray();
@@ -184,6 +187,16 @@ class ExcelImportController extends Controller
 
                 $chunkSize = 0; // Adjust as needed
                 $dates=[];
+
+                
+                if ($request->supplierselect == 7) {
+                    foreach ($cleanedArray as $key => $value) {
+                        if ($key > 5) {
+                            $cleanedArray[$key] = trim("Year_" . substr($cleanedArray[$key], - 2));
+                        }
+                    }
+                }
+
                 foreach ($workSheetArrays as $key => $row) {
                     if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
                         $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
@@ -216,7 +229,7 @@ class ExcelImportController extends Controller
                             })->where('supplier_id', $request->supplierselect);
         
                             if ($fileExist->count() > 0) {
-                                break;
+                                // break;
                                 return response()->json(['error' => "You have already uploaded this file."], 200);
                             }
 
@@ -291,6 +304,14 @@ class ExcelImportController extends Controller
                         return str_replace(["\r", "\n"], '', $value);
                     }, $finalExcelKeyArray1);
 
+                    if ($request->supplierselect == 7) {
+                        foreach ($cleanedArray as $key => $value) {
+                            if ($key > 5) {
+                                $cleanedArray[$key] = trim("Year_" . substr($cleanedArray[$key], - 2));
+                            }
+                        }
+                    }
+
                     if ($request->supplierselect == 2) {
                         $startIndex = $startIndexValueArray + 1;
                     } else {
@@ -325,8 +346,8 @@ class ExcelImportController extends Controller
                                 })->where('supplier_id', $request->supplierselect);
 
                                 if ($fileExist->count() > 0) {
-                                    break;
                                     return response()->json(['error' => "You have already uploaded this file."], 200);
+                                    // break;
                                 }
                             
                                 $chunkSize = 0;
@@ -443,7 +464,8 @@ class ExcelImportController extends Controller
         }
        
         $data=json_encode($formattedData);
-        return view('admin.supplier',compact('data'));
+        $pageTitle = 'Supplier Data';
+        return view('admin.supplier',compact('data', 'pageTitle'));
     }
     
 

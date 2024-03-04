@@ -84,7 +84,7 @@ class ReportController extends Controller
 
         /** Set headers for CSV download */
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename=""BusinessData_'.now()->format('YmdHis').'.csv".csv"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="BusinessData_'.now()->format('YmdHis').'.csv"');
   
         /** return $csvResponse; */
         return $response;
