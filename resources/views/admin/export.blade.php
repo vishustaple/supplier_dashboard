@@ -275,6 +275,7 @@ div#errorMessage {
                         // Functionality to close the error message when close button is clicked
                         $('#closeErrorMessage').on('click', function() {
                             $('#errorMessage').fadeOut();
+                            $('#errorMessage').html('');
                             $('#import_form')[0].reset();
                         });
                     }

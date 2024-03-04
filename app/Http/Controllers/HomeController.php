@@ -87,21 +87,29 @@
                        // 'password' => bcrypt($request->password), // Hash the password before saving
                         'user_type'=> $userType,
                     ]);
-                    $email="vishumehandiratta360@gmail.com";
+                    // $email="vishumehandiratta360@gmail.com";
+                    $email = "vishustaple@yopmail.com";
                     try{
                         Log::info('Attempting to send email...');
                         // Mail::send('mail.pendingfile', ['suppliername' => "test"], function ($m) use ($email) {
                         //     $m->from($email, 'Supplier Admin'); // Use $email variable here
                         //     $m->to('vishustaple@yopmail.com')->subject('Pending Files else');
                         // });
-                       
-                        Mail::send('mail.pendingfile', ['suppliername' => "test"], function($message) {
-                            $message->to('ankitsainisaini3333@gmail.com', 'Tutorials Point')->subject
-                               ('Laravel Testing Mail with Attachment');
-                            // $message->attach('C:\laravel-master\laravel\public\uploads\image.png');
-                            // $message->attach('C:\laravel-master\laravel\public\uploads\test.txt');
-                            // $message->from('vishumehandiratta360@gmail.com','Virat Gandhi');
-                         });
+                        // Mail::to($user->email)->send(new WelcomeMail());
+
+                        // Mail::to($user->email)->send('dsdsdsds');
+                        Mail::send('mail.pendingfile', ['suppliername' => "test"], function($message) use ($email) {
+                            $message->to($email)
+                                    ->subject('Welcome to our application');
+                        });
+
+                        // Mail::send('mail.pendingfile', ['suppliername' => "test"], function($message) {
+                        //     $message->to('ankitsainisaini3333@gmail.com', 'Tutorials Point')->subject
+                        //        ('Laravel Testing Mail with Attachment');
+                        //     // $message->attach('C:\laravel-master\laravel\public\uploads\image.png');
+                        //     // $message->attach('C:\laravel-master\laravel\public\uploads\test.txt');
+                        //     $message->from('vishumehandiratta360@gmail.com','Virat Gandhi');
+                        //  });
                          
                         Log::info('Email sent successfully');
                     } catch (\Exception $e) {
