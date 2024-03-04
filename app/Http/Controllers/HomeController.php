@@ -95,7 +95,7 @@
                         //     $m->to('vishustaple@yopmail.com')->subject('Pending Files else');
                         // });
                        
-                        Mail::send('mail.updatepassword', ['test' => "test"], function($message) use ($email) {
+                        Mail::send('mail.updatepassword', ['userid' => $user->id], function($message) use ($email) {
                             $message->to($email)
                                     ->subject('Password Creation Form');
                         });
@@ -215,6 +215,44 @@
         }
 
         public function createPassword(Request $request){
-            return view('admin.createpassword');
+            $userid=$request->id;
+            return view('admin.createpassword',compact('userid'));
         }
+
+        public function updatePassword(Request $request)
+            {
+ 
+                // dd($request->all());
+                $validator = Validator::make(
+                    [
+                        'user_id' => 'required|exists:users,id',
+                        'password' => $request->password,
+                        'confirm_password' => $request->confirm_password,
+                       
+                    ],
+                    [
+                        'password' => 'required|string|min:8',
+                        'confirm_password' => 'required|string|min:8|same:password',
+               
+                    ]
+                );
+                if( $validator->fails() )
+                {  
+                    return redirect()->back()->withErrors($validator)->withInput();
+            
+                }
+                else{
+
+                    // Find the user
+                    $user = User::findOrFail($request->user_id);
+            
+                    // Update the user's password
+                    $user->password = bcrypt($request->password);
+                    $user->save();
+            
+                    // Redirect to the login route
+                    return redirect()->route('login')->with('success', 'Password updated successfully. Please log in with your new password.');
+                }
+                
+            }
     }
