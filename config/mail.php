@@ -44,7 +44,19 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
+            'auth_mode' => 'login', // or 'plain' if 'login' doesn't work
         ],
+
+        // 'smtp' => [
+        //     'transport' => 'smtp',
+        //     'host' => 'smtp.gmail.com',
+        //     'port' => 587,
+        //     'encryption' => 'tls',
+        //     'username' => env('MAIL_USERNAME'), // Your Gmail address
+        //     'password' => env('MAIL_PASSWORD'), // Your Gmail password or app-specific password
+        //     'timeout' => null,
+        //     'auth_mode' => 'login', // or 'plain' if 'login' doesn't work
+        // ],
 
         'ses' => [
             'transport' => 'ses',
