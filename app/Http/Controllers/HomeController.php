@@ -5,6 +5,9 @@
     use App\Models\User;
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Mail;
+    use Illuminate\Support\Facades\Log;
+    use Illuminate\Console\Command;
 
     class HomeController extends Controller
     {
@@ -84,7 +87,28 @@
                        // 'password' => bcrypt($request->password), // Hash the password before saving
                         'user_type'=> $userType,
                     ]);
-                
+                    $email="vishumehandiratta360@gmail.com";
+                    try{
+                        Log::info('Attempting to send email...');
+                        // Mail::send('mail.pendingfile', ['suppliername' => "test"], function ($m) use ($email) {
+                        //     $m->from($email, 'Supplier Admin'); // Use $email variable here
+                        //     $m->to('vishustaple@yopmail.com')->subject('Pending Files else');
+                        // });
+                       
+                        Mail::send('mail.pendingfile', ['suppliername' => "test"], function($message) {
+                            $message->to('ankitsainisaini3333@gmail.com', 'Tutorials Point')->subject
+                               ('Laravel Testing Mail with Attachment');
+                            // $message->attach('C:\laravel-master\laravel\public\uploads\image.png');
+                            // $message->attach('C:\laravel-master\laravel\public\uploads\test.txt');
+                            // $message->from('vishumehandiratta360@gmail.com','Virat Gandhi');
+                         });
+                         
+                        Log::info('Email sent successfully');
+                    } catch (\Exception $e) {
+                        /** Handle the exception here */
+                        Log::error('Email sending failed: ' . $e->getMessage());
+                        $this->error('Email sending failed: ' . $e->getMessage());
+                    }
                     return response()->json(['success' => 'Add User Successfully!'], 200);
                 
                 } catch (\Exception $e) {
