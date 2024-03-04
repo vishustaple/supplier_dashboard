@@ -16,8 +16,8 @@ class AccountController extends Controller
 {
     public function editCustomerName(){
         $missingAccount = Account::whereNull('customer_name')->orWhere('customer_name', '')->get();
-        
-        return view('admin.account.edit_customer_name',compact('missingAccount'));
+        $pageTitle = 'Accounts Data';
+        return view('admin.account.edit_customer_name',compact('missingAccount', 'pageTitle'));
     }
 
     public function allAccount(Request $request, $id=null){
@@ -283,7 +283,6 @@ class AccountController extends Controller
        try {
         $updateMissingAccount = Account::where('id', $missingid)->update(['customer_name' => $missingvalue]);
         if($updateMissingAccount){
-
             return response()->json(['success' => 'Customer Name Update Successfully!'], 200);
         }
        } catch (\Throwable $e) {

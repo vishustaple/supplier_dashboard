@@ -71,12 +71,12 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['p_customer_name'] = $value->field_name;
                     }
 
-                    if (in_array($value->id, [2, 18, 49, 72, 126, 148, 204])) {
-                        $columnArray[$value->supplier_id]['customer_name'] = $value->field_name;
+                    if (in_array($value->id, [1, 18, 48, 71, 125, 149, 203])) {
+                        $columnArray[$value->supplier_id]['customer_number'] = $value->field_name;
                     }
 
-                    if (in_array($value->id, [1, 19, 48, 71, 125, 149, 203])) {
-                        $columnArray[$value->supplier_id]['customer_number'] = $value->field_name;
+                    if (in_array($value->id, [2, 19, 49, 72, 126, 148, 204])) {
+                        $columnArray[$value->supplier_id]['customer_name'] = $value->field_name;
                     }
 
                     if ($value->supplier_id == 7) {
@@ -548,34 +548,58 @@ class ProcessUploadedFiles extends Command
                                     }
 
                                     if (($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
-                                        $gdPerent = Account::where('customer_number', $row[$keyGrandParent])->first();
-                                        $perent = Account::where('customer_number', $row[$keyParent])->first();
-                                        $customer = Account::where('customer_number', $row[$keyCustomer])->first();
-
-                                        if (empty($gdPerent) && empty($perent) && empty($customer)) {
-                                            $lastInsertGdPerentId = Account::create(['category_supplier' => $fileValue->supplier_id, 'customer_number' => $row[$keyGrandParent], 'alies' => $row[$keyGrandParentName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
-
-                                            $lastInsertPerentId = Account::create(['category_supplier' => $fileValue->supplier_id, 'customer_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
-
-                                            Account::create(['category_supplier' => $fileValue->supplier_id, 'customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
-
-                                        } elseif (!empty($gdPerent) && empty($perent) && empty($customer)) {
-                                            $lastInsertPerentId = Account::create(['category_supplier' => $fileValue->supplier_id, 'customer_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
-
-                                            Account::create(['category_supplier' => $fileValue->supplier_id, 'customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
-
-                                        } elseif (!empty($gdPerent) && !empty($perent) && empty($customer)) {
-                                            Account::create(['category_supplier' => $fileValue->supplier_id, 'customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $perent->id, 'created_by' => $fileValue->created_by]);
-
-                                        } else {
-                                            // echo "hello";
+                                        // $gdPerent = Account::where('account_number', $row[$keyGrandParent])->first();
+                                        // $perent = Account::where('account_number', $row[$keyParent])->first();
+                                        $customer = Account::where('account_number', $row[$keyCustomer])->first();
+                                        if (empty($customer)) {
+                                            Account::create([
+                                                'parent_id' => $row[$keyParent],
+                                                'parent_name' => $row[$keyParentName],
+                                                'created_by' => $fileValue->created_by,
+                                                'account_number' => $row[$keyCustomer],
+                                                'customer_name' => $row[$keyCustomerName],
+                                                'grandparent_id' => $row[$keyGrandParent],
+                                                'category_supplier' => $fileValue->supplier_id,
+                                                'grandparent_name' => $row[$keyGrandParentName],
+                                            ]);
                                         }
+
+                                        // if (empty($gdPerent) && empty($perent) && empty($customer)) {
+                                            // $lastInsertGdPerentId = Account::create(['category_supplier' => $fileValue->supplier_id, 'account_number' => $row[$keyGrandParent], 'alies' => $row[$keyGrandParentName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+
+                                            // $lastInsertPerentId = Account::create(['category_supplier' => $fileValue->supplier_id, 'account_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => $lastInsertGdPerentId->id, 'created_by' => $fileValue->created_by]);
+                                            
+                                            // Account::create(['category_supplier' => $fileValue->supplier_id, 'customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
+
+                                        // } elseif (!empty($gdPerent) && empty($perent) && empty($customer)) {
+                                        //     $lastInsertPerentId = Account::create(['category_supplier' => $fileValue->supplier_id, 'account_number' => $row[$keyParent], 'alies' => $row[$keyParentName], 'parent_id' => $gdPerent->id, 'created_by' => $fileValue->created_by]);
+
+                                        //     Account::create(['category_supplier' => $fileValue->supplier_id, 'account_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $lastInsertPerentId->id, 'created_by' => $fileValue->created_by]);
+
+                                        // } elseif (!empty($gdPerent) && !empty($perent) && empty($customer)) {
+                                        //     Account::create(['category_supplier' => $fileValue->supplier_id, 'account_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => $perent->id, 'created_by' => $fileValue->created_by]);
+
+                                        // } else {
+                                        //     // echo "hello";
+                                        // }
                                     }
 
                                     if (in_array($fileValue->supplier_id, [1, 4, 5, 6])) {
-                                        $customer = Account::where('customer_number', $row[$keyCustomer])->first();
+                                        $customer = Account::where('account_number', $row[$keyCustomer])->first();
                                         if (empty($customer)) {
-                                            Account::create(['category_supplier' => $fileValue->supplier_id, 'customer_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                            if (empty($customer)) {
+                                                Account::create([
+                                                    // 'parent_id' => $row[$keyParent],
+                                                    // 'parent_name' => $row[$keyParentName],
+                                                    'created_by' => $fileValue->created_by,
+                                                    'account_number' => $row[$keyCustomer],
+                                                    'customer_name' => $row[$keyCustomerName],
+                                                    // 'grandparent_id' => $row[$keyGrandParent],
+                                                    'category_supplier' => $fileValue->supplier_id,
+                                                    // 'grandparent_name' => $row[$keyGrandParentName],
+                                                ]);
+                                            }
+                                            // Account::create(['category_supplier' => $fileValue->supplier_id, 'account_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
                                         }
                                     }
                                 }
