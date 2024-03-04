@@ -69,7 +69,7 @@ $(document).ready(function() {
         console.log(formData);
         $.ajax({
             type: 'POST',
-            url: '{{ route('sales.update') }}',
+            url: '{{ route("sales.update") }}',
             data: formData,
             processData: false,
             contentType: false,
