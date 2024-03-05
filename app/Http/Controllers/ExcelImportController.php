@@ -126,9 +126,9 @@ class ExcelImportController extends Controller
             $reader = new Xlsx(); 
             $spreadSheet = $reader->load($request->file('file'), 2);
 
-            if ($supplierId != 3) {
-                $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$supplierId]);
-            }
+            // if ($supplierId != 3) {
+            //     $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$supplierId]);
+            // }
 
             $validationCheck = $arrayDiff = false;
     
@@ -149,132 +149,135 @@ class ExcelImportController extends Controller
             // die;
 
            
-            if (isset($sheet) && $sheet) {
-                $workSheet = $sheet;
-                $workSheetArrays = $workSheetArray = $workSheet->toArray();
+            // if (isset($sheet) && $sheet) {
+            //     $workSheet = $sheet;
+            //     $workSheetArrays = $workSheetArray = $workSheet->toArray();
         
-                $maxNonEmptyCount = 0;
+            //     $maxNonEmptyCount = 0;
         
-                foreach ($workSheetArray as $key=>$value) {
-                    /** Checking not empty columns */
-                    $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
-                        return !empty($item);
-                    }));
+            //     foreach ($workSheetArray as $key=>$value) {
+            //         /** Checking not empty columns */
+            //         $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
+            //             return !empty($item);
+            //         }));
                     
-                    /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
-                    if ($nonEmptyCount > $maxNonEmptyCount) {
-                        $maxNonEmptyvalues = $maxNonEmptyvalue = $value;
-                        $startIndexValueArray = $key;
-                        $maxNonEmptyCount = $nonEmptyCount;
-                    } 
+            //         /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+            //         if ($nonEmptyCount > $maxNonEmptyCount) {
+            //             $maxNonEmptyvalues = $maxNonEmptyvalue = $value;
+            //             $startIndexValueArray = $key;
+            //             $maxNonEmptyCount = $nonEmptyCount;
+            //         } 
                     
-                    /** Stop loop after reading 31 rows from excel file */
-                    if($key > 30){
-                        break;
-                    }
-                }
+            //         /** Stop loop after reading 31 rows from excel file */
+            //         if($key > 30){
+            //             break;
+            //         }
+            //     }
     
-                /** Remove empty key from the array of excel sheet column name */
-                $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
-                    return !empty($item);
-                }, ARRAY_FILTER_USE_BOTH));
+            //     /** Remove empty key from the array of excel sheet column name */
+            //     $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
+            //         return !empty($item);
+            //     }, ARRAY_FILTER_USE_BOTH));
                             
-                /** Clean up the values */
-                $cleanedArray = array_map(function ($value) {
-                    /** Remove line breaks and trim whitespace */
-                    return str_replace(["\r", "\n"], '', $value);
-                }, $finalExcelKeyArray);
+            //     /** Clean up the values */
+            //     $cleanedArray = array_map(function ($value) {
+            //         /** Remove line breaks and trim whitespace */
+            //         return str_replace(["\r", "\n"], '', $value);
+            //     }, $finalExcelKeyArray);
 
-                $chunkSize = 0; // Adjust as needed
-                $dates=[];
+            //     $chunkSize = 0; // Adjust as needed
+            //     $dates=[];
 
                 
-                if ($request->supplierselect == 7) {
-                    foreach ($cleanedArray as $key => $value) {
-                        if ($key > 5) {
-                            $cleanedArray[$key] = trim("Year_" . substr($cleanedArray[$key], - 2));
-                        }
-                    }
-                }
+            //     if ($request->supplierselect == 7) {
+            //         foreach ($cleanedArray as $key => $value) {
+            //             if ($key > 5) {
+            //                 $cleanedArray[$key] = trim("Year_" . substr($cleanedArray[$key], - 2));
+            //             }
+            //         }
+            //     }
 
-                foreach ($workSheetArrays as $key => $row) {
-                    if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
-                        $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
-                    }
+            //     if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
+            //         $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
+            //     }
+                
+            //     if (!empty($keyInvoiceDate)) {
+            //         foreach ($workSheetArrays as $key => $row) {
 
-                    if ($request->supplierselect == 2) {
-                        $startIndex = $startIndexValueArray + 1;
-                    } else {
-                        $startIndex = $startIndexValueArray;
-                    }
-        
-                    if($key > $startIndex){
-                        if (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) {
-                            if ($row[$keyInvoiceDate] && $request->supplierselect == 4) {
-                                $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
-                            } else {
-                                $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
-                            }
-                        } else {
-                            $dates[] = '';
-                        }
-                        
-                        if ($chunkSize == 1000) {
-                            $fileExist = Order::where(function ($query) use ($dates) {
-                                foreach ($dates as $startDate) {
-                                    if (!empty($startDate)) {
-                                        $query->orWhere('date', '>=', $startDate);
-                                    }
-                                }
-                            })->where('supplier_id', $request->supplierselect);
-        
-                            if ($fileExist->count() > 0) {
-                                // break;
-                                return response()->json(['error' => "You have already uploaded this file."], 200);
-                            }
+            //             if ($request->supplierselect == 2) {
+            //                 $startIndex = $startIndexValueArray + 1;
+            //             } else {
+            //                 $startIndex = $startIndexValueArray;
+            //             }
+            
+            //             if($key > $startIndex){
+            //                 if (!empty($row[$keyInvoiceDate])) {
+            //                     if (!empty($row[$keyInvoiceDate]) && $request->supplierselect == 4) {
+            //                         $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
+            //                     } else {
+            //                         $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+            //                     }
+            //                 } 
+                            
+            //                 if ($chunkSize == 1000) {
+            //                     $fileExist = Order::where(function ($query) use ($dates) {
+            //                         foreach ($dates as $startDate) {
+            //                             if (!empty($startDate)) {
+            //                                 $query->orWhere('date', '>=', $startDate);
+            //                             }
+            //                         }
+            //                     })->where('supplier_id', $request->supplierselect);
+            
+            //                     if ($fileExist->count() > 0) {
+            //                         // break;
+            //                         return response()->json(['error' => "You have already uploaded this file."], 200);
+            //                     }
 
-                            unset($dates);
-                            $chunkSize = 0;
-                        }
-        
-                        $chunkSize++; 
-                    }
-                }
+            //                     unset($dates);
+            //                     $chunkSize = 0;
+            //                 }
+            
+            //                 $chunkSize++; 
+            //             }
+            //         }
 
-                $fileExist = Order::where(function ($query) use ($dates) {
-                    foreach ($dates as $startDate) {
-                        if (!empty($startDate)) {
-                            $query->orWhere('date', '>=', $startDate);
-                        }
-                    }
-                })->where('supplier_id', $request->supplierselect);
+            //         $fileExist = Order::where(function ($query) use ($dates) {
+            //             foreach ($dates as $startDate) {
+            //                 if (!empty($startDate)) {
+            //                     $query->orWhere('date', '>=', $startDate);
+            //                 }
+            //             }
+            //         })->where('supplier_id', $request->supplierselect);
 
-                if ($fileExist->count() > 0) {
-                    return response()->json(['error' => "You have already uploaded this file."], 200);
-                }
+            //         if ($fileExist->count() > 0) {
+            //             return response()->json(['error' => "You have already uploaded this file."], 200);
+            //         }
+            //     }
 
-                if (isset($suppliers[$request->supplierselect])) {
-                    $supplierValues = $suppliers[$request->supplierselect];
-                    $arrayDiff = array_diff($supplierValues, $cleanedArray);
-                    if (empty($arrayDiff)) {
-                        $validationCheck = true;
-                    }
-                }
-            } else {
+            //     if (isset($suppliers[$request->supplierselect])) {
+            //         $supplierValues = $suppliers[$request->supplierselect];
+            //         $arrayDiff = array_diff($supplierValues, $cleanedArray);
+            //         if (empty($arrayDiff)) {
+            //             $validationCheck = true;
+            //         }
+            //     }
+            // } else {
                 // $sheetName = $workSheet->getTitle();
-                $sheetCount = $spreadSheet->getSheetCount();
+                // $sheetCount = $spreadSheet->getSheetCount();
                  
-                $skipSheet = $sheetCount - 1;
+                // $skipSheet = $sheetCount - 1;
                 
+                foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
 
-                for ($i=0; $i < $sheetCount; $i++) {
-                    $workSheet = $spreadSheet->getSheet($i);
+                // for ($i=0; $i < $sheetCount; $i++) {
+                    // $workSheet = $spreadSheets->getSheet($i);
         
-                    $workSheetArrays = $workSheetArray1 = $workSheet->toArray();
+                    // $workSheetArrays = $workSheetArray1 = $workSheet->toArray();
 
                     $maxNonEmptyCount = 0;
             
-                    foreach ($workSheetArray1 as $key=>$value) {
+                    // foreach ($workSheetArray1 as $key=>$value) {
+                    foreach ($spreadSheets->toArray() as $key=>$value) {
                         /** Checking not empty columns */
                         $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
                             return !empty($item);
@@ -288,7 +291,7 @@ class ExcelImportController extends Controller
                         } 
                         
                         /** Stop loop after reading 31 rows from excel file */
-                        if($key > 20){
+                        if($key > 13){
                             break;
                         }
                     }
@@ -320,14 +323,16 @@ class ExcelImportController extends Controller
 
                     $chunkSize = 0; // Adjust as needed
                     $dates = [];
+
                     if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
                         $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
                     }
+
                     if (!empty($keyInvoiceDate)) {
-                        foreach ($workSheetArrays as $key => $row) {
+                        foreach ($spreadSheets->toArray() as $key => $row) {
                             if($key > $startIndex){
                                 if (!empty($row[$keyInvoiceDate])) {
-                                    if ($row[$keyInvoiceDate] && $request->supplierselect == 4) {
+                                    if ($request->supplierselect == 4) {
                                         $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
                                     } else {
                                         $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
@@ -341,13 +346,14 @@ class ExcelImportController extends Controller
                                                 }
                                             }
                                         })->where('supplier_id', $request->supplierselect);
-        
+                                        
+                                        $chunkSize = 0;
+
                                         if ($fileExist->count() > 0) {
                                             return response()->json(['error' => "You have already uploaded this file."], 200);
                                             // break;
                                         }
                                     
-                                        $chunkSize = 0;
                                     }
                                 } else {
                                     $dates = [];
@@ -382,7 +388,7 @@ class ExcelImportController extends Controller
                         }
                     }
                 }
-            }
+            // }
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
