@@ -320,55 +320,58 @@ class ExcelImportController extends Controller
 
                     $chunkSize = 0; // Adjust as needed
                     $dates = [];
-                    foreach ($workSheetArrays as $key => $row) {
-                        if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
-                            $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
-                        }
-            
-                        if($key > $startIndex){
-                            if (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) {
-                                if ($row[$keyInvoiceDate] && $request->supplierselect == 4) {
-                                    $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
-                                } else {
-                                    $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
-                                }
-                            } else {
-                                $dates[] = '';
-                            }
-                        
-                            if ($chunkSize == 1000) {
-                                $fileExist = Order::where(function ($query) use ($dates) {
-                                    foreach ($dates as $startDate) {
-                                        if (!empty($startDate)) {
-                                            $query->orWhere('date', '>=', $startDate);
-                                        }
+                    if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
+                        $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
+                    }
+                    if (!empty($keyInvoiceDate)) {
+                        foreach ($workSheetArrays as $key => $row) {
+                            if($key > $startIndex){
+                                if (!empty($row[$keyInvoiceDate])) {
+                                    if ($row[$keyInvoiceDate] && $request->supplierselect == 4) {
+                                        $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
+                                    } else {
+                                        $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
                                     }
-                                })->where('supplier_id', $request->supplierselect);
 
-                                if ($fileExist->count() > 0) {
-                                    return response()->json(['error' => "You have already uploaded this file."], 200);
-                                    // break;
+                                    if ($chunkSize == 1000) {
+                                        $fileExist = Order::where(function ($query) use ($dates) {
+                                            foreach ($dates as $startDate) {
+                                                if (!empty($startDate)) {
+                                                    $query->orWhere('date', '>=', $startDate);
+                                                }
+                                            }
+                                        })->where('supplier_id', $request->supplierselect);
+        
+                                        if ($fileExist->count() > 0) {
+                                            return response()->json(['error' => "You have already uploaded this file."], 200);
+                                            // break;
+                                        }
+                                    
+                                        $chunkSize = 0;
+                                    }
+                                } else {
+                                    $dates = [];
                                 }
-                            
-                                $chunkSize = 0;
-                            }
-            
-                            $chunkSize++;
-                        }
-                    }
-
-                    $fileExist = Order::where(function ($query) use ($dates) {
-                        foreach ($dates as $startDate) {
-                            if (!empty($startDate)) {
-                                $query->orWhere('date', '>=', $startDate);
+                
+                                $chunkSize++;
                             }
                         }
-                    })->where('supplier_id', $request->supplierselect);
-             
-                    if ($fileExist->count() > 0) {
-                        return response()->json(['error' => "You have already uploaded this file."], 200);
-                    }
 
+                        if (!empty($dates)) {
+                            $fileExist = Order::where(function ($query) use ($dates) {
+                                foreach ($dates as $startDate) {
+                                    if (!empty($startDate)) {
+                                        $query->orWhere('date', '>=', $startDate);
+                                    }
+                                }
+                            })->where('supplier_id', $request->supplierselect);
+                    
+                            if ($fileExist->count() > 0) {
+                                return response()->json(['error' => "You have already uploaded this file."], 200);
+                            }
+                        }
+                    }
+                    
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
