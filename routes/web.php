@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{ExcelImportController, SalesTeamController, CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
+use App\Http\Controllers\{ExcelImportController, SalesTeamController, RebateController, CommissionController,  CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
 use Illuminate\Support\Facades\Auth; 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +87,21 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/sales/updatestatus' , [SalesTeamController::class,'status_sales'])->name('sales.status');
 
         /** Sales team Section End */
+
+
+        /** Rebate Section Start */
+        Route::get('/rebate/{rebateType}/{id?}' , [RebateController::class,'index'])->name('rebate.list');
+        // Route::post('/rebate/filter' , [RebateController::class,'catalogAjaxFilter'])->name('rebate.filter');
+        // Route::get('/rebates/csv' , [RebateController::class,'exportCatalogCsv'])->name('rebate.export-csv');
+      
+        /** Rebate Section End */
+
+        /** Commission Section Start */
+        Route::get('/commission/{commissionType}/{id?}' , [CommissionController::class,'index'])->name('commission.list');
+        // Route::post('/commission/filter' , [Commission::class,'catalogAjaxFilter'])->name('commission.filter');
+        // Route::get('/rebates/csv' , [Commission::class,'exportCatalogCsv'])->name('commission.export-csv');
+      
+        /** Commission Section End */
     });
 });
 
