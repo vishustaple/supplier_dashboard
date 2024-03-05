@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{Catalog};
+use App\Models\{Account, Supplier};
 
 
 class CommissionController extends Controller
@@ -28,5 +28,24 @@ class CommissionController extends Controller
         }
 
         return view('admin.commission.'. $commissionType .'', ['pageTitle' => $setPageTitleArray[$commissionType]]);
+    }
+
+    public function commissionAjaxCustomerSearch(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = Account::getSearchCustomerData($request->input('q'));
+            return response()->json($formatuserdata);
+        }
+    }
+
+    public function commissionAjaxSupplierSearch(Request $request){
+        if ($request->ajax()) {
+            if (!empty($request->input('account'))) {
+                $formatuserdata = Account::getSearchAccountData($request->all());
+            } else {
+                $formatuserdata = Account::getSearchSupplierDatas($request->all());
+            }
+            // $formatuserdata = Supplier::getSearchSupplierData($request->input('q'));
+            return response()->json($formatuserdata);
+        }
     }
 }
