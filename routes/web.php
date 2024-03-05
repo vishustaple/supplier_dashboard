@@ -93,12 +93,14 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/rebate/{rebateType}/{id?}' , [RebateController::class,'index'])->name('rebate.list');
         // Route::post('/rebate/filter' , [RebateController::class,'catalogAjaxFilter'])->name('rebate.filter');
         // Route::get('/rebates/csv' , [RebateController::class,'exportCatalogCsv'])->name('rebate.export-csv');
-      
+        
         /** Rebate Section End */
 
         /** Commission Section Start */
         Route::get('/commission/{commissionType}/{id?}' , [CommissionController::class,'index'])->name('commission.list');
-        // Route::post('/commission/filter' , [Commission::class,'catalogAjaxFilter'])->name('commission.filter');
+        // Route::post('/commission/filter' , [CommissionController::class,'commissionAjaxFilter'])->name('commission.filter');
+        Route::get('/commissions/customer-search' , [CommissionController::class,'commissionAjaxCustomerSearch'])->name('commission.customerSearch');
+        Route::get('/commissions/supplier-search' , [CommissionController::class,'commissionAjaxSupplierSearch'])->name('commission.supplierSearch');
         // Route::get('/rebates/csv' , [Commission::class,'exportCatalogCsv'])->name('commission.export-csv');
       
         /** Commission Section End */

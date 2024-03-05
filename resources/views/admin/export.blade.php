@@ -531,8 +531,8 @@ div#errorMessage {
                     console.log(response);
                     if (response.status == "success") {
                         $("#close_popup").trigger("click");
-                        $('#successMessage').text(response.message);
-                        $('#successMessage').css('display','block');
+                        // $('#successMessage').text(response.message);
+                        // $('#successMessage').css('display','block');
                         $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.message+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         // setTimeout(function() {
                         //     location.reload();
