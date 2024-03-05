@@ -201,7 +201,7 @@ $(document).ready(function() {
 
     $('.mySelectCustomerName').change(function() {
         var row = $(this).closest('tr'),
-        supplierValue = row.find('.mySelectSupplier').val();
+        customerValue = row.find('.mySelectCustomerName').val();
         
         if (customerValue !== '') {
             selectSupplier(customerValue);
