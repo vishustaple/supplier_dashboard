@@ -26,6 +26,17 @@
                                 <div class="sb-nav-link-icon"><i class="fa fa-book" aria-hidden="true"></i></div>
                                 Catalog List
                             </a>
+
+                            <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Rebate') ? 'active' : '' }}" href="{{route('rebate.list', ['rebateType' => 'rebate'])}}">
+                                <div class="sb-nav-link-icon"><i class="fa fa-usd" aria-hidden="true"></i></div>
+                                Rebate
+                            </a>
+
+                            <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commission.list', ['commissionType' => 'commission'])}}">
+                                <div class="sb-nav-link-icon"><i class="fa fa-book" aria-hidden="true"></i></div>
+                                Commission
+                            </a>
+
                             @if(Auth::check() && Auth::user()->user_type != App\Models\User::USER_TYPE_USER)
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'User Data') ? 'active' : '' }}" href="{{route('user.show')}}">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
