@@ -91,7 +91,7 @@ class Account extends Model
         ];
 
         if ($csv) {
-            $query = self::with('parent.parent') /** Eager load relationships */
+            $query = self::query() /** Eager load relationships */
             ->select('master_account_detail.id as id',
             'master_account_detail.account_number as customer_number',
             'master_account_detail.customer_name as customer_name',
@@ -205,6 +205,61 @@ class Account extends Model
                 'recordsTotal' => $totalRecords,
                 'recordsFiltered' => $totalRecords,
             ];
+        }
+    }
+
+    public static function getSearchCustomerData($search=''){
+        if (!empty($search)) {
+            $query = self::query()
+            ->select('master_account_detail.customer_name as customer_name', 'master_account_detail.account_number as customer_number');
+            $query->where('master_account_detail.customer_name', 'LIKE', '%' . $search . '%');
+            $results = $query->get();
+            if ($results->isNotEmpty()) {
+                foreach ($results as $value) {
+                    $finalArray[] = ['id' => $value->customer_number, 'text' => $value->customer_name];        
+                }
+                return $finalArray;
+            }
+            return [];
+        }
+    }
+
+    public static function getSearchSupplierDatas($search=[]){
+        if (!empty($search)) {
+            $query = self::query()->select('suppliers.supplier_name as supplier_name', 'master_account_detail.category_supplier as id')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+            ->where('supplier_name', 'LIKE', '%' . $search['q'] . '%')->where('master_account_detail.account_number', $search['customer_number']);
+            $results = $query->get();
+
+            if ($results->isNotEmpty()) {
+                foreach ($results as $value) {
+                    $finalArray[] = ['id' => $value->id, 'text' => $value->supplier_name];        
+                }
+                return $finalArray;
+            }
+            return [];
+        }
+    }
+
+    public static function getSearchAccountData($search=[]){
+        if (!empty($search)) {
+            $query = self::query()->select('master_account_detail.account_number as account')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+            ->where('master_account_detail.account_number', 'LIKE', '%' . $search['q'] . '%')
+            ->where('master_account_detail.account_number', $search['customer_number'])
+            ->where('master_account_detail.category_supplier', $search['supplier_number']);
+            $results = $query->get();
+
+            if ($results->isNotEmpty()) {
+                foreach ($results as $value) {
+                    $finalArray[] = ['id' => $value->account, 'text' => $value->account];        
+                }
+
+                return $finalArray;
+            }
+
+            return [];
+            
         }
     }
 }

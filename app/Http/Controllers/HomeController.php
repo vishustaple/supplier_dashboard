@@ -87,18 +87,22 @@
                        // 'password' => bcrypt($request->password), // Hash the password before saving
                         'user_type'=> $userType,
                     ]);
+
                     $email='supplieradmin@yopmail.com';
+
                     try{
                         Log::info('Attempting to send email...');
                         // Mail::send('mail.pendingfile', ['suppliername' => "test"], function ($m) use ($email) {
                         //     $m->from($email, 'Supplier Admin'); // Use $email variable here
                         //     $m->to('vishustaple@yopmail.com')->subject('Pending Files else');
                         // });
+
                        
                         Mail::send('mail.updatepassword', ['userid' => $user->id], function($message) use ($email) {
                             $message->to($email)
                                     ->subject('Password Creation Form');
                         });
+
                          
                         Log::info('Email sent successfully');
                     } catch (\Exception $e) {
