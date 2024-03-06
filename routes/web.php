@@ -98,11 +98,12 @@ Route::group(['prefix' => 'admin'], function () {
 
         /** Commission Section Start */
         Route::get('/commission/{commissionType}/{id?}' , [CommissionController::class,'index'])->name('commission.list');
-        // Route::post('/commission/filter' , [CommissionController::class,'commissionAjaxFilter'])->name('commission.filter');
+        Route::post('/commissions/filter' , [CommissionController::class,'commissionAjaxFilter'])->name('commission.filter');
+        Route::get('/commissions/view-add' , [CommissionController::class,'commissionAddView'])->name('commission.add-view');
         Route::get('/commissions/customer-search' , [CommissionController::class,'commissionAjaxCustomerSearch'])->name('commission.customerSearch');
         Route::get('/commissions/supplier-search' , [CommissionController::class,'commissionAjaxSupplierSearch'])->name('commission.supplierSearch');
         Route::post('/commissions/add' , [CommissionController::class,'commissionAdd'])->name('commission.add');
-        // Route::get('/rebates/csv' , [Commission::class,'exportCatalogCsv'])->name('commission.export-csv');
+        Route::get('/commissions/csv' , [CommissionController::class,'exportCatalogCsv'])->name('commission.export-csv');
       
         /** Commission Section End */
     });
