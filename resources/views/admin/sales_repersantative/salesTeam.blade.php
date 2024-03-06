@@ -26,6 +26,7 @@
                         <th>Email</th>
                         <th>Phone Number</th>
                         <th>Status</th>
+                        <th>Team User Type</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -73,6 +74,7 @@
                 { data: 'email', name: 'email' },
                 { data: 'phone', name: 'phone' },
                 { data: 'status', name: 'status' },
+                { data: 'team_user_type', name: 'team_user_type' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
         });
