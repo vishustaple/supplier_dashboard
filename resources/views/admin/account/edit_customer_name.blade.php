@@ -1,8 +1,8 @@
-@extends('layout.app', ['pageTitleCheck' => 'Accounts Data'])
+@extends('layout.app', ['pageTitleCheck' => $pageTitle])
 
  @section('content')
     <div id="layoutSidenav">
-        @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
+        @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
         <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-3">Edit Customer Name</h3>
         <div class="row align-items-end border-bottom pb-3 mb-4">

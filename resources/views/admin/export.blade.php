@@ -1,33 +1,35 @@
 
 
 
-@extends('layout.app', ['pageTitleCheck' => 'Upload Sheets'])
+@extends('layout.app', ['pageTitleCheck' => $pageTitle])
 
  @section('content')
 
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Upload Sheets'])
+    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
                 <h3 class="mb-0 ps-2">Data Management</h3>
         </div>
         <div class="alert alert-success m-3" id="user_del_success" style="display:none;"></div>
         <div class="container">
-            <div class="alert alert-success" id="successMessage" style="display:none;">
+            <div class="" id="successMessages">
             </div>
-            <div class="alert alert-danger" id="errorMessage" style="display:none;">
-          
+
+            <div class="" id="errorMessage">    
             </div>
         
             @if(session('error'))
-                <div class="alert alert-danger">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
             @endif
 
             @if(session('success'))
-                <div class="alert alert-success">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
             @endif
 
@@ -229,6 +231,9 @@ button#closeErrorMessage {
 div#errorMessage {
     position: relative;
 }
+/* div#successMessage {
+    position: relative;
+} */
 </style>
  <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
@@ -267,31 +272,18 @@ div#errorMessage {
                         }
 
                         $('#page-loader').hide();
-                        $('#errorMessage').html('');
-                        $('#errorMessage').html(errorMessage);
-                        $('#errorMessage').css('display','block');
-                        $('#errorMessage').append('<button type="button" id="closeErrorMessage"class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
-
-                        // Functionality to close the error message when close button is clicked
-                        $('#closeErrorMessage').on('click', function() {
-                            $('#errorMessage').fadeOut();
-                            $('#import_form')[0].reset();
-                        });
+                        $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                     }
 
                     if(response.success){
-                        document.getElementById('importBtn').disabled = false;
+                        // button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
+                        button.disabled = false;
+                        // document.getElementById('importBtn').disabled = false;
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
+
                         $('#page-loader').hide();
-                        $('#successMessage').text(response.success);
-                        $('#successMessage').css('display','block');
-                        $("form")[0].reset();
-                        //disable all field 
-                        $('#enddate,#file,#importBtn').prop('disabled', true);
-                        setTimeout(function () {
-                            $('#successMessage').fadeOut();
-                            location.reload();
-                        }, 2000); 
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        // $("form")[0].reset();
                     }
                     // Handle success response
                     // console.log(response);
@@ -539,11 +531,12 @@ div#errorMessage {
                     console.log(response);
                     if (response.status == "success") {
                         $("#close_popup").trigger("click");
-                        $('#successMessage').text(response.message);
-                        $('#successMessage').css('display','block');
-                        setTimeout(function() {
-                            location.reload();
-                        }, 3000); // 3000 milliseconds = 3 seconds
+                        // $('#successMessage').text(response.message);
+                        // $('#successMessage').css('display','block');
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.message+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        // setTimeout(function() {
+                        //     location.reload();
+                        // }, 3000); // 3000 milliseconds = 3 seconds
                     }
                     // Handle success response from the server
                     console.log("Data saved successfully:", response);
