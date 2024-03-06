@@ -33,7 +33,8 @@
                     <form class="" id="create_password" method="post" action="{{ route('update.password') }}">
                      @csrf
                      <input type="hidden" name="user_id" value="{{ $userid }}">
-                <div class="row mx-0">
+                     <input type="hidden" name="token" value="{{ $token }}">
+                 <div class="row mx-0">
                 <div class="col-md-12 px-0 pb-2">
                     <div class="form-group mb-3 mb-md-0">
                         <label for="inputPassword">Password</label>

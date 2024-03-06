@@ -8,6 +8,7 @@
     use Illuminate\Support\Facades\Mail;
     use Illuminate\Support\Facades\Log;
     use Illuminate\Console\Command;
+    use Illuminate\Support\Str;
 
     class HomeController extends Controller
     {
@@ -51,7 +52,7 @@
         }
         
         public function userRegister(Request $request)
-        {
+        {   
             $validator = Validator::make(
                 [
                     'first_name' => $request->first_name,
@@ -59,6 +60,7 @@
                     'email' => $request->email,
                     // 'password' => $request->password,
                     // 'confirm_password' => $request->confirm_password,
+                   
                     'user_role' => $request->user_role,
                 ],
                 [
@@ -67,6 +69,7 @@
                     'email' => 'required|string|email|max:255|unique:users',
                     // 'password' => 'required|string|min:8',
                     // 'confirm_password' => 'required|string|min:8|same:password',
+                    
                     'user_role' => 'required',
                 ]
             );
@@ -79,16 +82,17 @@
                 try {
                 
                     $userType = ($request->user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
-
+                    $token=Str::random(40);
                     $user = User::create([
                         'first_name' => $request->first_name,
                         'last_name' => $request->last_name,
                         'email' => $request->email,
                        // 'password' => bcrypt($request->password), // Hash the password before saving
+                        'remember_token' => $token,
                         'user_type'=> $userType,
                     ]);
 
-                    $email='supplieradmin@yopmail.com';
+                    $email=$request->email;
 
                     try{
                         Log::info('Attempting to send email...');
@@ -98,7 +102,7 @@
                         // });
 
                        
-                        Mail::send('mail.updatepassword', ['userid' => $user->id], function($message) use ($email) {
+                        Mail::send('mail.updatepassword', ['userid' => $user->id,'token' =>$user->remember_token], function($message) use ($email) {
                             $message->to($email)
                                     ->subject('Password Creation Form');
                         });
@@ -219,8 +223,18 @@
         }
 
         public function createPassword(Request $request){
-            $userid=$request->id;
-            return view('admin.createpassword',compact('userid'));
+            // dd($request->all());
+            $data = $request->input('data');
+            // Decrypt the data
+            $decryptedData = decrypt($data);
+            [$userid, $token] = explode('|', $decryptedData);
+            $dbtoken = User::select('remember_token')->where('id',$userid)->first();
+             if($dbtoken->remember_token === null){
+                 return view('admin.linkexpire');
+                }
+                else{
+                 return view('admin.createpassword',compact('userid','token'));
+             }
         }
 
         public function updatePassword(Request $request)
@@ -250,12 +264,20 @@
                     // Find the user
                     $user = User::findOrFail($request->user_id);
             
-                    // Update the user's password
-                    $user->password = bcrypt($request->password);
-                    $user->save();
-            
-                    // Redirect to the login route
-                    return redirect()->route('login')->with('success', 'Password updated successfully. Please log in with your new password.');
+                     // Verify the token
+                    if ($user->remember_token === $request->token) {
+                        // Update the user's password
+                        $user->password = bcrypt($request->password);
+                        $user->save();
+                        $user->update(['remember_token' => null]);
+
+                        // Redirect to the login route
+                        return redirect()->route('login')->with('success', 'Password updated successfully. Please log in with your new password.');
+                    } else {
+                        return view('admin.linkexpire');
+                        // Token does not match, return error or redirect back
+                        return redirect()->back()->with('error', 'Invalid token.');
+                    }
                 }
                 
             }
