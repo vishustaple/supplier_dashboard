@@ -47,6 +47,7 @@ class Account extends Model
         // 'customer_service_representative',
         'account_number',
         'customer_name',
+        'account_name',
         'record_type',
         'volume_rebate',
         'category_supplier',
