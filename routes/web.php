@@ -91,7 +91,7 @@ Route::group(['prefix' => 'admin'], function () {
 
         /** Rebate Section Start */
         Route::get('/rebate/{rebateType}/{id?}' , [RebateController::class,'index'])->name('rebate.list');
-        // Route::post('/rebate/filter' , [RebateController::class,'catalogAjaxFilter'])->name('rebate.filter');
+        Route::post('/rebates/filter' , [RebateController::class,'getRebateWithAjax'])->name('rebate.filter');
         // Route::get('/rebates/csv' , [RebateController::class,'exportCatalogCsv'])->name('rebate.export-csv');
         
         /** Rebate Section End */

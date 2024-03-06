@@ -17,7 +17,9 @@
             min-width: 170px;
             max-width: 170px;
         } 
-
+        #commission_table tbody tr td:nth-of-type(2) input{
+            width: 100%;
+        }
         #commission_table tbody tr td:nth-of-type(3) {
             width: 150px;
         }
@@ -81,7 +83,7 @@
         <table class="table" id="commission_table">
         <thead>
             <tr>
-                <th scope="col">Customer Name</th>
+                <th scope="col">Account Name</th>
                 <th scope="col">Supplier</th>
                 <th scope="col">Account Number</th>
                 <th scope="col">Commission %</th>
@@ -92,10 +94,12 @@
         <tbody>
             <tr>
                 <td><input type="hidden" class="count" value="1"><select class="mySelectCustomerName" name="customer[]"><option value="">Select</option></select></td>
-                <td><select class="mySelectSupplier" name="supplier[]"><option value="">Select</option></select></td>
+                <td><input type="hidden" class="supplier_id" name="supplier[]" value=""><input type="text" class="mySelectSupplier form-control" disabled name="suppliers[]" value="" required>
+                    <!-- <select class="mySelectSupplier" name="supplier[]"><option value="">Select</option></select> -->
+                </td>
                 <td><select class="mySelectAccount" name="account_name[]"><option value="">Select</option></select></td>
                 <td><input type="text" class="form-control form-control-sm" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td>
-                <td><input type="text" name="date[]" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range"></td>
+                <td><input type="text" name="date[]" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" ></td>
                 <td><button type="button" name="" id="add_commission" class="btn btn-success" ><i class="fa-solid fa-plus"></i></button></td>
             </tr>
         </tbody>
@@ -169,31 +173,51 @@
                     cache: true
                 },
                 minimumInputLength: 1
+            }).on('select2:select', function (e) {
+                var customerId = e.params.data.id; // Selected customer ID
+                // Perform your AJAX request here using the selected customer ID
+                $.ajax({
+                    url: "{{ route('commission.supplierSearch') }}",
+                    method: 'GET',
+                    data: {
+                        customer_number: customerId
+                    },
+                    success: function(response) {
+                        // Handle the AJAX response
+                        console.log(response[0].supplier);
+                        $('.mySelectSupplier'+count+'').val(response[0].supplier);
+                        $('.supplier_id'+count+'').val(response[0].id);
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle errors
+                        console.error(error);
+                    }
+                });
             });
         }
 
-        function selectSupplier(count=''){
-            $('.mySelectSupplier'+count+'').select2({
-                ajax: {
-                    url: "{{ route('commission.supplierSearch') }}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term, // search term
-                            customer_number: $('.mySelectCustomerName'+count+'').val(),
-                        };
-                    },
-                    processResults: function(data) {
-                        return {
-                            results: data
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 1
-            });
-        }
+        // function selectSupplier(count=''){
+        //     $('.mySelectSupplier'+count+'').select2({
+        //         ajax: {
+        //             url: "",
+        //             dataType: 'json',
+        //             delay: 250,
+        //             data: function(params) {
+        //                 return {
+        //                     q: params.term, // search term
+        //                     customer_number: $('.mySelectCustomerName'+count+'').val(),
+        //                 };
+        //             },
+        //             processResults: function(data) {
+        //                 return {
+        //                     results: data
+        //                 };
+        //             },
+        //             cache: true
+        //         },
+        //         minimumInputLength: 1
+        //     });
+        // }
         
         function selectAccount(count=''){
             $('.mySelectAccount'+count+'').select2({
@@ -204,7 +228,7 @@
                     data: function(params) {
                         return {
                             q: params.term, // search term
-                            supplier_number: $('.mySelectSupplier'+count+'').val(),
+                            // supplier_number: $('.mySelectSupplier'+count+'').val(),
                             customer_number: $('.mySelectCustomerName'+count+'').val(),
                             account: true
                         };
@@ -229,15 +253,17 @@
 
         setDate();
         selectCustomer();
-        selectSupplier();
+        // selectSupplier();
         selectAccount();
         $('#add_commission').on('click', function(){
             var count = parseInt($('#commission_table tbody tr:last-child td:first-child .count').val()) + 1;
-            $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select  class="mySelectCustomerName'+count+'" name="customer[]"><option value="">Select</option></select></td><td><select  class="mySelectSupplier'+count+'" name="supplier[]"><option value="">Select</option></select></td><td><select class="mySelectAccount'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input type="text" class="form-control form-control-sm" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></td></tr>');
+            $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select  class="mySelectCustomerName'+count+'" name="customer[]"><option value="">Select</option></select></td><td><input class="supplier_id'+count+'" type="hidden" name="supplier[]" value=""><input type="text" required class="mySelectSupplier'+count+' form-control" disabled name="suppliers[]" value=""></td><td><select class="mySelectAccount'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input type="text" class="form-control form-control-sm" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" readonly="readonly"  class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></td></tr>');
 
+
+            // $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select  class="mySelectCustomerName'+count+'" name="customer[]"><option value="">Select</option></select></td><td><select  class="mySelectSupplier'+count+'" name="supplier[]"><option value="">Select</option></select></td><td><select class="mySelectAccount'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input type="text" class="form-control form-control-sm" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></td></tr>');
             setDate(count);
             selectCustomer(count);
-            selectSupplier(count);
+            // selectSupplier(count);
             selectAccount(count);
         });
         
