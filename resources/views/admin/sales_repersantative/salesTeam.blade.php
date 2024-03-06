@@ -16,7 +16,7 @@
                 <!-- <button id="downloadSaleTeamCsvBtn" class="btn-success btn disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
             </div>
         </div>
-        <div class="alert alert-success m-3" id="account_del_success" style="display:none;"></div>
+        <div  class="alert alert-success m-3" id="account_del_success" style="display:none;"></div>
         <div class="container">
       
             <table id="sales_data" class="data_table_files">
@@ -25,8 +25,8 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone Number</th>
-                        <!-- <th>Action</th> -->
                         <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
             </table>
@@ -72,6 +72,7 @@
                 { data: 'name', name: 'name' },
                 { data: 'email', name: 'email' },
                 { data: 'phone', name: 'phone' },
+                { data: 'status', name: 'status' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
         });
@@ -155,10 +156,10 @@
                     if (response.success) {
                         $('#account_del_success').text('Sales Representative Delete Successfully!');
                         $('#account_del_success').css('display', 'block');
-                        setTimeout(function () {
-                            $('#account_del_success').fadeOut();
-                            location.reload();
-                        }, 3000);
+                         $('#account_del_success').append('<button type="button" id="closeSuccessMessage" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+                             $('#closeSuccessMessage').on('click', function() {
+                                location.reload();
+                            });
                     } else {
                         // Handle other cases where response.success is false
                     }

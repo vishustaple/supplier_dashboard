@@ -116,3 +116,4 @@ Route::fallback(function () {
 
 Route::get('/random-function' , [CategorySupplierController::class,'index'])->name('random.number');
 Route::get('/create-password' , [HomeController::class,'createPassword'])->name('create.password');
+Route::post('/update-password', [HomeController::class, 'updatePassword'])->name('update.password');

@@ -10,8 +10,8 @@
                 <a href="{{ route('sales.index') }}" class="btn btn-secondary border-0 bg_yellow" title="Back"><i class="fas fa-arrow-left me-2"></i>Back</a>
             </div>
         </div>
-        <div class="alert alert-success mx-4" id="successMessage" style="display:none;"></div>
-        <div class="alert alert-danger mx-4" id="errorMessage" style="display:none;"></div>
+        <div  id="successMessages" ></div>
+        <div  id="errorMessage" ></div>
         <form class="" id="add_sales" method="post">
             @csrf
             <div class="col-md-12 row">
@@ -43,6 +43,15 @@
                         <option value="0">In-Active</option>
                     </select>
                 </div>
+                <div class="form-group col-md-6">
+                    <label for="selectBox">Team User Type</label>
+                    <select id="selectBox" name="user_type" class="form-control"> 
+                        <option value="">--Select--</option>
+                        <option value="1">Sales</option>
+                        <option value="2">Agent</option>
+                        <option value="3">Customer Services</option>
+                    </select>
+                </div>
             </div>
             <div class="text-left col-md-6">
                 <button type="submit" class="btn btn-primary mx-auto" id="sales_add">Submit</button>
@@ -62,33 +71,25 @@
             processData: false,
             contentType: false,
             success: function(response) {
+                console.log(response);
                 if(response.error){
-                    $('#errorMessage').text(response.error);
-                    $('#errorMessage').css('display','block');
-                    $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                    }, 5000);
-                }
-                // Assuming `response` is the error response object
-                let errorMessages = [];
-                if (response && response.error) {
                     // Iterate over each field in the error object
-                    Object.keys(response.error).forEach(field => {
-                        // Get the error messages for the current field
-                        let fieldErrorMessages = response.error[field];
-                        // Concatenate the field name and its error messages
-                        let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
-                        console.log(errorMessageText);
-                        // Accumulate the error messages
-                        errorMessages.push(errorMessageText);
-                    });
-                    $('#errorMessage').html(errorMessages.join('<br>'));
-                    $('#errorMessage').css('display','block');
+                    var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                            errorMessage = response.error;
+                        }
+
+                    $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                  $('#closeerrorMessage').on('click', function() {
+                                location.reload();
+                            });
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                    }, 5000);
+                   
                 }
 
                 // Set the content of the div with all accumulated error messages
@@ -96,21 +97,12 @@
                 
                 if(response.success){
                     $('#page-loader').hide();
-                    $('#successMessage').text(response.success);
-                    $('#successMessage').css('display','block');
+                    $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show m-2" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage"><span aria-hidden="true">&times;</span></button></div>');
+                    $('#closesuccessMessage').on('click', function() {
+                                location.reload();
+                            });
                     $("form")[0].reset();
-                    //disable all field 
-                    // $('#enddate,#file,#importBtn').prop('disabled', true);
-                    // Scroll to the top of the window
-                    $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    setTimeout(function () {
-                        $('#successMessage').fadeOut();
-                        window.location.href = "{{ route('sales.index') }}";
-                    }, 5000); 
-                    
                 }
-                // Handle success response
-                // console.log(response);
             },
             error: function(xhr, status, error) {
                 // Handle error response

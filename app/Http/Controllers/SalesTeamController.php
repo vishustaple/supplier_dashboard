@@ -17,7 +17,7 @@ class SalesTeamController extends Controller
         if (isset($saleId) && !empty($saleId)) {
             $salesData = SalesTeam::query() 
             ->where('id', $saleId)
-            ->select('first_name', 'last_name', 'email', 'phone', 'status')->get()->toArray();
+            ->select('first_name', 'last_name', 'email', 'phone', 'status','team_user_type')->get()->toArray();
             
             // echo"<pre>";
             // print_r($salesData);
@@ -45,6 +45,7 @@ class SalesTeamController extends Controller
     }
 
     public function updateSales(Request $request){
+       
         $validator = Validator::make(
             [
                 'first_name' => $request->first_name,
@@ -52,13 +53,16 @@ class SalesTeamController extends Controller
                 'email' => $request->email,
                 'phone' => $request->phone_number,
                 'status' => $request->status,
+                'user_type' => $request->user_type,
+
             ],
             [
                 'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
                 'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-                'email' => 'required|regex:/^\S+@\S+\.\S+$/',
-                'phone' => 'required',
+                'email' => 'required|regex:/^\S+@\S+\.\S+$/|unique:sales_team,email,'.$request->id,
+                'phone' => 'required|digits:10|unique:sales_team,phone,'.$request->id,
                 'status' => 'required',
+                'user_type' => 'required',
             ],
         );
 
@@ -76,10 +80,11 @@ class SalesTeamController extends Controller
                     'status' => $request->status,
                     'last_name' => $request->last_name,
                     'first_name' => $request->first_name,
+                    'team_user_type' => $request->user_type,
                 ]);
 
             }
-            return response()->json(['success' => 'Sales Repersantative Update Successfully'], 200);
+            return response()->json(['success' => 'Sales Repersantative Updated Successfully'], 200);
            
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 200);
@@ -95,13 +100,15 @@ class SalesTeamController extends Controller
                     'email' => $request->email,
                     'phone' => $request->phone_number,
                     'status' => $request->status,
+                    'user_type' => $request->user_type,
                 ],
                 [
                     'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
                     'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-                    'email' => 'required|regex:/^\S+@\S+\.\S+$/',
-                    'phone' => 'required',
+                    'email' => 'required|regex:/^\S+@\S+\.\S+$/|required|email|unique:sales_team,email',
+                    'phone' => 'required|digits:10|unique:sales_team',
                     'status' => 'required',
+                    'user_type' => 'required',
                 ],
             );
     
@@ -116,9 +123,10 @@ class SalesTeamController extends Controller
                     'email' => $request->email,
                     'phone' => $request->phone_number,
                     'status' => $request->status,
+                    'team_user_type' => $request->user_type,
                 ]);
     
-                return response()->json(['success' => 'Add Sales Repersantative Successfully'], 200);
+                return response()->json(['success' => 'Sales Repersantative Added Successfully'], 200);
             } catch (QueryException $e) {   
                 return response()->json(['error' => $e->getMessage()], 200);
             }

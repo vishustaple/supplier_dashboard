@@ -9,9 +9,9 @@
                 <a href="{{ route('sales.index') }}"  class="btn btn-primary border-0 bg_yellow" title="Back"><i class="fas fa-arrow-left me-2"></i>Back</a>
             </div>
         </div>
-        <div class="alert alert-success mx-4" id="successMessage" style="display:none;">
+        <div  id="editsuccessMessage" >
         </div>
-        <div class="alert alert-danger mx-4" id="errorMessage" style="display:none;">
+        <div  id="editerrorMessage" >
         </div>
         <form class="" id="edit_sales">
             @csrf
@@ -53,6 +53,16 @@
                         <option value="0" {{$selectedInActive}}>In-Active</option>
                     </select>
                 </div>
+                 
+                <div class="form-group col-md-6">
+                    <label for="selectBox">Team User Type</label>
+                    <select id="selectBox" name="user_type" class="form-control"> 
+                    <option value="">--Select--</option>
+                    <option value="1" {{ $sales->team_user_type == 1 ? 'selected' : '' }}>Sales</option>
+                    <option value="2" {{ $sales->team_user_type == 2 ? 'selected' : '' }}>Agent</option>
+                    <option value="3" {{ $sales->team_user_type == 3 ? 'selected' : '' }}>Customer Services</option>
+                    </select>
+                </div>
 
             </div>
             <div class="text-left col-md-6">
@@ -75,41 +85,34 @@ $(document).ready(function() {
             contentType: false,
             success: function(response) {
                 console.log(response);
-                if (response.error) {
-                    $('#errorMessage').text(response.error);
-                    $('#errorMessage').css('display', 'block');
-                    setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                    }, 3000);
-                } 
-                    
-                let updateerrorMessages = [];
-                if (response && response.error) {
-                    Object.keys(response.error).forEach(field => {
-                        let updatefieldErrorMessages = response.error[field];
-                        let updateerrorMessageText = `${updatefieldErrorMessages.join('</br>')}`;
-                        updateerrorMessages.push(updateerrorMessageText);
-                    });
-                    // console.log(errorMessages);
-                    let errorMessageString = updateerrorMessages.join('<br>');
-                    $('#errorMessage').html(errorMessageString);
-                    $('#errorMessage').css('display','block');
+                if(response.error){
+                    // Iterate over each field in the error object
+                    var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                            errorMessage = response.error;
+                        }
+                    $('#editerrorMessage').html('');
+                    $('#editerrorMessage').append('<div class="alert alert-danger m-2 alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                    $('#closeerrorMessage').on('click', function() {
+                                location.reload();
+                            });
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                    },3000);
+                   
                 }
 
                 if(response.success){
                     $('#page-loader').hide();
-                    $('#successMessage').text(response.success);
-                    $('#successMessage').css('display','block');
+                    $('#editsuccessMessage').html('');
+                    $('#editsuccessMessage').append('<div class="alert alert-success m-2 alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage"><span aria-hidden="true">&times;</span></button></div>');
+                    $('#closesuccessMessage').on('click', function() {
+                                location.reload();
+                            });
                     $("form")[0].reset();
-                    $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    setTimeout(function () {
-                        $('#successMessage').fadeOut();
-                        window.location.reload();
-                    }, 3000);    
                 }
             },
             error:function(xhr, status, error) {

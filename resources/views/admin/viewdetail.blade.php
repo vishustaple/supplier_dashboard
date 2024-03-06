@@ -367,6 +367,12 @@
                                 <td>{{ $value['status'] == 1 ? 'Active' : 'Inactive' }}</td>
                             </tr>
                         @endif
+                        @if (isset($value['team_user_type']) && !empty($value['team_user_type']))
+                            <tr>
+                                <th scope="row">Team User Type</th>
+                                <td>{{ $value['team_user_type'] == 1 ? 'Sales' : ($value['team_user_type'] == 2 ? 'Agent':($value['team_user_type'] == 3 ? 'Customer Services' : '')) }}</td>
+                            </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>
