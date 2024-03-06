@@ -17,9 +17,13 @@ class SalesTeam extends Model
         'status',
         'last_name',
         'first_name',
+        'team_user_type'
     ];
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
+    const USERTYPE_SALES = 1;
+    const USERTYPE_AGENT = 2;
+    const USERTYPE_CUSTOMER_SERVICES = 3;
     public static function getFilterdSalesData($filter=[], $csv=false){
         $orderColumnArray = [
             0 => 'sales_team.first_name',
@@ -82,16 +86,17 @@ class SalesTeam extends Model
             $formatuserdata[$key]['name'] = $data->first_name.' '.$data->last_name;
             $formatuserdata[$key]['email'] = $data->email;
             $formatuserdata[$key]['phone'] = $data->phone;
-            $formatuserdata[$key]['status'] = ($data->status == 1) ? ("Active") : ("In-Active");    
-            // $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('sales.index', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
-            $formatuserdata[$key]['action'] = '<div class="form-check form-switch">
+            // $formatuserdata[$key]['status'] = ($data->status == 1) ? ("Active") : ("In-Active");    
+            $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('sales.index', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+            // <a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a>
+            $formatuserdata[$key]['status'] = '<div class="form-check form-switch">
             <input class="form-check-input m-0" type="checkbox" role="switch" id="flexSwitchCheckChecked"';
             if ($data->status == 1) {
-                $formatuserdata[$key]['action'] .= ' checked';
+                $formatuserdata[$key]['status'] .= ' checked';
             }
             // Add onclick event handler
-            $formatuserdata[$key]['action'] .= ' onclick="toggleDisableEnable('.$data->id.')"';
-            $formatuserdata[$key]['action'] .= '></div>';
+            $formatuserdata[$key]['status'] .= ' onclick="toggleDisableEnable('.$data->id.')"';
+            $formatuserdata[$key]['status'] .= '></div>';
 
         }
         

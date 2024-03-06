@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->tinyInteger('status')->default(1)->comment("1 => active, 0 => Inactive,");
+            $table->tinyInteger('team_user_type')->default(1)->comment("1 => Sales, 2 => Agent, 3 =>Customer Service");
             $table->timestamps();
         });
     }
