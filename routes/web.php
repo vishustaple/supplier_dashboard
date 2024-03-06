@@ -101,6 +101,7 @@ Route::group(['prefix' => 'admin'], function () {
         // Route::post('/commission/filter' , [CommissionController::class,'commissionAjaxFilter'])->name('commission.filter');
         Route::get('/commissions/customer-search' , [CommissionController::class,'commissionAjaxCustomerSearch'])->name('commission.customerSearch');
         Route::get('/commissions/supplier-search' , [CommissionController::class,'commissionAjaxSupplierSearch'])->name('commission.supplierSearch');
+        Route::post('/commissions/add' , [CommissionController::class,'commissionAdd'])->name('commission.add');
         // Route::get('/rebates/csv' , [Commission::class,'exportCatalogCsv'])->name('commission.export-csv');
       
         /** Commission Section End */

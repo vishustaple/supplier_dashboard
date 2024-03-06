@@ -48,4 +48,45 @@ class CommissionController extends Controller
             return response()->json($formatuserdata);
         }
     }
+
+    // public function commissionAdd(Request $request){
+    //     if ($request->ajax()) {
+    //         $customer = $request->input('customer');
+    //         $supplier = $request->input('supplier');
+    //         $accountName = $request->input('account_name');
+    //         $commission = $request->input('commission');
+    //         $date = $request->input('date');
+        
+    //         // Printing the data for debugging
+    //         dd($customer, $supplier, $accountName, $commission, $date);
+    //         // return response()->json($formatuserdata);
+    //     }
+    // }
+
+    public function commissionAdd(Request $request){
+        // if ($request->ajax()) {
+            
+            $customers = $request->get('supplier');
+            $suppliers = $request->input('supplier');
+            $accountNames = $request->input('account_name');
+            $commissions = $request->input('commission');
+            $dates = $request->input('date');
+    
+            // Combine the arrays into a single array for easier processing
+            $data = [];
+            foreach ($customers as $index => $customer) {
+                $data[] = [
+                    'customer' => $customer,
+                    'supplier' => $suppliers[$index],
+                    'account_name' => $accountNames[$index],
+                    'commission' => $commissions[$index],
+                    'date' => $dates[$index],
+                ];
+            }
+    
+            // Printing the data for debugging
+            dd($data);
+            // return response()->json($formatuserdata);
+        // }
+    }
 }
