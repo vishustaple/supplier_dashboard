@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class AccountController extends Controller
 {
     public function editCustomerName(){
-        $missingAccount = Account::whereNull('customer_name')->orWhere('customer_name', '')->get();
+        $missingAccount = Account::whereNull('account_name')->orWhere('account_name', '')->get();
         $pageTitle = 'Accounts Data';
         return view('admin.account.edit_customer_name',compact('missingAccount', 'pageTitle'));
     }
@@ -46,8 +46,9 @@ class AccountController extends Controller
 
             return view('admin.viewdetail',compact('account'));
         }
-        $missingAccount = Account::whereNull('customer_name')->orWhere('customer_name', '')->get();
+        $missingAccount = Account::whereNull('account_name')->orWhere('account_name', '')->get();
         $totalmissingaccount=count($missingAccount);
+        // dd($totalmissingaccount);
         return view('admin.account' ,compact('totalmissingaccount'));
     }
 
@@ -281,9 +282,9 @@ class AccountController extends Controller
        $missingid = $request->id;
        $missingvalue =$request->ColumnValue;
        try {
-        $updateMissingAccount = Account::where('id', $missingid)->update(['customer_name' => $missingvalue]);
+        $updateMissingAccount = Account::where('id', $missingid)->update(['account_name' => $missingvalue]);
         if($updateMissingAccount){
-            return response()->json(['success' => 'Customer Name Update Successfully!'], 200);
+            return response()->json(['success' => 'Account Name Update Successfully!'], 200);
         }
        } catch (\Throwable $e) {
         return response()->json(['error' => $e->getMessage()], 200);

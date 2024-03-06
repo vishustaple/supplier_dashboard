@@ -26,15 +26,19 @@
                 </tr>
             </thead>
             <tbody>
-          
+          <?php
+
+          //print_r($missingAccount);
+          ?>
                 @if($missingAccount->isEmpty())
                 <tr><td colspan="5"  class="text-center">No Data Available.</td></tr>
                 @else
                 @foreach($missingAccount as $missingarray)
                     <tr>
                         <td>{{$missingarray->account_number}}</td>
-                        <td class="missing_value"><input class="form-control" type="text" placeholder="Customer Name" value=""></td>
-                        <td>{{$missingarray->account_name}}</td>
+                        <td>{{$missingarray->customer_name}}</td>
+                        <td class="missing_value"><input class="form-control" type="text" placeholder="Account Name" value=""></td>
+                        <!-- <td>{{$missingarray->account_name}}</td>?" -->
                         <td>{{getSupplierName($missingarray->category_supplier)}}</td>
                         <td><button type="button" class="btn btn-primary missing_save" data-id="{{$missingarray->id}}">Save</button></td>
                     </tr>
