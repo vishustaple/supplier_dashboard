@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\{Account};
 
 class RebateController extends Controller
 {
@@ -26,5 +27,12 @@ class RebateController extends Controller
         // }
 
         return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType]]);
+    }
+
+    public function getRebateWithAjax(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = Account::getFilterdRebateData($request->all());
+            return response()->json($formatuserdata);
+        }
     }
 }
