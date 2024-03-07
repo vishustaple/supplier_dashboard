@@ -210,14 +210,18 @@ class Account extends Model
     }
 
     public static function getSearchCustomerData($search=''){
+        // dd($search);
         if (!empty($search)) {
             $query = self::query()
+            // ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
+            // $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
             ->select('master_account_detail.customer_name as customer_name', 'master_account_detail.account_number as customer_number');
             $query->where('master_account_detail.customer_name', 'LIKE', '%' . $search . '%');
             $results = $query->get();
             if ($results->isNotEmpty()) {
                 foreach ($results as $value) {
                     $finalArray[] = ['id' => $value->customer_number, 'text' => $value->customer_name];        
+                    // $finalArray[] = ['id' => $value->customer_number, 'text' => $value->account_name];        
                 }
                 return $finalArray;
             }
@@ -229,13 +233,17 @@ class Account extends Model
         if (!empty($search)) {
             $query = self::query()->select('suppliers.supplier_name as supplier_name', 'master_account_detail.category_supplier as id')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            ->where('supplier_name', 'LIKE', '%' . $search['q'] . '%')->where('master_account_detail.account_number', $search['customer_number']);
-            $results = $query->get();
+            // ->where('supplier_name', 'LIKE', '%' . $search['q'] . '%')
+            // ->where('master_account_detail.account_number', $search['customer_number']);
+            ->where('master_account_detail.account_number', $search['customer_number']);
+            $results = $query->first();
 
-            if ($results->isNotEmpty()) {
-                foreach ($results as $value) {
-                    $finalArray[] = ['id' => $value->id, 'text' => $value->supplier_name];        
-                }
+            // if ($results->isNotEmpty()) {
+            if ($results !== null) {
+                // foreach ($results as $value) {
+                    // $finalArray[] = ['id' => $value->id, 'text' => $value->supplier_name];
+                    $finalArray[] = ['supplier' => $results->supplier_name, 'id' => $results->id];
+                // }
                 return $finalArray;
             }
             return [];
@@ -247,8 +255,8 @@ class Account extends Model
             $query = self::query()->select('master_account_detail.account_number as account')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
             ->where('master_account_detail.account_number', 'LIKE', '%' . $search['q'] . '%')
-            ->where('master_account_detail.account_number', $search['customer_number'])
-            ->where('master_account_detail.category_supplier', $search['supplier_number']);
+            ->where('master_account_detail.account_number', $search['customer_number']);
+            // ->where('master_account_detail.category_supplier', $search['supplier_number']);
             $results = $query->get();
 
             if ($results->isNotEmpty()) {
@@ -261,6 +269,135 @@ class Account extends Model
 
             return [];
             
+        }
+    }
+
+    public static function getFilterdRebateData($filter = [], $csv=false){
+        $orderColumnArray = [
+            0 => 'master_account_detail.account_number',
+            1 => "master_account_detail.customer_name",
+            2 => 'master_account_detail.account_name',
+            3 => 'master_account_detail.category_supplier',
+            4 => 'master_account_detail.parent_name',
+            5 => 'master_account_detail.grandparent_name',
+            6 => 'master_account_detail.record_type',
+            7 => 'master_account_detail.id',
+        ];
+
+        if ($csv) {
+            $query = self::query() /** Eager load relationships */
+            ->select('master_account_detail.id as id',
+            'master_account_detail.account_number as customer_number',
+            'master_account_detail.customer_name as customer_name',
+            'master_account_detail.account_name as account_name',
+            'master_account_detail.volume_rebate as volume_rebate',
+            'master_account_detail.member_rebate as member_rebate',
+            'master_account_detail.temp_active_date as temp_active_date',
+            'master_account_detail.temp_end_date as temp_end_date',
+            'master_account_detail.record_type as record_type',
+            'master_account_detail.cpg_sales_representative as cpg_sales_representative',
+            'master_account_detail.cpg_customer_service_rep as cpg_customer_service_rep',
+            'suppliers.supplier_name as category_supplier',
+            'master_account_detail.parent_name as parent_name',
+            'master_account_detail.grandparent_name as grand_parent_name')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
+        } else {
+            $query = self::query() /** Eager load relationships */
+            ->select('master_account_detail.parent_name as parent_name',
+             'master_account_detail.grandparent_name as grand_parent_name',
+             'master_account_detail.id as id',
+             'master_account_detail.record_type as record_type',
+             'master_account_detail.created_at as date',
+             'suppliers.supplier_name as supplier_name',
+             'master_account_detail.account_number as account_number',
+             'master_account_detail.customer_name as customer_name',
+             'master_account_detail.account_name as account_name')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+            ->leftJoin('rebate', 'rebate.account_number', '=', 'master_account_detail.account_number');
+        }
+        /** Search functionality */
+        if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
+            $searchTerm = $filter['search']['value'];
+
+            $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
+                foreach ($orderColumnArray as $column) {
+                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                }
+            });
+            
+            $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
+        }
+
+        /** Get total records count (without filtering) */
+        $totalRecords = $query->count();
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+            /** Order by column and direction */
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
+        }
+
+        if (isset($filter['start']) && isset($filter['length'])) {
+            /** Get paginated results based on start, length */
+            $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
+        } else {
+            $filteredData = $query->get();
+        }
+        /** Print the SQL query */
+        // dd($query->toSql());    
+
+        /** Get filtered records count */
+        $filteredRecords = $query->count();
+        
+        $formatuserdata=[];
+        foreach ($filteredData as $key => $data) {
+            if($csv){
+                $formatuserdata[] = [
+                    'customer_number' => isset($data->customer_number) ? "\t" .$data->customer_number : null,
+                    'customer_name' => $data->customer_name,
+                    'account_name' => $data->account_name,
+                    'grand_parent_name' => $data->grand_parent_name,
+                    'parent_name' => $data->parent_name,
+                    'volume_rebate' => $data->volume_rebate,
+                    'sales_representative' => $data->sales_representative,
+                    'customer_service_representative' => $data->customer_service_representative,
+                    'member_rebate' => $data->member_rebate,
+                    'temp_active_date' => isset($data->temp_active_date) && !empty($data->temp_active_date) ? Carbon::parse($data->temp_active_date)->format('Y-m-d') : null ,
+                    'temp_end_date' => isset($data->temp_end_date) && !empty($data->temp_end_date) ? Carbon::parse($data->temp_end_date)->format('Y-m-d') : null ,
+                    'internal_reporting_name' => $data->internal_reporting_name,
+                    'qbr' => $data->qbr,
+                    'spend_name' => $data->spend_name,
+                    'supplier_acct_rep' => $data->supplier_acct_rep,
+                    'management_fee' => $data->management_fee,
+                    'category' => $data->record_type,
+                    'supplier' => $data->category_supplier,
+                    'cpg_sales_representative' => $data->cpg_sales_representative,
+                    'cpg_customer_service_rep' => $data->cpg_customer_service_rep,
+                    'sf_cat' => $data->sf_cat,
+                    'rebate_freq' => $data->rebate_freq,
+                    'comm_rate' => $data->comm_rate,
+            ];
+            } else {
+                $formatuserdata[$key]['customer_name'] = $data->customer_name;
+                $formatuserdata[$key]['account_number'] = $data->account_number;
+                $formatuserdata[$key]['account_name'] = $data->account_name;
+                $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
+                $formatuserdata[$key]['incentive_rebate'] = $data->incentive_rebate;
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='text' class='form-control form-control-sm' name='incentive_rebate' value='".$data->incentive_rebate."' />";
+                $formatuserdata[$key]['volume_rebate'] = "<input type='text' class='form-control form-control-sm' name='incentive_rebate' value='".$data->volume_rebate."' />" ;
+                $formatuserdata[$key]['id'] = '<button type="button" class="btn btn-success"> Save </button>';
+            }
+        }
+
+        if ($csv == true) {
+            return $formatuserdata;
+        } else {
+            /** Return the result along with total and filtered counts */
+            return [
+                'data' => $formatuserdata,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+            ];
         }
     }
 }

@@ -14,7 +14,7 @@
                 </div>
         </div> 
         <div class="container">
-        <table class="table">
+        <!-- <table class="table">
         <thead>
             <tr>
                 <th scope="col">Account Number</th>
@@ -26,51 +26,73 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <th scope="row">432423423</th>
-                <td>Center point</td>
-                <td>Office Depot</td>
-                <td>
-                    <input type="text" class="form-control form-control-sm" name="" id="" aria-describedby="helpId" placeholder="" />
-                </td>
-                <td>
-                    <input type="text" class="form-control form-control-sm" name="" id="" aria-describedby="helpId" placeholder="" />
-                </td>
-                <td class="center">
-                    <button type="button" class="btn btn-success"> Save </button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">465756657</th>
-                <td>Center point2</td>
-                <td>Grainger</td>
-                <td>
-                    <input type="text" class="form-control form-control-sm" name="" id="" aria-describedby="helpId" placeholder="" />
-                </td>
-                <td>
-                    <input type="text" class="form-control form-control-sm" name="" id="" aria-describedby="helpId" placeholder="" />
-                </td>
-                <td class="center">
-                    <button type="button" class="btn btn-success"> Save </button>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">545435454</th>
-                <td>Center point3</td>
-                <td>Lryco</td>
-                <td>
-                    <input type="text" class="form-control form-control-sm" name="" id="" aria-describedby="helpId" placeholder="" />
-                </td>
-                <td>
-                    <input type="text" class="form-control form-control-sm" name="" id="" aria-describedby="helpId" placeholder="" />
-                </td>
-                <td class="center">
-                    <button type="button" class="btn btn-success"> Save </button>
-                </td>
-            </tr>
+
         </tbody>
-        </table>
+        </table> -->
+
+        <table id="account_data" class="data_table_files">
+            <thead>
+                    <tr>
+                        <th>Account Number</th>
+                        <th>Customer Name</th>
+                        <th>Account Name</th>
+                        <th>Supplier</th>
+                        <th>Volume Rebate</th>
+                        <th>Incentive Rebate</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
     </div>
 </div>
 </div>
+<script>
+    $(document).ready(function(){
+        var accountTable = $('#account_data').DataTable({
+            oLanguage: {
+                sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
+            },
+            processing: true,
+            serverSide: true,
+            // lengthMenu: [],
+            pageLength: 50,
+            ajax: {
+                url: '{{ route("rebate.filter") }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: function (d) {
+                    // Pass date range and supplier ID when making the request
+                    d.start_date = $('#start_date').val();
+                    d.end_date = $('#end_date').val();
+                    d.supplierId = $('#supplierId').val();
+                },
+            },
+            beforeSend: function() {
+                // Show both the DataTables processing indicator and the manual loader before making the AJAX request
+                $('.dataTables_processing').show();
+                $('#manualLoader').show();
+            },
+            complete: function() {
+                // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
+                $('.dataTables_processing').hide();
+                $('#manualLoader').hide();
+
+             
+            },
+            columns: [
+                { data: 'account_number', name: 'account_number' },
+                { data: 'customer_name', name: 'customer_name' },
+                { data: 'account_name', name: 'account_name' },
+                { data: 'supplier_name', name: 'supplier_name' },
+                { data: 'volume_rebate', name: 'volume_rebate' },
+                { data: 'incentive_rebate', name: 'incentive_rebate' },
+                { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
+            ],
+
+        });
+
+    });
+</script>
 @endsection
