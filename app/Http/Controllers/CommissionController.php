@@ -54,28 +54,28 @@ class CommissionController extends Controller
 
     public function commissionAdd(Request $request){
         if ($request->ajax()) {
-            $customers = $request->get('supplier');
-            $suppliers = $request->input('supplier');
-            $accountNames = $request->input('account_name');
-            $commissions = $request->input('commission');
-            $dates = $request->input('date');
+            // $sales_reps = $request->input('sales_rep');
+            // $suppliers = $request->input('supplier');
+            // $accountNames = $request->input('account_name');
+            // $commissions = $request->input('commission');
+            // $dates = $request->input('date');
     
             // Combine the arrays into a single array for easier processing
-            $data = [];
-            foreach ($customers as $index => $customer) {
-                $data[] = [
-                    'customer' => $customer,
-                    'supplier' => $suppliers[$index],
-                    'account_name' => $accountNames[$index],
-                    'commission' => $commissions[$index],
-                    'start_date' => date_format(date_create(trim(explode(" - ", $dates[$index])[0])),"Y-m-d H:i:s"),
-                    'end_date' => date_format(date_create(trim(explode(" - ", $dates[$index])[1])),"Y-m-d H:i:s"),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
+            // $data = [];
+            // foreach ($sales_reps as $index => $sales_rep) {
+                // $data[] = [
+                DB::table('commission')->insert(['sales_rep' => $request->input('sales_rep'),
+                    'supplier' =>  $request->input('supplier'),
+                    'account_name' => $request->input('account_name'),
+                    'commission' => $request->input('commission'),
+                    'start_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[0])),"Y-m-d H:i:s"),
+                    'end_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[1])),"Y-m-d H:i:s"),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),]);
+                // ];
+            // }
     
-            DB::table('commission')->insert($data);
+            // DB::table('commission')->insert($data);
             return response()->json(['success' => 'Commissions added successfully'], 200);
         }
     }
@@ -88,7 +88,9 @@ class CommissionController extends Controller
     }
 
     public function commissionAddView(){
-        return view('admin.commission.commission', ['pageTitle' => 'Add Commission']); 
+        $sales = DB::table('sales_team')->select('last_name',
+        'first_name', 'id')->get();
+        return view('admin.commission.commission', ['pageTitle' => 'Add Commission', 'salesRepersantative' => $sales]); 
     }
 
     public function exportCatalogCsv(Request $request){

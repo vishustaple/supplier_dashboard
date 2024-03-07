@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('commission', function (Blueprint $table) {
             $table->id();
-            $table->string('customer');
+            $table->unsignedBigInteger('sales_rep');
             $table->unsignedBigInteger('supplier');
             $table->string('account_name');
             $table->string('commission');
@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->timestamps();
             $table->foreign('supplier')->references('id')->on('suppliers');
+            $table->foreign('sales_rep')->references('id')->on('sales_team');
         });
     }
 

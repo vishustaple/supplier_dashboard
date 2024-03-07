@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use DB;
 
 class Commission extends Model
 {
@@ -18,11 +19,11 @@ class Commission extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'customer',
         'supplier',
         'end_date',
-        'start_date',
+        'sales_rep',
         'commission',
+        'start_date',
         'account_name',
     ];
 
@@ -32,14 +33,16 @@ class Commission extends Model
             1 => 'master_account_detail.account_number',
             2 => 'suppliers.supplier_name',
             3 => 'commission.commission',
-            4 => 'commission.start_date',
-            5 => 'commission.end_date',
+            4 => 'commission.sales_rep',
+            5 => 'commission.start_date',
+            6 => 'commission.end_date',
         ];
         // $csv = true;
         // if ($csv) {
             $query = self::query() // Replace YourModel with the actual model you are using for the data
             ->leftJoin('suppliers', 'commission.supplier', '=', 'suppliers.id')
             ->leftJoin('master_account_detail', 'master_account_detail.account_number', '=', 'commission.account_name')
+            ->leftJoin('sales_team', 'sales_team.id', '=', 'commission.sales_rep')
 
             ->select(
                 'commission.account_name as account_name',
@@ -47,6 +50,7 @@ class Commission extends Model
                 'suppliers.supplier_name as supplier_name',
                 'commission.commission as commission',
                 'commission.start_date as start_date',
+                DB::raw("CONCAT(sales_team.first_name, ' ', sales_team.last_name) AS sales_rep"),
                 'commission.end_date as end_date',
             ); // Adjust the column names as needed
         // } else {
@@ -128,6 +132,7 @@ class Commission extends Model
             foreach ($filteredData as $key => $data) {
                 $formatuserdata[$key]['account_name'] = $data->account_name;
                 $formatuserdata[$key]['account_number'] = $data->account_number;
+                $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 $formatuserdata[$key]['commission'] = $data->commission.'%';
                 $formatuserdata[$key]['start_date'] = date('m/d/Y', strtotime($data->start_date));//date_format(date_create($data->start_date), 'm/d/Y');

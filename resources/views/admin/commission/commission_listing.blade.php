@@ -19,6 +19,7 @@
                         <th>Supplier</th>
                         <th>Account Number</th>
                         <th>Commission</th>
+                        <th>Sales Repersantative</th>
                         <th>Start Date</th>
                         <th>End Date</th>
                     </tr>
@@ -88,6 +89,7 @@
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'account_number', name: 'account_number' },
                 { data: 'commission', name: 'commission' },
+                { data: 'sales_rep', name: 'sales_rep' },
                 { data: 'start_date', name: 'start_date' },
                 { data: 'end_date', name: 'end_date' },
             ],
