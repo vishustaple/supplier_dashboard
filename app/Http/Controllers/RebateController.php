@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{Account};
+use App\Models\{Account,Rebate};
 
 class RebateController extends Controller
 {
@@ -35,4 +35,5 @@ class RebateController extends Controller
             return response()->json($formatuserdata);
         }
     }
+
 }

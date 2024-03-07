@@ -7,11 +7,20 @@
                                 <div class="sb-nav-link-icon"><i class="fa fa-upload" aria-hidden="true"></i></div>
                                 Data Management 
                             </a>
+                            <div class="manage_account_link">
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Accounts Data') ? 'active' : '' }}" href="{{route('account')}}">
                                 <div class="sb-nav-link-icon"><i class="fa fa-users" aria-hidden="true"></i></div>
                                 Manage Accounts
                             </a>
-                          
+                            <a href="{{ route('account.customer-edit')}}" class="bell_icon_link position-relative">
+                       <i class="fa-solid fa-bell"></i>
+                       @if(!empty($totalmissingaccount))
+                        @if($totalmissingaccount > 0)
+                            <span class="notification-count">{{ $totalmissingaccount }}</span>
+                        @endif
+                        @endif
+                    </a>
+                            </div>
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Sales Team') ? 'active' : '' }}" href="{{route('sales.index')}}">
                                 <div class="sb-nav-link-icon"><i class="fa fa-address-card" aria-hidden="true"></i></div>
                                 Manage Sales Repersantative
