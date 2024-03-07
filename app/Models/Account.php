@@ -329,7 +329,7 @@ class Account extends Model
         }
 
         /** Get total records count (without filtering) */
-        $totalRecords = $query->count();
+        
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -337,6 +337,10 @@ class Account extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
+        $query->groupBy('master_account_detail.account_name');
+        $totalRecords = $query->getQuery()->getCountForPagination();
+
+        // $totalRecords = $query->count();
         if (isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();

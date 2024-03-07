@@ -63,6 +63,9 @@
             padding: 5px 10px;
             font-weight: 500;
         }
+        #commission_table tbody tr td:nth-of-type(6) button + button{
+            margin-left:5px;
+        }
     </style>
     <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-2">Manage Commission</h3>
@@ -79,7 +82,7 @@
 
         <div class="" id="errorMessage">    
         </div>
-        <form id="commission_form" method="POST">
+        <!-- <form id="commission_form" method="POST"> -->
         <table class="table" id="commission_table">
         <thead>
             <tr>
@@ -93,69 +96,137 @@
         </thead>
         <tbody>
             <tr>
-                <td><input type="hidden" class="count" value="1"><select class="mySelectCustomerName" name="customer[]"><option value="">Select</option></select></td>
-                <td><input type="hidden" class="supplier_id" name="supplier[]" value=""><input type="text" class="mySelectSupplier form-control" disabled name="suppliers[]" value="" required>
-                    <!-- <select class="mySelectSupplier" name="supplier[]"><option value="">Select</option></select> -->
+                <form id="commission_form" >
+                <td><input type="hidden" class="count" value="1"><select class="mySelectAccountName form-control-sm" name="account_name[]"><option value="">Select</option></select></td>
+                <td><input type="hidden" class="supplier_id" name="supplier[]" value=""><input type="text" class="mySelectSupplier form-control-sm" disabled name="suppliers[]" value="" required>
                 </td>
-                <td><select class="mySelectAccount" name="account_name[]"><option value="">Select</option></select></td>
-                <td><input type="text" class="form-control form-control-sm" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td>
+                <td>
+                    <select id="selectBox" name="sales_rep[]" class="mySelectSalesRep form-control-sm"> 
+                            <option value="" selected>Select</option>
+                            @if(isset($salesRepersantative))
+                            @foreach($salesRepersantative as $salesRep)
+                            <option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name}}</option>
+                            @endforeach
+                            @endif
+                    </select>
+                </td>
+                <td><input type="text" class="form-control form-control-sm commission" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td>
                 <td><input type="text" name="date[]" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" ></td>
-                <td><button type="button" name="" id="add_commission" class="btn btn-success" ><i class="fa-solid fa-plus"></i></button></td>
+                <td>
+                    <div class="d-flex">
+                        <button type="button" id="add_commission" class="btn btn-success"><i class="fa-solid fa-plus"></i></button>
+                        <button type="button"  class="btn btn-primary check save">Save</button>
+                    </div>
+                </td>
+            </form>
             </tr>
         </tbody>
         </table>
-        <button type="submit" class="btn btn-success">Submit</button>
-        </form>
     </div>
 </div>
 </div>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
-    $(document).ready(function() {  
-        $('#commission_form').on('submit', function() {
-            event.preventDefault();
-            var formData = new FormData($('#commission_form')[0]);
-            $.ajax({
-                type: 'POST',
-                url: "{{route('commission.add')}}", // Replace with your actual route name
-                data: formData,
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                success: function(response) {
-                    $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    if(response.error){
-                        var errorMessage = '';
-                        if (typeof response.error === 'object') {
-                            // Iterate over the errors object
-                            $.each(response.error, function (key, value) {
-                                errorMessage += value[0] + '<br>';
-                            });
-                        } else {
-                            errorMessage = response.error;
+   
+
+    $(document).ready(function() {
+        function saveData(count=''){
+            var accountName = $('.mySelectAccountName'+count+'').find('option:selected').text(),
+            supplierName = $('.mySelectSupplier'+count+'').val(),
+            sales = $('.mySelectSalesRep'+count+'').find('option:selected').text(),
+            date = $('.dateRangePicker'+count+'').val().replace(" - ", " to "),
+            commission = $('.commission'+count+'').val();
+
+            if (accountName == 'Select') {
+                $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please select account name. <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                return;
+            }
+
+            if (supplierName == '') {
+                $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please select supplier. <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                return;
+            }
+
+            if (sales == 'Select') {
+                $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please select sales repersentive <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                return;
+            }
+            
+            if (commission == '') {
+                $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please add commission. <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                return;
+            }
+            swal.fire({
+                title: "Oops....",
+                text: "Please confirm " + accountName + " will receive commissions for the " + supplierName + " Charles River account (" + sales + ") between " + date + " ?",
+                icon: "error",
+                showCancelButton: true,
+                confirmButtonText: 'Accept',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    // var formData = new FormData($('#commission_form'+count+'')[0]);
+                    console.log('#commission_form'+count+'');
+                    var formData = {
+                        'sales_rep': $('.mySelectSalesRep'+count+'').val(),
+                        'supplier': $('.supplier_id'+count+'').val(),
+                        'account_name': accountName,
+                        'commission': commission,
+                        'date': $('.dateRangePicker'+count+'').val(),
+                    };
+                    console.log("FormData:-",formData);
+                    var token = "{{ csrf_token() }}";
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{route('commission.add')}}",
+                        dataType: 'json',
+                        data: JSON.stringify(formData),                        
+                        headers: {'X-CSRF-TOKEN': token},
+                        contentType: 'application/json',                     
+                        processData: false,
+                        
+                       
+                        success: function(response) {
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
+                            if(response.error){
+                                var errorMessage = '';
+                                if (typeof response.error === 'object') {
+                                    // Iterate over the errors object
+                                    $.each(response.error, function (key, value) {
+                                        errorMessage += value[0] + '<br>';
+                                    });
+                                } else {
+                                    errorMessage = response.error;
+                                }
+
+                                $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                            }
+
+                            if(response.success){
+                                // $('.check'+count+'').prop('disabled', true);
+                                $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                                $("form")[0].reset();
+                                $('.mySelectAccountName'+count+'').empty();
+                                // $('#mySelect').val(null).trigger('change');
+                                // $("#select2_example").empty();
+                                // window.location.href = "{{ route('commission.list', ['commissionType' => 'commission_listing']) }}";
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // Handle error response
+                            console.error(xhr.responseText);
                         }
+                    });
 
-                        $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                    }
-
-                    if(response.success){
-                        // $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                        // $("form")[0].reset();
-                        window.location.href = "{{ route('commission.list', ['commissionType' => 'commission_listing']) }}";
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Handle error response
-                    console.error(xhr.responseText);
-                }
+                } 
             });
-
-        });
+        }
 
         function selectCustomer (count='') {
-            $('.mySelectCustomerName'+count+'').select2({
+            $('.mySelectAccountName'+count+'').select2({
                 ajax: {
                     url: "{{ route('commission.customerSearch') }}",
                     dataType: 'json',
@@ -174,8 +245,8 @@
                 },
                 minimumInputLength: 1
             }).on('select2:select', function (e) {
-                var customerId = e.params.data.id; // Selected customer ID
-                // Perform your AJAX request here using the selected customer ID
+                var customerId = e.params.data.id; // Selected account_name ID
+                // Perform your AJAX request here using the selected account_name ID
                 $.ajax({
                     url: "{{ route('commission.supplierSearch') }}",
                     method: 'GET',
@@ -184,7 +255,6 @@
                     },
                     success: function(response) {
                         // Handle the AJAX response
-                        console.log(response[0].supplier);
                         $('.mySelectSupplier'+count+'').val(response[0].supplier);
                         $('.supplier_id'+count+'').val(response[0].id);
                     },
@@ -193,54 +263,6 @@
                         console.error(error);
                     }
                 });
-            });
-        }
-
-        // function selectSupplier(count=''){
-        //     $('.mySelectSupplier'+count+'').select2({
-        //         ajax: {
-        //             url: "",
-        //             dataType: 'json',
-        //             delay: 250,
-        //             data: function(params) {
-        //                 return {
-        //                     q: params.term, // search term
-        //                     customer_number: $('.mySelectCustomerName'+count+'').val(),
-        //                 };
-        //             },
-        //             processResults: function(data) {
-        //                 return {
-        //                     results: data
-        //                 };
-        //             },
-        //             cache: true
-        //         },
-        //         minimumInputLength: 1
-        //     });
-        // }
-        
-        function selectAccount(count=''){
-            $('.mySelectAccount'+count+'').select2({
-                ajax: {
-                    url: "{{ route('commission.supplierSearch') }}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term, // search term
-                            // supplier_number: $('.mySelectSupplier'+count+'').val(),
-                            customer_number: $('.mySelectCustomerName'+count+'').val(),
-                            account: true
-                        };
-                    },
-                    processResults: function(data) {
-                        return {
-                            results: data
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 1
             });
         }
 
@@ -253,23 +275,39 @@
 
         setDate();
         selectCustomer();
-        // selectSupplier();
-        selectAccount();
         $('#add_commission').on('click', function(){
-            var count = parseInt($('#commission_table tbody tr:last-child td:first-child .count').val()) + 1;
-            $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select  class="mySelectCustomerName'+count+'" name="customer[]"><option value="">Select</option></select></td><td><input class="supplier_id'+count+'" type="hidden" name="supplier[]" value=""><input type="text" required class="mySelectSupplier'+count+' form-control" disabled name="suppliers[]" value=""></td><td><select class="mySelectAccount'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input type="text" class="form-control form-control-sm" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" readonly="readonly"  class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></td></tr>');
+
+        
+
+        // Your existing code to append rows to the table
+        var count = $('#commission_table tbody tr').length + 1;
+
+        console.log('Current count:', count);
+        $('#commission_table').append('<tr><form id="commission_form'+count+'"><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountName'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input class="supplier_id'+count+'" type="hidden" name="supplier[]" value=""><input type="text" required class="mySelectSupplier'+count+' form-control-sm" disabled name="suppliers[]" value=""></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm"><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button><button type="button" value="'+count+'" class="btn btn-primary save check'+count+'">Save</button></div></td></form></tr>');
 
 
-            // $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select  class="mySelectCustomerName'+count+'" name="customer[]"><option value="">Select</option></select></td><td><select  class="mySelectSupplier'+count+'" name="supplier[]"><option value="">Select</option></select></td><td><select class="mySelectAccount'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input type="text" class="form-control form-control-sm" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></td></tr>');
+           
+
             setDate(count);
             selectCustomer(count);
-            // selectSupplier(count);
-            selectAccount(count);
         });
         
         $('#commission_table').on('click', '.removeRowBtn', function() {
             $(this).closest('tr').remove();
         });
+
+        // Add a submit event listener to the table
+        // $('.save').on('click', function(event) {
+            $("body").on("click", ".save", function() {
+            // event.preventDefault(); // Prevent the default form submission
+
+            var currentCount = $(this).val(); // Get the current count value
+            console.log('Form submitted for count:', currentCount);
+            // Add more debugging statements if needed
+            // Ensure that saveData function is accessible and correctly implemented
+            saveData(currentCount); // Call the saveData function with the current count value
+        });
+      
     });
 </script>
 
