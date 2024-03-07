@@ -193,7 +193,8 @@ class Account extends Model
                 $formatuserdata[$key]['grand_parent_name'] = $data->grand_parent_name;
                 $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
                 // $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit Account" class=" " href= '.route('account.edit', ['id' => $data->id,'routename' => 'account']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Account"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
-                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Account"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
+                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit
+              </a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Account"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
             }
         }
 
@@ -329,7 +330,10 @@ class Account extends Model
         }
 
         /** Get total records count (without filtering) */
-        $totalRecords = $query->count();
+        // $totalRecords = $query->count();
+        $query->groupBy('master_account_detail.account_name');
+
+        $totalRecords = $query->getQuery()->getCountForPagination();
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -382,10 +386,10 @@ class Account extends Model
                 $formatuserdata[$key]['account_number'] = $data->account_number;
                 $formatuserdata[$key]['account_name'] = $data->account_name;
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
-                $formatuserdata[$key]['incentive_rebate'] = $data->incentive_rebate;
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='text' class='form-control form-control-sm' name='incentive_rebate' value='".$data->incentive_rebate."' />";
-                $formatuserdata[$key]['volume_rebate'] = "<input type='text' class='form-control form-control-sm' name='incentive_rebate' value='".$data->volume_rebate."' />" ;
-                $formatuserdata[$key]['id'] = '<button type="button" class="btn btn-success"> Save </button>';
+                // $formatuserdata[$key]['incentive_rebate'] = $data->incentive_rebate;
+                $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm' name='volume_rebate' value='".$data->volume_rebate."' required/>" ;
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='text' class='form-control form-control-sm' name='incentive_rebate' value='".$data->incentive_rebate."'  required/>";
+                $formatuserdata[$key]['id'] = '<button type="button" class="btn btn-success"> Save </button></form>';
             }
         }
 
