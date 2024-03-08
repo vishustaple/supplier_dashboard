@@ -91,6 +91,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/sales/filter' , [SalesTeamController::class,'salesAjaxFilter'])->name('sales.filter');
         Route::get('/sales/edit/{id}/{routename}' , [SalesTeamController::class,'editSales'])->name('sales.edit');
         Route::get('/sales/updatestatus' , [SalesTeamController::class,'status_sales'])->name('sales.status');
+        Route::get('/sales/csv' , [SalesTeamController::class,'exportSaleCsv'])->name('sales.export-csv');
 
         /** Sales team Section End */
 

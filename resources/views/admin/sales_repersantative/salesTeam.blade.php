@@ -13,7 +13,7 @@
                 <!-- Button trigger modal -->
                 <a href="{{ route('sales.add') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Sales Repersentative Account</a>
-                <!-- <button id="downloadSaleTeamCsvBtn" class="btn-success btn disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
+                <button id="downloadSaleTeamCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
             </div>
         </div>
         <div  class="alert alert-success m-3" id="account_del_success" style="display:none;"></div>
@@ -38,7 +38,8 @@
 <div id="page-loader" style="display:none"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>
 <script>
     $(document).ready(function() {
-        var accountTable = $('#sales_data').DataTable({
+      
+    var salesTable = $('#sales_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
@@ -79,27 +80,28 @@
             ],
         });
 
-    $('#sales_data_length').hide();
-    if (accountTable.data().count() > 40) {
-            $('#sales_data_paginate').show(); // Enable pagination
-        } else {
-            $('#sales_data_paginate').hide();
-        }
-
-    });
-
-    $('#downloadAccountCsvBtn').on('click', function () {
+    // $('#sales_data_length').hide();
+    //     if (salesTable.data().count() > 40) {
+    //         $('#sales_data_paginate').show(); // Enable pagination
+    //     } else {
+    //         $('#sales_data_paginate').hide();
+    //     }
+    $('#downloadSaleTeamCsvBtn').on('click', function () {
         // Trigger CSV download
-        downloadAccountCsv();
+        downloadSalesCsv();
     });
 
-    function downloadAccountCsv() {
+    function downloadSalesCsv() {
         // You can customize this URL to match your backend route for CSV download
-        var csvUrl = '{{ route("account.export-csv") }}';
-
+        var csvUrl = '{{ route("sales.export-csv") }}';
+        csvUrl += '?search=' + salesTable.search();
         // Open a new window to download the CSV file
         window.open(csvUrl, '_blank');
     }
+    });
+
+    
+
     //toggle disable enable 
     function toggleDisableEnable(id){
         var id = id;
@@ -175,6 +177,7 @@
             // Handle cancellation
         }
     });
+
     
 });
 
