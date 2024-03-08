@@ -29,13 +29,14 @@ class Commission extends Model
 
     public static function getFilterdCommissionData($filter=[], $csv=false){
         $orderColumnArray = [
-            0 => 'commission.account_name',
+            0 => 'master_account_detail.customer_name',
             1 => 'master_account_detail.account_number',
-            2 => 'suppliers.supplier_name',
-            3 => 'commission.commission',
-            4 => 'commission.sales_rep',
-            5 => 'commission.start_date',
-            6 => 'commission.end_date',
+            2 => 'master_account_detail.account_name',
+            3 => 'suppliers.supplier_name',
+            4 => 'commission.commission',
+            5 => 'commission.sales_rep',
+            6 => 'commission.start_date',
+            7 => 'commission.end_date',
         ];
         // $csv = true;
         // if ($csv) {
@@ -46,6 +47,7 @@ class Commission extends Model
 
             ->select(
                 'master_account_detail.account_name as account_name',
+                'master_account_detail.account_number as account_number',
                 'master_account_detail.customer_name as customer_name',
                 'suppliers.supplier_name as supplier_name',
                 'commission.commission as commission',
@@ -131,6 +133,7 @@ class Commission extends Model
         } else {
             foreach ($filteredData as $key => $data) {
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
+                $formatuserdata[$key]['account_number'] = $data->account_number;
                 $formatuserdata[$key]['account_name'] = $data->account_name;
                 $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
