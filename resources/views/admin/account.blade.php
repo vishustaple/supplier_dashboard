@@ -96,7 +96,9 @@
                         <th>Account Name</th>
                         <th>Supplier</th>
                         <th>Parent Name</th>
+                        <th>Parent Number</th>
                         <th>Grand Parent Name</th>
+                        <th>Grand Parent Number</th>
                         <th>Category</th>
                         <th>Action</th>
                     </tr>
@@ -358,7 +360,9 @@ $('input[type="radio"]').change(function() {
                 { data: 'account_name', name: 'account_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'parent_name', name: 'parent_name' },
+                { data: 'parent_id', name: 'parent_id' },
                 { data: 'grand_parent_name', name: 'grand_parent_name' },
+                { data: 'grand_parent_id', name: 'grand_parent_id' },
                 { data: 'record_type', name: 'record_type' },
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
