@@ -216,8 +216,8 @@ class Account extends Model
             $query = self::query()
             // ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
             // $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
-            ->select('master_account_detail.customer_name as customer_name', 'master_account_detail.account_number as customer_number');
-            $query->where('master_account_detail.customer_name', 'LIKE', '%' . $search . '%');
+            ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
+            $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
             $results = $query->get();
             if ($results->isNotEmpty()) {
                 foreach ($results as $value) {
