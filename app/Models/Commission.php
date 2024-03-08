@@ -133,7 +133,7 @@ class Commission extends Model
         } else {
             foreach ($filteredData as $key => $data) {
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
-                $formatuserdata[$key]['account_number'] = $data->account_number;
+                $formatuserdata[$key]['customer_number'] = $data->customer_number;
                 $formatuserdata[$key]['account_name'] = $data->account_name;
                 $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
