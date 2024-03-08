@@ -45,8 +45,8 @@ class Commission extends Model
             ->leftJoin('sales_team', 'sales_team.id', '=', 'commission.sales_rep')
 
             ->select(
-                'commission.account_name as account_name',
-                'master_account_detail.account_number as account_number',
+                'master_account_detail.account_name as account_name',
+                'master_account_detail.customer_name as customer_name',
                 'suppliers.supplier_name as supplier_name',
                 'commission.commission as commission',
                 'commission.start_date as start_date',
@@ -130,8 +130,8 @@ class Commission extends Model
             return $finalArray;
         } else {
             foreach ($filteredData as $key => $data) {
+                $formatuserdata[$key]['customer_name'] = $data->customer_name;
                 $formatuserdata[$key]['account_name'] = $data->account_name;
-                $formatuserdata[$key]['account_number'] = $data->account_number;
                 $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 $formatuserdata[$key]['commission'] = $data->commission.'%';

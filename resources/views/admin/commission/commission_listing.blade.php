@@ -17,7 +17,7 @@
                     <tr>
                         <th>Customer Name</th>
                         <th>Supplier</th>
-                        <th>Account Number</th>
+                        <th>Account Name</th>
                         <th>Commission</th>
                         <th>Sales Repersantative</th>
                         <th>Start Date</th>
@@ -85,9 +85,9 @@
                 $('#manualLoader').hide();
             },
             columns: [
-                { data: 'account_name', name: 'account_name' },
+                { data: 'customer_name', name: 'customer_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
-                { data: 'account_number', name: 'account_number' },
+                { data: 'account_name', name: 'account_name' },
                 { data: 'commission', name: 'commission' },
                 { data: 'sales_rep', name: 'sales_rep' },
                 { data: 'start_date', name: 'start_date' },
