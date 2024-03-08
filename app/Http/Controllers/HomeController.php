@@ -9,6 +9,7 @@
     use Illuminate\Support\Facades\Log;
     use Illuminate\Console\Command;
     use Illuminate\Support\Str;
+    use Illuminate\Support\Facades\Crypt;
 
     class HomeController extends Controller
     {
@@ -93,20 +94,27 @@
                     ]);
 
                     $email=$request->email;
+                    $key = 'base64:58UejRIrfFUBpHhIZ1uoxbP9iYHTNXpP2Glzx02Fgp8=';
+                    $salt = openssl_random_pseudo_bytes(16); // Generate salt
+                    $data = ''.$user->id . '|' . $user->remember_token.'';
+                    // encryptData($data, $key, $salt);
+                    // $truncatedEncryptedData =encrypt($user->id . '|' . $user->remember_token);
+                    // $encryptedDataWithDelimiter = $truncatedEncryptedData . '|';
+                    // $limitedEncryptedData = substr($encryptedDataWithDelimiter, 0, 20);
+                    // dd($truncatedEncryptedData);
+
 
                     try{
                         Log::info('Attempting to send email...');
-                        // Mail::send('mail.pendingfile', ['suppliername' => "test"], function ($m) use ($email) {
-                        //     $m->from($email, 'Supplier Admin'); // Use $email variable here
-                        //     $m->to('vishustaple@yopmail.com')->subject('Pending Files else');
+
+                        // Mail::send('mail.updatepassword', ['userid' => $user->id,'token' =>$user->remember_token], function($message) use ($email) {
+                        //     $message->to($email)
+                        //             ->subject('Password Creation Form');
                         // });
-
-                       
-                        Mail::send('mail.updatepassword', ['userid' => $user->id,'token' =>$user->remember_token], function($message) use ($email) {
-                            $message->to($email)
-                                    ->subject('Password Creation Form');
-                        });
-
+                        Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function($message) use ($email) {
+                                $message->to($email)
+                                        ->subject('Password Creation Form');
+                            });
                          
                         Log::info('Email sent successfully');
                     } catch (\Exception $e) {
@@ -223,10 +231,13 @@
         }
 
         public function createPassword(Request $request){
-            // dd($request->all());
+            $key = 'base64:58UejRIrfFUBpHhIZ1uoxbP9iYHTNXpP2Glzx02Fgp8=';
             $data = $request->input('data');
+            $decryptedData=decryptData($data, $key);
+            //  dd($pdata);
             // Decrypt the data
-            $decryptedData = decrypt($data);
+            // dd(decrypt('eyJpdiI6ImhJMXE3dHVL'));
+            // $decryptedData = decrypt($data);
             [$userid, $token] = explode('|', $decryptedData);
             $dbtoken = User::select('remember_token')->where('id',$userid)->first();
              if($dbtoken->remember_token === null){
