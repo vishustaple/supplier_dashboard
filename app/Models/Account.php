@@ -221,8 +221,8 @@ class Account extends Model
             $results = $query->get();
             if ($results->isNotEmpty()) {
                 foreach ($results as $value) {
-                    $finalArray[] = ['id' => $value->customer_number, 'text' => $value->customer_name];        
-                    // $finalArray[] = ['id' => $value->customer_number, 'text' => $value->account_name];        
+                    // $finalArray[] = ['id' => $value->customer_number, 'text' => $value->customer_name];        
+                    $finalArray[] = ['id' => $value->customer_number, 'text' => $value->account_name];        
                 }
                 return $finalArray;
             }
