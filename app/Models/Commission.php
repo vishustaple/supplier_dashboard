@@ -47,7 +47,7 @@ class Commission extends Model
 
             ->select(
                 'master_account_detail.account_name as account_name',
-                'master_account_detail.account_number as account_number',
+                'master_account_detail.account_number as customer_number',
                 'master_account_detail.customer_name as customer_name',
                 'suppliers.supplier_name as supplier_name',
                 'commission.commission as commission',
