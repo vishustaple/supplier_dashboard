@@ -16,6 +16,7 @@
                 <thead>
                     <tr>
                         <th>Customer Name</th>
+                        <th>Customer Number</th>
                         <th>Supplier</th>
                         <th>Account Name</th>
                         <th>Commission</th>
@@ -86,6 +87,7 @@
             },
             columns: [
                 { data: 'customer_name', name: 'customer_name' },
+                { data: 'customer_number', name: 'customer_number' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'account_name', name: 'account_name' },
                 { data: 'commission', name: 'commission' },
