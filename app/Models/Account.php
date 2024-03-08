@@ -86,15 +86,19 @@ class Account extends Model
             2 => 'master_account_detail.account_name',
             3 => 'master_account_detail.category_supplier',
             4 => 'master_account_detail.parent_name',
-            5 => 'master_account_detail.grandparent_name',
-            6 => 'master_account_detail.record_type',
-            7 => 'master_account_detail.id',
+            5 => 'master_account_detail.parent_id',
+            6 => 'master_account_detail.grandparent_name',
+            7 => 'master_account_detail.grandparent_id',
+            8 => 'master_account_detail.record_type',
+            9 => 'master_account_detail.id',
         ];
 
         if ($csv) {
             $query = self::query() /** Eager load relationships */
             ->select('master_account_detail.id as id',
             'master_account_detail.account_number as customer_number',
+            'master_account_detail.grandparent_id as grandparent_id',
+            'master_account_detail.parent_id as parent_id',
             'master_account_detail.customer_name as customer_name',
             'master_account_detail.account_name as account_name',
             'master_account_detail.volume_rebate as volume_rebate',
@@ -113,6 +117,8 @@ class Account extends Model
             ->select('master_account_detail.parent_name as parent_name',
              'master_account_detail.grandparent_name as grand_parent_name',
              'master_account_detail.id as id',
+             'master_account_detail.grandparent_id as grandparent_id',
+             'master_account_detail.parent_id as parent_id',
              'master_account_detail.record_type as record_type',
              'master_account_detail.created_at as date',
              'suppliers.supplier_name as supplier_name',
@@ -186,11 +192,13 @@ class Account extends Model
             } else {
                 $formatuserdata[$key]['record_type'] = $data->record_type;
                 $formatuserdata[$key]['parent_name'] = $data->parent_name;
+                $formatuserdata[$key]['parent_id'] = $data->parent_id;
                 $formatuserdata[$key]['account_name'] = $data->account_name;
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
                 $formatuserdata[$key]['customer_number'] = $data->customer_number;
                 $formatuserdata[$key]['grand_parent_name'] = $data->grand_parent_name;
+                $formatuserdata[$key]['grand_parent_id'] = $data->grand_parent_id;
                 $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
                 // $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit Account" class=" " href= '.route('account.edit', ['id' => $data->id,'routename' => 'account']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Account"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
                 $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit
