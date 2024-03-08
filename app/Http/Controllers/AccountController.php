@@ -49,7 +49,13 @@ class AccountController extends Controller
         $missingAccount = Account::whereNull('account_name')->orWhere('account_name', '')->get();
         $totalmissingaccount=count($missingAccount);
         // dd($totalmissingaccount);
-        return view('admin.account' ,compact('totalmissingaccount'));
+        $grandparent = Account::getSearchGPNameData();
+        $parent = Account::getSearchPNameData();
+
+        $grandparent_id = Account::getSearchGPNumberData();
+        $parent_id = Account::getSearchPNumberData();
+
+        return view('admin.account' ,compact(['totalmissingaccount' => 'totalmissingaccount', 'grandparent' => 'grandparent', 'parent' => 'parent', 'grandparent_id' => 'grandparent_id', 'parent_id' => 'parent_id']));
     }
 
     public function addAccount(Request $request){
@@ -283,7 +289,13 @@ class AccountController extends Controller
      
         $accoundid = $request->account_id;
         $accountname =$request->account_name;
-       
+        $pI1 = $request->parent_id1;
+        $pN1 =$request->parent_name1;
+        $pI = $request->parent_id;
+        $pN =$request->parent_name;
+        $gPI = $request->grandparent_id;
+        $gPN =$request->grandparent_name;
+
         $validator = Validator::make(
             [
                 'account_name'=>$request->account_name,
@@ -302,7 +314,12 @@ class AccountController extends Controller
         }
         else{
         try {
-            $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname]);
+            if ($request->parent_check == 1) {
+                $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname, 'parent_name' => $pN1, 'parent_id' => $pI1, 'grandparent_id' => $gPI, 'grandparent_name' => $gPN]);
+            } else {
+                $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname, 'parent_name' => $pN, 'parent_id' => $pI, 'grandparent_id' => $gPI, 'grandparent_name' => $gPN]);
+            }
+           
             if($updateAccountName){
                 return response()->json(['success' => 'Account Name Update Successfully!'], 200);
             }
@@ -326,4 +343,28 @@ class AccountController extends Controller
 
     }
 
+    // public function gPName(Request $request){
+    //     if ($request->ajax()) {
+    //         $gPName = Account::getSearchGPNameData($request->input('q'));
+    //         return response()->json($gPName);
+    //     }
+    // }
+    // public function gPNumber(Request $request){
+    //     if ($request->ajax()) {
+    //         $gPNumber = Account::getSearchGPNumberData($request->input('q'));
+    //         return response()->json($gPNumber);
+    //     }
+    // }
+    // public function PName(Request $request){
+    //     if ($request->ajax()) {
+    //         $PName = Account::getSearchPNameData($request->input('q'));
+    //         return response()->json($PName);
+    //     }
+    // }
+    // public function PNumber(Request $request){
+    //     if ($request->ajax()) {
+    //         $PNumber = Account::getSearchPNumberData($request->input('q'));
+    //         return response()->json($PNumber);
+    //     }
+    // }
 }

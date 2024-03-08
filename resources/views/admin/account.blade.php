@@ -62,17 +62,7 @@
                                     <label class="form-check-label" for="grandparent">GrandParent</label>
                                     </div> -->
                                 </div>
-                                <div class="form-group">
-                                    <label for="selectBox">Grand Parent:</label>
-                                    <select id="grandparentSelect" name="grandparentSelect" class="form-control" disabled> 
-                                        <option value="" selected>--Select--</option>
-                                        @if(!empty($grandparent))
-                                            @foreach($grandparent as $gp)
-                                            <option value="{{ $gp->id }}">{{ $gp->customer_name }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
+                                
                                 <!-- <div class="form-group">
                                     <label for="selectBox"> Parent:</label>
                                 <select id="parentSelect" name="parentSelect" class="form-control" disabled> 
@@ -125,15 +115,77 @@
                         </div>
                         <div  id="editerrorMessage" >
                         </div>
-      <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
-        <div class="modal-body">
-            <div class="form-group">
-                        @csrf
+                        <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                @csrf
                                 <input type="hidden" name="account_id" id="account_id" value="">
                                 <label>Account Name</label>
                                 <input type="text" placeholder="Enter Account Name" class="form-control" name="account_name" id="account_name" value="">
                                 <div id="account_name_error"></div>
-                        
+
+                                <div class="form-group">
+                                    <label for="selectBox">Grand Parent Name:</label>
+                                    <select id="grandparentSelect" name="grandparent_name" class="form-control" > 
+                                        <option value="" selected>--Select--</option>
+                                        @if(!empty($grandparent))
+                                            @foreach($grandparent as $gp)
+                                            <option value="{{ $gp['id'] }}">{{ $gp['customer_name'] }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <label for="selectBox">Grand Parent Number:</label>
+                                    <select id="grandparentSelect" name="grandparent_id" class="form-control" > 
+                                        <option value="" selected>--Select--</option>
+                                        @if(!empty($grandparent_id))
+                                            @foreach($grandparent_id as $gp)
+                                            <option value="{{ $gp['id'] }}">{{ $gp['customer_name'] }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio"  value="1" name="parent_check" id="flexRadioDefault1">
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        Manually Add Parent
+                                    </label>
+                                    </div>
+                                    <div class="form-check">
+                                    <input class="form-check-input" type="radio" value="2" name="parent_check" id="flexRadioDefault2" checked>
+                                    <label class="form-check-label" for="flexRadioDefault2">
+                                        Using Select Add Parent
+                                    </label>
+                                </div>
+
+                                <div class="div1 form-group" style="display:none; ">
+                                    <label>Parent Name</label>
+                                    <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_name1" id="parent_name" value="">
+
+                                    <label>Parent Number</label>
+                                    <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_id1" id="parent_id" value="">
+                                </div>
+
+                                <div class="div2 form-group">
+                                    <label for="selectBox">Parent Name:</label>
+                                    <select id="parentSelect" name="parent_name" class="form-control" > 
+                                        <option value="" selected>--Select--</option>
+                                        @if(!empty($parent))
+                                            @foreach($parent as $p)
+                                            <option value="{{ $p['id'] }}">{{ $p['customer_name'] }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <label for="selectBox">Parent Number:</label>
+                                    <select id="parentSelect" name="parent_id" class="form-control" > 
+                                        <option value="" selected>--Select--</option>
+                                        @if(!empty($parent_id))
+                                            @foreach($parent_id as $p)
+                                            <option value="{{ $p['id'] }}">{{ $p['customer_name'] }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
             </div>
         </div>
       <div class="modal-footer">
@@ -148,6 +200,19 @@
     </div>
 </div>
 <script>
+
+// Show/hide the divs based on radio button selection
+$('input[type="radio"]').change(function() {
+        var selectedValue = $(this).val();
+        console.log()
+        if(selectedValue == '1') {
+            $('.div1').show();
+            $('.div2').hide();
+        } else {
+            $('.div1').hide();
+            $('.div2').show();
+        }
+    });
         //set modal value 
         var myModal = document.getElementById('editAccountModal');
         myModal.addEventListener('show.bs.modal', function (event) {
@@ -163,6 +228,47 @@
         accountNameInput.value = recipient;
         accountIdInput.value = id;
         });
+
+    function selectCustomer (count='') {
+            $('.mySelectAccountGPName').select2({
+                ajax: {
+                    url: "{{ route('commission.customerSearch') }}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term // search term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 1
+            }).on('select2:select', function (e) {
+                var customerId = e.params.data.id; // Selected account_name ID
+                // Perform your AJAX request here using the selected account_name ID
+                $.ajax({
+                    url: "{{ route('commission.supplierSearch') }}",
+                    method: 'GET',
+                    data: {
+                        customer_number: customerId
+                    },
+                    success: function(response) {
+                        // Handle the AJAX response
+                        $('.mySelectSupplier'+count+'').val(response[0].supplier);
+                        $('.supplier_id'+count+'').val(response[0].id);
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle errors
+                        console.error(error);
+                    }
+                });
+            });
+        }
 
     $(document).ready(function() {
         // $('#grandparentSelect').change(function(){
@@ -275,17 +381,17 @@
         $('input[type="checkbox"]').change(function() {
             // Check if the checkbox is checked or unchecked
             if ($(this).prop('checked')) {
-                $('#grandparentSelect').prop('disabled', false);
+                // $('#grandparentSelect').prop('disabled', false);
             } else{
-                $('#grandparentSelect').val('');
-                $('#grandparentSelect').prop('disabled', true);
+                // $('#grandparentSelect').val('');
+                // $('#grandparentSelect').prop('disabled', true);
             }
         });
 
         $('#exampleModal').on('show.bs.modal', function (e) {
             $('#errorMessage').fadeOut();
             $("#add_supplier")[0].reset();
-            $('#grandparentSelect').prop('disabled', true);
+            // $('#grandparentSelect').prop('disabled', true);
         })
 
         //submit form with ajax
