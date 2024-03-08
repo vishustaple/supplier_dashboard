@@ -5,7 +5,7 @@
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
+    @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data','totalmissingaccount' => $totalmissingaccount])
     <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-2">Manage Accounts</h3>
         <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
@@ -14,10 +14,12 @@
                 <!-- <a href="{{ route('account.create')}}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Account</a> -->
                 <button id="downloadAccountCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                    <a href="{{ route('account.customer-edit')}}" class="bell_icon_link btn btn-info position-relative">
+                    <a href="{{ route('account.customer-edit', ['totalmissingaccount' => $totalmissingaccount])}}" class="bell_icon_link btn btn-info position-relative">
                        <i class="fa-solid fa-bell"></i>
+                       @if($totalmissingaccount)
                         @if($totalmissingaccount > 0)
                             <span class="notification-count">{{ $totalmissingaccount }}</span>
+                        @endif
                         @endif
                     </a>
             </div>
@@ -111,10 +113,57 @@
                 </thead>
             </table>
         </div>
+        <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editAccountModalLabel">Edit Account</h5>
+        <!-- Close icon -->
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+                      <div class="alert alert-success mx-2" id="editsuccessMessage" style="display:none;">
+                        </div>
+                        <div  id="editerrorMessage" >
+                        </div>
+      <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
+        <div class="modal-body">
+            <div class="form-group">
+                        @csrf
+                                <input type="hidden" name="account_id" id="account_id" value="">
+                                <label>Account Name</label>
+                                <input type="text" placeholder="Enter Account Name" class="form-control" name="account_name" id="account_name" value="">
+                                <div id="account_name_error"></div>
+                        
+            </div>
+        </div>
+      <div class="modal-footer">
+        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+      </form>   
+    </div>
+  </div>
+</div>
         
     </div>
 </div>
 <script>
+        //set modal value 
+        var myModal = document.getElementById('editAccountModal');
+        myModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Button that triggered the modal
+        var recipient = button.getAttribute('data-name'); // Extract value from data-* attributes
+        var id = button.getAttribute('data-id');
+    
+        var accountNameInput = document.getElementById('account_name');
+        console.log(accountNameInput);
+        var accountIdInput = document.getElementById('account_id');
+        console.log(accountIdInput);
+        // Set the value of the input element
+        accountNameInput.value = recipient;
+        accountIdInput.value = id;
+        });
+
     $(document).ready(function() {
         // $('#grandparentSelect').change(function(){
         // var selectedValue = $(this).val();
@@ -254,6 +303,7 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    
                      if(response.error){
                    
                         $('#errorMessage').text(response.error);
@@ -316,7 +366,83 @@
 
 
         });
+        //update account name 
+        $(document).on('click', '.btn-clos', function () {
+        
+        // $('#btn-close').click(function(e) {
+            // alert("hr");
+            e.preventDefault();
+            
+            $('#editAccountModal form')[0].reset();
+            $('#edit_account_name')[0].reset();
+        });
+        $('#editAccountModal').on('hidden.bs.modal', function (e) {
+        // Reset the form inside the modal
+        $('#editAccountModal form')[0].reset();
+    });
+        $("#edit_account_name").on('submit', function (e){
+            // alert("here");
 
+        e.preventDefault();
+        var formData = new FormData($('#edit_account_name')[0]);
+        console.log(formData);
+        $.ajax({
+                type: 'POST',
+                url: '{{ route("accountname.edit") }}', // Replace with your actual route name
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if(response.error){
+                    // Iterate over each field in the error object
+                    var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                            errorMessage = response.error;
+                        }
+                        $('#editerrorMessage').text('');
+                    $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                  $('#closeerrorMessage').on('click', function() {
+                    $('#editerrorMessage').hide();
+                                // location.reload();
+                            });
+                    // $('html, body').animate({ scrollTop: 0 }, 'slow');
+                   
+                }
+                    if(response.success){
+                        $('#page-loader').hide();
+                        $('#editsuccessMessage').text(response.success);
+                        $('#editsuccessMessage').css('display','block');
+                        $("form")[0].reset();
+                        //disable all field 
+                        $('#enddate,#file,#importBtn').prop('disabled', true);
+                        setTimeout(function () {
+                            $('#editsuccessMessage').fadeOut();
+                            window.location.reload();
+                        }, 5000); 
+                        
+                    }
+                    // Handle success response
+                    // console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    // console.error(xhr.responseText);
+                    const errorresponse = JSON.parse(xhr.responseText);
+                        $('#editerrorMessage').text(errorresponse.error);
+                        $('#editerrorMessage').css('display','block');
+                        setTimeout(function () {
+                         $('#editerrorMessage').fadeOut();
+                        }, 5000);
+                }
+            });
+
+
+        });
         $('#downloadAccountCsvBtn').on('click', function () {
             // Trigger CSV download
             downloadAccountCsv();

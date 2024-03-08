@@ -278,6 +278,40 @@ class AccountController extends Controller
             return response()->json(['error' => $e->getMessage()], 200);
         }
     }
+    public function editAccountName(Request $request){
+
+     
+        $accoundid = $request->account_id;
+        $accountname =$request->account_name;
+       
+        $validator = Validator::make(
+            [
+                'account_name'=>$request->account_name,
+               
+            ],
+            [
+                'account_name'=>'required|string|max:255',
+
+            ]
+        );
+        if( $validator->fails() )
+        {  
+           
+            return response()->json(['error' => $validator->errors()], 200);
+    
+        }
+        else{
+        try {
+            $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname]);
+            if($updateAccountName){
+                return response()->json(['success' => 'Account Name Update Successfully!'], 200);
+            }
+           } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 200);
+           }
+        }
+
+    }
     public function updateMissingAccount(Request $request){
        $missingid = $request->id;
        $missingvalue =$request->ColumnValue;
@@ -291,4 +325,5 @@ class AccountController extends Controller
        }
 
     }
+
 }

@@ -19,8 +19,8 @@
                     <p>Please create your password by clicking the button below:</p>
                     <p>If you did not request this, please ignore this email.</p>
                     <p>Thank you!</p>
-                    <a style="color: #fff;background-color: #007bff; border-color: #007bff;text-align:center;border-radius:5px;padding:7px 15px;margin:20px 0px;" href="{{ route('create.password', ['data' => encrypt($userid.'|'.$token)]) }}" class="btn btn-primary">Create Password</a>
-                    <!-- <a style="color: #fff;background-color: #007bff; border-color: #007bff;text-align:center;border-radius:5px;padding:7px 15px;margin:20px 0px;" href="{{ route('create.password', ['data' => substr(encrypt($userid.'|'.$token), 0, 20)]) }}" class="btn btn-primary">Create Password</a> -->
+                 
+                    <a style="color: #fff;background-color: #007bff; border-color: #007bff;text-align:center;border-radius:5px;padding:7px 15px;margin:20px 0px;" href="{{ route('create.password', ['data' => $data]) }}" class="btn btn-primary">Create Password</a>
                 </div>
             </div>
         </div>
