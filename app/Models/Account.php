@@ -408,4 +408,67 @@ class Account extends Model
             ];
         }
     }
+
+    public static function getSearchGPNameData(){
+        $query = self::query()->select('grandparent_name')
+        ->whereNotNull('grandparent_name');
+        // ->whereNotNull('grandparent_id');
+        $query->groupBy('grandparent_name');
+        $results = $query->get();
+
+        if ($results->isNotEmpty()) {
+            foreach ($results as $value) {
+                $finalArray[] = ['id' => $value->grandparent_name, 'customer_name' => $value->grandparent_name];        
+            }
+
+            return $finalArray;
+        }
+    }
+
+    public static function getSearchGPNumberData(){
+        $query = self::query()->select('grandparent_id')
+        // ->whereNotNull('grandparent_name')
+        ->whereNotNull('grandparent_id');
+        $query->groupBy('grandparent_id');
+        $results = $query->get();
+
+        if ($results->isNotEmpty()) {
+            foreach ($results as $value) {
+                $finalArray[] = ['id' => $value->grandparent_id, 'customer_name' => $value->grandparent_id];        
+            }
+
+            return $finalArray;
+        }
+    }
+
+    public static function getSearchPNameData(){
+        $query = self::query()->select('parent_name')
+        ->whereNotNull('parent_name');
+        // ->whereNotNull('parent_id');
+        $query->groupBy('parent_name');
+        $results = $query->get();
+
+        if ($results->isNotEmpty()) {
+            foreach ($results as $value) {
+                $finalArray[] = ['id' => $value->parent_name, 'customer_name' => $value->parent_name];        
+            }
+
+            return $finalArray;
+        }            
+    }
+
+    public static function getSearchPNumberData(){
+        $query = self::query()->select('parent_id')
+        ->whereNotNull('parent_id');
+        $query->groupBy('parent_name');
+        $results = $query->get();
+
+        if ($results->isNotEmpty()) {
+            foreach ($results as $value) {
+                $finalArray[] = ['id' => $value->parent_id, 'customer_name' => $value->parent_id];        
+            }
+
+            return $finalArray;
+        }            
+    }
 }

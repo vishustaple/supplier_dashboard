@@ -49,8 +49,12 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
         Route::get('/accounts/edit/{id}/{routename}' , [AccountController::class,'editAccount'])->name('account.edit');
         Route::get('/accounts/customer-edit' , [AccountController::class,'editCustomerName'])->name('account.customer-edit');
-        ROute::post('/accounts/update-missing-account',[AccountController::class,'updateMissingAccount'])->name('account.missing');
-        ROute::post('/accounts/editaccountname',[AccountController::class,'editAccountName'])->name('accountname.edit');
+        Route::post('/accounts/update-missing-account',[AccountController::class,'updateMissingAccount'])->name('account.missing');
+        Route::post('/accounts/editaccountname',[AccountController::class,'editAccountName'])->name('accountname.edit');
+        Route::get('/accounts/gp-name',[AccountController::class,'gPName'])->name('grandParentName');
+        Route::get('/accounts/gp-number',[AccountController::class,'gPNumber'])->name('grandParentNumber');
+        Route::get('/accounts/p-name',[AccountController::class,'PName'])->name('ParentName');
+        Route::get('/accounts/p-number',[AccountController::class,'PNumber'])->name('ParentNumber');
 
         /** Account Section End */
 
