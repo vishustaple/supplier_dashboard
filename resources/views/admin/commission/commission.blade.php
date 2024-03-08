@@ -2,6 +2,7 @@
 
  @section('content')
  <div id="layoutSidenav">
+    
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Commission'])
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -67,13 +68,13 @@
             margin-left:5px;
         }
     </style>
+    
     <div id="layoutSidenav_content" >
         <h3 class="mb-0 ps-2">Manage Commission</h3>
         <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
-                <!-- <a href="{{ route('account.create')}}" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Account</a> -->
+                <a href="{{ route('commission.list', ['commissionType' => 'commission_listing'])}}" class="btn btn-secondary border-0 bg_yellow" title="Back"><i class="fas fa-arrow-left me-2"></i>Back</a>
                 </div>
         </div> 
         <div class="container">
