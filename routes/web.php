@@ -55,7 +55,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/accounts/gp-number',[AccountController::class,'gPNumber'])->name('grandParentNumber');
         Route::get('/accounts/p-name',[AccountController::class,'PName'])->name('ParentName');
         Route::get('/accounts/p-number',[AccountController::class,'PNumber'])->name('ParentNumber');
-
+        Route::get('/accounts/count',[AccountController::class,'getEmptyAccountNameAccounts'])->name('accounts.counts');
+        
         /** Account Section End */
 
         /** Report Section Start */
@@ -99,6 +100,7 @@ Route::group(['prefix' => 'admin'], function () {
         /** Rebate Section Start */
         Route::get('/rebate/{rebateType}/{id?}' , [RebateController::class,'index'])->name('rebate.list');
         Route::post('/rebates/filter' , [RebateController::class,'getRebateWithAjax'])->name('rebate.filter');
+        Route::post('/rebates/update' , [RebateController::class,'rebateUpdate'])->name('rebate.update');
         // Route::get('/rebates/csv' , [RebateController::class,'exportCatalogCsv'])->name('rebate.export-csv');
         
         /** Rebate Section End */

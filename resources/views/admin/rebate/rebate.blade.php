@@ -14,22 +14,11 @@
                 </div>
         </div> 
         <div class="container">
-        <!-- <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Account Number</th>
-                <th scope="col">Customer Name</th>
-                <th scope="col">Supplier</th>
-                <th scope="col">Volume Rebate</th>
-                <th scope="col">Incentive Rebate</th>
-                <th scope="col">Action</th>
-            </tr>
-        </thead>
-        <tbody>
+        <div class="" id="successMessages">
+        </div>
 
-        </tbody>
-        </table> -->
-
+        <div class="" id="errorMessage">    
+        </div>
         <table id="account_data" class="data_table_files">
             <thead>
                     <tr>
@@ -54,7 +43,6 @@
             },
             processing: true,
             serverSide: true,
-            // lengthMenu: [],
             pageLength: 50,
             ajax: {
                 url: '{{ route("rebate.filter") }}',
@@ -93,6 +81,47 @@
 
         });
 
+        $(document).on('click', '.save_rebate', function(){
+            var rowData = accountTable.row($(this).closest('tr')).data(),
+            formData = { account_number : $(this).closest('tr').find('.account_number').val(), volume_rebate : $(this).closest('tr').find('.volume_rebate').val(), incentive_rebate : $(this).closest('tr').find('.incentive_rebate').val()},
+            token = "{{ csrf_token() }}";
+
+            $.ajax({
+                type: 'POST',
+                url: "{{route('rebate.update')}}",
+                dataType: 'json',
+                data: JSON.stringify(formData),                        
+                headers: {'X-CSRF-TOKEN': token},
+                contentType: 'application/json',                     
+                processData: false,
+                
+                success: function(response) {
+                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+                    if(response.error){
+                        var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                            errorMessage = response.error;
+                        }
+
+                        $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    }
+
+                    if(response.success){
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        // window.location.href = "{{ route('commission.list', ['commissionType' => 'commission_listing']) }}";
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.error(xhr.responseText);
+                }
+            });
+        });
     });
 </script>
 @endsection
