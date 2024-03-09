@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{Account,Rebate};
+use App\Models\{Account, Rebate};
 
 class RebateController extends Controller
 {
@@ -36,4 +36,28 @@ class RebateController extends Controller
         }
     }
 
+    public function rebateUpdate(Request $request){
+        if ($request->ajax()) {
+            $rebate = Rebate::where('account_number', $request->account_number)->first();
+
+            /** Check if the record exists */
+            if($rebate) {
+                /** Update the existing record with validated data */
+                $rebate->update(['account_number' => $request->input('account_number'),
+                'volume_rebate' => $request->input('volume_rebate'),
+                'incentive_rebate' => $request->input('incentive_rebate'),
+                ]);
+            
+                return response()->json(['success' => 'Rebate updated successfully'], 200);
+            } else {
+                /** Create a new record with validated data */
+                $rebate = Rebate::create(['account_number' => $request->input('account_number'),
+                'volume_rebate' => $request->input('volume_rebate'),
+                'incentive_rebate' => $request->input('incentive_rebate'),
+                ]);
+            
+                return response()->json(['success' => 'Record added successfully'], 200);
+            }
+        }
+    }
 }

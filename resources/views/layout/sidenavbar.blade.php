@@ -14,12 +14,8 @@
                             </a>
                             <a href="{{ route('account.customer-edit')}}" class="bell_icon_link position-relative">
                        <i class="fa-solid fa-bell"></i>
-                       @if(!empty($totalmissingaccount))
-                        @if($totalmissingaccount > 0)
-                            <span class="notification-count">{{ $totalmissingaccount }}</span>
-                        @endif
-                        @endif
-                    </a>
+                            <span class="notification-count" id="account_count"></span>
+                        </a>
                             </div>
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Sales Team') ? 'active' : '' }}" href="{{route('sales.index')}}">
                                 <div class="sb-nav-link-icon"><i class="fa fa-address-card" aria-hidden="true"></i></div>
@@ -89,4 +85,28 @@
                     <span class="text-white">CenterPoint Group</span>
                     </div>
                 </nav>
+                <script>
+                    var token = "{{ csrf_token() }}";
+                     $.ajax({
+                        type: 'GET',
+                        url: "{{route('accounts.counts')}}",
+                        dataType: 'json',                       
+                        headers: {'X-CSRF-TOKEN': token},
+                        processData: false,
+                        
+                        success: function(response) {
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
+                            if(response.error){
+                            }
+
+                            if(response.success){
+                                $('#account_count').text(response.success);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // Handle error response
+                            console.error(xhr.responseText);
+                        }
+                    });
+                </script>
 </div>

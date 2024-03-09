@@ -277,18 +277,10 @@
         setDate();
         selectCustomer();
         $('#add_commission').on('click', function(){
+            // Your existing code to append rows to the table
+            var count = $('#commission_table tbody tr').length + 1;
 
-        
-
-        // Your existing code to append rows to the table
-        var count = $('#commission_table tbody tr').length + 1;
-
-        console.log('Current count:', count);
-        $('#commission_table').append('<tr><form id="commission_form'+count+'"><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountName'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input class="supplier_id'+count+'" type="hidden" name="supplier[]" value=""><input type="text" required class="mySelectSupplier'+count+' form-control-sm" disabled name="suppliers[]" value=""></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm"><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button><button type="button" value="'+count+'" class="btn btn-primary save check'+count+'">Save</button></div></td></form></tr>');
-
-
-           
-
+            $('#commission_table').append('<tr><form id="commission_form'+count+'"><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountName'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input class="supplier_id'+count+'" type="hidden" name="supplier[]" value=""><input type="text" required class="mySelectSupplier'+count+' form-control-sm" disabled name="suppliers[]" value=""></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm"><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button><button type="button" value="'+count+'" class="btn btn-primary save check'+count+'">Save</button></div></td></form></tr>');
             setDate(count);
             selectCustomer(count);
         });
@@ -298,14 +290,9 @@
         });
 
         // Add a submit event listener to the table
-        // $('.save').on('click', function(event) {
-            $("body").on("click", ".save", function() {
-            // event.preventDefault(); // Prevent the default form submission
-
+        $("body").on("click", ".save", function() {
             var currentCount = $(this).val(); // Get the current count value
-            console.log('Form submitted for count:', currentCount);
-            // Add more debugging statements if needed
-            // Ensure that saveData function is accessible and correctly implemented
+            // console.log('Form submitted for count:', currentCount);
             saveData(currentCount); // Call the saveData function with the current count value
         });
       

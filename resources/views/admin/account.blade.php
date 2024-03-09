@@ -95,10 +95,10 @@
                         <th>Customer Name</th>
                         <th>Account Name</th>
                         <th>Supplier</th>
-                        <th>Parent Name</th>
-                        <th>Parent Number</th>
-                        <th>Grand Parent Name</th>
-                        <th>Grand Parent Number</th>
+                        <th>P Name</th>
+                        <th>P Number</th>
+                        <th>GP Name</th>
+                        <th>GP Number</th>
                         <th>Category</th>
                         <th>Action</th>
                     </tr>

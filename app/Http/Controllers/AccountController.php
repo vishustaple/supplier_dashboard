@@ -58,6 +58,13 @@ class AccountController extends Controller
         return view('admin.account' ,compact(['totalmissingaccount' => 'totalmissingaccount', 'grandparent' => 'grandparent', 'parent' => 'parent', 'grandparent_id' => 'grandparent_id', 'parent_id' => 'parent_id']));
     }
 
+    public function getEmptyAccountNameAccounts(Request $request){
+        if ($request->ajax()) {
+            $missingAccount = Account::whereNull('account_name')->orWhere('account_name', '')->get();
+            $totalmissingaccount = count($missingAccount);
+            return response()->json(['success' => $totalmissingaccount], 200);
+        }
+    }
     public function addAccount(Request $request){
 
     //   dd($request->all());

@@ -103,14 +103,22 @@ class SalesTeam extends Model
                 $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
                 // <a class=" " title="View Details" href= '.route('sales.index', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a>
                 // <a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a>
-                $formatuserdata[$key]['status'] = '<div class="form-check form-switch">
-                <input class="form-check-input m-0" type="checkbox" role="switch" id="flexSwitchCheckChecked"';
+                // $formatuserdata[$key]['status'] = '<div class="form-check form-switch">
+                // <input class="form-check-input m-0" type="checkbox" role="switch" id="flexSwitchCheckChecked"';
+
+                $formatuserdata[$key]['status'] = '<div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"';
                 if ($data->status == 1) {
                     $formatuserdata[$key]['status'] .= ' checked';
                 }
                 // Add onclick event handler
                 $formatuserdata[$key]['status'] .= ' onclick="toggleDisableEnable('.$data->id.')"';
-                $formatuserdata[$key]['status'] .= '></div>';
+                $formatuserdata[$key]['status'] .= '>';
+                if ($data->status == 1) {
+                    $formatuserdata[$key]['status'] .= '<label class="form-check-label" for="flexCheckDefault">Active</label></div>';
+                } else {
+                    $formatuserdata[$key]['status'] .= '<label class="form-check-label" for="flexCheckDefault">In-Active</label></div>';
+                }
            }
            
             

@@ -312,8 +312,8 @@ class Account extends Model
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
         } else {
             $query = self::query() /** Eager load relationships */
-            ->select('master_account_detail.parent_name as parent_name',
-             'master_account_detail.grandparent_name as grand_parent_name',
+            ->select('rebate.volume_rebate as volume_rebate',
+            'rebate.incentive_rebate as incentive_rebate',
              'master_account_detail.id as id',
              'master_account_detail.record_type as record_type',
              'master_account_detail.created_at as date',
@@ -399,9 +399,9 @@ class Account extends Model
                 $formatuserdata[$key]['account_name'] = $data->account_name;
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 // $formatuserdata[$key]['incentive_rebate'] = $data->incentive_rebate;
-                $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm' name='volume_rebate' value='".$data->volume_rebate."' required/>" ;
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='text' class='form-control form-control-sm' name='incentive_rebate' value='".$data->incentive_rebate."'  required/>";
-                $formatuserdata[$key]['id'] = '<button type="button" class="btn btn-success"> Save </button></form>';
+                $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_number."' class='account_number'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
             }
         }
 

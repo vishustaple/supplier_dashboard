@@ -80,12 +80,7 @@
             ],
         });
 
-    // $('#sales_data_length').hide();
-    //     if (salesTable.data().count() > 40) {
-    //         $('#sales_data_paginate').show(); // Enable pagination
-    //     } else {
-    //         $('#sales_data_paginate').hide();
-    //     }
+
     $('#downloadSaleTeamCsvBtn').on('click', function () {
         // Trigger CSV download
         downloadSalesCsv();
