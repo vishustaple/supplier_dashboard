@@ -13,8 +13,8 @@
                                 Manage Accounts
                             </a>
                             <a href="{{ route('account.customer-edit')}}" class="bell_icon_link position-relative">
-                       <i class="fa-solid fa-bell"></i>
-                            <span class="notification-count" id="account_count"></span>
+                        <i class="fa-solid fa-bell"></i>
+                            <span class="notification-count" id="account_count" style="display:none"></span>
                         </a>
                             </div>
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Sales Team') ? 'active' : '' }}" href="{{route('sales.index')}}">
@@ -48,6 +48,7 @@
                                 Manage Users
                             </a>
                             @endif
+                      
                             <!-- Submenu for Manage Supplier -->
                             <a class="nav-link {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Business Report', 'Optimization Report', 'Consolidated Supplier Report', 'Supplier Rebate Report', 'Validation Rebate Report', 'Commission Report'])) ? 'active' : '' }}" data-toggle="collapse" href="#submenuSupplier">
                                <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
@@ -100,6 +101,7 @@
                             }
 
                             if(response.success){
+                                $('#account_count').css('display','block');
                                 $('#account_count').text(response.success);
                             }
                         },

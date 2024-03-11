@@ -39,6 +39,7 @@ class ReportController extends Controller
            return view('admin.viewdetail',compact('orders'));
 
         }
+ 
         return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::all()]);
     }
 

@@ -13,10 +13,12 @@
         </div>
         <div  id="editerrorMessage" >
         </div>
+        <div class="edit_wrapper_block ps-3 m-3">
+            <div class="card shadow border-0 p-5">
         <form class="" id="edit_sales">
             @csrf
             <input type="hidden" value="{{$sales->id}}" name="id" id="id">
-            <div class="col-md-12 row">
+            <div class="row">
                 <div class="form-group col-md-6">
                     <label>First Name</label>
                     <input type="text" placeholder="Enter First Name" class="form-control" value="{{$sales->first_name}}" name="first_name" id="first_name" required>
@@ -65,10 +67,16 @@
                 </div>
 
             </div>
-            <div class="text-left col-md-6">
+
+            <div class="row pt-3">
+            <div class="text-center col-md-12">
                 <button type="submit" class="btn btn-primary mx-auto" id="sales_edits">Submit</button>
             </div>    
+            </div>
+
         </form>
+        </div>
+        </div>
     </div>
 </div>
 <script>

@@ -7,7 +7,7 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data','totalmissingaccount' => $totalmissingaccount])
     <div id="layoutSidenav_content" >
-        <h3 class="mb-0 ps-2">Manage Accounts</h3>
+        <h3 class="mb-0 ps-2 ms-1">Manage Accounts</h3>
         <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
@@ -121,12 +121,19 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                 @csrf
+
+                                <div class="modal_input_wrap">
                                 <input type="hidden" name="account_id" id="account_id" value="">
                                 <label>Account Name</label>
+                                </div>
+
+                                <div class="modal_input_wrap pb-3">
                                 <input type="text" placeholder="Enter Account Name" class="form-control" name="account_name" id="account_name" value="">
                                 <div id="account_name_error"></div>
-
-                                <div class="form-group">
+                                </div>
+                                 
+                                <div class="row">
+                                <div class="form-group col-md-6 pb-3">
                                     <label for="selectBox">Grand Parent Name:</label>
                                     <select id="grandparentSelect" name="grandparent_name" class="form-control" > 
                                         <option value="" selected>--Select--</option>
@@ -136,6 +143,8 @@
                                             @endforeach
                                         @endif
                                     </select>
+                                </div>
+                                <div class="form-group col-md-6 ">
                                     <label for="selectBox">Grand Parent Number:</label>
                                     <select id="grandparentSelect" name="grandparent_id" class="form-control" > 
                                         <option value="" selected>--Select--</option>
@@ -146,26 +155,33 @@
                                         @endif
                                     </select>
                                 </div>
+                                </div>
                                 
-                                <div class="form-check">
+                                <div class="row m-0 pb-3">
+                                <div class="form-check col-md-6">
                                     <input class="form-check-input" type="radio"  value="1" name="parent_check" id="flexRadioDefault1">
                                     <label class="form-check-label" for="flexRadioDefault1">
                                         Manually Add Parent
                                     </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check col-md-6">
                                     <input class="form-check-input" type="radio" value="2" name="parent_check" id="flexRadioDefault2" checked>
                                     <label class="form-check-label" for="flexRadioDefault2">
                                         Using Select Add Parent
                                     </label>
                                 </div>
+                                </div>
 
-                                <div class="div1 form-group" style="display:none; ">
+                                
+                                <div class="div1 form-group row" style="display:none; ">
+                                <div class="pb-3">
                                     <label>Parent Name</label>
                                     <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_name1" id="parent_name" value="">
-
+                                    </div>
+                                    <div class="">
                                     <label>Parent Number</label>
                                     <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_id1" id="parent_id" value="">
+                                </div>
                                 </div>
 
                                 <div class="div2 form-group">
@@ -178,6 +194,8 @@
                                             @endforeach
                                         @endif
                                     </select>
+                                    </div>
+                                    <div class="div2 form-group">
                                     <label for="selectBox">Parent Number:</label>
                                     <select id="parentSelect" name="parent_id" class="form-control" > 
                                         <option value="" selected>--Select--</option>

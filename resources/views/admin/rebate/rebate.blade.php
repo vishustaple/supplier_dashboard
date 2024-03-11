@@ -1,10 +1,10 @@
-@extends('layout.app', ['pageTitleCheck' => 'Accounts Data'])
+@extends('layout.app', ['pageTitleCheck' => $pageTitle])
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data'])
+    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content" >
-        <h3 class="mb-0 ps-2">Manage Rebate</h3>
+        <h3 class="mb-0 ps-2 ms-1">Manage Rebate</h3>
         <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
@@ -19,7 +19,7 @@
 
         <div class="" id="errorMessage">    
         </div>
-        <table id="account_data" class="data_table_files">
+        <table id="rebate_data" class="data_table_files">
             <thead>
                     <tr>
                         <th>Account Number</th>
@@ -27,7 +27,7 @@
                         <th>Account Name</th>
                         <th>Supplier</th>
                         <th>Volume Rebate</th>
-                        <th>Incentive Rebate</th>
+                        <th class="inncnetive_rebate">Incentive Rebate</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -37,7 +37,8 @@
 </div>
 <script>
     $(document).ready(function(){
-        var accountTable = $('#account_data').DataTable({
+      
+        var accountTable = $('#rebate_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
@@ -78,9 +79,9 @@
                 { data: 'incentive_rebate', name: 'incentive_rebate' },
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
-
+            
         });
-
+        $('#rebate_data_length').hide();
         $(document).on('click', '.save_rebate', function(){
             var rowData = accountTable.row($(this).closest('tr')).data(),
             formData = { account_number : $(this).closest('tr').find('.account_number').val(), volume_rebate : $(this).closest('tr').find('.volume_rebate').val(), incentive_rebate : $(this).closest('tr').find('.incentive_rebate').val()},
