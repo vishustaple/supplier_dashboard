@@ -26,9 +26,12 @@
         }
 
         #commission_table tbody tr td:nth-of-type(4) {
-            width: 130px;
+            width: 140px;
         }
-
+        #commission_table tbody tr td select{
+            background-color: transparent;
+            border-color: #ccc;
+        }
         #commission_table tbody tr td:nth-of-type(5) {
             width: 176px;
         }
@@ -55,7 +58,10 @@
         #commission_table td{
             padding:.50rem;
         }
-        #commission_table tbody tr td:nth-of-type(6) #add_commission {
+        #commission_table tbody tr td:nth-of-type(6) #add_commission,
+        #commission_table tbody  button.btn.btn-primary.check.save,
+        #commission_table tbody  button.removeRowBtn.btn.btn-danger,
+        #commission_table tbody button.btn.btn-primary.save.check2{
             height: 31px;
             display: flex;
             align-content: center;
@@ -64,8 +70,14 @@
             padding: 5px 10px;
             font-weight: 500;
         }
+        #commission_table tbody  button.removeRowBtn.btn.btn-danger{
+            min-width: 36px;
+        }
         #commission_table tbody tr td:nth-of-type(6) button + button{
             margin-left:5px;
+        }
+        #commission_data_length {
+           display :none !important;    
         }
     </style>
     
@@ -132,6 +144,7 @@
    
 
     $(document).ready(function() {
+        $('#commission_data_length').hide();
         function saveData(count=''){
             var accountName = $('.mySelectAccountName'+count+'').find('option:selected').text(),
             supplierName = $('.mySelectSupplier'+count+'').val(),
@@ -295,7 +308,7 @@
             // console.log('Form submitted for count:', currentCount);
             saveData(currentCount); // Call the saveData function with the current count value
         });
-      
+       
     });
 </script>
 

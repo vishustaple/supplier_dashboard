@@ -5,7 +5,7 @@
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar')
+    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="container">
             <div class="m-1 mb-2 d-md-flex align-items-center justify-content-between">
@@ -13,7 +13,7 @@
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
-                <div class="row align-items-end">
+                <div class="row align-items-end py-3 border-top border-bottom mb-3">
                     <div class="form-group col-md-4 mb-0">
                         <label for="selectBox">Select Supplier:</label>
                         <select id="selectBox" name="supplierselect" class="form-control"> 
@@ -25,10 +25,10 @@
                             @endif
                             </select>
                         </div>
-                    <div class="form-group relative col-md-4 mb-0">  
-                        <label for="enddate">Select Date:</label>
-                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
-                    </div>
+                        <div class="form-group relative col-md-4 mb-0">  
+                            <label for="enddate">Select Date:</label>
+                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                        </div>
 
                     <div class="col-md-4 mb-0">
                     <button type="submit" class="btn btn-primary">Submit</button>

@@ -123,6 +123,9 @@ table thead tr th{
 table#account_data  thead tr th{
   white-space: nowrap !important; 
 }
+table#account_data {
+  display: block !important;
+}
 /* .data_table_files tbody tr td:last-child{
     width: 70px !important;
     min-width: 70px;
@@ -372,4 +375,27 @@ div#layoutSidenav_content {
   div#example_wrapper {
     overflow: auto;
     }
+}
+
+/* ___ */
+div#editAccountModal .modal-dialog {
+  max-width: 700px;
+}
+div#editAccountModal .modal-dialog .modal-body {
+  padding: 15px 58px;
+}
+div#editAccountModal .modal-header {
+  justify-content: center;
+}
+
+div#editAccountModal .modal-header button.btn-close {
+  position: absolute;
+  right: 10px;
+  top: 7px;
+}
+div#editAccountModal .modal-footer {
+  justify-content: center;
+}
+th.inncnetive_rebate.sorting {
+  width: auto !important;
 }

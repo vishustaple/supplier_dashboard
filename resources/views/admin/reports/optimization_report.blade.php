@@ -5,7 +5,7 @@
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar')
+    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="container">
             <div class="m-1 mb-2 d-md-flex align-items-center justify-content-between">

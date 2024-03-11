@@ -7,7 +7,7 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content" >
-        <h3 class="mb-0 ps-2">Sales Team Accounts</h3>
+        <h3 class="mb-0 ps-2 ms-1">Sales Team Accounts</h3>
         <div class="row align-items-end border-bottom pb-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
@@ -25,8 +25,8 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone Number</th>
-                        <th>Status</th>
                         <th>Team User Type</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -74,13 +74,13 @@
                 { data: 'name', name: 'name' },
                 { data: 'email', name: 'email' },
                 { data: 'phone', name: 'phone' },
-                { data: 'status', name: 'status' },
                 { data: 'team_user_type', name: 'team_user_type' },
+                { data: 'status', name: 'status' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
         });
 
-
+      $('#sales_data_length').hide();
     $('#downloadSaleTeamCsvBtn').on('click', function () {
         // Trigger CSV download
         downloadSalesCsv();
