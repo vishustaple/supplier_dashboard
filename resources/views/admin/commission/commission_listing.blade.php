@@ -97,7 +97,7 @@
             ],
         });
 
-  
+        $('#commission_data_length').hide();
         $('#downloadCommissionCsvBtn').on('click', function () {
             // Trigger CSV download
             downloadCommissionCsv();

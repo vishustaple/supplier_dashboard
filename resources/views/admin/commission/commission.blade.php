@@ -76,9 +76,7 @@
         #commission_table tbody tr td:nth-of-type(6) button + button{
             margin-left:5px;
         }
-        #commission_data_length {
-           display :none !important;    
-        }
+      
     </style>
     
     <div id="layoutSidenav_content" >
@@ -144,7 +142,7 @@
    
 
     $(document).ready(function() {
-        $('#commission_data_length').hide();
+        
         function saveData(count=''){
             var accountName = $('.mySelectAccountName'+count+'').find('option:selected').text(),
             supplierName = $('.mySelectSupplier'+count+'').val(),
