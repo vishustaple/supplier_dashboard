@@ -101,7 +101,7 @@
                             }
 
                             if(response.success){
-                                $('#account_count').css('display','block');
+                                $('#account_count').css('display','flex');
                                 $('#account_count').text(response.success);
                             }
                         },
