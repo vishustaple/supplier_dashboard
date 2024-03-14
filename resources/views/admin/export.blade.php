@@ -241,6 +241,43 @@ div#errorMessage {
     </body>
     <script>
     $(document).ready(function() {
+       //datatable intialization
+       var exportTable =  $('#example').DataTable({
+            "paging": true,   // Enable pagination
+            "ordering": false, // Enable sorting
+            "searching": true, // Enable search
+            "lengthChange":false,
+            "pageLength": 40,
+            "data": <?php if(isset($data)){ echo $data; }  ?>,
+            "columns": [
+                { title: 'Supplier' },
+                { title: 'File Name' },
+                { title: 'Status' },
+                { title: 'Uploaded By' },
+                { title: 'Date' },
+                { title: 'Action' },
+                // Add more columns as needed
+            ],
+            "rowCallback": function(row, data, index) {
+                // Loop through each cell in the row
+                $('td', row).each(function() {
+                    // Check if the cell contains a button with a specific class
+                    if ($(this).find('button.invisible').length) {
+                        $(row).css('background-color','#f09b9b');
+                    }
+                });
+            }
+            
+        });
+        if (exportTable.data().count() > 40) {
+            // console.log("here");
+            $('#example_paginate').show(); // Enable pagination
+        } else {
+          
+            $('#example_paginate').hide();
+        }
+        //end of datatable
+
         $('#page-loader').hide();
         $('#importBtn').on( "click", function(event) {
             event.preventDefault();
@@ -257,6 +294,7 @@ div#errorMessage {
                 contentType: false,
                 dataType: 'json',
                 success: function(response) {
+                    console.log(response);
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                     if(response.error){
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
@@ -270,20 +308,32 @@ div#errorMessage {
                         } else {
                             errorMessage = response.error;
                         }
-
+                        $('#errorMessage').html('');
                         $('#page-loader').hide();
                         $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                     }
 
                     if(response.success){
+                    
                         // button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
                         button.disabled = false;
                         // document.getElementById('importBtn').disabled = false;
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
-
+                        $('#successMessages').html('');
                         $('#page-loader').hide();
-                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="successclose close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         // $("form")[0].reset();
+                        
+                        var dataTable = $('#example').DataTable();
+                            if (dataTable) {
+                            // Reload DataTable only if it exists
+                            dataTable.ajax.reload();
+                            } else {
+                            console.error('DataTable instance is not available or properly initialized.');
+                            }
+
+   
+
                     }
                     // Handle success response
                     // console.log(response);
@@ -378,40 +428,7 @@ div#errorMessage {
             }
         });
 
-         var exportTable =  $('#example').DataTable({
-            "paging": true,   // Enable pagination
-            "ordering": false, // Enable sorting
-            "searching": true, // Enable search
-            "lengthChange":false,
-            "pageLength": 40,
-            "data": <?php if(isset($data)){ echo $data; }  ?>,
-            "columns": [
-                { title: 'Supplier' },
-                { title: 'File Name' },
-                { title: 'Status' },
-                { title: 'Uploaded By' },
-                { title: 'Date' },
-                { title: 'Action' },
-                // Add more columns as needed
-            ],
-            "rowCallback": function(row, data, index) {
-                // Loop through each cell in the row
-                $('td', row).each(function() {
-                    // Check if the cell contains a button with a specific class
-                    if ($(this).find('button.invisible').length) {
-                        $(row).css('background-color','#f09b9b');
-                    }
-                });
-            }
-            
-        });
-        if (exportTable.data().count() > 40) {
-            // console.log("here");
-            $('#example_paginate').show(); // Enable pagination
-        } else {
-          
-            $('#example_paginate').hide();
-        }
+      
         $(document).on('click','.edit_column',function(){
             var id = $(this).attr('data-id'); 
             console.log(id);
@@ -551,10 +568,13 @@ div#errorMessage {
             });
         }
     });
-    
+        // $('.successclose').click(function() {
+        //     $('#example').DataTable().ajax.reload();
+
+        // });
         //reset table after closing popup
         $("#close_popup,#close_popup2").click(function() {
-            location.reload();
+            // location.reload();
             // Loop through each table row
             $("#table_column tbody tr").each(function() {
             var td = $(this).find("td:eq(1)");
