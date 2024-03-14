@@ -554,7 +554,7 @@ div#errorMessage {
     
         //reset table after closing popup
         $("#close_popup,#close_popup2").click(function() {
-            location.reload();
+            // location.reload();
             // Loop through each table row
             $("#table_column tbody tr").each(function() {
             var td = $(this).find("td:eq(1)");
