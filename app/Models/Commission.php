@@ -54,6 +54,7 @@ class Commission extends Model
                 'suppliers.supplier_name as supplier_name',
                 'commission.commission as commission',
                 'commission.start_date as start_date',
+                'commission.status as status',
                 DB::raw("CONCAT(sales_team.first_name, ' ', sales_team.last_name) AS sales_rep"),
                 'commission.end_date as end_date',
                 'commission.id as id'
@@ -97,7 +98,7 @@ class Commission extends Model
         }
 
         // Print the SQL query
-        // dd($query->toSql());    
+        // dd($filteredData->toArray());    
 
         // Get filtered records count
         $filteredRecords = $query->count();
@@ -134,6 +135,7 @@ class Commission extends Model
             $finalArray['heading'] = $keyArray;
             return $finalArray;
         } else {
+
             foreach ($filteredData as $key => $data) {
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
                 $formatuserdata[$key]['customer_number'] = $data->customer_number;
@@ -144,7 +146,13 @@ class Commission extends Model
                 $formatuserdata[$key]['start_date'] = date('m/d/Y', strtotime($data->start_date));//date_format(date_create($data->start_date), 'm/d/Y');
                 $formatuserdata[$key]['end_date'] = date('m/d/Y', strtotime($data->end_date)); //date_format(date_create($data->end_date), 'm/d/Y');
                 // $formatuserdata[$key]['id'] = '<a class="btn btn-primary" title="View Details" href= '.route('catalog.list', ['catalogType' => 'Catalog List','id' => $data->id]).'><i class="fa-regular  fa-eye"></i></a>';
-                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit SalesTeam" class=" " data-id="'.$data->id.'" data-commission="'.$data->commission.'" href="#" data-bs-toggle="modal" data-bs-target="#editcommisionModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit SalesTeam" class="edit_commission" data-id="'.$data->id.'" data-commission="'.$data->commission.'" href="#" data-bs-toggle="modal" data-bs-target="#editcommisionModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+                
+                if ($data->status == 1) {
+                    $formatuserdata[$key]['status'] = 'Active';
+                } else {
+                    $formatuserdata[$key]['status'] = 'In-Active';
+                }
             }
         }
 
