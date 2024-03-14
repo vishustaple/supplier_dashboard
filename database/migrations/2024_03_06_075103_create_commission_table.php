@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('commission');
             $table->date('start_date');
             $table->date('end_date');
+            $table->tinyInteger('status')->default(1)->comment("1 => active, 0 => Inactive,");
             $table->timestamps();
             $table->foreign('supplier')->references('id')->on('suppliers');
             $table->foreign('sales_rep')->references('id')->on('sales_team');

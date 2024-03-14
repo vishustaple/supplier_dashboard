@@ -241,7 +241,8 @@ div#errorMessage {
     </body>
     <script>
     $(document).ready(function() {
-        var exportTable =  $('#example').DataTable({
+       //datatable intialization
+       var exportTable =  $('#example').DataTable({
             "paging": true,   // Enable pagination
             "ordering": false, // Enable sorting
             "searching": true, // Enable search
@@ -275,6 +276,8 @@ div#errorMessage {
           
             $('#example_paginate').hide();
         }
+        //end of datatable
+
         $('#page-loader').hide();
         $('#importBtn').on( "click", function(event) {
             event.preventDefault();
@@ -291,6 +294,7 @@ div#errorMessage {
                 contentType: false,
                 // dataType: 'json',
                 success: function(response) {
+                    console.log(response);
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                     if(response.error){
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
@@ -304,21 +308,32 @@ div#errorMessage {
                         } else {
                             errorMessage = response.error;
                         }
-
+                        $('#errorMessage').html('');
                         $('#page-loader').hide();
                         $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                     }
 
                     if(response.success){
+                    
                         // button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
                         button.disabled = false;
                         // document.getElementById('importBtn').disabled = false;
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
-
+                        $('#successMessages').html('');
                         $('#page-loader').hide();
-                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                        exportTable.ajax.reload();
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="successclose close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         // $("form")[0].reset();
+                        
+                        var dataTable = $('#example').DataTable();
+                            if (dataTable) {
+                            // Reload DataTable only if it exists
+                            dataTable.ajax.reload();
+                            } else {
+                            console.error('DataTable instance is not available or properly initialized.');
+                            }
+
+   
+
                     }
                     // Handle success response
                     // console.log(response);
@@ -413,7 +428,7 @@ div#errorMessage {
             }
         });
 
-         
+      
         $(document).on('click','.edit_column',function(){
             var id = $(this).attr('data-id'); 
             console.log(id);
@@ -553,7 +568,10 @@ div#errorMessage {
             });
         }
     });
-    
+        // $('.successclose').click(function() {
+        //     $('#example').DataTable().ajax.reload();
+
+        // });
         //reset table after closing popup
         $("#close_popup,#close_popup2").click(function() {
             // location.reload();

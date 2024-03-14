@@ -7,7 +7,7 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'view Data'])
     <div id="layoutSidenav_content">
-        <h3 class="mb-0 ps-2">View Detail</h3>
+        <h3 class="mb-0 ps-2 ms-1">View Detail</h3>
         <div class="row align-items-end border-bottom pb-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
             @if (isset($orders) && !empty($orders))

@@ -115,6 +115,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/commissions/supplier-search' , [CommissionController::class,'commissionAjaxSupplierSearch'])->name('commission.supplierSearch');
         Route::post('/commissions/add' , [CommissionController::class,'commissionAdd'])->name('commission.add');
         Route::get('/commissions/csv' , [CommissionController::class,'exportCatalogCsv'])->name('commission.export-csv');
+        Route::get('/commissions/edit/{id}' , [CommissionController::class,'editCommission'])->name('commission.edit');
       
         /** Commission Section End */
     });
