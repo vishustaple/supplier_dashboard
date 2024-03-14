@@ -99,7 +99,7 @@
             <tr>
                 <th scope="col">Account Name</th>
                 <th scope="col">Supplier</th>
-                <th scope="col">Sales Repersantative</th>
+                <th scope="col">Sales Rep</th>
                 <th scope="col">Commission %</th>
                 <th scope="col">Start/End Date</th>
                 <th scope="col">Action</th>
