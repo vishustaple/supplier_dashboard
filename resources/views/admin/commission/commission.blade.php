@@ -285,6 +285,8 @@
             });
         }
 
+       
+
         setDate();
         selectCustomer();
         $('#add_commission').on('click', function(){
