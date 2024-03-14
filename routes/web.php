@@ -100,7 +100,9 @@ Route::group(['prefix' => 'admin'], function () {
         /** Rebate Section Start */
         Route::get('/rebate/{rebateType}/{id?}' , [RebateController::class,'index'])->name('rebate.list');
         Route::post('/rebates/filter' , [RebateController::class,'getRebateWithAjax'])->name('rebate.filter');
+        Route::post('/rebates/update-filter' , [RebateController::class,'getUpdateRebateWithAjax'])->name('rebate.update-filter');
         Route::post('/rebates/update' , [RebateController::class,'rebateUpdate'])->name('rebate.update');
+        Route::get('/rebates/count' , [RebateController::class,'rebateCount'])->name('rebate.counts');
         // Route::get('/rebates/csv' , [RebateController::class,'exportCatalogCsv'])->name('rebate.export-csv');
         
         /** Rebate Section End */

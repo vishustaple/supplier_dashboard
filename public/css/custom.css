@@ -123,9 +123,9 @@ table thead tr th{
 table#account_data  thead tr th{
   white-space: nowrap !important; 
 }
-table#account_data {
+/* table#account_data {
   display: block !important;
-}
+} */
 /* .data_table_files tbody tr td:last-child{
     width: 70px !important;
     min-width: 70px;
@@ -258,12 +258,12 @@ div#userModal .modal-header h5,
 }
 div#layoutSidenav_nav {
   position: fixed;
-  width: 225px;
+  width: 250px;
   height: 100vh;
 }
 
 div#layoutSidenav_content {
-  margin-left: 225px !important;
+  margin-left: 250px !important;
   overflow: hidden;
 }
 .sb-sidenav .sb-sidenav-menu .nav {

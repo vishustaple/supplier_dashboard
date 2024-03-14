@@ -241,6 +241,40 @@ div#errorMessage {
     </body>
     <script>
     $(document).ready(function() {
+        var exportTable =  $('#example').DataTable({
+            "paging": true,   // Enable pagination
+            "ordering": false, // Enable sorting
+            "searching": true, // Enable search
+            "lengthChange":false,
+            "pageLength": 40,
+            "data": <?php if(isset($data)){ echo $data; }  ?>,
+            "columns": [
+                { title: 'Supplier' },
+                { title: 'File Name' },
+                { title: 'Status' },
+                { title: 'Uploaded By' },
+                { title: 'Date' },
+                { title: 'Action' },
+                // Add more columns as needed
+            ],
+            "rowCallback": function(row, data, index) {
+                // Loop through each cell in the row
+                $('td', row).each(function() {
+                    // Check if the cell contains a button with a specific class
+                    if ($(this).find('button.invisible').length) {
+                        $(row).css('background-color','#f09b9b');
+                    }
+                });
+            }
+            
+        });
+        if (exportTable.data().count() > 40) {
+            // console.log("here");
+            $('#example_paginate').show(); // Enable pagination
+        } else {
+          
+            $('#example_paginate').hide();
+        }
         $('#page-loader').hide();
         $('#importBtn').on( "click", function(event) {
             event.preventDefault();
@@ -255,7 +289,7 @@ div#errorMessage {
                 data: formData,
                 processData: false,
                 contentType: false,
-                dataType: 'json',
+                // dataType: 'json',
                 success: function(response) {
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                     if(response.error){
@@ -283,6 +317,7 @@ div#errorMessage {
 
                         $('#page-loader').hide();
                         $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        exportTable.ajax.reload();
                         // $("form")[0].reset();
                     }
                     // Handle success response
@@ -378,40 +413,7 @@ div#errorMessage {
             }
         });
 
-         var exportTable =  $('#example').DataTable({
-            "paging": true,   // Enable pagination
-            "ordering": false, // Enable sorting
-            "searching": true, // Enable search
-            "lengthChange":false,
-            "pageLength": 40,
-            "data": <?php if(isset($data)){ echo $data; }  ?>,
-            "columns": [
-                { title: 'Supplier' },
-                { title: 'File Name' },
-                { title: 'Status' },
-                { title: 'Uploaded By' },
-                { title: 'Date' },
-                { title: 'Action' },
-                // Add more columns as needed
-            ],
-            "rowCallback": function(row, data, index) {
-                // Loop through each cell in the row
-                $('td', row).each(function() {
-                    // Check if the cell contains a button with a specific class
-                    if ($(this).find('button.invisible').length) {
-                        $(row).css('background-color','#f09b9b');
-                    }
-                });
-            }
-            
-        });
-        if (exportTable.data().count() > 40) {
-            // console.log("here");
-            $('#example_paginate').show(); // Enable pagination
-        } else {
-          
-            $('#example_paginate').hide();
-        }
+         
         $(document).on('click','.edit_column',function(){
             var id = $(this).attr('data-id'); 
             console.log(id);
