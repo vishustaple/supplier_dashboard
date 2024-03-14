@@ -4,7 +4,7 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content" >
-        <h3 class="mb-0 ps-2 ms-1">Manage Rebate</h3>
+        <h3 class="mb-0 ps-2 ms-1">Edit Rebate</h3>
         <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
