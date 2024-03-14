@@ -19,7 +19,7 @@
                         <th>Customer Number</th> -->
                         <th>Account Name</th>
                         <th>Supplier</th>
-                        <th>Sales Repersantative</th>
+                        <th>Sales Rep</th>
                         <th>Commission</th>
                         <th>Start Date</th>
                         <th>End Date</th>
