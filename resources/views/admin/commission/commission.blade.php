@@ -99,7 +99,7 @@
             <tr>
                 <th scope="col">Account Name</th>
                 <th scope="col">Supplier</th>
-                <th scope="col">Account Number</th>
+                <th scope="col">Sales Repersantative</th>
                 <th scope="col">Commission %</th>
                 <th scope="col">Start/End Date</th>
                 <th scope="col">Action</th>
@@ -126,7 +126,7 @@
                 <td>
                     <div class="d-flex">
                         <button type="button" id="add_commission" class="btn btn-success"><i class="fa-solid fa-plus"></i></button>
-                        <button type="button"  class="btn btn-primary check save">Save</button>
+                        <button type="button"  class="btn btn-primary check save">Submit</button>
                     </div>
                 </td>
             </form>
@@ -291,7 +291,7 @@
             // Your existing code to append rows to the table
             var count = $('#commission_table tbody tr').length + 1;
 
-            $('#commission_table').append('<tr><form id="commission_form'+count+'"><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountName'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input class="supplier_id'+count+'" type="hidden" name="supplier[]" value=""><input type="text" required class="mySelectSupplier'+count+' form-control-sm" disabled name="suppliers[]" value=""></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm"><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button><button type="button" value="'+count+'" class="btn btn-primary save check'+count+'">Save</button></div></td></form></tr>');
+            $('#commission_table').append('<tr><form id="commission_form'+count+'"><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountName'+count+'" name="account_name[]"><option value="">Select</option></select></td><td><input class="supplier_id'+count+'" type="hidden" name="supplier[]" value=""><input type="text" required class="mySelectSupplier'+count+' form-control-sm" disabled name="suppliers[]" value=""></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm"><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range"></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button><button type="button" value="'+count+'" class="btn btn-primary save check'+count+'">Submit</button></div></td></form></tr>');
             setDate(count);
             selectCustomer(count);
         });
