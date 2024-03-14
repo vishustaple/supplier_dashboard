@@ -14,25 +14,45 @@ class RebateController extends Controller
 
         $setPageTitleArray = [
             'rebate' => 'Rebate',
+            'edit_rebate' => 'Edit Rebate',
         ];
 
-        // if (isset($id)) {
-        //     $catalog = Catalog::query() 
-        //     ->leftJoin('suppliers', 'catalog.supplier_id', '=', 'suppliers.id')
-        //     ->leftJoin('catalog_details', 'catalog.id', '=', 'catalog_details.catalog_id')
-        //     ->where('catalog.id', '=', $id)
-        //     ->whereNotNull('catalog_details.table_value')
-        //     ->select('catalog_details.table_key as key', 'catalog_details.table_value as value', 'catalog.sku as sku','catalog.price as price','suppliers.supplier_name as supplier_name','catalog.description as description')->get()->toArray();
-        //     return view('admin.viewdetail',compact('catalog'));
-        // }
+        if ($rebateType == 'edit_rebate') {
+            return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType]]);
+        } else {
+            $missingRebate = Account::select('r1.id')
+            ->leftJoin('rebate AS r1', 'r1.account_number', '=', 'master_account_detail.account_number')
+            ->whereNull('r1.volume_rebate')
+            ->whereNull('r1.incentive_rebate')
+            ->groupBy('master_account_detail.account_name')
+            ->getQuery()->getCountForPagination();
+            return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType], 'totalMissingRebate' => $missingRebate]);
+        }
+    }
 
-        return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType]]);
+    public function getUpdateRebateWithAjax(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = Account::getFilterdUpdateRebateData($request->all());
+            return response()->json($formatuserdata);
+        }
     }
 
     public function getRebateWithAjax(Request $request){
         if ($request->ajax()) {
             $formatuserdata = Account::getFilterdRebateData($request->all());
             return response()->json($formatuserdata);
+        }
+    }
+
+    public function rebateCount(Request $request){
+        if ($request->ajax()) {
+            $missingRebate = Account::select('r1.id')
+            ->leftJoin('rebate AS r1', 'r1.account_number', '=', 'master_account_detail.account_number')
+            ->whereNull('r1.volume_rebate')
+            ->whereNull('r1.incentive_rebate')
+            ->groupBy('master_account_detail.account_name')
+            ->getQuery()->getCountForPagination();
+            return response()->json(['success' => $missingRebate], 200);
         }
     }
 
