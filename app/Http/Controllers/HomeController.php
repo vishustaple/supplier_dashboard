@@ -82,7 +82,7 @@
             else{
                 try {
                 
-                    $userType = ($request->user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
+                    $userType = ($request->user_role == USER::USER_TYPE_ADMIN) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
                     $token=Str::random(40);
                     $user = User::create([
                         'first_name' => $request->first_name,
@@ -133,6 +133,7 @@
         
         public function userLogin(Request $request)
         {
+            
             $request->validate([
                 "email" => "required|email",
                 "password" => "required",
@@ -143,7 +144,21 @@
             if (Auth::attempt($credentials, $remember)) {
                 Auth::logoutOtherDevices($request->password);
                 // Authentication passed...
+                $email='vishustaple.in@gmail.com';
+                $key = 'base64:58UejRIrfFUBpHhIZ1uoxbP9iYHTNXpP2Glzx02Fgp8=';
+                $salt = openssl_random_pseudo_bytes(16); // Generate salt
+                $data = $request->email;
+                Log::info('new login attempt...');
+                Mail::send('mail.newlogin', ['data' => $data], function($message) use ($email) {
+                    $message->to($email)
+                            ->subject('New User Login Notification');
+                });
+             
+                Log::info('Email sent successfully');
                 return redirect()->intended('/admin/upload-sheet');
+
+               
+                
             } else {
                 
                 // Authentication failed...
