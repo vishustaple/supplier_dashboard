@@ -186,17 +186,19 @@
         });
 
         $("#edit_commission_name").on('submit', function (e){
+            e.preventDefault();
             commission = document.getElementById('commission'),
             commissionDate = document.getElementById('commission_date');
-            if (commission.value == '') {
+            if (commission.value.trim() == '') {
                 $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please add commission <button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                return;
             }
 
             if (commissionDate.value == '') {
                 $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please select date<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                return;
             } 
 
-            e.preventDefault();
             var formData = new FormData($('#edit_commission_name')[0]);
             $.ajax({
                 type: 'POST',
