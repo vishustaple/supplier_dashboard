@@ -15,14 +15,15 @@
             <table class="data_table_files" id="commission_data">
                 <thead>
                     <tr>
-                        <th>Customer Name</th>
-                        <th>Customer Number</th>
-                        <th>Supplier</th>
+                        <!-- <th>Customer Name</th>
+                        <th>Customer Number</th> -->
                         <th>Account Name</th>
+                        <th>Supplier</th>
+                        <th>Sales Rep</th>
                         <th>Commission</th>
-                        <th>Sales Repersantative</th>
                         <th>Start Date</th>
                         <th>End Date</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -36,9 +37,48 @@
         <!-- Close icon -->
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-                      <div class="alert alert-success mx-2" id="editsuccessMessage" style="display:none;">
+            <div class="alert alert-success mx-2" id="editsuccessMessage" style="display:none;">
+            </div>
+            <div  id="editerrorMessage" >
+            </div>
+            <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
+                <div class="modal-body">
+                    <div class="form-group">
+                    @csrf
+
+                    <div class="modal_input_wrap">
+                    <input type="hidden" name="commission_id" id="commission_id" value="">
+                    <label>Commission</label>
+                    </div>
+
+                    <div class="modal_input_wrap pb-3">
+                    <input type="text" placeholder="Enter Commission" class="form-control" name=" commission " id=" commission " value="">
+                    <div id=" commission _error"></div>
+                    </div>
+                        
+                    
+                    
+                    <div class="row m-0 pb-3">
+                    <div class="form-check col-md-6">
+                        <input class="form-check-input" type="radio"  value="1" name="status" id="flexRadioDefault1">
+                        <label class="form-check-label" for="flexRadioDefault1">
+                            Active
+                        </label>
                         </div>
-                        <div  id="editerrorMessage" >
+                        <div class="form-check col-md-6">
+                        <input class="form-check-input" type="radio" value="0" name="status" id="flexRadioDefault2" checked>
+                        <label class="form-check-label" for="flexRadioDefault2">
+                            In-Active
+                        </label>
+                    </div>
+                    </div>
+                    <div class="row m-0 pb-3">
+                        <input type="text" name="date" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" >
+                    </div>
+                    <div class="div1 form-group row" style="display:none; ">
+                    <div class="pb-3">
+                        <label>Parent Name</label>
+                        <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_name1" id="parent_name" value="">
                         </div>
                         <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
                             <div class="modal-body">
@@ -123,13 +163,32 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
+    $('.edit_commission').on('click', function(){
+        var clickedRow = $(this).closest('tr');
+        var columnValue = clickedRow.find('td:eq(columnIndex)').text(); // Replace `columnIndex` with the index of the column
+        console.log(columnValue);
+        console.log($(this).data('id'));
+    });
+
     $(document).ready(function() {
+        $('.dateRangePicker').daterangepicker({  
+                showDropdowns: false,
+                linkedCalendars: false,
+        });
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
             // Initiate DataTable AJAX request
             $('#commission_data').DataTable().ajax.reload();
         });
+
+        $('#commission_data tbody').on('click', 'tr', function() {
+            var data = $('#commission_data').DataTable().row(this).data();
+            var clickedColumnValue = data[columnIndex]; // Replace `columnIndex` with the index of the clicked column
+            console.log(clickedColumnValue);
+        });
+
+      
 
         // DataTable initialization
         var dataTable = $('#commission_data').DataTable({
@@ -157,14 +216,15 @@
                 $('#manualLoader').hide();
             },
             columns: [
-                { data: 'customer_name', name: 'customer_name' },
-                { data: 'customer_number', name: 'customer_number' },
-                { data: 'supplier_name', name: 'supplier_name' },
+                // { data: 'customer_name', name: 'customer_name' },
+                // { data: 'customer_number', name: 'customer_number' },
                 { data: 'account_name', name: 'account_name' },
-                { data: 'commission', name: 'commission' },
+                { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'sales_rep', name: 'sales_rep' },
+                { data: 'commission', name: 'commission' },
                 { data: 'start_date', name: 'start_date' },
                 { data: 'end_date', name: 'end_date' },
+                { data: 'status', name: 'status' },
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
         });

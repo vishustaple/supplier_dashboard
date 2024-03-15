@@ -292,7 +292,7 @@ div#errorMessage {
                 data: formData,
                 processData: false,
                 contentType: false,
-                dataType: 'json',
+                // dataType: 'json',
                 success: function(response) {
                     console.log(response);
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
