@@ -72,7 +72,13 @@
         /* vertical-align: center !important; */
         margin-top: 20%;
     }
-
+    #business_data{
+        display:block;
+        overflow-x:auto;
+    }
+    #business_data thead tr th {
+  white-space: nowrap;
+}
     </style>
 <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
