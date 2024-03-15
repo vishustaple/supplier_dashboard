@@ -29,115 +29,51 @@
                 </thead>
             </table>
         </div>
-        <div class="modal fade" id="editcommisionModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true" data-bs-backdrop="static">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editAccountModalLabel">Edit Commission</h5>
-        <!-- Close icon -->
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-            <div class="alert alert-success mx-2" id="editsuccessMessage" style="display:none;">
-            </div>
-            <div  id="editerrorMessage" >
-            </div>
-            <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
-                <div class="modal-body">
-                    <div class="form-group">
-                    @csrf
-
-                    <div class="modal_input_wrap">
-                    <input type="hidden" name="commission_id" id="commission_id" value="">
-                    <label>Commission</label>
+        <div class="modal fade" id="editCommissionModal" tabindex="-1" aria-labelledby="editCommissionModalLabel" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editCommissionModalLabel">Edit Commission</h5>
+                        <!-- Close icon -->
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
-                    <div class="modal_input_wrap pb-3">
-                    <input type="text" placeholder="Enter Commission" class="form-control" name=" commission " id=" commission " value="">
-                    <div id=" commission _error"></div>
-                    </div>
-                        
-                    
-                    
-                    <div class="row m-0 pb-3">
-                    <div class="form-check col-md-6">
-                        <input class="form-check-input" type="radio"  value="1" name="status" id="flexRadioDefault1">
-                        <label class="form-check-label" for="flexRadioDefault1">
-                            Active
-                        </label>
-                        </div>
-                        <div class="form-check col-md-6">
-                        <input class="form-check-input" type="radio" value="0" name="status" id="flexRadioDefault2" checked>
-                        <label class="form-check-label" for="flexRadioDefault2">
-                            In-Active
-                        </label>
-                    </div>
-                    </div>
-                    <div class="row m-0 pb-3">
-                        <input type="text" name="date" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" >
-                    </div>
-                    <div class="div1 form-group row" style="display:none; ">
-                    <div class="pb-3">
-                        <label>Parent Name</label>
-                        <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_name1" id="parent_name" value="">
-                        </div>
-                        <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
+                    <div id="editsuccessMessage"></div>
+                    <div id="editerrorMessage" ></div>
+                        <form action="{{route('commission.edit')}}" method="post" id="edit_commission_name">
+                            @csrf
                             <div class="modal-body">
-                                <div class="form-group">
-                                @csrf
-
-                                <div class="modal_input_wrap">
                                 <input type="hidden" name="commission_id" id="commission_id" value="">
-                                <label>Commission</label>
+                                <div class="form-group">
+                                    <label>Commission</label>
+                                    <input type="text" placeholder="Enter Commission" class="form-control" name="commission" id="commission" value="" required>
                                 </div>
-
-                                <div class="modal_input_wrap pb-3">
-                                <input type="text" placeholder="Enter Account Name" class="form-control" name="account_name" id="account_name" value="">
-                                <div id="account_name_error"></div>
-                                </div>
-                                 
-                               
-                                
-                                <div class="row m-0 pb-3">
-                                <div class="form-check col-md-6">
-                                    <input class="form-check-input" type="radio"  value="1" name="parent_check" id="flexRadioDefault1">
-                                    <label class="form-check-label" for="flexRadioDefault1">
-                                        Manually Add Parent
-                                    </label>
+                                <div class="form-group ps-1">
+                                    <div class="form-check col-md-6">
+                                        <input class="form-check-input" type="radio"  value="1" name="status" id="checked">
+                                        <label class="form-check-label" for="flexRadioDefault1">
+                                            Active
+                                        </label>
                                     </div>
                                     <div class="form-check col-md-6">
-                                    <input class="form-check-input" type="radio" value="2" name="parent_check" id="flexRadioDefault2" checked>
-                                    <label class="form-check-label" for="flexRadioDefault2">
-                                        Using Select Add Parent
-                                    </label>
-                                </div>
-                                </div>
-
-                                
-                                <div class="div1 form-group row" style="display:none; ">
-                                <div class="pb-3">
-                                    <label>Parent Name</label>
-                                    <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_name1" id="parent_name" value="">
+                                        <input class="form-check-input" type="radio" value="0" name="status" id="unchecked">
+                                        <label class="form-check-label" for="flexRadioDefault2">
+                                            In-Active
+                                        </label>
                                     </div>
-                                    <div class="">
-                                    <label>Parent Number</label>
-                                    <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_id1" id="parent_id" value="">
                                 </div>
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="text" name="date" id="commission_date" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" required>
                                 </div>
-
-                                
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </form>   
+                    </div>
+                </div>
             </div>
         </div>
-      <div class="modal-footer">
-        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-        <button type="submit" class="btn btn-primary">Save changes</button>
-      </div>
-      </form>   
-    </div>
-  </div>
-</div>
-
-
-
     </div>
 </div>
 
@@ -163,35 +99,9 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
-    $('.edit_commission').on('click', function(){
-        var clickedRow = $(this).closest('tr');
-        var columnValue = clickedRow.find('td:eq(columnIndex)').text(); // Replace `columnIndex` with the index of the column
-        console.log(columnValue);
-        console.log($(this).data('id'));
-    });
-
     $(document).ready(function() {
-        $('.dateRangePicker').daterangepicker({  
-                showDropdowns: false,
-                linkedCalendars: false,
-        });
-        // Button click event
-        $('#import_form').on('submit', function () {
-            event.preventDefault();
-            // Initiate DataTable AJAX request
-            $('#commission_data').DataTable().ajax.reload();
-        });
-
-        $('#commission_data tbody').on('click', 'tr', function() {
-            var data = $('#commission_data').DataTable().row(this).data();
-            var clickedColumnValue = data[columnIndex]; // Replace `columnIndex` with the index of the clicked column
-            console.log(clickedColumnValue);
-        });
-
-      
-
         // DataTable initialization
-        var dataTable = $('#commission_data').DataTable({
+        var commissionDatatable = $('#commission_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
@@ -242,6 +152,96 @@
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
         }
+
+        $('.dateRangePicker').daterangepicker({  
+                showDropdowns: false,
+                linkedCalendars: false,
+        });
+        
+        var myModal = document.getElementById('editCommissionModal');
+        console.log(myModal);
+        myModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget, // Button that triggered the modal
+            id = button.getAttribute('data-id'), // Extract value from data-* attributes
+            commissionNumber = button.getAttribute('data-commission'),
+            date = button.getAttribute('data-date'),
+            commissionStatus = button.getAttribute('data-status'),
+            
+            // Getting input using ids
+            commissionId = document.getElementById('commission_id'),
+            commission = document.getElementById('commission'),
+            commissionDate = document.getElementById('commission_date'),
+            commissionChecked = document.getElementById('checked'),
+            unChecked = document.getElementById('unchecked');
+
+            // Set the value of the input element
+            commissionId.value = id,
+            commission.value = commissionNumber,
+            commissionDate.value = date;
+            if (commissionStatus == 1) {
+                checked.checked  = true;
+            } else {
+                unChecked.checked  = true;
+            }
+        });
+
+        $("#edit_commission_name").on('submit', function (e){
+            e.preventDefault();
+            commission = document.getElementById('commission'),
+            commissionDate = document.getElementById('commission_date');
+            if (commission.value.trim() == '') {
+                $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please add commission <button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                return;
+            }
+
+            if (commissionDate.value == '') {
+                $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please select date<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                return;
+            } 
+
+            var formData = new FormData($('#edit_commission_name')[0]);
+            $.ajax({
+                type: 'POST',
+                url: '{{ route("commission.edit") }}', // Replace with your actual route name
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if(response.error){
+                        // Iterate over each field in the error object
+                        var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                            errorMessage = response.error;
+                        }
+
+                        $('#editerrorMessage').text('');
+                        $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                    }
+
+                    if(response.success){
+                        $('#page-loader').hide();
+                        $('#editsuccessMessage').html('');
+                        $('#editsuccessMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        commissionDatatable.ajax.reload();   
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    // console.error(xhr.responseText);
+                    const errorresponse = JSON.parse(xhr.responseText);
+                    $('#editerrorMessage').text(errorresponse.error);
+                    $('#editerrorMessage').css('display','block');
+                    setTimeout(function () {
+                        $('#editerrorMessage').fadeOut();
+                    }, 5000);
+                }
+            });
+        });
     });
 </script>
 @endsection

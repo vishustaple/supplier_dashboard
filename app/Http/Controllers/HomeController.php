@@ -144,17 +144,19 @@
             if (Auth::attempt($credentials, $remember)) {
                 Auth::logoutOtherDevices($request->password);
                 // Authentication passed...
-                $email='vishustaple.in@gmail.com';
-                $key = 'base64:58UejRIrfFUBpHhIZ1uoxbP9iYHTNXpP2Glzx02Fgp8=';
-                $salt = openssl_random_pseudo_bytes(16); // Generate salt
-                $data = $request->email;
-                Log::info('new login attempt...');
-                Mail::send('mail.newlogin', ['data' => $data], function($message) use ($email) {
-                    $message->to($email)
-                            ->subject('New User Login Notification');
-                });
+                // $email='vishustaple.in@gmail.com';
+                // $key = 'base64:58UejRIrfFUBpHhIZ1uoxbP9iYHTNXpP2Glzx02Fgp8=';
+                // $salt = openssl_random_pseudo_bytes(16); // Generate salt
+                // $data = $request->email;
+                // Log::info('new login attempt...');
+                // Mail::send('mail.newlogin', ['data' => $data], function($message) use ($email) {
+                //     $message->to($email)
+                //             ->subject('New User Login Notification');
+                // });
              
-                Log::info('Email sent successfully');
+                // Connection could not be established with host "mailpit:1025": stream_socket_client(): php_network_getaddresses: getaddrinfo for mailpit failed: Name or service not known
+
+                // Log::info('Email sent successfully');
                 return redirect()->intended('/admin/upload-sheet');
 
                

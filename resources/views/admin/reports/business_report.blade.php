@@ -12,49 +12,53 @@
                 @csrf
                 <div class="row align-items-end border-bottom pb-3 mb-4">
                     <div class="form-group col-md-4 mb-0">
-                        <label for="selectBox">Select Supplier:</label>
-                        <select id="supplierId" name="supplierselect" class="form-control"> 
+                        <label for="selectBox">Select Account Name:</label>
+                        <select id="account_name" name="account_name" class="form-control"> 
                             <option value="" selected>--Select--</option>
-                            @if(isset($categorySuppliers))
-                            @foreach($categorySuppliers as $categorySupplier)
-                            <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
-                            @endforeach
+                            @if(isset($accountData))
+                                @foreach($accountData as $account)
+                                    @if(!empty($account->account_name))
+                                        <option value="{{ $account->account_name }}">{{ $account->account_name }}</option>
+                                    @endif
+                                @endforeach    
                             @endif
-                            </select>
-                        </div>
-                    <div class="form-group relative col-md-4 mb-0">  
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4 mb-0" id="selectContainer" style="display:none;">                        
+                    </div>
+                    <!-- <div class="form-group relative col-md-4 mb-0">  
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
                         <input type="hidden" id="start_date" name="start_date" />
                         <input type="hidden" id="end_date" name="end_date" />  
-                    </div>
-                    <div class="col-md-4 mb-0 text-end">
+                    </div> -->
+                    <div class="col-md-3 mt-1 mb-0 text-end">
                     <button id="submitBtn" class="btn btn-primary">Submit</button>
                     <!-- <button id="downloadCsvBtn" class="btn-success btn disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
                     </div>
                     <!-- Button trigger modal -->
-                   
                 </div>
-               
             </form>
             <table class="data_table_files" id="business_data">
                 <thead>
                     <tr>
-                        <!-- <th>ID</th> -->
-                        <th>Customer Number</th>
-                        <th>Customer Name</th>
-                        <th>Supplier Name</th>
-                        <th>Amount</th>
-                        <th>Action</th>
+                        <th>Sku</th>
+                        <th>Description</th>
+                        <th>UOM</th>
+                        <th>Category</th>
+                        <th>Quantity Purchased</th>
+                        <th>Total Spend</th>
+                        <th>Last Of Unit Net Price</th>
+                        <th>Web Price</th>
+                        <th>Savings Percentage</th>
                     </tr>
                 </thead>
             </table>
         </div>
-        
     </div>
 </div>
 <style>
-      div#page-loader {
+    div#page-loader {
         top: 0;
         left: 0;
         position: fixed;
@@ -75,6 +79,45 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
+        $('#account_name').on('change', function(){
+            var formData = {'account_name': $(this).val()},
+            token = "{{ csrf_token() }}";
+            $.ajax({
+                type: 'POST',
+                url: "{{route('get.accountNumber')}}",
+                dataType: 'json',
+                data: JSON.stringify(formData),                        
+                headers: {'X-CSRF-TOKEN': token},
+                contentType: 'application/json',                     
+                processData: false,
+                success: function(response) {
+                    $('#selectContainer').html('');
+                    $('#selectContainer').show();
+                    // Assuming `response` is your array of objects
+                    var select = $('<select id="account_number" name="account_number" class="form-control">');
+
+                    $.each(response, function(index, obj) {
+                        var option = $('<option>').val(obj.account_number).text(obj.account_number);
+                        select.append(option);
+                    });
+
+                    // Create a label element
+                    var label = $('<label for="selectBox">').text('Select Account Number:');
+
+                    // Assuming `selectContainer` is the container where you want to append the select element
+                    var selectContainer = $('#selectContainer');
+                    selectContainer.append(label); // Append the label before the select element
+                    selectContainer.append(select); // Append the select elemen
+
+                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
         $('input[name="dates"]').daterangepicker();
 
         // Event handler for when the user applies the date range
@@ -105,41 +148,43 @@
             ajax: {
                 url: '{{ route('report.filter') }}',
                 type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    d.start_date = $('#start_date').val();
-                    d.end_date = $('#end_date').val();
-                    d.supplierId = $('#supplierId').val();
+                    // d.start_date = $('#start_date').val();
+                    // d.end_date = $('#end_date').val();
+                    d.account_number = $('#account_number').val();
                 },
             },
+
             beforeSend: function() {
                 // Show both the DataTables processing indicator and the manual loader before making the AJAX request
                 $('.dataTables_processing').show();
                 $('#manualLoader').show();
             },
+
             complete: function(response) {
                 // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
                 $('.dataTables_processing').hide();
                 $('#manualLoader').hide();
-                console.log(response); 
                 if (businessdataTable.data().count() > 40) {
-                $('#business_data_paginate').show(); // Enable pagination
+                    $('#business_data_paginate').show(); // Enable pagination
                 } else {
-                $('#business_data_paginate').hide();
+                    $('#business_data_paginate').hide();
                 }
             },
+
             columns: [
-                // { data: 'id', name: 'id' },
-                { data: 'customer_number', name: 'customer_number' },
-                { data: 'customer_name', name: 'customer_name' },
-                { data: 'supplier_name', name: 'supplier_name' },
-                { data: 'amount', name: 'amount' },
-                { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
+                { data: 'sku', name: 'sku', 'orderable': false, 'searchable': false },
+                { data: 'description', name: 'description', 'orderable': false, 'searchable': false },
+                { data: 'uom', name: 'uom', 'orderable': false, 'searchable': false },
+                { data: 'category', name: 'category', 'orderable': false, 'searchable': false },
+                { data: 'quantity_purchased', name: 'quantity_purchased', 'orderable': false, 'searchable': false },
+                { data: 'total_spend', name: 'total_spend', 'orderable': false, 'searchable': false },
+                { data: 'last_of_unit_net_price', name: 'last_of_unit_net_price', 'orderable': false, 'searchable': false },
+                { data: 'web_price', name: 'web_price', 'orderable': false, 'searchable': false },
+                { data: 'savings_percentage', name: 'savings_percentage', 'orderable': false, 'searchable': false },
             ],
-            
         });
         $('#business_data_length').hide();
         $('#business_data tbody').on('click', 'button', function () {
@@ -157,23 +202,11 @@
             tr.addClass('shown');
             }
     });
-
-    function format ( rowData ) {
-        // `rowData` is the original data object for the row
-        return  '<div class="row_details">'+
-                '<p><b>ID</b>: '+rowData.id+'</p>'+
-                '<p><b>Customer Number</b>: '+rowData.customer_number+'</p>'+
-                '<p><b>Customer Name</b>: '+rowData.customer_name+'</p>'+
-                '<p><b>Supplier Name</b>: '+rowData.supplier_name+'</p>'+
-                '<p><b>Amount</b>: '+rowData.amount+'</p>'+
-                '<p><b>Date</b>: '+rowData.date+'</p>'+
-                '</div>';
-    }
     
         $('#downloadCsvBtn').on('click', function () {
             // Trigger CSV download
             downloadCsv();
-         });
+        });
 
         function downloadCsv() {
         // You can customize this URL to match your backend route for CSV download
