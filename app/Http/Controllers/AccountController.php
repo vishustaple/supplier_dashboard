@@ -292,16 +292,14 @@ class AccountController extends Controller
         }
     }
     public function editAccountName(Request $request){
-
-     
         $accoundid = $request->account_id;
         $accountname =$request->account_name;
-        $pI1 = $request->parent_id1;
-        $pN1 =$request->parent_name1;
-        $pI = $request->parent_id;
-        $pN =$request->parent_name;
-        $gPI = $request->grandparent_id;
-        $gPN =$request->grandparent_name;
+        // $pI1 = $request->parent_id1;
+        // $pN1 =$request->parent_name1;
+        // $pI = $request->parent_id;
+        // $pN =$request->parent_name;
+        // $gPI = $request->grandparent_id;
+        // $gPN =$request->grandparent_name;
 
         $validator = Validator::make(
             [
@@ -320,19 +318,19 @@ class AccountController extends Controller
     
         }
         else{
-        try {
-            if ($request->parent_check == 1) {
-                $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname, 'parent_name' => $pN1, 'parent_id' => $pI1, 'grandparent_id' => $gPI, 'grandparent_name' => $gPN]);
-            } else {
-                $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname, 'parent_name' => $pN, 'parent_id' => $pI, 'grandparent_id' => $gPI, 'grandparent_name' => $gPN]);
+            try {
+                // if ($request->parent_check == 1) {
+                //     $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname, 'parent_name' => $pN1, 'parent_id' => $pI1, 'grandparent_id' => $gPI, 'grandparent_name' => $gPN]);
+                // } else {
+                //     $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname, 'parent_name' => $pN, 'parent_id' => $pI, 'grandparent_id' => $gPI, 'grandparent_name' => $gPN]);
+                // }
+                $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname]);
+                if($updateAccountName){
+                    return response()->json(['success' => 'Account Name Update Successfully!'], 200);
+                }
+            } catch (\Throwable $e) {
+                return response()->json(['error' => $e->getMessage()], 200);
             }
-           
-            if($updateAccountName){
-                return response()->json(['success' => 'Account Name Update Successfully!'], 200);
-            }
-           } catch (\Throwable $e) {
-            return response()->json(['error' => $e->getMessage()], 200);
-           }
         }
 
     }

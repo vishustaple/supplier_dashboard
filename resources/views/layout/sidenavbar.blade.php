@@ -13,9 +13,9 @@
                                 Manage Accounts
                             </a>
                             <a href="{{ route('account.customer-edit')}}" class="bell_icon_link position-relative">
-                        <i class="fa-solid fa-bell"></i>
-                            <span class="notification-count" id="account_count" style="display:none"></span>
-                        </a>
+                                <i class="fa-solid fa-bell"></i>
+                                <span class="notification-count" id="account_count" style="display:none"></span>
+                            </a>
                             </div>
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Sales Team') ? 'active' : '' }}" href="{{route('sales.index')}}">
                                 <div class="sb-nav-link-icon"><i class="fa fa-address-card" aria-hidden="true"></i></div>
@@ -32,10 +32,16 @@
                                 Catalog List
                             </a>
 
-                            <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Rebate') ? 'active' : '' }}" href="{{route('rebate.list', ['rebateType' => 'rebate'])}}">
-                                <div class="sb-nav-link-icon"><i class="fa fa-usd" aria-hidden="true"></i></div>
-                                Rebate
-                            </a>
+                            <div class="manage_account_link">
+                                <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Rebate') ? 'active' : '' }}" href="{{route('rebate.list', ['rebateType' => 'rebate'])}}">
+                                    <div class="sb-nav-link-icon"><i class="fa fa-usd" aria-hidden="true"></i></div>
+                                    Rebate
+                                </a>
+                                <a href="{{route('rebate.list', ['rebateType' => 'edit_rebate'])}}" class="bell_icon_link position-relative">
+                                    <i class="fa-solid fa-bell"></i>
+                                    <span class="notification-count" id="rebate_count" style="display:none"></span>
+                                </a>
+                            </div>
 
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commission.list', ['commissionType' => 'commission_listing'])}}">
                                 <div class="sb-nav-link-icon"><i class="fa fa-book" aria-hidden="true"></i></div>
@@ -88,7 +94,7 @@
                 </nav>
                 <script>
                     var token = "{{ csrf_token() }}";
-                     $.ajax({
+                    $.ajax({
                         type: 'GET',
                         url: "{{route('accounts.counts')}}",
                         dataType: 'json',                       
@@ -110,5 +116,29 @@
                             console.error(xhr.responseText);
                         }
                     });
+
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{route('rebate.counts')}}",
+                        dataType: 'json',                       
+                        headers: {'X-CSRF-TOKEN': token},
+                        processData: false,
+                        
+                        success: function(response) {
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
+                            if(response.error){
+                            }
+
+                            if(response.success){
+                                $('#rebate_count').css('display','flex');
+                                $('#rebate_count').text(response.success);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // Handle error response
+                            console.error(xhr.responseText);
+                        }
+                    });
+                    
                 </script>
 </div>

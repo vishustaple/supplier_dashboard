@@ -4,18 +4,13 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content" >
-        <h3 class="mb-0 ps-2 ms-1">Manage Rebate</h3>
+        <h3 class="mb-0 ps-2 ms-1">Edit Rebate</h3>
         <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
-                <!-- <button id="downloadAccountCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
-                    <a href="{{route('rebate.list', ['rebateType' => 'edit_rebate'])}}" class="bell_icon_link btn btn-info position-relative">
-                       <i class="fa-solid fa-bell"></i>
-                        @if($totalMissingRebate)
-                            @if($totalMissingRebate > 0)
-                                <span class="notification-count">{{ $totalMissingRebate }}</span>
-                            @endif
-                        @endif
-                    </a>
+                <!-- Button trigger modal -->
+                <!-- <a href="{{ route('account.create')}}" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Account</a> -->
+                
                 </div>
         </div> 
         <div class="container">
@@ -24,7 +19,7 @@
 
         <div class="" id="errorMessage">    
         </div>
-        <table id="rebate_data" class="data_table_files">
+        <table id="edit_rebate" class="data_table_files">
             <thead>
                     <tr>
                         <th>Account Number</th>
@@ -43,7 +38,7 @@
 <script>
     $(document).ready(function(){
       
-        var accountTable = $('#rebate_data').DataTable({
+        var accountTable = $('#edit_rebate').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
@@ -51,7 +46,7 @@
             serverSide: true,
             pageLength: 50,
             ajax: {
-                url: '{{ route("rebate.filter") }}',
+                url: '{{ route("rebate.update-filter") }}',
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -86,7 +81,7 @@
             ],
             
         });
-        $('#rebate_data_length').hide();
+        $('#edit_rebate_length').hide();
         $(document).on('click', '.save_rebate', function(){
             var rowData = accountTable.row($(this).closest('tr')).data(),
             formData = { account_number : $(this).closest('tr').find('.account_number').val(), volume_rebate : $(this).closest('tr').find('.volume_rebate').val(), incentive_rebate : $(this).closest('tr').find('.incentive_rebate').val()},
