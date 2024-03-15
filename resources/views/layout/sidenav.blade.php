@@ -7,7 +7,7 @@
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
         <div class="admin_header_logo brand_logo">
-        <a class="logo_link" href="#">
+        <a class="logo_link" href="{{route('upload.sheets')}}">
         <img src="{{ asset('images/logo-1.webp') }}">
         </a>
         </div>
@@ -24,8 +24,8 @@
             <ul class="navbar-nav ms-auto me-3 me-lg-4">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#"><div class="small">@if(Auth::check()){{ auth()->user()->first_name  . ' ' . auth()->user()->last_name}}@endif</div></a></li>
+                    <ul class="dropdown-menu dropdown-menu-end hover" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{{route('admin.changePasswordView')}}">@if(Auth::check()){{ auth()->user()->first_name  . ' ' . auth()->user()->last_name}}@endif</a></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li><a class="dropdown-item" href="{{route('user.logout')}}">Logout</a></li>
                     </ul>
