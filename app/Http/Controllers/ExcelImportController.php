@@ -553,4 +553,12 @@ class ExcelImportController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Column value updated successfully'], 200);
 
     }
+
+    public function getExportWithAjax(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = UploadedFiles::getFilterdExcelData($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
+    
 }
