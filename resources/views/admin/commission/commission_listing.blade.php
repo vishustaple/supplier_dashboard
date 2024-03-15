@@ -46,7 +46,7 @@
                                 @csrf
 
                                 <div class="modal_input_wrap">
-                                <input type="hidden" name="commission_id" id="account_id" value="">
+                                <input type="hidden" name="commission_id" id="commission_id" value="">
                                 <label>Commission</label>
                                 </div>
 

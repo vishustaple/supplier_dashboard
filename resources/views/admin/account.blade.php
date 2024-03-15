@@ -495,7 +495,7 @@ $('input[type="radio"]').change(function() {
 
         });
         //update account name 
-        $(document).on('click', '.btn-clos', function () {
+        $(document).on('click', '.btn-close', function () {
         
         // $('#btn-close').click(function(e) {
             // alert("hr");
@@ -533,9 +533,9 @@ $('input[type="radio"]').change(function() {
                             errorMessage = response.error;
                         }
                         $('#editerrorMessage').text('');
-                    $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
-                  $('#closeerrorMessage').on('click', function() {
-                    $('#editerrorMessage').hide();
+                        $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                        $('#closeerrorMessage').on('click', function() {
+                        $('#editerrorMessage').hide();
                                 // location.reload();
                             });
                     // $('html, body').animate({ scrollTop: 0 }, 'slow');
