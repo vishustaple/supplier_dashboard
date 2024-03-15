@@ -331,7 +331,7 @@
     //         }
             
     //     });
-        //  $('#example_length').hide();
+         $('#example_length').hide();
         // if (exportTable.data().count() > 40) {
         //     // console.log("here");
         //     $('#example_paginate').show(); // Enable pagination
