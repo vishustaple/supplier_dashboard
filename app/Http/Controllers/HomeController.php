@@ -266,7 +266,7 @@
         public function updatePassword(Request $request)
             {
  
-                // dd($request->all());
+     
                 $validator = Validator::make(
                     [
                         'user_id' => 'required|exists:users,id',
@@ -289,7 +289,13 @@
 
                     // Find the user
                     $user = User::findOrFail($request->user_id);
-            
+                    if($user->user_type == User::USER_TYPE_SUPERADMIN){
+                       
+                        $user->update(['password' => bcrypt($request->password)]);
+                        Log::info('Admin Password has been updated.');
+                        return redirect()->back()->with('success', 'Your Password updated successfully.');
+
+                    }
                      // Verify the token
                     if ($user->remember_token === $request->token) {
                         // Update the user's password
@@ -307,4 +313,13 @@
                 }
                 
             }
+
+
+           public function changePasswordView(){
+
+              $adminUser= User::where('user_type',User::USER_TYPE_SUPERADMIN)->first();
+              
+              return view('admin.profile',compact('adminUser'));
+
+           }  
     }

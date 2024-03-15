@@ -15,9 +15,9 @@
                                     </a>
                                 </div>
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
-                                        @if(session('success_message'))
+                                        @if(session('success'))
                                         <div class="alert alert-success" id="successMessage">
-                                        {{ session('success_message') }}
+                                        {{ session('success') }}
                                         </div>
                                         @endif
                                         @if ($errors->any())

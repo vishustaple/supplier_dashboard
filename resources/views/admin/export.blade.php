@@ -110,153 +110,185 @@
 
             <table id="example" class="data_table_files">
             <!-- Your table content goes here -->
+            <thead>
+                    <tr>
+                        <th>Supplier</th>
+                        <th>File Name</th>
+                        <th>Status</th>
+                        <th style="white-space: nowrap;">Uploaded By</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+
             </table>
         </div>
         @include('layout.footer')
     </div>
 </div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-    .spinner {
-        margin: 0 auto;
-        width: 70px;
-        text-align: center;
-    }
-
-    .spinner div {
-        width: 10px;
-        height: 10px;
-        background-color: #333;
-        border-radius: 100%;
-        display: inline-block;
-        animation: sk-bouncedelay 1.2s infinite ease-in-out both;
-    }
-
-    .spinner  .bounce1 {
-        animation-delay: -0.32s;
-    }
-
-    .spinner  .bounce2 {
-        animation-delay: -0.16s;
-    }
-
-    @-webkit-keyframes sk-bouncedelay {
-        0%, 80%, 100% {
-            transform: scale(0);
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .spinner {
+            margin: 0 auto;
+            width: 70px;
+            text-align: center;
         }
 
-        40% {
-            transform: scale(1);
+        .spinner div {
+            width: 10px;
+            height: 10px;
+            background-color: #333;
+            border-radius: 100%;
+            display: inline-block;
+            animation: sk-bouncedelay 1.2s infinite ease-in-out both;
         }
-    }
 
-    @keyframes sk-bouncedelay {
-        0%, 80%, 100% {
-            transform: scale(0);
+        .spinner  .bounce1 {
+            animation-delay: -0.32s;
         }
 
-        40% {
-            transform: scale(1);
+        .spinner  .bounce2 {
+            animation-delay: -0.16s;
         }
-    }
-      
-    div#page-loader {
-        top: 0;
-        left: 0;
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        background: #00000080;
-        z-index: 999999;
-    }
 
-    div#page-loader-wrap {
-        text-align: center;
-        /* vertical-align: center !important; */
-        margin-top: 20%;
-    }
-    .file_td{
-        width: 388px;
-        display: block;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .list_filed .list-group-item {
-        font-size: 14px;
-        padding: 5px 10px 5px 10px;
-        text-transform: capitalize !important;
-        border: 0px;
-        min-height: 31px;
-    }
-    #necessaryFieldList .list-group-item:nth-child(2n),
-        #necessaryFieldList1 .list-group-item:nth-child(2n) {
-        background-color: #cccccc5e !important;
-    }
-    .list_filed .list_heading{
-        background-color: #b17828; 
-        padding: 5px 10px 5px 10px;
-        color: #fff;
-        font-size: 17px;
-    }
-    #necessaryFieldList1 .list-group-item {
-    color: #008000;
-    }
-    .modal_custom.modal-dialog.modal-dialog-scrollable {
-    max-width: 800px;
-}
+        @-webkit-keyframes sk-bouncedelay {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
 
-.modal_custom.modal-dialog.modal-dialog-scrollable .edit_column {
-    padding: 0px;
-}
+            40% {
+                transform: scale(1);
+            }
+        }
 
-.column_table tbody#tableBody tr td:nth-child(3n) {
-    color: green;
-}
-table.table.column_table thead {
-    position: sticky;
-    top: -10px;
-}
-button#close_popup {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-}
-button#closeErrorMessage {
-    position: absolute;
-    right: 20px;
-    top: 5px;
-}
-div#errorMessage {
-    position: relative;
-}
-/* div#successMessage {
-    position: relative;
-} */
-</style>
+        @keyframes sk-bouncedelay {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+        
+        div#page-loader {
+            top: 0;
+            left: 0;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #00000080;
+            z-index: 999999;
+        }
+
+        div#page-loader-wrap {
+            text-align: center;
+            /* vertical-align: center !important; */
+            margin-top: 20%;
+        }
+        .file_td{
+            width: 388px;
+            display: block;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .list_filed .list-group-item {
+            font-size: 14px;
+            padding: 5px 10px 5px 10px;
+            text-transform: capitalize !important;
+            border: 0px;
+            min-height: 31px;
+        }
+        #necessaryFieldList .list-group-item:nth-child(2n),
+            #necessaryFieldList1 .list-group-item:nth-child(2n) {
+            background-color: #cccccc5e !important;
+        }
+        .list_filed .list_heading{
+            background-color: #b17828; 
+            padding: 5px 10px 5px 10px;
+            color: #fff;
+            font-size: 17px;
+        }
+        #necessaryFieldList1 .list-group-item {
+        color: #008000;
+        }
+        .modal_custom.modal-dialog.modal-dialog-scrollable {
+        max-width: 800px;
+        }
+
+        .modal_custom.modal-dialog.modal-dialog-scrollable .edit_column {
+            padding: 0px;
+        }
+
+        .column_table tbody#tableBody tr td:nth-child(3n) {
+            color: green;
+        }
+        table.table.column_table thead {
+            position: sticky;
+            top: -10px;
+        }
+        button#close_popup {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+        button#closeErrorMessage {
+            position: absolute;
+            right: 20px;
+            top: 5px;
+        }
+        div#errorMessage {
+            position: relative;
+        }
+        /* div#successMessage {
+            position: relative;
+        } */
+    </style>
  <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
     </body>
     <script>
     $(document).ready(function() {
-       //datatable intialization
-       var exportTable =  $('#example').DataTable({
-            "paging": true,   // Enable pagination
-            "ordering": false, // Enable sorting
-            "searching": true, // Enable search
-            "lengthChange":false,
-            "pageLength": 40,
-            "data": <?php if(isset($data)){ echo $data; }  ?>,
-            "columns": [
-                { title: 'Supplier' },
-                { title: 'File Name' },
-                { title: 'Status' },
-                { title: 'Uploaded By' },
-                { title: 'Date' },
-                { title: 'Action' },
-                // Add more columns as needed
+        var exportTable = $('#example').DataTable({
+            oLanguage: {
+                sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
+            },
+            processing: true,
+            serverSide: true,
+            lengthMenu: [],
+            pageLength: 50,
+            ajax: {
+                url: '{{ route("export.filter") }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: function (d) {
+                    // Pass date range and supplier ID when making the request
+                  
+                },
+            },
+            beforeSend: function() {
+                // Show both the DataTables processing indicator and the manual loader before making the AJAX request
+                $('.dataTables_processing').show();
+                $('#manualLoader').show();
+            },
+            complete: function() {
+                // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
+                $('.dataTables_processing').hide();
+                $('#manualLoader').hide();     
+            },
+            columns: [
+                { data: 'supplier_name', name: 'supplier_name' },
+                { data: 'file_name', name: 'file_name' },
+                { data: 'status', name: 'status' },
+                { data: 'uploaded_by', name: 'uploaded_by' },
+                { data: 'date', name: 'date' },
+                { data: 'id', name: 'id' },
             ],
             "rowCallback": function(row, data, index) {
                 // Loop through each cell in the row
@@ -267,8 +299,39 @@ div#errorMessage {
                     }
                 });
             }
-            
         });
+
+    
+
+    //    //datatable intialization
+    //    var exportTable =  $('#example').DataTable({
+    //         "paging": true,   // Enable pagination
+    //         "ordering": false, // Enable sorting
+    //         "searching": true, // Enable search
+    //         "lengthChange":false,
+    //         "pageLength": 40,
+    //         "data": <?php if(isset($data)){ echo $data; }  ?>,
+    //         "columns": [
+    //             { title: 'Supplier' },
+    //             { title: 'File Name' },
+    //             { title: 'Status' },
+    //             { title: 'Uploaded By' },
+    //             { title: 'Date' },
+    //             { title: 'Action' },
+    //             // Add more columns as needed
+    //         ],
+    //         "rowCallback": function(row, data, index) {
+    //             // Loop through each cell in the row
+    //             $('td', row).each(function() {
+    //                 // Check if the cell contains a button with a specific class
+    //                 if ($(this).find('button.invisible').length) {
+    //                     $(row).css('background-color','#f09b9b');
+    //                 }
+    //             });
+    //         }
+            
+    //     });
+         $('#example_length').hide();
         if (exportTable.data().count() > 40) {
             // console.log("here");
             $('#example_paginate').show(); // Enable pagination
