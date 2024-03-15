@@ -19,6 +19,7 @@ class Commission extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'status',
         'supplier',
         'end_date',
         'sales_rep',
@@ -143,10 +144,15 @@ class Commission extends Model
                 $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 $formatuserdata[$key]['commission'] = $data->commission.'%';
-                $formatuserdata[$key]['start_date'] = date('m/d/Y', strtotime($data->start_date));//date_format(date_create($data->start_date), 'm/d/Y');
-                $formatuserdata[$key]['end_date'] = date('m/d/Y', strtotime($data->end_date)); //date_format(date_create($data->end_date), 'm/d/Y');
-                // $formatuserdata[$key]['id'] = '<a class="btn btn-primary" title="View Details" href= '.route('catalog.list', ['catalogType' => 'Catalog List','id' => $data->id]).'><i class="fa-regular  fa-eye"></i></a>';
-                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit SalesTeam" class="edit_commission" data-id="'.$data->id.'" data-commission="'.$data->commission.'" href="#" data-bs-toggle="modal" data-bs-target="#editcommisionModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+                $formatuserdata[$key]['start_date'] = date('m/d/Y', strtotime($data->start_date));
+                $formatuserdata[$key]['end_date'] = date('m/d/Y', strtotime($data->end_date)); /**date_format */
+
+                $start_date = date("m/d/Y", strtotime($data->start_date)); /** Convert to mm/dd/yyyy format */
+                $end_date = date("m/d/Y", strtotime($data->end_date)); /** Convert to mm/dd/yyyy format */
+                /** To create a date range for the same day, just concatenate the start date */
+                $date_range = $start_date . " - " . $end_date;
+
+                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit Commission" class="edit_commission" data-id="'.$data->id.'" data-date="'.$date_range.'" data-commission="'.$data->commission.'" data-status="'.$data->status.'" href="#" data-bs-toggle="modal" data-bs-target="#editCommissionModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
                 
                 if ($data->status == 1) {
                     $formatuserdata[$key]['status'] = 'Active';

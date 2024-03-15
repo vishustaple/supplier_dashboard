@@ -36,22 +36,22 @@ class Order extends Model
         ];
     
         $query = self::query() // Replace YourModel with the actual model you are using for the data
-        ->leftJoin('suppliers', 'orders.supplier_id', '=', 'suppliers.id')
         ->leftJoin('accounts', 'orders.customer_number', '=', 'accounts.customer_number')
+        ->leftJoin('orders', 'orders.id', '=', 'order_product_details.order_id')
 
-        ->select('orders.id', 'orders.amount as amount', 'suppliers.supplier_name as supplier_name', 'orders.customer_number as customer_number', 'accounts.alies as customer_name'); // Adjust the column names as needed
+        ->select('order_product_details.*'); // Adjust the column names as needed
        
         // Filter data based on request parameters
-        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
-            $startDate = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
-            $endDate = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
-            // Debug output
-            // dd('Start Date: ' . $startDate, 'End Date: ' . $endDate);
-            $query->whereBetween('orders.date', [$startDate, $endDate]);
-        }
+        // if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+        //     $startDate = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
+        //     $endDate = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
+        //     // Debug output
+        //     // dd('Start Date: ' . $startDate, 'End Date: ' . $endDate);
+        //     $query->whereBetween('orders.date', [$startDate, $endDate]);
+        // }
         
-        if (isset($filter['supplierId']) && !empty($filter['supplierId'])) {
-            $query->where('orders.supplier_id', $filter['supplierId']);
+        if (isset($filter['account_number']) && !empty($filter['account_number'])) {
+            $query->where('orders.customer_number', $filter['account_number']);
         }
 
         // Search functionality
@@ -97,6 +97,37 @@ class Order extends Model
         // Get filtered records count
         // $filteredRecords = $query->count();
         
+        foreach ($filteredData->toArray() as $key => $value) {
+            $formatuserdata[$value['id']][] = [
+                'table_key' => $value['table_key'],
+                'table_value' => $value['table_value'],
+            ];
+        }
+
+        foreach ($formatuserdata as $key => $value) {
+            for ($i=0; $i < count($value); $i++) {
+                if ($value[$i]['table_key'] == 'SKUNUMBER') {
+                    $finalArray[$key][$value[$i]['table_key']] = "\t" .$value[$i]['table_value'];
+                } else {
+                    $finalArray[$key][$value[$i]['table_key']] = $value[$i]['table_value'];
+                }
+                
+                if (!isset($arrayKeySet)) {
+                    $keyArray[] = ucwords(str_replace("_", ' ', $value[$i]['table_key']));
+                }
+            }
+
+            if (isset($keyArray)) {
+                $arrayKeySet = true;
+            }
+        }
+
+        $finalArray['heading'] = $keyArray;
+        echo"<pre>";
+        print_r($finalArray);
+        die;
+        // return $finalArray;
+
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
             $formatuserdata[$key]['amount'] = '$'.$data->amount;

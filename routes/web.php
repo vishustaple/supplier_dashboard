@@ -58,7 +58,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/accounts/p-name',[AccountController::class,'PName'])->name('ParentName');
         Route::get('/accounts/p-number',[AccountController::class,'PNumber'])->name('ParentNumber');
         Route::get('/accounts/count',[AccountController::class,'getEmptyAccountNameAccounts'])->name('accounts.counts');
-        
+        Route::post('/accounts/account-number',[AccountController::class,'getAccountNumber'])->name('get.accountNumber');
         /** Account Section End */
 
         /** Report Section Start */
@@ -117,7 +117,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/commissions/supplier-search' , [CommissionController::class,'commissionAjaxSupplierSearch'])->name('commission.supplierSearch');
         Route::post('/commissions/add' , [CommissionController::class,'commissionAdd'])->name('commission.add');
         Route::get('/commissions/csv' , [CommissionController::class,'exportCatalogCsv'])->name('commission.export-csv');
-        Route::get('/commissions/edit/{id}' , [CommissionController::class,'editCommission'])->name('commission.edit');
+        Route::post('/commissions/edit' , [CommissionController::class,'editCommission'])->name('commission.edit');
       
         /** Commission Section End */
     });
