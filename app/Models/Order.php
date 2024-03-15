@@ -28,83 +28,18 @@ class Order extends Model
     }
 
     public static function getFilterdData($filter = [], $csv=false){
-        $orderColumnArray = [
-            0 => 'orders.customer_number',
-            1 => "master_account_detail.alies",
-            2 => 'suppliers.supplier_name',
-            3 => 'orders.amount',
-        ];
-    
         $query = self::query() // Replace YourModel with the actual model you are using for the data
         ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
         ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
 
         ->select('order_product_details.*', 'orders.id as order_id'); // Adjust the column names as needed
        
-        // Filter data based on request parameters
-        // if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
-        //     $startDate = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
-        //     $endDate = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
-        //     // Debug output
-        //     // dd('Start Date: ' . $startDate, 'End Date: ' . $endDate);
-        //     $query->whereBetween('orders.date', [$startDate, $endDate]);
-        // }
-        
-        if (isset($filter['account_number']) && !empty($filter['account_number'])) {
-            $query->where('orders.customer_number', $filter['account_number']);
+    
+        if (isset($filter['account_name']) && !empty($filter['account_name'])) {
+            $query->where('master_account_detail.account_name', $filter['account_name']);
         }
-        
-        // $query->orWhere('order_product_details.key', 'LIKE', '%SKU%');
-        // $query->orWhere('order_product_details.key', 'LIKE', '%Description%');
-        // $query->orWhere('order_product_details.key', 'LIKE', '%UOM (Unit of Measure)%');
-        // $query->orWhere('order_product_details.key', 'LIKE', '%Category%');
-        // $query->orWhere('order_product_details.key', 'LIKE', '%Quantity Purchased%');
-        // $query->orWhere('order_product_details.key', 'LIKE', '%Total Spend%');
-        // $query->orWhere('order_product_details.key', 'LIKE', '%Last Of Unit Net Price%');
-        // $query->orWhere('order_product_details.key', 'LIKE', '%Web Price%');
-        // $query->orWhere('order_product_details.key', 'LIKE', '%Savings Percentage%');
-        // Search functionality
-        // if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
-        //     $searchTerm = $filter['search']['value'];
-
-        //     $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
-        //         foreach ($orderColumnArray as $column) {
-        //             $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
-        //         }
-        //     });
-        // }
-
-        
-        // Get total records count (without filtering)
-        
-        // $totalRecords = $query->count();
-        // $totalRecords = $query->getCountForPagination();
-        // $query->groupBy('orders.id');
-
-        // $totalRecords = $query->getQuery()->getCountForPagination();
-        
-        // if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-        //     // Order by column and direction
-        //     $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
-        // } else {
-        //     $query->orderBy($orderColumnArray[0], 'asc');
-        // }
-        // dd($query->toSql());    
-        
-        // if (isset($filter['start']) && isset($filter['length'])) {
-        //     // Get paginated results based on start, length
-        //     $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
-        // } else {
-            $filteredData = $query->get();
-        // }
-        // dd($query->toSql());    
-        
-        // echo"<pre>";
-        // print_r($filteredData);die;
-        // Print the SQL query
-
-        // Get filtered records count
-        // $filteredRecords = $query->count();
+      
+        $filteredData = $query->get();
         
         foreach ($filteredData->toArray() as $key => $value) {
             $formatuserdata[$value['order_id']][] = [
@@ -157,21 +92,50 @@ class Order extends Model
                 }
                 $arrayKey++;
             }
+            $finalArray1=[];
+            foreach ($finalArray as $key => $value) {
+                if (100 >= count($finalArray1)) {
+                    $finalArray1[$arrayKey]['sku'] = $value['sku'];
+                    $finalArray1[$arrayKey]['uom'] = $value['uom'];
+                    $finalArray1[$arrayKey]['category'] = $value['category'];
+                    $finalArray1[$arrayKey]['description'] = $value['description'];
+                    $finalArray1[$arrayKey]['quantity_purchased'] = $value['quantity_purchased'];
+                    $finalArray1[$arrayKey]['total_spend'] = $value['total_spend'];
+                    $finalArray1[$arrayKey]['last_of_unit_net_price'] = $value['last_of_unit_net_price'];
+                    $finalArray1[$arrayKey]['web_price'] = $value['web_price'];
+                    $finalArray1[$arrayKey]['savings_percentage'] = $value['savings_percentage'];
+                    $arrayKey++;
+                }
+            }
+            usort($finalArray1, function($a, $b) {
+                return $b['total_spend'] <=> $a['total_spend']; // Compare prices
+            });
         } else {
             $finalArray=[];
+            $finalArray1=[];
         }
-
-        // $finalArray['heading'] = $keyArray;
+        
+        $arrayKey=0;
+        if ($filter['start'] > 0) {
+            $start = $filter['start']-1;
+        } else {
+            $start = $filter['start'];
+        }
+        // print_r($filter['length']);
+        // print_r(count($finalArray));
+        // die;
+        
         // echo"<pre>";
         // print_r($finalArray);
         // die;
-        $totalRecords = count($finalArray);
+        
+        $totalRecords = count($finalArray1);
         if ($csv == true) {
-            return $finalArray;
+            return $finalArray1;
         } else {
             // Return the result along with total and filtered counts
             return [
-                'data' => $finalArray,
+                'data' => $finalArray1,
                 'recordsTotal' => $totalRecords,
                 'recordsFiltered' => $totalRecords,
             ];
