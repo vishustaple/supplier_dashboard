@@ -306,7 +306,7 @@ div#errorMessage {
                                 errorMessage += value[0] + '<br>';
                             });
                         } else {
-                            errorMessage = response.error;
+                                errorMessage = response.error;
                         }
                         $('#errorMessage').html('');
                         $('#page-loader').hide();
