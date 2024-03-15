@@ -250,7 +250,7 @@ class AccountController extends Controller
         }
         if($request->parent){
             if(empty($request->grandparentSelect)){
-            return response()->json(['error' => "The GrandParent Field is Required."], 200);
+                return response()->json(['error' => "The GrandParent Field is Required."], 200);
             }
         }
         try {
@@ -333,5 +333,12 @@ class AccountController extends Controller
        } catch (\Throwable $e) {
         return response()->json(['error' => $e->getMessage()], 200);
        }
+    }
+
+    public function getAccountNumber(Request $request){
+        if ($request->ajax()) {
+            $accountNumber = Account::select('account_number')->where('account_name', 'LIKE', '%' . $request->input("account_name") . '%')->get()->toArray();
+            return response()->json($accountNumber);
+        }  
     }
 }

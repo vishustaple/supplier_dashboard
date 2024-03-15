@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use DB;
 use League\Csv\Writer;
-use App\Models\{Order, CategorySupplier};
+use App\Models\{Order, CategorySupplier, Account};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 use Illuminate\Http\Request;
@@ -27,20 +27,23 @@ class ReportController extends Controller
         ];
 
         if(isset($id) && isset($reportType)){
-        // Retrieve orders based on the join conditions
-        $orders = DB::table('orders')
+            // Retrieve orders based on the join conditions
+            $orders = DB::table('orders')
 
-        ->leftjoin('accounts', 'orders.customer_number', '=', 'accounts.customer_number')
-        ->leftjoin('suppliers', 'orders.supplier_id', '=', 'suppliers.id')
-        ->select('orders.customer_number','orders.amount','orders.date','accounts.alies','suppliers.supplier_name','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name')
-        ->where('orders.id','=', $id)
-        ->first();
-           
+            ->leftjoin('accounts', 'orders.customer_number', '=', 'accounts.customer_number')
+            ->leftjoin('suppliers', 'orders.supplier_id', '=', 'suppliers.id')
+            ->select('orders.customer_number','orders.amount','orders.date','accounts.alies','suppliers.supplier_name','accounts.internal_reporting_name','accounts.qbr','accounts.spend_name')
+            ->where('orders.id','=', $id)
+            ->first();
+            
            return view('admin.viewdetail',compact('orders'));
-
         }
- 
-        return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::all()]);
+
+        if ($reportType == 'business_report') {
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'accountData' => Account::select('account_name')->groupBy('account_name')->get()]);
+        } else {
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::all()]);
+        }
     }
 
     public function dataFilter(Request $request){
