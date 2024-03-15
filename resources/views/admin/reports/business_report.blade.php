@@ -32,7 +32,7 @@
                         <input type="hidden" id="start_date" name="start_date" />
                         <input type="hidden" id="end_date" name="end_date" />  
                     </div> -->
-                    <div class="col-md-3 mt-1 mb-0 text-end">
+                    <div class="col-md-2 mt-1 mb-0 text-end">
                     <button id="submitBtn" class="btn btn-primary">Submit</button>
                     <!-- <button id="downloadCsvBtn" class="btn-success btn disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
                     </div>
@@ -97,23 +97,23 @@
                 contentType: 'application/json',                     
                 processData: false,
                 success: function(response) {
-                    $('#selectContainer').html('');
-                    $('#selectContainer').show();
-                    // Assuming `response` is your array of objects
-                    var select = $('<select id="account_number" name="account_number" class="form-control">');
+                    // $('#selectContainer').html('');
+                    // $('#selectContainer').show();
+                    // // Assuming `response` is your array of objects
+                    // var select = $('<select id="account_number" name="account_number" class="form-control">');
 
-                    $.each(response, function(index, obj) {
-                        var option = $('<option>').val(obj.account_number).text(obj.account_number);
-                        select.append(option);
-                    });
+                    // $.each(response, function(index, obj) {
+                    //     var option = $('<option>').val(obj.account_number).text(obj.account_number);
+                    //     select.append(option);
+                    // });
 
-                    // Create a label element
-                    var label = $('<label for="selectBox">').text('Select Account Number:');
+                    // // Create a label element
+                    // var label = $('<label for="selectBox">').text('Select Account Number:');
 
-                    // Assuming `selectContainer` is the container where you want to append the select element
-                    var selectContainer = $('#selectContainer');
-                    selectContainer.append(label); // Append the label before the select element
-                    selectContainer.append(select); // Append the select elemen
+                    // // Assuming `selectContainer` is the container where you want to append the select element
+                    // var selectContainer = $('#selectContainer');
+                    // selectContainer.append(label); // Append the label before the select element
+                    // selectContainer.append(select); // Append the select elemen
 
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                 },
@@ -149,7 +149,8 @@
             },
             processing: true,
             serverSide: true,
-            lengthMenu: [], 
+            lengthMenu: [],
+            paging: false, 
             pageLength: 40,
             ajax: {
                 url: '{{ route('report.filter') }}',
@@ -159,7 +160,7 @@
                     // Pass date range and supplier ID when making the request
                     // d.start_date = $('#start_date').val();
                     // d.end_date = $('#end_date').val();
-                    d.account_number = $('#account_number').val();
+                    d.account_name = $('#account_name').val();
                 },
             },
 
