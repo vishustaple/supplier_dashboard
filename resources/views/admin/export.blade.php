@@ -283,12 +283,12 @@
                 $('#manualLoader').hide();     
             },
             columns: [
-                { data: 'supplier_name', name: 'supplier_name' },
-                { data: 'file_name', name: 'file_name' },
-                { data: 'status', name: 'status' },
-                { data: 'uploaded_by', name: 'uploaded_by' },
-                { data: 'date', name: 'date' },
-                { data: 'id', name: 'id' },
+                { data: 'supplier_name', name: 'supplier_name' , 'orderable': false, 'searchable': false },
+                { data: 'file_name', name: 'file_name' , 'orderable': false, 'searchable': false },
+                { data: 'status', name: 'status' , 'orderable': false, 'searchable': false },
+                { data: 'uploaded_by', name: 'uploaded_by' , 'orderable': false, 'searchable': false },
+                { data: 'date', name: 'date' , 'orderable': false, 'searchable': false },
+                { data: 'id', name: 'id' , 'orderable': false, 'searchable': false },
             ],
             "rowCallback": function(row, data, index) {
                 // Loop through each cell in the row
