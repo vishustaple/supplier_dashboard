@@ -331,14 +331,14 @@
     //         }
             
     //     });
-         $('#example_length').hide();
-        if (exportTable.data().count() > 40) {
-            // console.log("here");
-            $('#example_paginate').show(); // Enable pagination
-        } else {
+        //  $('#example_length').hide();
+        // if (exportTable.data().count() > 40) {
+        //     // console.log("here");
+        //     $('#example_paginate').show(); // Enable pagination
+        // } else {
           
-            $('#example_paginate').hide();
-        }
+        //     $('#example_paginate').hide();
+        // }
         //end of datatable
 
         $('#page-loader').hide();
