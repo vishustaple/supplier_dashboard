@@ -399,3 +399,34 @@ div#editAccountModal .modal-footer {
 th.inncnetive_rebate.sorting {
   width: auto !important;
 }
+.password_card .card-header {
+  /* text-align: center; */
+  background: #b17828 !important;
+  border: 0px;
+  color: #fff;
+  font-weight: 500;
+  font-size: 22px;
+}
+ul.dropdown-menu.dropdown-menu-end.hover.show {
+  margin: 0px;
+  padding: 0px;
+  box-shadow: 0 0 13px rgba(0,0,0,0.3);
+  border: 0px;
+}
+ul.dropdown-menu.dropdown-menu-end.hover.show li a{
+  padding: 10px ;
+  transition: 0.3s ease-in-out;
+}
+ul.dropdown-menu.dropdown-menu-end.hover.show li a:hover {
+  background: #b17828;
+  color: #fff;
+}
+ul.dropdown-menu.dropdown-menu-end.hover.show hr.dropdown-divider {
+  margin: 0px;
+}
+div#layoutSidenav div#layoutSidenav_content.ms-0 {
+  margin-left: 0px !important;
+}
+button#sidebarToggle {
+  display: none;
+}

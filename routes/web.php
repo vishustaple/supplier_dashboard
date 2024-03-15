@@ -32,13 +32,15 @@ Route::post('/user-register' , [HomeController::class,'userRegister'])->name('us
 
 Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
+        Route::get('/adminupdate', [HomeController::class, 'changePasswordView'])->name('admin.changePasswordView');
+        Route::post('/changepassword', [HomeController::class, 'changePassword'])->name('admin.changePassword');
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
         Route::get('/upload-sheet' , [ExcelImportController::class,'index'])->name('upload.sheets');
         Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
         Route::get('/delete-file/{id?}' , [ExcelImportController::class,'deleteFile'])->name('upload.delete');
         Route::get('/download/{id?}', [ExcelImportController::class, 'downloadSampleFile'])->name('file.download');
-
+        Route::post('/export/filter' , [ExcelImportController::class,'getExportWithAjax'])->name('export.filter');
         /** Account Section Start */
         Route::get('/account/{id?}' , [AccountController::class,'allAccount'])->name('account');
         Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
