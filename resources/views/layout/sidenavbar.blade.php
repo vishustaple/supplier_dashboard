@@ -24,13 +24,13 @@
                              <!-- Submenu for Manage sales -->
                              <a class="nav-link {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Sales Team', 'Commission'])) ? 'active' : '' }}" data-toggle="collapse" href="#submenuSale">
                                <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
-                                Sales Rep.
+                                Sales Rep
                                <i class="fas fa-caret-down"></i>
                             </a>
                             <div class="collapse {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Sales Team', 'Commission'])) ? 'show' : '' }}" id="submenuSale">
                             <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Sales Team') ? 'active' : '' }}" href="{{route('sales.index')}}">
                                 <div class="sb-nav-link-icon"></div>
-                                Manage Sales Rep.
+                                Manage Sales Rep
                             </a>
                             <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commission.list', ['commissionType' => 'commission_listing'])}}">
                                 <div class="sb-nav-link-icon"></div>
