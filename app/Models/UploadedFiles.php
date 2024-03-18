@@ -67,7 +67,8 @@ class UploadedFiles extends Model
          'uploaded_files.created_at as created_at',
          'uploaded_files.deleted_at as deleted_at',
          'suppliers.supplier_name as supplier_name')
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id');
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id')
+       
        
          /** Search functionality */
          if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -90,7 +91,7 @@ class UploadedFiles extends Model
         //     /** Order by column and direction */
         //     $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         // } else {
-            // $query->orderBy($orderColumnArray[0], 'asc');
+            // $query->orderBy('uploaded_files.id', 'desc');
         // }
 
         $query->orderBy('uploaded_files.id', 'desc');
