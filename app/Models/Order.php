@@ -46,33 +46,10 @@ class Order extends Model
         foreach ($queryData as $value) {
             $indexedArray[] = $value['order_id'];
         }
-
-        $orderByRaw = 'CASE ';
-        $keys = ['Line Total','Total Invoice Price'];
-        foreach ($keys as $key) {
-            $orderByRaw .= "WHEN `key` = '$key' THEN 1 ";
-        }
-    
-        $orderByRaw .= "ELSE 0 END DESC";
     
         $query1 = DB::table('order_product_details')
             ->select('order_product_details.*')
-            ->whereIn('order_product_details.order_id', $indexedArray)
-            ->orderByRaw($orderByRaw);
-            // ->get();
-
-    //    $orderByRaw = '';
- 
-    //     foreach ($keys as $key) {
-    //         $orderByRaw .= "WHEN `key` = '".$key."' THEN 1 ";
-    //     }
-
-    //     $orderByRaw .= "ELSE 0 END DESC";
-
-    //     $query1 = DB::table('order_product_details')
-    //     ->select('order_product_details.*') // Adjust the column names as needed
-    //     ->orderByRaw($orderByRaw)
-    //     ->whereIn('order_product_details.order_id', $indexedArray);
+            ->whereIn('order_product_details.order_id', $indexedArray);
 
         $filteredData = $query1->get();
         foreach ($filteredData as $key => $value) {
@@ -135,7 +112,10 @@ class Order extends Model
         // echo"<pre>";
         // print_r($finalArray);
         // die;
-        
+        usort($finalArray, function($a, $b) {
+            return $b['total_spend'] <=> $a['total_spend']; // Compare prices in descending order
+        });
+
         $totalRecords = count($finalArray);
         if ($csv == true) {
             $finalArray['heading'] = ['Total Spend', 'SKU', 'Description', 'Category', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price'];
