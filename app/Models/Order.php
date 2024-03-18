@@ -47,20 +47,32 @@ class Order extends Model
             $indexedArray[] = $value['order_id'];
         }
 
+        $orderByRaw = 'CASE ';
         $keys = ['Line Total','Total Invoice Price'];
-
-        $orderByRaw = '';
-
         foreach ($keys as $key) {
-            $orderByRaw .= "WHEN `key` = '".$key."' THEN 1 ";
+            $orderByRaw .= "WHEN `key` = '$key' THEN 1 ";
         }
-
+    
         $orderByRaw .= "ELSE 0 END DESC";
-
+    
         $query1 = DB::table('order_product_details')
-        ->select('order_product_details.*') // Adjust the column names as needed
-        ->orderByRaw($orderByRaw)
-        ->whereIn('order_product_details.order_id', $indexedArray);
+            ->select('order_product_details.*')
+            ->whereIn('order_product_details.order_id', $indexedArray)
+            ->orderByRaw($orderByRaw)
+            ->get();
+
+    //    $orderByRaw = '';
+ 
+    //     foreach ($keys as $key) {
+    //         $orderByRaw .= "WHEN `key` = '".$key."' THEN 1 ";
+    //     }
+
+    //     $orderByRaw .= "ELSE 0 END DESC";
+
+    //     $query1 = DB::table('order_product_details')
+    //     ->select('order_product_details.*') // Adjust the column names as needed
+    //     ->orderByRaw($orderByRaw)
+    //     ->whereIn('order_product_details.order_id', $indexedArray);
 
         $filteredData = $query1->get();
         foreach ($filteredData as $key => $value) {
