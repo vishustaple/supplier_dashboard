@@ -52,7 +52,7 @@ class Order extends Model
         $orderByRaw = '';
 
         foreach ($keys as $key) {
-            $orderByRaw .= "WHEN `key` = ".$key." THEN 1 ";
+            $orderByRaw .= "WHEN `key` = '".$key."' THEN 1 ";
         }
 
         $orderByRaw .= "ELSE 0 END DESC";
