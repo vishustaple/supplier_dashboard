@@ -54,35 +54,37 @@ class Order extends Model
             $arrayKey=0;
             foreach ($formatuserdata as $key => $value) {
                 for ($i=0; $i < count($value); $i++) {
-                    if (in_array($value[$i]['key'], ['Item Num'])) {
+                    if (in_array($value[$i]['key'], ['Item Num','SOLD TOACCOUNT','Invoice Number','SKUNUMBER','MASTER_CUSTOMER'])) {
                         $finalArray[$arrayKey]['sku'] = $value[$i]['value'];
                     }
     
-                    if (in_array($value[$i]['key'], ['Uo M'])) {
+                    if (in_array($value[$i]['key'], ['Uo M','SHIP TOACCOUNT','Track Code','SHIPTOZIPCODE'])) {
                         $finalArray[$arrayKey]['uom'] = $value[$i]['value'];
                     }
                     
-                    if (in_array($value[$i]['key'], ['Category'])) {
+                    if (in_array($value[$i]['key'], ['Category','CATEGORIES','Material Segment','ORDERCONTACT'])) {
                         $finalArray[$arrayKey]['category'] = $value[$i]['value'];
                     }
     
-                    if (in_array($value[$i]['key'], ['Item Name'])) {
+                    if (in_array($value[$i]['key'], ['Item Name','DESCRIPTION','Material Description','ITEMDESCRIPTION','STAPLESADVANTAGEITEMDESCRIPTION'])) {
                         $finalArray[$arrayKey]['description'] = $value[$i]['value'];
                     }
     
-                    if (in_array($value[$i]['key'], ['Qty'])) {
+                    if (in_array($value[$i]['key'], ['Qty','QUANTITYSHIPPED','Billing Qty','QTY'])) {
                         $finalArray[$arrayKey]['quantity_purchased'] = $value[$i]['value'];
                     }
     
-                    if (in_array($value[$i]['key'], ['Line Total'])) {
+                    if (in_array($value[$i]['key'], ['Line Total','Total Invoice Price'])) {
                         $finalArray[$arrayKey]['total_spend'] = $value[$i]['value'];
                     }
     
-                    if (in_array($value[$i]['key'], ['Ext Price'])) {
+                    if (in_array($value[$i]['key'], ['Ext Price','ON-CORE
+                    SPEND','Actual Price Paid'])) {
                         $finalArray[$arrayKey]['last_of_unit_net_price'] = $value[$i]['value'];
                     }
     
-                    if (in_array($value[$i]['key'], ['Price'])) {
+                    if (in_array($value[$i]['key'], ['Price','OFF-CORE
+                    SPEND','Reference Price'])) {
                         $finalArray[$arrayKey]['web_price'] = $value[$i]['value'];
                     }
     
