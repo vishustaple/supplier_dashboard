@@ -66,6 +66,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/report/filter', [ReportController::class, 'dataFilter'])->name('report.filter');
         Route::get('/reports/csv' , [ReportController::class,'exportCsv'])->name('report.export-csv');
         Route::get('/report/{reportType}/{id?}' , [ReportController::class,'index'])->name('report.type');
+        Route::post('/report/supplier-filter', [ReportController::class, 'supplierReportFilter'])->name('report.supplier_filter');
         /** Report Section End */
     
         //not in use now this route     
