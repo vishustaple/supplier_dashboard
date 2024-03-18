@@ -333,12 +333,11 @@ class ExcelImportController extends Controller
                             if($key > $startIndex){
                                 if (!empty($row[$keyInvoiceDate])) {
                                     if ($request->supplierselect == 4) {
-
-                                        $date = explode(" - ", $row[$keyInvoiceDate]);
+                                        $date = explode("-", $row[$keyInvoiceDate]);
                                     if(count($date) <= 2){
                                         $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
                                     } else {
-                                            $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
+                                        $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
                                     }
                                     } else {
                                         $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
