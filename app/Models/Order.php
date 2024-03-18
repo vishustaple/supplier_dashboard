@@ -58,8 +58,8 @@ class Order extends Model
         $query1 = DB::table('order_product_details')
             ->select('order_product_details.*')
             ->whereIn('order_product_details.order_id', $indexedArray)
-            ->orderByRaw($orderByRaw)
-            ->get();
+            ->orderByRaw($orderByRaw);
+            // ->get();
 
     //    $orderByRaw = '';
  
