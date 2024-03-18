@@ -10,27 +10,27 @@
         <div class="container">
             <div class="m-1 mb-2 d-md-flex align-items-center justify-content-between">
                 <h3 class="mb-0 ">{{ $pageTitle }}</h3>
-                
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
                 <div class="row align-items-end py-3 border-top border-bottom mb-3">
                     <div class="form-group col-md-4 mb-0">
-                        <label for="selectBox">Select Supplier:</label>
-                        <select id="selectBox" name="supplierselect" class="form-control"> 
+                        <label for="supplier">Select Supplier:</label>
+                        <select id="supplier" name="supplier" class="form-control"> 
                             <option value="" selected>--Select--</option>
                             @if(isset($categorySuppliers))
-                            @foreach($categorySuppliers as $categorySupplier)
-                            <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
-                            @endforeach
+                                @foreach($categorySuppliers as $categorySupplier)
+                                    <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                                @endforeach
                             @endif
-                            </select>
-                        </div>
+                        </select>
+                    </div>
                     <div class="form-group relative col-md-4 mb-0">  
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                        <input type="hidden" id="start_date" name="start_date" />
+                        <input type="hidden" id="end_date" name="end_date" />  
                     </div>
-
                     <div class="col-md-4 mb-0">
                     <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
@@ -38,7 +38,15 @@
                 </div>
                
             </form>
-            <table id="account_data" class="data_table_files">
+            <div class="row justify-content-end py-3 border-top border-bottom mb-3">
+                <div class="col-md-4">
+                <h6 class="d-flex justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
+                <h6 class="d-flex justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
+                <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
+                <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
+            </div>
+          </div>
+            <table id="supplier_report_data" class="data_table_files">
                 <!-- Your table content goes here -->
             </table>
         </div>
@@ -50,39 +58,107 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
-        $('input[name="dates"]').daterangepicker();
-    });
-    $(document).ready(function() {
-        $('#account_data').DataTable({
-            "paging": true,   // Enable pagination
-            "ordering": true, // Enable sorting
-            "searching": true, // Enable search
-            "pageLength": 40,
-            "lengthChange":false,
-            "data": '',
-            "columns": [
-                { title: 'SR. No' },
-                { title: 'Account Name' },
-                { title: 'Account Number' },
-                { title: 'Parent Name' },
-                { title: 'GrandParent Name' },
-                { title :'Internal Reporting Name'},
-                { title :'QBR'},
-                { title :'Spend Name'},
-                { title :'Supplier Acct Rep'},
-                { title :'Management Fee'},
-                { title :'Record Type'},
-                { title :'Categroy Supplier'},
-                { title :'CPG Sales Representative'},
-                { title :'CPG Customer Service Rep'},
-                { title :'SF Cat'},
-                { title :'Rebate Freq'},
-                { title :'Member Rebate'},
-                { title :'Comm Rate'},
-            ]
+        $('#enddate').daterangepicker();
+    
+        // Event handler for when the user applies the date range
+        $('#enddate').on('apply.daterangepicker', function(ev, picker) {
+            // Access the selected date range
+            $('#start_date').val(picker.startDate.format('YYYY-MM-DD'));
+            $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
+            $('#startDates').text(picker.startDate.format('DD/MM/YYYY'));
+            $('#endDates').text(picker.endDate.format('DD/MM/YYYY'));
+            // Perform actions with the selected date range
+            // console.log('Selected Date Range:', start_date.val(), 'to', end_date.val());
         });
 
-        
+        // Button click event
+        $('#import_form').on('submit', function () {
+            event.preventDefault();
+            // Initiate DataTable AJAX request
+            $('#supplier_report_data').DataTable().ajax.reload();
+
+            
+        });
+
+        function setPercentage() {
+    // Ensure supplierDataTable is properly defined and initialized
+    // Get data for column index 0 (first column)
+    var columnData = supplierDataTable.column(2).data(),
+        columnData1 = supplierDataTable.column(3).data(),
+        columnData2 = supplierDataTable.column(4).data(),
+        volumeRebate = 0,
+        incentiveRebate = 0;
+
+    // Loop through the data and calculate rebates
+    columnData.each(function (value, index) {
+        // Check if columnData1[index] and columnData2[index] are not null or empty
+        if (columnData1[index] && columnData2[index]) {
+            volumeRebate += (parseFloat(value.replace(/[%$]/g, '')) / 100) * parseFloat(columnData1[index].replace(/%/g, ''));
+            incentiveRebate += (parseFloat(value.replace(/[%$]/g, '')) / 100) * parseFloat(columnData2[index].replace(/%/g, ''));
+            // $('#startDates').text($('#start_date').val());
+            // $('#endDates').text($('#end_date').val());
+        }
+    });
+
+    // Display the rebates
+    $('#volume_rebate').text('$' + volumeRebate.toFixed(2));
+    $('#incentive_rebate').text('$' + incentiveRebate.toFixed(2));
+}
+        // DataTable initialization
+        var supplierDataTable = $('#supplier_report_data').DataTable({
+            oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
+            processing: true,
+            serverSide: true,
+            lengthMenu: [],
+            paging: false,
+            searching:false, 
+            pageLength: 40,
+            ajax: {
+                url: '{{ route('report.supplier_filter') }}',
+                type: 'POST',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: function (d) {
+                    // Pass date range and supplier ID when making the request
+                    d.start_date = $('#start_date').val();
+                    d.end_date = $('#end_date').val();
+                    d.supplier = $('#supplier').val();
+                },
+            },
+
+            beforeSend: function() {
+                // Show both the DataTables processing indicator and the manual loader before making the AJAX request
+                $('.dataTables_processing').show();
+                $('#manualLoader').show();
+            },
+
+            complete: function(response) {
+                // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
+                $('.dataTables_processing').hide();
+                $('#manualLoader').hide();
+                if (businessdataTable.data().count() > 40) {
+                    $('#business_data_paginate').show(); // Enable pagination
+                } else {
+                    $('#business_data_paginate').hide();
+                }
+            },
+
+            columns: [
+                { data: 'supplier', name: 'supplier', title: 'Supplier'},
+                { data: 'account_name', name: 'account_name', title: 'Account Name'},
+                { data: 'amount', name: 'amount', title: 'Amount'},
+                { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
+                { data: 'incentive_rebate', name: 'incentive_rebate', title: 'Incentive Rebate'},
+                { data: 'start_date', name: 'start_date', title: 'Start Date'},
+                { data: 'end_date', name: 'end_date', title: 'End Date'},
+            ],
+
+            fnDrawCallback: function( oSettings ) {
+                setPercentage();
+            },
+        });
+
+       
+
         // Attach a change event handler to the checkboxes
         $('input[type="checkbox"]').change(function() {
             // Check if the checkbox is checked or unchecked
@@ -156,7 +232,7 @@
                         $('#successMessage').css('display','block');
                         $("form")[0].reset();
                         //disable all field 
-                        $('#enddate,#file,#importBtn').prop('disabled', true);
+                        $('#date,#file,#importBtn').prop('disabled', true);
                         setTimeout(function () {
                             $('#successMessage').fadeOut();
                             window.location.reload();

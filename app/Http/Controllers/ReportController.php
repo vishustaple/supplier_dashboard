@@ -42,7 +42,7 @@ class ReportController extends Controller
         if ($reportType == 'business_report') {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'accountData' => Account::select('account_name')->groupBy('account_name')->get()]);
         } else {
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::all()]);
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get()]);
         }
     }
 
@@ -103,5 +103,12 @@ class ReportController extends Controller
     {
         $url = route('report.type',['reportType' => 'business_report']);
         return redirect($url);
+    }
+
+    public function supplierReportFilter(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = Order::getSupplierReportFilterdData($request->all());
+            return response()->json($formatuserdata);
+        }
     }
 }

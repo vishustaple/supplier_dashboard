@@ -129,4 +129,68 @@ class Order extends Model
             ];
         }
     }
+
+    public static function getSupplierReportFilterdData($filter = [], $csv=false){
+        $query = self::query() // Replace YourModel with the actual model you are using for the data   
+        ->select('orders.amount as amount',
+            'master_account_detail.account_name as account_name',
+            'rebate.volume_rebate as volume_rebate',
+            'rebate.incentive_rebate as incentive_rebate',
+            'suppliers.supplier_name as supplier_name',
+        )
+
+        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+        ->leftJoin('rebate', 'orders.customer_number', '=', 'rebate.account_number')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+        ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
+
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+        }
+
+        // Filter data based on request parameters
+        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+            $startDate = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
+            $endDate = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
+            // Debug output
+            // dd('Start Date: ' . $startDate, 'End Date: ' . $endDate);
+            $query->whereBetween('orders.date', [$startDate, $endDate]);
+        }
+
+        $formatuserdata = $query->get();
+        $finalArray=[];
+        if (isset($formatuserdata) && !empty($formatuserdata)) {
+            foreach ($formatuserdata as $key => $value) {
+                $finalArray[$key]['supplier'] = $value->supplier_name;
+                $finalArray[$key]['account_name'] = $value->account_name;
+                $finalArray[$key]['amount'] = '$'.$value->amount;
+                // $finalArray[$key]['volume_rebate'] = ($value->amount/100)*$value->volume_rebate;
+                // $finalArray[$key]['incentive_rebate'] = ($value->amount/100)*$value->incentive_rebate;
+                $finalArray[$key]['volume_rebate'] = (!empty($value->volume_rebate)) ? ($value->volume_rebate.'%') : ('');
+                $finalArray[$key]['incentive_rebate'] = (!empty($value->incentive_rebate)) ? ($value->incentive_rebate.'%') : ('');
+                $finalArray[$key]['start_date'] = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
+                $finalArray[$key]['end_date'] = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
+            }
+        }
+
+        // echo"<pre>";
+        // print_r($finalArray);
+        // die;
+        // usort($finalArray, function($a, $b) {
+        //     return $b['total_spend'] <=> $a['total_spend']; // Compare prices in descending order
+        // });
+
+        $totalRecords = count($finalArray);
+        if ($csv == true) {
+            $finalArray['heading'] = ['Total Spend', 'SKU', 'Description', 'Category', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price'];
+            return $finalArray;
+        } else {
+            // Return the result along with total and filtered counts
+            return [
+                'data' => $finalArray,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+            ];
+        }
+    }
 }
