@@ -47,9 +47,19 @@ class Order extends Model
             $indexedArray[] = $value['order_id'];
         }
 
+        $keys = ['Line Total','Total Invoice Price'];
+
+        $orderByRaw = '';
+
+        foreach ($keys as $key) {
+            $orderByRaw .= "WHEN `key` = '$key' THEN 1 ";
+        }
+
+        $orderByRaw .= "ELSE 0 END DESC";
+
         $query1 = DB::table('order_product_details')
         ->select('order_product_details.*') // Adjust the column names as needed
-        ->orderByRaw("CASE WHEN `key` = 'Line Total' THEN CAST(`value` AS DECIMAL(10,2)) END DESC")
+        ->orderByRaw($orderByRaw)
         ->whereIn('order_product_details.order_id', $indexedArray);
 
         $filteredData = $query1->get();
