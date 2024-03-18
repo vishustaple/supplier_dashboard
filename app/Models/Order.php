@@ -100,7 +100,7 @@ class Order extends Model
                         $finalArray[$arrayKey]['web_price'] = $value[$i]['value'];
                     }
     
-                    if (in_array($value[$i]['key'], ['Uo M'])) {
+                    if (in_array($value[$i]['key'], ['Uo M','SHIP TOACCOUNT','Track Code','SHIPTOZIPCODE'])) {
                         $finalArray[$arrayKey]['savings_percentage'] = '';
                     }
                 }
