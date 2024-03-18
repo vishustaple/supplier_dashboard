@@ -185,16 +185,18 @@
             } else {
             return response()->json(['error' => 'User not found'], 404);
             }
+     
 
             
         }
-
+    
         public function UpdateUserData(Request $request){
+
 
             $validator = Validator::make(
                 [
                     'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
+                    // 'last_name' => $request->last_name,
                     'email' => $request->email,
                     // 'password' => $request->password,
                     // 'confirm_password' => $request->confirm_password,
