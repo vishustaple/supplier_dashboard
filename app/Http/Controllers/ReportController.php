@@ -72,8 +72,14 @@ class ReportController extends Controller
         /** Create a new CSV writer instance */
         $csvWriter = Writer::createFromStream($stream);
         
+        $heading = $data['heading'];
+        unset($data['heading']);
+
         /** Add column headings */
-        $csvWriter->insertOne(['Id', 'Customer Number', 'Customer Name', 'Supplier Name', 'Amount', 'Date']);
+        $csvWriter->insertOne($heading);
+
+        /** Add column headings */
+        // $csvWriter->insertOne(['Id', 'Customer Number', 'Customer Name', 'Supplier Name', 'Amount', 'Date']);
 
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);

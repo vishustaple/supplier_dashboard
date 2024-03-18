@@ -86,13 +86,14 @@ class UploadedFiles extends Model
         $totalRecords = $query->count();
         // dd($totalRecords);
       
-        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
-            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
-        } else {
-            $query->orderBy($orderColumnArray[0], 'asc');
-        }
+        // if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+        //     /** Order by column and direction */
+        //     $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        // } else {
+            // $query->orderBy($orderColumnArray[0], 'asc');
+        // }
 
+        $query->orderBy('uploaded_files.id', 'desc');
         if (isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();

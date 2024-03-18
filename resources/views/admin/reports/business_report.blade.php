@@ -32,9 +32,10 @@
                         <input type="hidden" id="start_date" name="start_date" />
                         <input type="hidden" id="end_date" name="end_date" />  
                     </div> -->
-                    <div class="col-md-2 mt-1 mb-0 text-end">
+                    <!-- disabled -->
+                    <div class="col-md-3 mt-1 mb-0 text-end">
                     <button id="submitBtn" class="btn btn-primary">Submit</button>
-                    <!-- <button id="downloadCsvBtn" class="btn-success btn disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
+                    <button id="downloadCsvBtn" class="btn-success btn " title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
@@ -150,7 +151,8 @@
             processing: true,
             serverSide: true,
             lengthMenu: [],
-            paging: false, 
+            paging: false,
+            searching:false, 
             pageLength: 40,
             ajax: {
                 url: '{{ route('report.filter') }}',
