@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,23 +29,34 @@ class Order extends Model
     }
 
     public static function getFilterdData($filter = [], $csv=false){
-        $query = self::query() // Replace YourModel with the actual model you are using for the data
+        $query = self::query() // Replace YourModel with the actual model you are using for the data   
+        ->select('order_product_details.order_id')
+        ->whereIn('key', ['Line Total', 'Total Invoice Price'])
         ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
+        ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id');
 
-        ->select('order_product_details.*', 'orders.id as order_id'); // Adjust the column names as needed
-       
-    
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
             $query->where('master_account_detail.account_name', $filter['account_name']);
         }
-      
-        $filteredData = $query->get();
-        
-        foreach ($filteredData->toArray() as $key => $value) {
-            $formatuserdata[$value['order_id']][] = [
-                'key' => $value['key'],
-                'value' => $value['value'],
+
+        $query->orderBy(DB::raw('CAST(`value` AS DECIMAL(10,2))'), 'desc')->limit(100);
+        $queryData = $query->get()->toArray();
+
+        $indexedArray = [];
+        foreach ($queryData as $value) {
+            $indexedArray[] = $value['order_id'];
+        }
+
+        $query1 = DB::table('order_product_details')
+        ->select('order_product_details.*') // Adjust the column names as needed
+        ->orderByRaw("CASE WHEN `key` = 'Line Total' THEN CAST(`value` AS DECIMAL(10,2)) END DESC")
+        ->whereIn('order_product_details.order_id', $indexedArray);
+
+        $filteredData = $query1->get();
+        foreach ($filteredData as $key => $value) {
+            $formatuserdata[$value->order_id][] = [
+                'key' => $value->key,
+                'value' => $value->value,
             ];
         }
         // echo"<pre>";
@@ -94,50 +106,22 @@ class Order extends Model
                 }
                 $arrayKey++;
             }
-            $finalArray1=[];
-            foreach ($finalArray as $key => $value) {
-                if (100 >= count($finalArray1)) {
-                    $finalArray1[$arrayKey]['sku'] = $value['sku'];
-                    $finalArray1[$arrayKey]['uom'] = $value['uom'];
-                    $finalArray1[$arrayKey]['category'] = $value['category'];
-                    $finalArray1[$arrayKey]['description'] = $value['description'];
-                    $finalArray1[$arrayKey]['quantity_purchased'] = $value['quantity_purchased'];
-                    $finalArray1[$arrayKey]['total_spend'] = $value['total_spend'];
-                    $finalArray1[$arrayKey]['last_of_unit_net_price'] = $value['last_of_unit_net_price'];
-                    $finalArray1[$arrayKey]['web_price'] = $value['web_price'];
-                    $finalArray1[$arrayKey]['savings_percentage'] = $value['savings_percentage'];
-                    $arrayKey++;
-                }
-            }
-            usort($finalArray1, function($a, $b) {
-                return $b['total_spend'] <=> $a['total_spend']; // Compare prices
-            });
         } else {
             $finalArray=[];
-            $finalArray1=[];
         }
-        
-        $arrayKey=0;
-        if ($filter['start'] > 0) {
-            $start = $filter['start']-1;
-        } else {
-            $start = $filter['start'];
-        }
-        // print_r($filter['length']);
-        // print_r(count($finalArray));
-        // die;
         
         // echo"<pre>";
         // print_r($finalArray);
         // die;
         
-        $totalRecords = count($finalArray1);
+        $totalRecords = count($finalArray);
         if ($csv == true) {
-            return $finalArray1;
+            $finalArray['heading'] = ['Total Spend', 'SKU', 'Description', 'Category', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price'];
+            return $finalArray;
         } else {
             // Return the result along with total and filtered counts
             return [
-                'data' => $finalArray1,
+                'data' => $finalArray,
                 'recordsTotal' => $totalRecords,
                 'recordsFiltered' => $totalRecords,
             ];
