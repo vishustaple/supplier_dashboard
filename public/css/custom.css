@@ -427,6 +427,27 @@ ul.dropdown-menu.dropdown-menu-end.hover.show hr.dropdown-divider {
 div#layoutSidenav div#layoutSidenav_content.ms-0 {
   margin-left: 0px !important;
 }
-button#sidebarToggle {
-  display: none;
+
+/* -collapsible sidebar css- */
+/* --- */
+div#layoutSidenav_nav{
+  left: 0px !important;
+  transition: left 0.5s ease-in-out !important;
+  transform: none !important;
+}
+div#layoutSidenav_nav.collapsed {
+ left: -260px !important;
+}
+#layoutSidenav #layoutSidenav_content{
+
+  transition: margin 0.6s ease-in-out !important;
+}
+div#layoutSidenav_content.collapsedfull{
+  margin-left: 0px !important;
+}
+.container{
+  max-width: 100% !important;
+}
+#example_wrapper #example {
+  display: inline-table !important;
 }

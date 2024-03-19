@@ -345,7 +345,7 @@
                 $(document).on('click','.remove',function(){               
                 var id = $(this).attr('data-id');
                     swal.fire({
-                        title: "Oops....",
+                        // title: "Oops....",
                         text: "Are you sure you want to delete this user?",
                         icon: "error",
                         showCancelButton: true,

@@ -657,7 +657,7 @@
             var id = $(this).attr('data-id');
             
             swal.fire({
-                title: "Oops....",
+                // title: "Oops....",
                 text: "Are you sure you want to delete this file?",
                 icon: "error",
                 showCancelButton: true,
