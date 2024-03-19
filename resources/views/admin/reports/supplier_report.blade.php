@@ -8,8 +8,17 @@
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="container">
-            <div class="m-1 mb-2 d-md-flex align-items-center justify-content-between">
+            <div class="m-1 mb-2 row align-items-start justify-content-between">
+                <div class="col-md-4">
                 <h3 class="mb-0 ">{{ $pageTitle }}</h3>
+            </div>
+                    <div class="col-md-4 card shadow border-0">
+                        <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
+                        <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
+                        <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
+                        <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
+                    </div>
+                
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
@@ -25,27 +34,29 @@
                             @endif
                         </select>
                     </div>
-                    <div class="form-group relative col-md-4 mb-0">  
+                    <div class="form-group relative col-md-3 mb-0">  
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
                         <input type="hidden" id="start_date" name="start_date" />
                         <input type="hidden" id="end_date" name="end_date" />  
                     </div>
-                    <div class="col-md-4 mb-0">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <div class="form-check relative col-md-2 mb-0">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="volume_rebate_check" checked>
+                            <label class="form-check-label" for="volume_rebate_check">Volume Rebate</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="incentive_rebate_check" checked>
+                            <label class="form-check-label" for="incentive_rebate_check">Incentive Rebate</label>
+                        </div>
+                    </div>
+                    <div class="col-md-1 mb-0">
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
-               
             </form>
-            <div class="row justify-content-end py-3 border-top border-bottom mb-3">
-                <div class="col-md-4">
-                <h6 class="d-flex justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
-                <h6 class="d-flex justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
-                <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
-                <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
-            </div>
-          </div>
+          
             <table id="supplier_report_data" class="data_table_files">
                 <!-- Your table content goes here -->
             </table>
@@ -76,41 +87,52 @@
             event.preventDefault();
             // Initiate DataTable AJAX request
             $('#supplier_report_data').DataTable().ajax.reload();
-
-            
         });
 
         function setPercentage() {
-    // Ensure supplierDataTable is properly defined and initialized
-    // Get data for column index 0 (first column)
-    var columnData = supplierDataTable.column(2).data(),
-        columnData1 = supplierDataTable.column(3).data(),
-        columnData2 = supplierDataTable.column(4).data(),
-        volumeRebate = 0,
-        incentiveRebate = 0;
+            // Ensure supplierDataTable is properly defined and initialized
+            // Get data for column index 0 (first column)
+            var columnData = supplierDataTable.column(2).data(),
+                columnData1 = supplierDataTable.column(3).data(),
+                columnData2 = supplierDataTable.column(4).data(),
+                volumeRebate = 0,
+                incentiveRebate = 0;
 
-    // Loop through the data and calculate rebates
-    columnData.each(function (value, index) {
-        // Check if columnData1[index] and columnData2[index] are not null or empty
-        if (columnData1[index] && columnData2[index]) {
-            volumeRebate += (parseFloat(value.replace(/[%$]/g, '')) / 100) * parseFloat(columnData1[index].replace(/%/g, ''));
-            incentiveRebate += (parseFloat(value.replace(/[%$]/g, '')) / 100) * parseFloat(columnData2[index].replace(/%/g, ''));
-            // $('#startDates').text($('#start_date').val());
-            // $('#endDates').text($('#end_date').val());
+            columnData.each(function (value, index) {
+                if (columnData1[index] && columnData2[index]) {
+                    volumeRebate += (parseFloat(value.replace(/[%$]/g, '')) / 100) * parseFloat(columnData1[index].replace(/%/g, ''));
+                    incentiveRebate += (parseFloat(value.replace(/[%$]/g, '')) / 100) * parseFloat(columnData2[index].replace(/%/g, ''));
+                }
+
+                if ($('#volume_rebate_check').is(':checked')) {
+                    supplierDataTable.column('volume_rebate:name').visible(true);
+                    $('#volume_rebate').text('$' + volumeRebate.toFixed(2));
+                    $('.volume_rebate_header').attr('style', 'display:flex !important;');
+                } else {
+                    supplierDataTable.column('volume_rebate:name').visible(false);
+                    $('.volume_rebate_header').attr('style', 'display:none !important;');
+                    $('#volume_rebate').text('');
+                }
+
+                if ($('#incentive_rebate_check').is(':checked')) {
+                    supplierDataTable.column('incentive_rebate:name').visible(true);
+                    $('#incentive_rebate').text('$' + incentiveRebate.toFixed(2));
+                    $('.incentive_rebate_header').attr('style', 'display:flex !important;');
+                } else {
+                    supplierDataTable.column('incentive_rebate:name').visible(false);
+                    $('.incentive_rebate_header').attr('style', 'display:none !important;');
+                    $('#incentive_rebate').text('');
+                }
+            });
         }
-    });
 
-    // Display the rebates
-    $('#volume_rebate').text('$' + volumeRebate.toFixed(2));
-    $('#incentive_rebate').text('$' + incentiveRebate.toFixed(2));
-}
         // DataTable initialization
         var supplierDataTable = $('#supplier_report_data').DataTable({
             oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
             processing: true,
             serverSide: true,
-            lengthMenu: [],
-            paging: false,
+            lengthMenu: false,
+            // paging: false,
             searching:false, 
             pageLength: 40,
             ajax: {
@@ -155,10 +177,8 @@
             fnDrawCallback: function( oSettings ) {
                 setPercentage();
             },
-        });
-
-       
-
+        });  
+        
         // Attach a change event handler to the checkboxes
         $('input[type="checkbox"]').change(function() {
             // Check if the checkbox is checked or unchecked
