@@ -67,7 +67,7 @@ class UploadedFiles extends Model
          'uploaded_files.created_at as created_at',
          'uploaded_files.deleted_at as deleted_at',
          'suppliers.supplier_name as supplier_name')
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id');
        
        
          /** Search functionality */
