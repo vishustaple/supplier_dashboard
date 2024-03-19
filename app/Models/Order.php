@@ -150,7 +150,9 @@ class Order extends Model
         )
 
         ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('rebate', 'orders.customer_number', '=', 'rebate.account_number')
+        ->leftJoin('rebate', function ($join) {
+            $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
+        })
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
         ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
 
