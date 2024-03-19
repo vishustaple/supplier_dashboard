@@ -1,4 +1,4 @@
-<div id="layoutSidenav_nav">
+<div id="layoutSidenav_nav" >
                 <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                     <div class="sb-sidenav-menu">
                         <div class="nav side_bar_admin">
@@ -108,6 +108,7 @@
                     <span class="text-white">CenterPoint Group</span>
                     </div>
                 </nav>
+</div>
                 <script>
                     var token = "{{ csrf_token() }}";
                     $.ajax({
@@ -155,6 +156,13 @@
                             console.error(xhr.responseText);
                         }
                     });
+
+                    //colaapse sidebar 
+                    $('#sidebarToggle').click(function() {
+                    $('#layoutSidenav_nav').toggleClass('collapsed');
+                    $('#layoutSidenav_content').toggleClass('collapsedfull');
                     
+                    });
+
                 </script>
-</div>
+<!-- </div> -->

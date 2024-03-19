@@ -510,7 +510,7 @@
     $(document).on('click', '.remove', function () {
         var id = $(this).attr('data-id');
         swal.fire({
-            title: "Oops....",
+            // title: "Oops....",
             text: "Are you sure you want to delete this Account?",
             icon: "error",
             showCancelButton: true,

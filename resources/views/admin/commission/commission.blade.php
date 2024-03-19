@@ -170,7 +170,7 @@
                 return;
             }
             swal.fire({
-                title: "Oops....",
+                // title: "Oops....",
                 text: "Please confirm " + accountName + " will receive commissions for the " + supplierName + " Charles River account (" + sales + ") between " + date + " ?",
                 icon: "error",
                 showCancelButton: true,
