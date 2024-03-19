@@ -157,7 +157,23 @@ class Order extends Model
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
-        $formatuserdata = $query->get();
+        //  /** Get total records count (without filtering) */
+        //  $totalRecords = $query->count();
+        //  if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+        //      /** Order by column and direction */
+        //      $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        //  } else {
+        //      $query->orderBy($orderColumnArray[0], 'asc');
+        //  }
+        $totalRecords = $query->count();
+        if (isset($filter['start']) && isset($filter['length'])) {
+            /** Get paginated results based on start, length */
+            $formatuserdata = $query->skip($filter['start'])->take($filter['length'])->get();
+        } else {
+            $formatuserdata = $query->get();
+        }
+
+        // $formatuserdata = $query->get();
         $finalArray=[];
         if (isset($formatuserdata) && !empty($formatuserdata)) {
             foreach ($formatuserdata as $key => $value) {
@@ -180,7 +196,7 @@ class Order extends Model
         //     return $b['total_spend'] <=> $a['total_spend']; // Compare prices in descending order
         // });
 
-        $totalRecords = count($finalArray);
+        // $totalRecords = count($finalArray);
         if ($csv == true) {
             $finalArray['heading'] = ['Total Spend', 'SKU', 'Description', 'Category', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price'];
             return $finalArray;
