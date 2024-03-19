@@ -69,9 +69,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
-        $('#dates').daterangepicker({
-            autoUpdateInput: false,
-        });
+        $('#dates').daterangepicker();
 
         // Button click event
         $('#import_form').on('submit', function () {
@@ -93,7 +91,7 @@
             
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
-                $('#volume_rebate').text('$' + parseFloat(hiddenVolumeRebateInputValue).toFixed(2));
+                $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + parseFloat(hiddenVolumeRebateInputValue).toFixed(2) : ''));
                 $('.volume_rebate_header').attr('style', 'display:flex !important;');
             } else {
                 supplierDataTable.column('volume_rebate:name').visible(false);
@@ -103,7 +101,7 @@
 
             if ($('#incentive_rebate_check').is(':checked')) {
                 supplierDataTable.column('incentive_rebate:name').visible(true);
-                $('#incentive_rebate').text('$' + parseFloat(hiddenIncentiveRebateInputValue).toFixed(2));
+                $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + parseFloat(hiddenIncentiveRebateInputValue).toFixed(2) : ''));
                 $('.incentive_rebate_header').attr('style', 'display:flex !important;');
             } else {
                 supplierDataTable.column('incentive_rebate:name').visible(false);
@@ -111,8 +109,8 @@
                 $('#incentive_rebate').text('');
             }
 
-            $('#endDates').text($('#dates').val().split(" - ")[1]);
-            $('#startDates').text($('#dates').val().split(" - ")[0]);
+            // $('#endDates').text($('#dates').val().split(" - ")[1]);
+            // $('#startDates').text($('#dates').val().split(" - ")[0]);
         }
 
         // DataTable initialization
