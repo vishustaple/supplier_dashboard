@@ -130,7 +130,7 @@ class Order extends Model
 
         $totalRecords = count($finalArray);
         if ($csv == true) {
-            $finalArray['heading'] = ['Total Spend', 'SKU', 'Description', 'Category', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price'];
+            $finalArray['heading'] = ['SKU', 'Category', 'Description', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price', 'Total Spend'];
             return $finalArray;
         } else {
             // Return the result along with total and filtered counts
