@@ -71,7 +71,7 @@ class UploadedFiles extends Model
        
        
          /** Search functionality */
-         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
+         if(isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
 
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
