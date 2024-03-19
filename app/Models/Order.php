@@ -140,7 +140,7 @@ class Order extends Model
             5=>'orders.date',
         ];
 
-        $query = self::query() // Replace YourModel with the actual model you are using for the data   
+        $query = self::query() /** Replace YourModel with the actual model you are using for the data */
         ->select('orders.amount as amount',
             'master_account_detail.account_name as account_name',
             'rebate.volume_rebate as volume_rebate',
@@ -164,19 +164,19 @@ class Order extends Model
             ];
         }
 
-        // Filter data based on request parameters
-        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
-            $startDate = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
-            $endDate = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
-            // Debug output
+        /** Filter data based on request parameters */
+        if (isset($filter['dates']) && !empty($filter['dates'])) {
+            $startDate = date_format(date_create(trim(explode(" - ", $filter['dates'])[0])), 'Y-m-d H:i:s');
+            $endDate = date_format(date_create(trim(explode(" - ", $filter['dates'])[1])), 'Y-m-d H:i:s');
+            /** Debug output */
             // dd('Start Date: ' . $startDate, 'End Date: ' . $endDate);
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
-        //  /** Get total records count (without filtering) */
-         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-             /** Order by column and direction */
-             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        /** Get total records count (without filtering) */
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+            /** Order by column and direction */
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
@@ -205,7 +205,7 @@ class Order extends Model
                 // $finalArray[$key]['incentive_rebate'] = ($value->amount/100)*$value->incentive_rebate;
                 $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate">'.(!empty($value->volume_rebate) ? ($value->volume_rebate.'%') : (''));
                 $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate">'.((!empty($value->incentive_rebate)) ? ($value->incentive_rebate.'%') : (''));
-                $finalArray[$key]['date'] = date_format(date_create($value->date), 'd/m/Y');
+                $finalArray[$key]['date'] = date_format(date_create($value->date), 'm/d/Y');
                 // $finalArray[$key]['start_date'] = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
                 // $finalArray[$key]['end_date'] = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
             }
@@ -214,16 +214,13 @@ class Order extends Model
         // echo"<pre>";
         // print_r($finalArray);
         // die;
-        // usort($finalArray, function($a, $b) {
-        //     return $b['total_spend'] <=> $a['total_spend']; // Compare prices in descending order
-        // });
 
         // $totalRecords = count($finalArray);
         if ($csv == true) {
             $finalArray['heading'] = ['Total Spend', 'SKU', 'Description', 'Category', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price'];
             return $finalArray;
         } else {
-            // Return the result along with total and filtered counts
+            /** Return the result along with total and filtered counts */
             return [
                 'data' => $finalArray,
                 'recordsTotal' => $totalRecords,

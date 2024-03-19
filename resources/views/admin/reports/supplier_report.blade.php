@@ -36,9 +36,7 @@
                     </div>
                     <div class="form-group relative col-md-3 mb-0">  
                         <label for="enddate">Select Date:</label>
-                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
-                        <input type="hidden" id="start_date" name="start_date" />
-                        <input type="hidden" id="end_date" name="end_date" />  
+                        <input class="form-control" id="dates" name="dates" readonly>
                     </div>
                     <div class="form-check relative col-md-2 mb-0">
                         <div class="form-check">
@@ -69,18 +67,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
-        $('#enddate').daterangepicker();
-    
-        // Event handler for when the user applies the date range
-        $('#enddate').on('apply.daterangepicker', function(ev, picker) {
-            // Access the selected date range
-            $('#start_date').val(picker.startDate.format('YYYY-MM-DD'));
-            $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
-            $('#startDates').text(picker.startDate.format('DD/MM/YYYY'));
-            $('#endDates').text(picker.endDate.format('DD/MM/YYYY'));
-            // Perform actions with the selected date range
-            // console.log('Selected Date Range:', start_date.val(), 'to', end_date.val());
-        });
+        $('#dates').daterangepicker();
 
         // Button click event
         $('#import_form').on('submit', function () {
@@ -89,11 +76,16 @@
             $('#supplier_report_data').DataTable().ajax.reload();
         });
 
+        // Event handler for when the user applies the date range
+        $('#dates').on('apply.daterangepicker', function(ev, picker) {
+            $('#endDates').text(picker.endDate.format('MM/DD/YYYY'));
+            $('#startDates').text(picker.startDate.format('MM/DD/YYYY'));
+        });
+
         function setPercentage() {
             var $html = $('<div>' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[1] !== undefined ? supplierDataTable.column(4).data()[1] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
             hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
             hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val();
-            console.log(supplierDataTable.column(3).data()[0]);
             
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
@@ -114,6 +106,9 @@
                 $('.incentive_rebate_header').attr('style', 'display:none !important;');
                 $('#incentive_rebate').text('');
             }
+
+            $('#endDates').text($('#dates').val().split(" - ")[1]);
+            $('#startDates').text($('#dates').val().split(" - ")[0]);
         }
 
         // DataTable initialization
@@ -133,8 +128,7 @@
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    d.start_date = $('#start_date').val();
-                    d.end_date = $('#end_date').val();
+                    d.dates = $('#dates').val();
                     d.supplier = $('#supplier').val();
                 },
             },
