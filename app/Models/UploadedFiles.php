@@ -67,11 +67,11 @@ class UploadedFiles extends Model
          'uploaded_files.created_at as created_at',
          'uploaded_files.deleted_at as deleted_at',
          'suppliers.supplier_name as supplier_name')
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id');
        
        
          /** Search functionality */
-         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
+         if(isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
 
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
@@ -94,7 +94,7 @@ class UploadedFiles extends Model
             $query->orderBy('uploaded_files.id', 'desc');
         // }
 
-        if (isset($filter['start']) && isset($filter['length'])) {
+        if(isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
