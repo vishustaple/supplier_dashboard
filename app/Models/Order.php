@@ -131,12 +131,22 @@ class Order extends Model
     }
 
     public static function getSupplierReportFilterdData($filter = [], $csv=false){
+        $orderColumnArray = [
+            0=>'suppliers.supplier_name',
+            1=>'master_account_detail.account_name',
+            2=>'orders.amount',
+            3=>'rebate.volume_rebate',
+            4=>'rebate.incentive_rebate',
+            5=>'orders.date',
+        ];
+
         $query = self::query() // Replace YourModel with the actual model you are using for the data   
         ->select('orders.amount as amount',
             'master_account_detail.account_name as account_name',
             'rebate.volume_rebate as volume_rebate',
             'rebate.incentive_rebate as incentive_rebate',
             'suppliers.supplier_name as supplier_name',
+            'orders.date as date',
         )
 
         ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
@@ -146,6 +156,12 @@ class Order extends Model
 
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query->where('orders.supplier_id', $filter['supplier']);
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
         }
 
         // Filter data based on request parameters
@@ -158,14 +174,19 @@ class Order extends Model
         }
 
         //  /** Get total records count (without filtering) */
-        //  $totalRecords = $query->count();
-        //  if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-        //      /** Order by column and direction */
-        //      $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
-        //  } else {
-        //      $query->orderBy($orderColumnArray[0], 'asc');
-        //  }
+         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+             /** Order by column and direction */
+             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
+        }
+
         $totalRecords = $query->count();
+        $totalVolumeRebate=$totalIncentiveRebate=0;
+        foreach ($query->get() as $key => $value) {
+            $totalVolumeRebate += ($value->amount/100)*$value->volume_rebate;
+            $totalIncentiveRebate += ($value->amount/100)*$value->incentive_rebate;
+        }
         if (isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
             $formatuserdata = $query->skip($filter['start'])->take($filter['length'])->get();
@@ -182,10 +203,11 @@ class Order extends Model
                 $finalArray[$key]['amount'] = '$'.$value->amount;
                 // $finalArray[$key]['volume_rebate'] = ($value->amount/100)*$value->volume_rebate;
                 // $finalArray[$key]['incentive_rebate'] = ($value->amount/100)*$value->incentive_rebate;
-                $finalArray[$key]['volume_rebate'] = (!empty($value->volume_rebate)) ? ($value->volume_rebate.'%') : ('');
-                $finalArray[$key]['incentive_rebate'] = (!empty($value->incentive_rebate)) ? ($value->incentive_rebate.'%') : ('');
-                $finalArray[$key]['start_date'] = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
-                $finalArray[$key]['end_date'] = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
+                $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate">'.(!empty($value->volume_rebate) ? ($value->volume_rebate.'%') : (''));
+                $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate">'.((!empty($value->incentive_rebate)) ? ($value->incentive_rebate.'%') : (''));
+                $finalArray[$key]['date'] = date_format(date_create($value->date), 'd/m/Y');
+                // $finalArray[$key]['start_date'] = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
+                // $finalArray[$key]['end_date'] = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
             }
         }
 

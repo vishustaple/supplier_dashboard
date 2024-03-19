@@ -90,40 +90,30 @@
         });
 
         function setPercentage() {
-            // Ensure supplierDataTable is properly defined and initialized
-            // Get data for column index 0 (first column)
-            var columnData = supplierDataTable.column(2).data(),
-                columnData1 = supplierDataTable.column(3).data(),
-                columnData2 = supplierDataTable.column(4).data(),
-                volumeRebate = 0,
-                incentiveRebate = 0;
+            var $html = $('<div>' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[1] !== undefined ? supplierDataTable.column(4).data()[1] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
+            hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
+            hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val();
+            console.log(supplierDataTable.column(3).data()[0]);
+            
+            if ($('#volume_rebate_check').is(':checked')) {
+                supplierDataTable.column('volume_rebate:name').visible(true);
+                $('#volume_rebate').text('$' + parseFloat(hiddenVolumeRebateInputValue).toFixed(2));
+                $('.volume_rebate_header').attr('style', 'display:flex !important;');
+            } else {
+                supplierDataTable.column('volume_rebate:name').visible(false);
+                $('.volume_rebate_header').attr('style', 'display:none !important;');
+                $('#volume_rebate').text('');
+            }
 
-            columnData.each(function (value, index) {
-                if (columnData1[index] && columnData2[index]) {
-                    volumeRebate += (parseFloat(value.replace(/[%$]/g, '')) / 100) * parseFloat(columnData1[index].replace(/%/g, ''));
-                    incentiveRebate += (parseFloat(value.replace(/[%$]/g, '')) / 100) * parseFloat(columnData2[index].replace(/%/g, ''));
-                }
-
-                if ($('#volume_rebate_check').is(':checked')) {
-                    supplierDataTable.column('volume_rebate:name').visible(true);
-                    $('#volume_rebate').text('$' + volumeRebate.toFixed(2));
-                    $('.volume_rebate_header').attr('style', 'display:flex !important;');
-                } else {
-                    supplierDataTable.column('volume_rebate:name').visible(false);
-                    $('.volume_rebate_header').attr('style', 'display:none !important;');
-                    $('#volume_rebate').text('');
-                }
-
-                if ($('#incentive_rebate_check').is(':checked')) {
-                    supplierDataTable.column('incentive_rebate:name').visible(true);
-                    $('#incentive_rebate').text('$' + incentiveRebate.toFixed(2));
-                    $('.incentive_rebate_header').attr('style', 'display:flex !important;');
-                } else {
-                    supplierDataTable.column('incentive_rebate:name').visible(false);
-                    $('.incentive_rebate_header').attr('style', 'display:none !important;');
-                    $('#incentive_rebate').text('');
-                }
-            });
+            if ($('#incentive_rebate_check').is(':checked')) {
+                supplierDataTable.column('incentive_rebate:name').visible(true);
+                $('#incentive_rebate').text('$' + parseFloat(hiddenIncentiveRebateInputValue).toFixed(2));
+                $('.incentive_rebate_header').attr('style', 'display:flex !important;');
+            } else {
+                supplierDataTable.column('incentive_rebate:name').visible(false);
+                $('.incentive_rebate_header').attr('style', 'display:none !important;');
+                $('#incentive_rebate').text('');
+            }
         }
 
         // DataTable initialization
@@ -136,8 +126,9 @@
             // paging: false,
             searching:false, 
             pageLength: 40,
+            order: [[3, 'desc']],
             ajax: {
-                url: '{{ route('report.supplier_filter') }}',
+                url: '{{ route("report.supplier_filter") }}',
                 type: 'POST',
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
@@ -171,8 +162,9 @@
                 { data: 'amount', name: 'amount', title: 'Amount'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'incentive_rebate', name: 'incentive_rebate', title: 'Incentive Rebate'},
-                { data: 'start_date', name: 'start_date', title: 'Start Date'},
-                { data: 'end_date', name: 'end_date', title: 'End Date'},
+                { data: 'date', name: 'date', title: 'Date'},
+                // { data: 'start_date', name: 'start_date', title: 'Start Date'},
+                // { data: 'end_date', name: 'end_date', title: 'End Date'},
             ],
 
             fnDrawCallback: function( oSettings ) {
