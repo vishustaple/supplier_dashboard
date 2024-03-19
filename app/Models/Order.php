@@ -105,6 +105,12 @@ class Order extends Model
                 }
                 $arrayKey++;
             }
+
+            foreach($finalArray as $key => $value){
+                if ($value['web_price'] != 0) {
+                    $finalArray[$key]['savings_percentage'] = number_format(($value['web_price'] - $value['last_of_unit_net_price'])/($value['web_price']), 2).'%';
+                }
+            }
         } else {
             $finalArray=[];
         }
