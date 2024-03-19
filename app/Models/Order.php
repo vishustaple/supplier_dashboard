@@ -37,6 +37,12 @@ class Order extends Model
 
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
             $query->where('master_account_detail.account_name', $filter['account_name']);
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
         }
 
         $query->orderBy(DB::raw('CAST(`value` AS DECIMAL(10,2))'), 'desc')->limit(100);
