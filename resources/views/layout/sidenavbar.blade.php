@@ -34,7 +34,7 @@
                             </a>
                             <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commission.list', ['commissionType' => 'commission_listing'])}}">
                                 <div class="sb-nav-link-icon"></div>
-                                Commission
+                                Sales Rep Commission
                             </a>
                              </div>
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Data') ? 'active' : '' }}" href="{{route('supplier')}}">
