@@ -12,12 +12,7 @@
                 <div class="col-md-4">
                 <h3 class="mb-0 ">{{ $pageTitle }}</h3>
             </div>
-                    <div class="col-md-4 card shadow border-0">
-                        <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
-                        <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
-                        <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
-                        <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
-                    </div>
+                   
                 
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
@@ -54,7 +49,14 @@
                     <!-- Button trigger modal -->
                 </div>
             </form>
-          
+            <div class="row justify-content-end py-3">
+                <div class="col-md-4 card shadow border-0">
+                    <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
+                    <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
+                    <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
+                    <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
+                </div>
+            </div>
             <table id="supplier_report_data" class="data_table_files">
                 <!-- Your table content goes here -->
             </table>
@@ -67,7 +69,9 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
-        $('#dates').daterangepicker();
+        $('#dates').daterangepicker({
+            autoUpdateInput: false,
+        });
 
         // Button click event
         $('#import_form').on('submit', function () {
