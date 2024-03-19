@@ -201,6 +201,7 @@ class Order extends Model
             $totalVolumeRebate += ($value->amount/100)*$value->volume_rebate;
             $totalIncentiveRebate += ($value->amount/100)*$value->incentive_rebate;
         }
+        
         if (isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
             $formatuserdata = $query->skip($filter['start'])->take($filter['length'])->get();
