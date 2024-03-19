@@ -222,8 +222,8 @@
         var csvUrl = '{{ route('report.export-csv') }}';
 
         // Add query parameters for date range and supplier ID
-        csvUrl += '?start=' + $('#start_date').val() + '&end=' + $('#end_date').val() + '&supplierId=' + $('#supplierId').val();
-
+        // csvUrl += '?start=' + $('#start_date').val() + '&end=' + $('#end_date').val() + '&supplierId=' + $('#supplierId').val();
+        csvUrl += '?account_name=' + $('#account_name').val();
         // Open a new window to download the CSV file
         window.open(csvUrl, '_blank');
         }

@@ -55,9 +55,9 @@ class ReportController extends Controller
 
     public function exportCsv(Request $request){
         /** Retrieve data based on the provided parameters */
-        $filter['start_date'] = $request->input('daterange.start');
-        $filter['end_date'] = $request->input('daterange.end');
-        $filter['supplierId'] = $request->input('supplierId');
+        // $filter['start_date'] = $request->input('daterange.start');
+        // $filter['end_date'] = $request->input('daterange.end');
+        $filter['account_name'] = $request->input('account_name');
 
         // dd($filter);
         $csv = true;
