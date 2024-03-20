@@ -177,9 +177,14 @@ class Order extends Model
         $query->groupBy('master_account_detail.account_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
 
-        $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
-        $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
-    
+        // $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
+        // $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
+        $totalVolumeRebate = $totalIncentiveRebate = 0;
+        foreach ($query->get() as $key => $value) {
+            $totalVolumeRebate += ($value->amount / 100) * $value->volume_rebate;
+            $totalIncentiveRebate += ($value->amount / 100) * $value->incentive_rebate;
+        }
+        
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
