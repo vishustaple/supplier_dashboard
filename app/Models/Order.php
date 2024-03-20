@@ -252,7 +252,7 @@ class Order extends Model
 
     public static function getSupplierReportFilterdData($filter = [], $csv = false)
     {
-        $orders = Order::selectRaw('SUM(orders.amount) as amount')
+        $formatuserdata = Order::selectRaw('SUM(orders.amount) as amount')
     ->select('master_account_detail.account_name as account_name')
     ->select('rebate.volume_rebate as volume_rebate')
     ->select('rebate.incentive_rebate as incentive_rebate')
@@ -266,51 +266,53 @@ class Order extends Model
     ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id')
     ->where('orders.supplier_id', 3)
     ->whereBetween('orders.date', ['2023-04-01 00:00:00', '2024-04-30 00:00:00'])
-    ->groupBy('master_account_detail.account_name')
-    ->orderBy('rebate.volume_rebate', 'desc')
-    ->get();
-    dd($orders->toArray());
-        $query = self::query()
-            ->selectRaw('SUM(orders.amount) as amount')
-            ->select('master_account_detail.account_name as account_name')
-            ->select('rebate.volume_rebate as volume_rebate')
-            ->select('rebate.incentive_rebate as incentive_rebate')
-            ->select('suppliers.supplier_name as supplier_name')
-            ->select('orders.date as date')
-            ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-            ->leftJoin('rebate', function ($join) {
-                $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
-            })
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-            ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
-    
-        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
-            $query->where('orders.supplier_id', $filter['supplier']);
-        } else {
-            return [
-                'data' => [],
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
-        }
-    
-        if (isset($filter['dates']) && !empty($filter['dates'])) {
-            $dates = explode(" - ", $filter['dates']);
-            $startDate = date_format(date_create(trim($dates[0])), 'Y-m-d H:i:s');
-            $endDate = date_format(date_create(trim($dates[1])), 'Y-m-d H:i:s');
-            $query->whereBetween('orders.date', [$startDate, $endDate]);
-        }
-    
-        $query->groupBy('master_account_detail.account_name');
-        // dd($query->get())
-        $totalRecords = $query->getQuery()->getCountForPagination();
+    ->groupBy('master_account_detail.account_name');
+    $totalRecords = $formatuserdata->getQuery()->getCountForPagination();
 
-        $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
-        $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
+    $formatuserdata->orderBy('rebate.volume_rebate', 'desc')
+    ->get();
+    // dd($orders->toArray());
+        // $query = self::query()
+        //     ->selectRaw('SUM(orders.amount) as amount')
+        //     ->select('master_account_detail.account_name as account_name')
+        //     ->select('rebate.volume_rebate as volume_rebate')
+        //     ->select('rebate.incentive_rebate as incentive_rebate')
+        //     ->select('suppliers.supplier_name as supplier_name')
+        //     ->select('orders.date as date')
+        //     ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+        //     ->leftJoin('rebate', function ($join) {
+        //         $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
+        //     })
+        //     ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+        //     ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
     
-        $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
-            return $query->skip($filter['start'])->take($filter['length']);
-        })->get();
+        // if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+        //     $query->where('orders.supplier_id', $filter['supplier']);
+        // } else {
+        //     return [
+        //         'data' => [],
+        //         'recordsTotal' => 0,
+        //         'recordsFiltered' => 0,
+        //     ];
+        // }
+    
+        // if (isset($filter['dates']) && !empty($filter['dates'])) {
+        //     $dates = explode(" - ", $filter['dates']);
+        //     $startDate = date_format(date_create(trim($dates[0])), 'Y-m-d H:i:s');
+        //     $endDate = date_format(date_create(trim($dates[1])), 'Y-m-d H:i:s');
+        //     $query->whereBetween('orders.date', [$startDate, $endDate]);
+        // }
+    
+        // $query->groupBy('master_account_detail.account_name');
+        // // dd($query->get())
+        // $totalRecords = $query->getQuery()->getCountForPagination();
+
+        // $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
+        // $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
+    
+        // $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
+        //     return $query->skip($filter['start'])->take($filter['length']);
+        // })->get();
     
         
         $finalArray=[];
