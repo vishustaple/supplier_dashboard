@@ -183,7 +183,6 @@ class Order extends Model
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-    
         
         $finalArray=[];
         if (isset($formatuserdata) && !empty($formatuserdata)) {
