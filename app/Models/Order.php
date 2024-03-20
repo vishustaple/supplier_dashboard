@@ -154,9 +154,9 @@ class Order extends Model
         ];
 
         $query = self::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
-        `master_account_detail`.`account_name` AS `account_name`, 
-        `rebate`.`volume_rebate` AS `volume_rebate`, 
-        `rebate`.`incentive_rebate` AS `incentive_rebate`, 
+        `master_account_detail`.`account_name` AS `account_name`,
+        (SUM(`orders`.`amount`) / 100) * `rebate`.`volume_rebate` AS `volume_rebate`,
+        (SUM(`orders`.`amount`) / 100) * `rebate`.`incentive_rebate` AS `incentive_rebate`, 
         `suppliers`.`supplier_name` AS `supplier_name`, 
         `orders`.`date` AS `date`")
             ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
@@ -198,8 +198,8 @@ class Order extends Model
         // $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
         $totalVolumeRebate = $totalIncentiveRebate = 0;
         foreach ($query->get() as $key => $value) {
-            $totalVolumeRebate += ($value->amount / 100) * $value->volume_rebate;
-            $totalIncentiveRebate += ($value->amount / 100) * $value->incentive_rebate;
+            $totalVolumeRebate += $value->volume_rebate;
+            $totalIncentiveRebate += $value->incentive_rebate;
         }
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
