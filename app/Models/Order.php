@@ -179,31 +179,35 @@ class Order extends Model
             // date_default_timezone_set('America/Chicago');
             $fys = ['CALENDAR' => $filter['year'].'-01-01'];
             foreach ($fys as $key => $start){
-                $res["1"] = date('c', strtotime($start));
-                $res["2"] = date('c', strtotime($start . ' + 3 Months'));
-                $res["3"] = date('c', strtotime($start . ' + 6 Months'));
-                $res["4"] = date('c', strtotime($start . ' + 9 Months'));
-                $res["5"] = date('c', strtotime($start . ' + 12 Months'));
+                $nextYear = $filter['year']+1;
+                $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
+                $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
+                $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
+                $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
+                $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
                 $dateArray[$key] = $res;
             }
            
-            switch ($filter['quarter']) {
-                case 'Quarter 1':
-                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["1"])), 'Y-m-d H:i:s');
-                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["2"])), 'Y-m-d H:i:s');
-                case 'Quarter 2':
-                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["2"])), 'Y-m-d H:i:s');
-                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["3"])), 'Y-m-d H:i:s');
-                case 'Quarter 3':
-                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["3"])), 'Y-m-d H:i:s');
-                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["4"])), 'Y-m-d H:i:s');
-                case 'Quarter 4':
-                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["4"])), 'Y-m-d H:i:s');
-                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["5"])), 'Y-m-d H:i:s');
-                default:
-                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["1"])), 'Y-m-d H:i:s');
-                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["5"])), 'Y-m-d H:i:s');
-            }
+                if($filter['quarter'] == 'Quarter 1'){
+                    $startDate =  $dateArray['CALENDAR']["1"];
+                    $endDate =  $dateArray['CALENDAR']["2"];
+                }
+                if($filter['quarter'] == 'Quarter 2'){
+                    $startDate=  $dateArray['CALENDAR']["2"];
+                    $endDate=  $dateArray['CALENDAR']["3"];
+                }
+                if($filter['quarter'] == 'Quarter 3'){
+                    $startDate=  $dateArray['CALENDAR']["3"];
+                    $endDate=  $dateArray['CALENDAR']["4"];
+                }
+                if($filter['quarter'] == 'Quarter 4'){
+                    $startDate=  $dateArray['CALENDAR']["4"];
+                    $endDate=  $dateArray['CALENDAR']["5"];
+                }
+                if ($filter['quarter'] == 'Annual'){
+                    $startDate=  $dateArray['CALENDAR']["1"];
+                    $endDate=  $dateArray['CALENDAR']["5"];
+                }
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
     

@@ -92,8 +92,8 @@
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            $('#endDates').text($('#year').val());
-            $('#startDates').text($('#quarter').val());
+            $('#startDates').text($('#year').val());
+            $('#endDates').text($('#quarter').val());
 
             $('.header_bar').attr('style', 'display:flex !important;');
             // Initiate DataTable AJAX request
