@@ -153,14 +153,16 @@ class Order extends Model
         ];
 
         $query = self::query() /** Replace YourModel with the actual model you are using for the data */
-        ->select('orders.amount as amount',
-            'master_account_detail.account_name as account_name',
+        ->selectRaw('SUM(orders.amount) as amount')
+        ->select('master_account_detail.account_name as account_name',
             'rebate.volume_rebate as volume_rebate',
             'rebate.incentive_rebate as incentive_rebate',
             'suppliers.supplier_name as supplier_name',
             'orders.date as date',
         )
-
+        // SELECT account_name, SUM(price) AS total_price
+        // FROM your_table_name
+        // GROUP BY account_name;
         ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
         ->leftJoin('rebate', function ($join) {
             $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
@@ -195,6 +197,9 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
+        $query->groupBy('master_account_detail.account_name');
+
+        // $totalRecords = $query->getQuery()->getCountForPagination();
         $totalRecords = $query->count();
         $totalVolumeRebate=$totalIncentiveRebate=0;
         foreach ($query->get() as $key => $value) {
