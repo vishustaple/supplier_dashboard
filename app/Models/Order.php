@@ -194,8 +194,10 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        $totalVolumeRebate = $query->sum(DB::raw('((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`)'));
-        $totalIncentiveRebate = $query->sum(DB::raw('((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`)'));
+        
+
+        $totalVolumeRebate = $query->sum(DB::raw('`orders`.`amount` / 100) * `rebate`.`volume_rebate`'));
+        $totalIncentiveRebate = $query->sum(DB::raw('`orders`.`amount` / 100) * `rebate`.`incentive_rebate`'));
         // $totalVolumeRebate = $totalIncentiveRebate = 0;
         // dd($query->get());
         // foreach ($query->get() as $key => $value) {
