@@ -251,71 +251,95 @@ class Order extends Model
 
 
     public static function getSupplierReportFilterdData($filter = [], $csv = false)
-{
-    $query = self::query()
-        ->selectRaw('SUM(orders.amount) as amount')
-        ->select('master_account_detail.account_name as account_name')
-        ->select('rebate.volume_rebate as volume_rebate')
-        ->select('rebate.incentive_rebate as incentive_rebate')
-        ->select('suppliers.supplier_name as supplier_name')
-        ->select('orders.date as date')
-        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('rebate', function ($join) {
-            $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
-        })
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-        ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
+    {
+        $orders = Order::selectRaw('SUM(orders.amount) as amount')
+    ->select('master_account_detail.account_name as account_name')
+    ->select('rebate.volume_rebate as volume_rebate')
+    ->select('rebate.incentive_rebate as incentive_rebate')
+    ->select('suppliers.supplier_name as supplier_name')
+    ->select('orders.date as date')
+    ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+    ->leftJoin('rebate', function ($join) {
+        $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
+    })
+    ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+    ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id')
+    ->where('orders.supplier_id', 2)
+    ->whereBetween('orders.date', ['2023-04-01 00:00:00', '2024-04-30 00:00:00'])
+    ->groupBy('master_account_detail.account_name')
+    ->orderBy('rebate.volume_rebate', 'desc')
+    ->get();
+    dd($orders);
+        $query = self::query()
+            ->selectRaw('SUM(orders.amount) as amount')
+            ->select('master_account_detail.account_name as account_name')
+            ->select('rebate.volume_rebate as volume_rebate')
+            ->select('rebate.incentive_rebate as incentive_rebate')
+            ->select('suppliers.supplier_name as supplier_name')
+            ->select('orders.date as date')
+            ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+            ->leftJoin('rebate', function ($join) {
+                $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
+            })
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+            ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
+    
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
+    
+        if (isset($filter['dates']) && !empty($filter['dates'])) {
+            $dates = explode(" - ", $filter['dates']);
+            $startDate = date_format(date_create(trim($dates[0])), 'Y-m-d H:i:s');
+            $endDate = date_format(date_create(trim($dates[1])), 'Y-m-d H:i:s');
+            $query->whereBetween('orders.date', [$startDate, $endDate]);
+        }
+    
+        $query->groupBy('master_account_detail.account_name');
+        // dd($query->get())
+        $totalRecords = $query->getQuery()->getCountForPagination();
 
-    if (isset($filter['supplier']) && !empty($filter['supplier'])) {
-        $query->where('orders.supplier_id', $filter['supplier']);
-    } else {
-        return [
-            'data' => [],
-            'recordsTotal' => 0,
-            'recordsFiltered' => 0,
-        ];
+        $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
+        $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
+    
+        $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
+            return $query->skip($filter['start'])->take($filter['length']);
+        })->get();
+    
+        
+        $finalArray=[];
+        if (isset($formatuserdata) && !empty($formatuserdata)) {
+            foreach ($formatuserdata as $key => $value) {
+                $finalArray[$key]['supplier'] = $value->supplier_name;
+                $finalArray[$key]['account_name'] = $value->account_name;
+                $finalArray[$key]['amount'] = '$'.$value->amount;
+                $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format(($value->amount/100)*$value->volume_rebate, 2);
+                $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format(($value->amount/100)*$value->incentive_rebate, 2);
+                // $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate">'.(!empty($value->volume_rebate) ? ($value->volume_rebate.'%') : (''));
+                // $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate">'.((!empty($value->incentive_rebate)) ? ($value->incentive_rebate.'%') : (''));
+                $finalArray[$key]['date'] = date_format(date_create($value->date), 'm/d/Y');
+                // $finalArray[$key]['start_date'] = date_format(date_create($filter['start_date']), 'Y-m-d H:i:s');
+                // $finalArray[$key]['end_date'] = date_format(date_create($filter['end_date']), 'Y-m-d H:i:s');
+            }
+        }
+    
+        if ($csv) {
+            $finalArray['heading'] = ['Total Spend', 'SKU', 'Description', 'Category', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price'];
+            return $finalArray;
+        } else {
+            return [
+                'data' => $finalArray,
+                'recordsTotal' => $totalRecords, // Use count of formatted data for total records
+                'recordsFiltered' => $totalRecords, // Use total records from the query
+            ];
+        }
     }
-
-    if (isset($filter['dates']) && !empty($filter['dates'])) {
-        $dates = explode(" - ", $filter['dates']);
-        $startDate = date_format(date_create(trim($dates[0])), 'Y-m-d H:i:s');
-        $endDate = date_format(date_create(trim($dates[1])), 'Y-m-d H:i:s');
-        $query->whereBetween('orders.date', [$startDate, $endDate]);
-    }
-
-    $query->groupBy('master_account_detail.account_name');
-
-    $totalRecords = $query->getQuery()->getCountForPagination();
-    $totalVolumeRebate = $totalIncentiveRebate = 0;
-    foreach ($query->get() as $key => $value) {
-        $totalVolumeRebate += ($value->amount / 100) * $value->volume_rebate;
-        $totalIncentiveRebate += ($value->amount / 100) * $value->incentive_rebate;
-    }
-
-    $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
-        return $query->skip($filter['start'])->take($filter['length']);
-    })->get();
-
-    $finalArray = [];
-    foreach ($formatuserdata as $key => $value) {
-        $finalArray[$key]['supplier'] = $value->supplier_name;
-        $finalArray[$key]['account_name'] = $value->account_name;
-        $finalArray[$key]['amount'] = '$' . number_format($value->amount, 2);
-        $finalArray[$key]['volume_rebate'] = '$' . number_format(($value->amount / 100) * $value->volume_rebate, 2);
-        $finalArray[$key]['incentive_rebate'] = '$' . number_format(($value->amount / 100) * $value->incentive_rebate, 2);
-        $finalArray[$key]['date'] = date_format(date_create($value->date), 'm/d/Y');
-    }
-
-    if ($csv) {
-        $finalArray['heading'] = ['Total Spend', 'SKU', 'Description', 'Category', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price'];
-        return $finalArray;
-    } else {
-        return [
-            'data' => $finalArray,
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $totalRecords,
-        ];
-    }
-}
+    
 
 }
