@@ -49,7 +49,7 @@
                     <!-- Button trigger modal -->
                 </div>
             </form>
-            <div class="row justify-content-end py-3">
+            <div class="row justify-content-end py-3 header_bar" style="display:none !important;">
                 <div class="col-md-4 card shadow border-0">
                     <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
                     <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
@@ -76,6 +76,7 @@
             event.preventDefault();
             $('#endDates').text($('#dates').val().split(" - ")[1]);
             $('#startDates').text($('#dates').val().split(" - ")[0]);
+            $('.header_bar').attr('style', 'display:flex !important;')
             // Initiate DataTable AJAX request
             $('#supplier_report_data').DataTable().ajax.reload();
         });
