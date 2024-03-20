@@ -20,7 +20,7 @@
                 <div class="row align-items-end py-3 border-top border-bottom mb-3">
                     <div class="form-group col-md-4 mb-0">
                         <label for="supplier">Select Supplier:</label>
-                        <select id="supplier" name="supplier" class="form-control"> 
+                        <select id="supplier" name="supplier" class="form-control" required> 
                             <option value="" selected>--Select--</option>
                             @if(isset($categorySuppliers))
                                 @foreach($categorySuppliers as $categorySupplier)
@@ -30,8 +30,24 @@
                         </select>
                     </div>
                     <div class="form-group relative col-md-3 mb-0">  
-                        <label for="enddate">Select Date:</label>
-                        <input class="form-control" id="dates" name="dates" readonly>
+                        <label for="enddate">Select Year:</label>
+                        <select class="form-control" name="year" id="year" required>
+                            <option value="">--Select--</option>
+                            @for ($year = 2010; $year <= date('Y'); $year++)
+                                <option value="{{$year}}">{{$year}}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="form-group relative col-md-3 mb-0">  
+                        <label for="enddate">Select Quarter:</label>
+                        <select class="form-control" name="quarter" id="quarter" required>
+                            <option value="">--Select--</option>
+                            <option value="Annual">Annual</option>
+                            <option value="Quarter 1">Quarter 1</option>
+                            <option value="Quarter 2">Quarter 2</option>
+                            <option value="Quarter 3">Quarter 3</option>
+                            <option value="Quarter 4">Quarter 4</option>
+                        </select>
                     </div>
                     <div class="form-check relative col-md-2 mb-0">
                         <div class="form-check">
@@ -52,10 +68,11 @@
             </form>
             <div class="row justify-content-end py-3 header_bar" style="display:none !important;">
                 <div class="col-md-4 card shadow border-0">
+                    <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_amount"></b></h6>
                     <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
                     <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
-                    <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
-                    <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
+                    <h6 class="d-flex justify-content-between">Year: <b style="color:#000;" id="startDates"></b></h6>
+                    <h6 class="d-flex justify-content-between">Quarter: <b style="color:#000;" id="endDates"></b></h6>
                 </div>
             </div>
             <table id="supplier_report_data" class="data_table_files">
@@ -70,14 +87,15 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
-        $('#dates').daterangepicker();
+        // $('#dates').daterangepicker();
 
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            $('#endDates').text($('#dates').val().split(" - ")[1]);
-            $('#startDates').text($('#dates').val().split(" - ")[0]);
-            $('.header_bar').attr('style', 'display:flex !important;')
+            $('#endDates').text($('#year').val());
+            $('#startDates').text($('#quarter').val());
+
+            $('.header_bar').attr('style', 'display:flex !important;');
             // Initiate DataTable AJAX request
             $('#supplier_report_data').DataTable().ajax.reload();
         });
@@ -89,13 +107,16 @@
         });
 
         function setPercentage() {
-            var $html = $('<div>' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
+            var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="total_amount">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
             hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
-            hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val();
-    
+            hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
+            totalAmount = $html.find('.total_amount').val();
+
+            $('#total_amount').text('$'+totalAmount);
+            console.log(supplierDataTable.column(3).data()[0]);
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
-                $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + parseFloat(hiddenVolumeRebateInputValue).toFixed(2) : 'N/A'));
+                $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + hiddenVolumeRebateInputValue : 'N/A'));
                 $('.volume_rebate_header').attr('style', 'display:flex !important;');
             } else {
                 supplierDataTable.column('volume_rebate:name').visible(false);
@@ -105,7 +126,7 @@
 
             if ($('#incentive_rebate_check').is(':checked')) {
                 supplierDataTable.column('incentive_rebate:name').visible(true);
-                $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + parseFloat(hiddenIncentiveRebateInputValue).toFixed(2) : 'N/A'));
+                $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + hiddenIncentiveRebateInputValue : 'N/A'));
                 $('.incentive_rebate_header').attr('style', 'display:flex !important;');
             } else {
                 supplierDataTable.column('incentive_rebate:name').visible(false);
@@ -131,7 +152,8 @@
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    d.dates = $('#dates').val();
+                    d.year = $('#year').val();
+                    d.quarter = $('#quarter').val();
                     d.supplier = $('#supplier').val();
                 },
             },
@@ -156,7 +178,7 @@
             columns: [
                 { data: 'supplier', name: 'supplier', title: 'Supplier'},
                 { data: 'account_name', name: 'account_name', title: 'Account Name'},
-                { data: 'amount', name: 'amount', title: 'Amount'},
+                { data: 'amount', name: 'amount', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'incentive_rebate', name: 'incentive_rebate', title: 'Incentive Rebate'},
                 // { data: 'date', name: 'date', title: 'Date'},
@@ -181,7 +203,9 @@
             // You can customize this URL to match your backend route for CSV download
             var csvUrl = '{{ route("report.export-supplier_report-csv") }}';
             // Add query parameters for date range and supplier ID
-            csvUrl += '?dates=' + $('#dates').val() + '&supplier=' + $('#supplier').val();
+
+            var order = supplierDataTable.order();
+            csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
         } 

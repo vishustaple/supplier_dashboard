@@ -175,10 +175,35 @@ class Order extends Model
             ];
         }
     
-        if (isset($filter['dates']) && !empty($filter['dates'])) {
-            $dates = explode(" - ", $filter['dates']);
-            $startDate = date_format(date_create(trim($dates[0])), 'Y-m-d H:i:s');
-            $endDate = date_format(date_create(trim($dates[1])), 'Y-m-d H:i:s');
+        if (isset($filter['year']) || !empty($filter['quarter'])) {
+            // date_default_timezone_set('America/Chicago');
+            $fys = ['CALENDAR' => $filter['year'].'-01-01'];
+            foreach ($fys as $key => $start){
+                $res["1"] = date('c', strtotime($start));
+                $res["2"] = date('c', strtotime($start . ' + 3 Months'));
+                $res["3"] = date('c', strtotime($start . ' + 6 Months'));
+                $res["4"] = date('c', strtotime($start . ' + 9 Months'));
+                $res["5"] = date('c', strtotime($start . ' + 12 Months'));
+                $dateArray[$key] = $res;
+            }
+           
+            switch ($filter['quarter']) {
+                case 'Quarter 1':
+                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["1"])), 'Y-m-d H:i:s');
+                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["2"])), 'Y-m-d H:i:s');
+                case 'Quarter 2':
+                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["2"])), 'Y-m-d H:i:s');
+                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["3"])), 'Y-m-d H:i:s');
+                case 'Quarter 3':
+                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["3"])), 'Y-m-d H:i:s');
+                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["4"])), 'Y-m-d H:i:s');
+                case 'Quarter 4':
+                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["4"])), 'Y-m-d H:i:s');
+                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["5"])), 'Y-m-d H:i:s');
+                default:
+                    $startDate=  date_format(date_create(trim($dateArray['CALENDAR']["1"])), 'Y-m-d H:i:s');
+                    $endDate=  date_format(date_create(trim($dateArray['CALENDAR']["5"])), 'Y-m-d H:i:s');
+            }
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
     
@@ -206,6 +231,7 @@ class Order extends Model
 
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
+        $totalAmounts = number_format($totalAmount, 2, '.', false);
         $totalAmount = number_format($totalAmount, 2);
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
@@ -224,7 +250,7 @@ class Order extends Model
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = '$'.number_format($value->amount, 2);
+                    $finalArray[$key]['amount'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->amount, 2);
                     $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
                     $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($value->incentive_rebate, 2).' ('.(!empty($value->incentive_rebates) ? ($value->incentive_rebates.'%') : ('N/A')).')';
                 }
@@ -237,7 +263,10 @@ class Order extends Model
         }
     
         if ($csv) {
-            $finalArray['heading'] = ['Supplier', 'Account_name', 'Amount', 'Volume Rebate', 'Incentive Rebate'];
+            $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
+            // print($startDates);die;
+            $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
+            $finalArray['heading'] = ['Supplier', 'Account_name', 'Amount', 'Volume Rebate', 'Incentive Rebate', '', '', '', 'Total Amount', $totalAmounts, 'Total Volume Rebate', $totalVolumeRebate, 'Total Incentive Rebate', $totalIncentiveRebate, 'Start Date', $startDates, 'End Date', $endDates];
             return $finalArray;
         } else {
             return [
