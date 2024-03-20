@@ -252,25 +252,28 @@ class Order extends Model
 
     public static function getSupplierReportFilterdData($filter = [], $csv = false)
     {
-        $formatuserdata = Order::selectRaw('SUM(orders.amount) as amount')
-    ->select('master_account_detail.account_name as account_name')
-    ->select('rebate.volume_rebate as volume_rebate')
-    ->select('rebate.incentive_rebate as incentive_rebate')
-    ->select('suppliers.supplier_name as supplier_name')
-    ->select('orders.date as date')
-    ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-    ->leftJoin('rebate', function ($join) {
-        $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
-    })
-    ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-    ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id')
-    ->where('orders.supplier_id', 3)
-    ->whereBetween('orders.date', ['2023-04-01 00:00:00', '2024-04-30 00:00:00'])
-    ->groupBy('master_account_detail.account_name');
-    $totalRecords = $formatuserdata->getQuery()->getCountForPagination();
-
-    $formatuserdata->orderBy('rebate.volume_rebate', 'desc')
-    ->get();
+        $formatuserdata = DB::table('orders')
+        ->selectRaw('SUM(orders.amount) as amount')
+        ->select('master_account_detail.account_name as account_name')
+        ->select('rebate.volume_rebate as volume_rebate')
+        ->select('rebate.incentive_rebate as incentive_rebate')
+        ->select('suppliers.supplier_name as supplier_name')
+        ->select('orders.date as date')
+        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+        ->leftJoin('rebate', function ($join) {
+            $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
+        })
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+        ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id')
+        ->where('orders.supplier_id', 3)
+        ->whereBetween('orders.date', ['2023-04-01 00:00:00', '2024-04-30 00:00:00'])
+        ->groupBy('master_account_detail.account_name');
+        $totalRecords = $formatuserdata->getQuery()->getCountForPagination();
+        $formatuserdata->orderByDesc('rebate.volume_rebate')
+        ->get();
+    
+    // dd($orders);
+    
     // dd($orders->toArray());
         // $query = self::query()
         //     ->selectRaw('SUM(orders.amount) as amount')
