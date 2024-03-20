@@ -292,7 +292,6 @@ class Account extends Model
             6 => 'master_account_detail.record_type',
             7 => 'master_account_detail.id',
         ];
-
         if ($csv) {
             $query = self::query() /** Eager load relationships */
             ->select('master_account_detail.id as id',
@@ -309,7 +308,10 @@ class Account extends Model
             'suppliers.supplier_name as category_supplier',
             'master_account_detail.parent_name as parent_name',
             'master_account_detail.grandparent_name as grand_parent_name')
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+            ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+            ->whereNotNull('master_account_detail.account_name')
+            ->where('master_account_detail.account_name', '!=', '');
         } else {
             $query = self::query() /** Eager load relationships */
             ->select('rebate.volume_rebate as volume_rebate',
@@ -322,10 +324,12 @@ class Account extends Model
              'master_account_detail.customer_name as customer_name',
              'master_account_detail.account_name as account_name')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            ->leftJoin('rebate', function ($join) {
-                $join->on(DB::raw('CAST(master_account_detail.account_name AS SIGNED)'), '=', DB::raw('CAST(rebate.account_name AS SIGNED)'));
-            });
+            ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+            ->whereNotNull('master_account_detail.account_name')
+            ->where('master_account_detail.account_name', '!=', '');
         }
+
+
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
@@ -339,7 +343,9 @@ class Account extends Model
             $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
-        $query->whereNull('rebate.volume_rebate')->orWhereNull('rebate.incentive_rebate');
+        $query->whereNull('rebate.volume_rebate');
+        // $query->whereNo('master_account_detail.account_number');
+
         /** Get total records count (without filtering) */
         // $totalRecords = $query->count();
         $query->groupBy('master_account_detail.account_name');
@@ -352,8 +358,8 @@ class Account extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        $query->groupBy('master_account_detail.account_name');
-        $totalRecords = $query->getQuery()->getCountForPagination();
+        // $query->groupBy('master_account_detail.account_name');
+        // $totalRecords = $query->getQuery()->getCountForPagination();
 
         // $totalRecords = $query->count();
         if (isset($filter['start']) && isset($filter['length'])) {
@@ -448,7 +454,10 @@ class Account extends Model
             'suppliers.supplier_name as category_supplier',
             'master_account_detail.parent_name as parent_name',
             'master_account_detail.grandparent_name as grand_parent_name')
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+            ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+            ->whereNotNull('master_account_detail.account_name')
+            ->where('master_account_detail.account_name', '!=', '');
         } else {
             $query = self::query() /** Eager load relationships */
             ->select('rebate.volume_rebate as volume_rebate',
@@ -461,10 +470,12 @@ class Account extends Model
              'master_account_detail.customer_name as customer_name',
              'master_account_detail.account_name as account_name')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            ->leftJoin('rebate', function ($join) {
-                $join->on(DB::raw('CAST(master_account_detail.account_name AS SIGNED)'), '=', DB::raw('CAST(rebate.account_name AS SIGNED)'));
-            });
+            ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+            ->whereNotNull('master_account_detail.account_name')
+            ->where('master_account_detail.account_name', '!=', '');
         }
+
+
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];

@@ -22,9 +22,9 @@ class RebateController extends Controller
             return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType]]);
         } else {
             $missingRebate = Account::select('r1.id')
-            ->leftJoin('rebate AS r1', function ($join) {
-                $join->on(DB::raw('CAST(master_account_detail.account_name AS SIGNED)'), '=', DB::raw('CAST(r1.account_name AS SIGNED)'));
-            })
+            ->leftJoin('rebate  AS r1', 'master_account_detail.account_name', '=', 'r1.account_name')
+            ->whereNotNull('master_account_detail.account_name')
+            ->where('master_account_detail.account_name', '!=', '')
             ->whereNull('r1.volume_rebate')
             ->whereNull('r1.incentive_rebate')
             ->groupBy('master_account_detail.account_name')
@@ -50,9 +50,9 @@ class RebateController extends Controller
     public function rebateCount(Request $request){
         if ($request->ajax()) {
             $missingRebate = Account::select('r1.id')
-            ->leftJoin('rebate AS r1', function ($join) {
-                $join->on(DB::raw('CAST(master_account_detail.account_name AS SIGNED)'), '=', DB::raw('CAST(r1.account_name AS SIGNED)'));
-            })
+            ->leftJoin('rebate  AS r1', 'master_account_detail.account_name', '=', 'r1.account_name')
+            ->whereNotNull('master_account_detail.account_name')
+            ->where('master_account_detail.account_name', '!=', '')
             ->whereNull('r1.volume_rebate')
             ->whereNull('r1.incentive_rebate')
             ->groupBy('master_account_detail.account_name')
