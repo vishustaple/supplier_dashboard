@@ -322,7 +322,9 @@ class Account extends Model
              'master_account_detail.customer_name as customer_name',
              'master_account_detail.account_name as account_name')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            ->leftJoin('rebate', 'rebate.account_number', '=', 'master_account_detail.account_number');
+            ->leftJoin('rebate', function ($join) {
+                $join->on(DB::raw('CAST(master_account_detail.account_name AS SIGNED)'), '=', DB::raw('CAST(rebate.account_name AS SIGNED)'));
+            });
         }
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -401,7 +403,7 @@ class Account extends Model
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 // $formatuserdata[$key]['incentive_rebate'] = $data->incentive_rebate;
                 $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_number."' class='account_number'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
                 $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
             }
         }
@@ -459,7 +461,9 @@ class Account extends Model
              'master_account_detail.customer_name as customer_name',
              'master_account_detail.account_name as account_name')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            ->leftJoin('rebate', 'rebate.account_number', '=', 'master_account_detail.account_number');
+            ->leftJoin('rebate', function ($join) {
+                $join->on(DB::raw('CAST(master_account_detail.account_name AS SIGNED)'), '=', DB::raw('CAST(rebate.account_name AS SIGNED)'));
+            });
         }
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -538,7 +542,7 @@ class Account extends Model
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 // $formatuserdata[$key]['incentive_rebate'] = $data->incentive_rebate;
                 $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_number."' class='account_number'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
                 $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';
             }
         }

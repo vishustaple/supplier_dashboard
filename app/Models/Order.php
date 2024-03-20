@@ -159,12 +159,12 @@ class Order extends Model
         ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
         `suppliers`.`supplier_name` AS `supplier_name`, 
         `orders`.`date` AS `date`")
-            ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-            ->leftJoin('rebate', function ($join) {
-                $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
-            })
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-            ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
+        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+        ->leftJoin('rebate', function ($join) {
+            $join->on(DB::raw('CAST(orders.account_name AS SIGNED)'), '=', DB::raw('CAST(rebate.account_name AS SIGNED)'));
+        })
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+        ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
     
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query->where('orders.supplier_id', $filter['supplier']);
