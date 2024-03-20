@@ -13,21 +13,21 @@ return new class extends Migration
     {
         Schema::create('master_account_detail', function (Blueprint $table) {
             $table->id();
-            $table->string('account_number');
-            $table->string('customer_name');
-            $table->string('account_name');
-            $table->string('record_type');
-            $table->string('volume_rebate');
-            $table->string('category_supplier');
-            $table->string('cpg_sales_representative');
-            $table->string('cpg_customer_service_rep');
-            $table->string('parent_id');
-            $table->string('parent_name');
-            $table->string('grandparent_id');
-            $table->string('grandparent_name');
-            $table->string('member_rebate');
-            $table->string('temp_active_date');
-            $table->string('temp_end_date');
+            $table->string('account_number')->nullable();
+            $table->string('customer_name')->nullable();
+            $table->string('account_name')->nullable();
+            $table->string('record_type')->nullable();
+            $table->string('volume_rebate')->nullable();
+            $table->string('category_supplier')->nullable();
+            $table->string('cpg_sales_representative')->nullable();
+            $table->string('cpg_customer_service_rep')->nullable();
+            $table->string('parent_id')->nullable();
+            $table->string('parent_name')->nullable();
+            $table->string('grandparent_id')->nullable();
+            $table->string('grandparent_name')->nullable();
+            $table->string('member_rebate')->nullable();
+            $table->string('temp_active_date')->nullable();
+            $table->string('temp_end_date')->nullable();
             $table->timestamps();
         });
     }

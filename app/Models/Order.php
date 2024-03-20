@@ -154,18 +154,15 @@ class Order extends Model
         ];
 
         $query = self::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
-        `master_account_detail`.`account_name` AS `account_name`,
+        `m2`.`account_name` AS `account_name`,
         ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
         ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
         `suppliers`.`supplier_name` AS `supplier_name`, 
         `orders`.`date` AS `date`")
-        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('rebate', function ($join) {
-            $join->on(DB::raw('CAST(orders.account_name AS SIGNED)'), '=', DB::raw('CAST(rebate.account_name AS SIGNED)'));
-        })
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-        ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
-    
+        ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
+        ->leftJoin('rebate', 'm2.account_name', '=', 'rebate.account_name')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query->where('orders.supplier_id', $filter['supplier']);
         } else {
@@ -183,7 +180,7 @@ class Order extends Model
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
     
-        $query->groupBy('master_account_detail.account_name');
+        $query->groupBy('m2.account_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
