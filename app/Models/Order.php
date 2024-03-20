@@ -147,7 +147,7 @@ class Order extends Model
         $orderColumnArray = [
             0=>'suppliers.supplier_name',
             1=>'master_account_detail.account_name',
-            2=>'orders.amount',
+            2=>'amount',
             3=>'rebate.volume_rebate',
             4=>'rebate.incentive_rebate',
             5=>'orders.date',
@@ -185,7 +185,7 @@ class Order extends Model
     
         $query->groupBy('master_account_detail.account_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
-        
+
         /** Get total records count (without filtering) */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
