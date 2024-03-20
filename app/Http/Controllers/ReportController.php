@@ -114,8 +114,10 @@ class ReportController extends Controller
 
     public function supplierReportExportCsv(Request $request){
         /** Retrieve data based on the provided parameters */
-        // $filter['start_date'] = $request->input('daterange.start');
-        $filter['dates'] = $request->input('dates');
+        $filter['order'][0]['column'] = $request->input('column');
+        $filter['order'][0]['dir'] = $request->input('order');
+        $filter['quarter'] = $request->input('quarter');
+        $filter['year'] = $request->input('year');
         $filter['supplier'] = $request->input('supplier');
 
         // dd($filter);
