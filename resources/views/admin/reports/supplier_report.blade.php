@@ -74,7 +74,8 @@
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            
+            $('#endDates').text($('#dates').val().split(" - ")[1]);
+            $('#startDates').text($('#dates').val().split(" - ")[0]);
             // Initiate DataTable AJAX request
             $('#supplier_report_data').DataTable().ajax.reload();
         });
@@ -110,8 +111,7 @@
                 $('#incentive_rebate').text('');
             }
 
-            // $('#endDates').text($('#dates').val().split(" - ")[1]);
-            // $('#startDates').text($('#dates').val().split(" - ")[0]);
+            
         }
 
         // DataTable initialization
@@ -166,8 +166,8 @@
 
             fnDrawCallback: function( oSettings ) {
                 setPercentage();
-                $('#endDates').text($('#dates').val().split(" - ")[1]);
-                $('#startDates').text($('#dates').val().split(" - ")[0]);
+                // $('#endDates').text($('#dates').val().split(" - ")[1]);
+                // $('#startDates').text($('#dates').val().split(" - ")[0]);
             },
         });  
         
