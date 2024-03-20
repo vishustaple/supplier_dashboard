@@ -196,15 +196,15 @@ class Order extends Model
 
         
 
-        $totalVolumeRebate = $query->sum(DB::raw('(`amount` / 100) * `rebate`.`volume_rebate`'));
-        $totalIncentiveRebate = $query->sum(DB::raw('(`amount` / 100) * `rebate`.`incentive_rebate`'));
+        // $totalVolumeRebate = $query->sum(DB::raw('(`amount` / 100) * `rebate`.`volume_rebate`'));
+        // $totalIncentiveRebate = $query->sum(DB::raw('(`amount` / 100) * `rebate`.`incentive_rebate`'));
 
-        // $totalVolumeRebate = $totalIncentiveRebate = 0;
+        $totalVolumeRebate = $totalIncentiveRebate = 0;
         // dd($query->get());
-        // foreach ($query->get() as $key => $value) {
-        //     $totalVolumeRebate += $value->volume_rebate;
-        //     $totalIncentiveRebate += $value->incentive_rebate;
-        // }
+        foreach ($query->get() as $key => $value) {
+            $totalVolumeRebate += $value->volume_rebate;
+            $totalIncentiveRebate += $value->incentive_rebate;
+        }
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
