@@ -252,70 +252,46 @@ class Order extends Model
 
     public static function getSupplierReportFilterdData($filter = [], $csv = false)
     {
-        $formatuserdata = DB::table('orders')
-        ->selectRaw('SUM(orders.amount) as amount')
-        ->select('master_account_detail.account_name as account_name')
-        ->select('rebate.volume_rebate as volume_rebate')
-        ->select('rebate.incentive_rebate as incentive_rebate')
-        ->select('suppliers.supplier_name as supplier_name')
-        ->select('orders.date as date')
-        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('rebate', function ($join) {
-            $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
-        })
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-        ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id')
-        ->where('orders.supplier_id', 3)
-        ->whereBetween('orders.date', ['2023-04-01 00:00:00', '2024-04-30 00:00:00'])
-        ->groupBy('master_account_detail.account_name');
-        $totalRecords = $formatuserdata->count();
-        $formatuserdata->orderByDesc('rebate.volume_rebate')
-        ->get();
+        $query = self::query()
+            ->selectRaw('SUM(orders.amount) as amount')
+            ->select('master_account_detail.account_name as account_name')
+            ->select('rebate.volume_rebate as volume_rebate')
+            ->select('rebate.incentive_rebate as incentive_rebate')
+            ->select('suppliers.supplier_name as supplier_name')
+            ->select('orders.date as date')
+            ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+            ->leftJoin('rebate', function ($join) {
+                $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
+            })
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+            ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
     
-    dd($formatuserdata);
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
     
-    // dd($orders->toArray());
-        // $query = self::query()
-        //     ->selectRaw('SUM(orders.amount) as amount')
-        //     ->select('master_account_detail.account_name as account_name')
-        //     ->select('rebate.volume_rebate as volume_rebate')
-        //     ->select('rebate.incentive_rebate as incentive_rebate')
-        //     ->select('suppliers.supplier_name as supplier_name')
-        //     ->select('orders.date as date')
-        //     ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        //     ->leftJoin('rebate', function ($join) {
-        //         $join->on(DB::raw('CAST(orders.customer_number AS SIGNED)'), '=', DB::raw('CAST(rebate.account_number AS SIGNED)'));
-        //     })
-        //     ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-        //     ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id');
+        if (isset($filter['dates']) && !empty($filter['dates'])) {
+            $dates = explode(" - ", $filter['dates']);
+            $startDate = date_format(date_create(trim($dates[0])), 'Y-m-d H:i:s');
+            $endDate = date_format(date_create(trim($dates[1])), 'Y-m-d H:i:s');
+            $query->whereBetween('orders.date', [$startDate, $endDate]);
+        }
     
-        // if (isset($filter['supplier']) && !empty($filter['supplier'])) {
-        //     $query->where('orders.supplier_id', $filter['supplier']);
-        // } else {
-        //     return [
-        //         'data' => [],
-        //         'recordsTotal' => 0,
-        //         'recordsFiltered' => 0,
-        //     ];
-        // }
-    
-        // if (isset($filter['dates']) && !empty($filter['dates'])) {
-        //     $dates = explode(" - ", $filter['dates']);
-        //     $startDate = date_format(date_create(trim($dates[0])), 'Y-m-d H:i:s');
-        //     $endDate = date_format(date_create(trim($dates[1])), 'Y-m-d H:i:s');
-        //     $query->whereBetween('orders.date', [$startDate, $endDate]);
-        // }
-    
-        // $query->groupBy('master_account_detail.account_name');
-        // // dd($query->get())
-        // $totalRecords = $query->getQuery()->getCountForPagination();
+        $query->groupBy('master_account_detail.account_name');
+        $totalRecords = $query->getQuery()->getCountForPagination();
 
-        // $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
-        // $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
+        $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
+        $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
     
-        // $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
-        //     return $query->skip($filter['start'])->take($filter['length']);
-        // })->get();
+        $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
+            return $query->skip($filter['start'])->take($filter['length']);
+        })->get();
     
         
         $finalArray=[];
@@ -324,8 +300,8 @@ class Order extends Model
                 $finalArray[$key]['supplier'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['amount'] = '$'.$value->amount;
-                // $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format(($value->amount/100)*$value->volume_rebate, 2);
-                // $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format(($value->amount/100)*$value->incentive_rebate, 2);
+                $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format(($value->amount/100)*$value->volume_rebate, 2);
+                $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format(($value->amount/100)*$value->incentive_rebate, 2);
                 // $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate">'.(!empty($value->volume_rebate) ? ($value->volume_rebate.'%') : (''));
                 // $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate">'.((!empty($value->incentive_rebate)) ? ($value->incentive_rebate.'%') : (''));
                 $finalArray[$key]['date'] = date_format(date_create($value->date), 'm/d/Y');
