@@ -264,7 +264,7 @@ class Order extends Model
     })
     ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
     ->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id')
-    ->where('orders.supplier_id', 2)
+    ->where('orders.supplier_id', 3)
     ->whereBetween('orders.date', ['2023-04-01 00:00:00', '2024-04-30 00:00:00'])
     ->groupBy('master_account_detail.account_name')
     ->orderBy('rebate.volume_rebate', 'desc')
