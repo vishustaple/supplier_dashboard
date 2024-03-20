@@ -144,6 +144,15 @@ class Order extends Model
 
     public static function getSupplierReportFilterdData($filter = [], $csv = false)
     {
+        $orderColumnArray = [
+            0=>'suppliers.supplier_name',
+            1=>'master_account_detail.account_name',
+            2=>'orders.amount',
+            3=>'rebate.volume_rebate',
+            4=>'rebate.incentive_rebate',
+            5=>'orders.date',
+        ];
+
         $query = self::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
         `master_account_detail`.`account_name` AS `account_name`, 
         `rebate`.`volume_rebate` AS `volume_rebate`, 
@@ -176,6 +185,14 @@ class Order extends Model
     
         $query->groupBy('master_account_detail.account_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
+        
+        /** Get total records count (without filtering) */
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+            /** Order by column and direction */
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
+        }
 
         // $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
         // $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
@@ -184,7 +201,7 @@ class Order extends Model
             $totalVolumeRebate += ($value->amount / 100) * $value->volume_rebate;
             $totalIncentiveRebate += ($value->amount / 100) * $value->incentive_rebate;
         }
-        
+
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
