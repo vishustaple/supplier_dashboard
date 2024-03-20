@@ -43,8 +43,9 @@
                             <label class="form-check-label" for="incentive_rebate_check">Incentive Rebate</label>
                         </div>
                     </div>
-                    <div class="col-md-1 mb-0">
+                    <div class="col-md-3 mb-0">
                         <button type="submit" class="btn btn-primary">Submit</button>
+                        <button id="downloadCsvBtn" class="btn-success btn " title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
@@ -94,7 +95,7 @@
     
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
-                $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + parseFloat(hiddenVolumeRebateInputValue).toFixed(2) : ''));
+                $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + parseFloat(hiddenVolumeRebateInputValue).toFixed(2) : 'N/A'));
                 $('.volume_rebate_header').attr('style', 'display:flex !important;');
             } else {
                 supplierDataTable.column('volume_rebate:name').visible(false);
@@ -104,15 +105,13 @@
 
             if ($('#incentive_rebate_check').is(':checked')) {
                 supplierDataTable.column('incentive_rebate:name').visible(true);
-                $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + parseFloat(hiddenIncentiveRebateInputValue).toFixed(2) : ''));
+                $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + parseFloat(hiddenIncentiveRebateInputValue).toFixed(2) : 'N/A'));
                 $('.incentive_rebate_header').attr('style', 'display:flex !important;');
             } else {
                 supplierDataTable.column('incentive_rebate:name').visible(false);
                 $('.incentive_rebate_header').attr('style', 'display:none !important;');
                 $('#incentive_rebate').text('');
             }
-
-            
         }
 
         // DataTable initialization
@@ -160,7 +159,7 @@
                 { data: 'amount', name: 'amount', title: 'Amount'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'incentive_rebate', name: 'incentive_rebate', title: 'Incentive Rebate'},
-                { data: 'date', name: 'date', title: 'Date'},
+                // { data: 'date', name: 'date', title: 'Date'},
                 // { data: 'start_date', name: 'start_date', title: 'Start Date'},
                 // { data: 'end_date', name: 'end_date', title: 'End Date'},
             ],
@@ -171,121 +170,21 @@
                 // $('#startDates').text($('#dates').val().split(" - ")[0]);
             },
         });  
-        
-        // Attach a change event handler to the checkboxes
-        $('input[type="checkbox"]').change(function() {
-            // Check if the checkbox is checked or unchecked
-            if ($(this).prop('checked')) {
-                $('#grandparentSelect').prop('disabled', false);
-            } else{
-                $('#grandparentSelect').val('');
-                $('#grandparentSelect').prop('disabled', true);
-            }
+
+
+        $('#downloadCsvBtn').on('click', function () {
+            // Trigger CSV download
+            downloadCsv();
         });
 
-        $('#exampleModal').on('show.bs.modal', function (e) {
-            $('#errorMessage').fadeOut();
-            $("#add_supplier")[0].reset();
-            $('#grandparentSelect').prop('disabled', true);
-        })
-
-        //submit form with ajax
-
-        $("#add_supplier").on('submit', function (e){
-            // alert("here");
-
-        e.preventDefault();
-        var formData = new FormData($('#add_supplier')[0]);
-        console.log(formData);
-        $.ajax({
-                type: 'POST',
-                url: '{{ route("account.add") }}', // Replace with your actual route name
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                     if(response.error){
-                   
-                        $('#errorMessage').text(response.error);
-                        $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 5000);
-                      
-                    }
-                    // Assuming `response` is the error response object
-                    let errorMessages = [];
-
-                    if (response && response.error) {
-                    // Iterate over each field in the error object
-                    Object.keys(response.error).forEach(field => {
-                    // Get the error messages for the current field
-                    let fieldErrorMessages = response.error[field];
-
-                    // Concatenate the field name and its error messages
-                    let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
-                    console.log(errorMessageText);
-
-                    // Accumulate the error messages
-                    errorMessages.push(errorMessageText);
-                    });
-                    $('#errorMessage').html(errorMessages.join('<br>'));
-                    $('#errorMessage').css('display','block');
-                    setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 5000);
-                    }
-
-                    // Set the content of the div with all accumulated error messages
-                   
-                   
-                    if(response.success){
-                        $('#page-loader').hide();
-                        $('#successMessage').text(response.success);
-                        $('#successMessage').css('display','block');
-                        $("form")[0].reset();
-                        //disable all field 
-                        $('#date,#file,#importBtn').prop('disabled', true);
-                        setTimeout(function () {
-                            $('#successMessage').fadeOut();
-                            window.location.reload();
-                        }, 5000); 
-                        
-                    }
-                    // Handle success response
-                    console.log(response);
-                },
-                error: function(xhr, status, error) {
-                    // Handle error response
-                    // console.error(xhr.responseText);
-                    const errorresponse = JSON.parse(xhr.responseText);
-                        $('#errorMessage').text(errorresponse.error);
-                        $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 5000);
-                }
-            });
-
-
-        });
-
-    });
-            
-     
-    // JavaScript to make checkboxes act like radio buttons
-    const radioCheckboxes = document.querySelectorAll('.radio-checkbox');
-
-        radioCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-            // Uncheck all other checkboxes in the group
-            radioCheckboxes.forEach(otherCheckbox => {
-                if (otherCheckbox !== checkbox) {
-                otherCheckbox.checked = false;
-                }
-            });
-        });
-    });
-    
+        function downloadCsv() {
+            // You can customize this URL to match your backend route for CSV download
+            var csvUrl = '{{ route("report.export-supplier_report-csv") }}';
+            // Add query parameters for date range and supplier ID
+            csvUrl += '?dates=' + $('#dates').val() + '&supplier=' + $('#supplier').val();
+            // Open a new window to download the CSV file
+            window.open(csvUrl, '_blank');
+        } 
+    });        
 </script>
 @endsection
