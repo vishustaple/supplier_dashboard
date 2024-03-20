@@ -157,8 +157,6 @@ class Order extends Model
         `master_account_detail`.`account_name` AS `account_name`,
         ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
         ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
-        `rebate`.`volume_rebate` AS `volume_rebates`,
-        `rebate`.`incentive_rebate` AS `incentive_rebates`,
         `suppliers`.`supplier_name` AS `supplier_name`, 
         `orders`.`date` AS `date`")
             ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
@@ -196,14 +194,14 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        // $totalVolumeRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.volume_rebate'));
-        // $totalIncentiveRebate = $query->sum(DB::raw('(orders.amount / 100) * rebate.incentive_rebate'));
-        $totalVolumeRebate = $totalIncentiveRebate = 0;
-        dd($query->get());
-        foreach ($query->get() as $key => $value) {
-            $totalVolumeRebate += $value->volume_rebate;
-            $totalIncentiveRebate += $value->incentive_rebate;
-        }
+        $totalVolumeRebate = $query->sum(DB::raw('volume_rebate'));
+        $totalIncentiveRebate = $query->sum(DB::raw('rebate.incentive_rebate'));
+        // $totalVolumeRebate = $totalIncentiveRebate = 0;
+        // dd($query->get());
+        // foreach ($query->get() as $key => $value) {
+        //     $totalVolumeRebate += $value->volume_rebate;
+        //     $totalIncentiveRebate += $value->incentive_rebate;
+        // }
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
@@ -215,8 +213,8 @@ class Order extends Model
                 $finalArray[$key]['supplier'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['amount'] = '$'.$value->amount;
-                $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format(($value->amount/100)*$value->volume_rebate, 2);
-                $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format(($value->amount/100)*$value->incentive_rebate, 2);
+                $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2);
+                $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($value->incentive_rebate, 2);
                 // $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate">'.(!empty($value->volume_rebate) ? ($value->volume_rebate.'%') : (''));
                 // $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate">'.((!empty($value->incentive_rebate)) ? ($value->incentive_rebate.'%') : (''));
                 $finalArray[$key]['date'] = date_format(date_create($value->date), 'm/d/Y');
