@@ -269,7 +269,7 @@ class Order extends Model
     ->groupBy('master_account_detail.account_name')
     ->orderBy('rebate.volume_rebate', 'desc')
     ->get();
-    dd($orders);
+    dd($orders->toArray());
         $query = self::query()
             ->selectRaw('SUM(orders.amount) as amount')
             ->select('master_account_detail.account_name as account_name')
