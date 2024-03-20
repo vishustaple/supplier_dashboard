@@ -157,6 +157,8 @@ class Order extends Model
         `master_account_detail`.`account_name` AS `account_name`,
         ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
         ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
+        `rebate`.`volume_rebate` AS `volume_rebates`,
+        `rebate`.`incentive_rebate` AS `incentive_rebates`,
         `suppliers`.`supplier_name` AS `supplier_name`, 
         `orders`.`date` AS `date`")
             ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
