@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rebate', function (Blueprint $table) {
             $table->id();
-            $table->string('account_number')->nullable();
+            $table->string('account_name')->nullable();
             $table->string('volume_rebate')->nullable();
             $table->string('incentive_rebate')->nullable();
             $table->timestamps();
