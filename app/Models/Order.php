@@ -148,8 +148,8 @@ class Order extends Model
             0=>'suppliers.supplier_name',
             1=>'master_account_detail.account_name',
             2=>'amount',
-            3=>'rebate.volume_rebate',
-            4=>'rebate.incentive_rebate',
+            3=>'volume_rebate',
+            4=>'incentive_rebate',
             5=>'orders.date',
         ];
 
@@ -193,8 +193,6 @@ class Order extends Model
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
-
-        
 
         // $totalVolumeRebate = $query->sum(DB::raw('(`amount` / 100) * `rebate`.`volume_rebate`'));
         // $totalIncentiveRebate = $query->sum(DB::raw('(`amount` / 100) * `rebate`.`incentive_rebate`'));
