@@ -74,21 +74,22 @@
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
+            
             // Initiate DataTable AJAX request
             $('#supplier_report_data').DataTable().ajax.reload();
         });
 
         // Event handler for when the user applies the date range
         $('#dates').on('apply.daterangepicker', function(ev, picker) {
-            $('#endDates').text(picker.endDate.format('MM/DD/YYYY'));
-            $('#startDates').text(picker.startDate.format('MM/DD/YYYY'));
+            // $('#endDates').text(picker.endDate.format('MM/DD/YYYY'));
+            // $('#startDates').text(picker.startDate.format('MM/DD/YYYY'));
         });
 
         function setPercentage() {
-            var $html = $('<div>' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[1] !== undefined ? supplierDataTable.column(4).data()[1] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
+            var $html = $('<div>' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
             hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
             hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val();
-            
+    
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
                 $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + parseFloat(hiddenVolumeRebateInputValue).toFixed(2) : ''));
@@ -165,6 +166,8 @@
 
             fnDrawCallback: function( oSettings ) {
                 setPercentage();
+                $('#endDates').text($('#dates').val().split(" - ")[1]);
+                $('#startDates').text($('#dates').val().split(" - ")[0]);
             },
         });  
         
