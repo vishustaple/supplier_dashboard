@@ -288,6 +288,8 @@ class Order extends Model
             2=>'amount',
             3=>'volume_rebate',
             4=>'commissions',
+            5=>'commission.start_date',
+            6=>'commission.end_date',
         ];
 
         $query = self::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
@@ -297,7 +299,9 @@ class Order extends Model
         `commission`.`commission` AS `commission`,
         `rebate`.`volume_rebate` AS `volume_rebates`,
         `rebate`.`incentive_rebate` AS `incentive_rebates`,
-        `suppliers`.`supplier_name` AS `supplier_name`, 
+        `suppliers`.`supplier_name` AS `supplier_name`,
+        `commission`.`start_date` as start_date,
+        `commission`.`end_date` as end_date, 
         `orders`.`date` AS `date`")
         ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
@@ -307,6 +311,16 @@ class Order extends Model
             $join->on('commission.supplier', '=', 'suppliers.id')
                 ->on('commission.account_name', '=', 'm2.account_name');
         });
+
+        if (isset($filter['sales_rep']) && !empty($filter['sales_rep'])) {
+            $query->where('commission.sales_rep', $filter['sales_rep']);
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
 
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query->where('commission.supplier', $filter['supplier']);
@@ -400,6 +414,8 @@ class Order extends Model
                     $finalArray[$key]['amount'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->amount, 2);
                     $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
                     $finalArray[$key]['commission'] = '<input type="hidden" value="'.$totalCommissionRebate.'"class="input_commission_rebate"> $'.number_format($value->commissions, 2).' ('.(!empty($value->commissions) ? ($value->commission.'%') : ('N/A')).')';
+                    $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
+                    $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
                 }
             }
         }

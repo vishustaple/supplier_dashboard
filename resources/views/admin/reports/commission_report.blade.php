@@ -80,7 +80,7 @@
             <div class="row justify-content-end py-3 header_bar" style="display:none !important;">
                 <div class="col-md-4 card shadow border-0">
                     <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_amount"></b></h6>
-                    <h6 class="d-flex volume_rebate_header justify-content-between">Sales Rep: <b style="color:#000;" id="sale_rep"></b></h6>
+                    <h6 class="d-flex sale_rep_header justify-content-between">Sales Rep: <b style="color:#000;" id="sale_rep"></b></h6>
                     <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
                     <h6 class="d-flex commission_rebate_header justify-content-between">Total Commission: <b style="color:#000;" id="commission_rebate"></b></h6>
                     <h6 class="d-flex justify-content-between">Year: <b style="color:#000;" id="startDates"></b></h6>
@@ -104,7 +104,7 @@
             event.preventDefault();
             $('#startDates').text($('#year').val());
             $('#endDates').text($('#quarter').val());
-            $('#sale_rep').text($('#quarter').val());
+            $('#sale_rep').text($('#sales_rep').find('option:selected').text());
             
             $('.header_bar').attr('style', 'display:flex !important;');
             // Initiate DataTable AJAX request
@@ -113,13 +113,11 @@
 
         function setPercentage() {
             var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="total_amount">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_commission_rebate">') + '</div>');
-            console.log($html);
             var hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
             hiddencommissionRebateInputValue = $html.find('.input_commission_rebate').val(),
             totalAmount = $html.find('.total_amount').val();
 
             $('#total_amount').text('$'+totalAmount);
-            console.log(supplierDataTable.column(3).data()[0]);
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
                 $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + hiddenVolumeRebateInputValue : 'N/A'));
@@ -131,11 +129,11 @@
             }
 
             if ($('#commission_rebate_check').is(':checked')) {
-                supplierDataTable.column('commission_rebate:name').visible(true);
+                supplierDataTable.column('commission:name').visible(true);
                 $('#commission_rebate').text((hiddencommissionRebateInputValue !== '0' ? '$' + hiddencommissionRebateInputValue : 'N/A'));
                 $('.commission_rebate_header').attr('style', 'display:flex !important;');
             } else {
-                supplierDataTable.column('commission_rebate:name').visible(false);
+                supplierDataTable.column('commission:name').visible(false);
                 $('.commission_rebate_header').attr('style', 'display:none !important;');
                 $('#commission_rebate').text('');
             }
@@ -188,6 +186,8 @@
                 { data: 'amount', name: 'amount', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'commission', name: 'commission', title: 'Commission'},
+                { data: 'start_date', name: 'start_date', title: 'Start Date'},
+                { data: 'end_date', name: 'end_date', title: 'End Date'},
             ],
 
             fnDrawCallback: function( oSettings ) {
