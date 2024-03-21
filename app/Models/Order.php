@@ -302,7 +302,11 @@ class Order extends Model
         ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
         ->leftJoin('rebate', 'rebate.account_name', '=', 'm2.account_name')
-        ->leftJoin('commission', 'commission.supplier', '=', 'suppliers.id');
+        // ->leftJoin('commission', 'commission.supplier', '=', 'suppliers.id and commission.account_name = m2.account_name');
+        ->leftJoin('commission', function ($join) {
+            $join->on('commission.supplier', '=', 'suppliers.id')
+                ->on('commission.account_name', '=', 'm2.account_name');
+        });
 
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query->where('commission.supplier', $filter['supplier']);
