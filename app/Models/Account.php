@@ -219,22 +219,30 @@ class Account extends Model
     }
 
     public static function getSearchCustomerData($search=''){
-        // dd($search);
         if (!empty($search)) {
-            $query = self::query()
-            // ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
-            // $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
-            ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
-            $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
-            $results = $query->get();
-            if ($results->isNotEmpty()) {
-                foreach ($results as $value) {
-                    // $finalArray[] = ['id' => $value->customer_number, 'text' => $value->customer_name];        
-                    $finalArray[] = ['id' => $value->customer_number, 'text' => $value->account_name];        
+            // $result = DB::table('commission')
+            // ->where('commission.account_name', 'LIKE', '%' . $search . '%')
+            // ->exists();
+            // if (!$result) {
+                $query = self::query()
+                // ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
+                // $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
+                ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
+                $query->groupBy('master_account_detail.account_name');
+                $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
+                $results = $query->get();
+
+                if ($results->isNotEmpty()) {
+                    foreach ($results as $value) {
+                        // $finalArray[] = ['id' => $value->customer_number, 'text' => $value->customer_name];        
+                        $finalArray[] = ['id' => $value->customer_number, 'text' => $value->account_name];        
+                    }
+                    return $finalArray;
                 }
-                return $finalArray;
-            }
-            return [];
+                return [];
+            // } else {
+            //     return [];
+            // }
         }
     }
 
