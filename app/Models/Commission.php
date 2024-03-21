@@ -45,7 +45,7 @@ class Commission extends Model
         // if ($csv) {
             $query = self::query() // Replace YourModel with the actual model you are using for the data
             ->leftJoin('suppliers', 'commission.supplier', '=', 'suppliers.id')
-            ->leftJoin('master_account_detail', 'master_account_detail.account_number', '=', 'commission.account_name')
+            ->leftJoin('master_account_detail', 'master_account_detail.account_name', '=', 'commission.account_name')
             ->leftJoin('sales_team', 'sales_team.id', '=', 'commission.sales_rep')
 
             ->select(
@@ -78,11 +78,13 @@ class Commission extends Model
             });
 
             $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
-            $query->orWhere('master_account_detail.account_number', 'LIKE', '%' . $searchTerm . '%');
+            $query->orWhere('master_account_detail.account_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
+        $query->groupBy('master_account_detail.account_name');
+        $totalRecords = $query->getQuery()->getCountForPagination();
         // Get total records count (without filtering)
-        $totalRecords = $query->count();
+        // $totalRecords = $query->count();
 
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             // Order by column and direction

@@ -150,7 +150,7 @@ class Order extends Model
             2=>'amount',
             3=>'volume_rebate',
             4=>'incentive_rebate',
-            5=>'orders.date',
+            // 5=>'orders.date',
         ];
 
         $query = self::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
@@ -281,5 +281,136 @@ class Order extends Model
         }
     }
     
+    public static function getCommissionReportFilterdData($filter = [], $csv = false){
+        $orderColumnArray = [
+            0=>'suppliers.supplier_name',
+            1=>'master_account_detail.account_name',
+            2=>'amount',
+            3=>'volume_rebate',
+            4=>'commissions',
+        ];
 
+        $query = self::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
+        `m2`.`account_name` AS `account_name`,
+        ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
+        (((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) / 100) * MAX(`commission`.`commission`) AS `commissions`,
+        `commission`.`commission` AS `commission`,
+        `rebate`.`volume_rebate` AS `volume_rebates`,
+        `rebate`.`incentive_rebate` AS `incentive_rebates`,
+        `suppliers`.`supplier_name` AS `supplier_name`, 
+        `orders`.`date` AS `date`")
+        ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+        ->leftJoin('rebate', 'rebate.account_name', '=', 'm2.account_name')
+        ->leftJoin('commission', 'commission.supplier', '=', 'suppliers.id');
+
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('commission.supplier', $filter['supplier']);
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
+    
+        if (isset($filter['year']) || !empty($filter['quarter'])) {
+            $fys = ['CALENDAR' => $filter['year'].'-01-01'];
+            foreach ($fys as $key => $start){
+                $nextYear = $filter['year']+1;
+                $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
+                $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
+                $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
+                $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
+                $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
+                $dateArray[$key] = $res;
+            }
+           
+                if($filter['quarter'] == 'Quarter 1'){
+                    $startDate =  $dateArray['CALENDAR']["1"];
+                    $endDate =  $dateArray['CALENDAR']["2"];
+                }
+                if($filter['quarter'] == 'Quarter 2'){
+                    $startDate=  $dateArray['CALENDAR']["2"];
+                    $endDate=  $dateArray['CALENDAR']["3"];
+                }
+                if($filter['quarter'] == 'Quarter 3'){
+                    $startDate=  $dateArray['CALENDAR']["3"];
+                    $endDate=  $dateArray['CALENDAR']["4"];
+                }
+                if($filter['quarter'] == 'Quarter 4'){
+                    $startDate=  $dateArray['CALENDAR']["4"];
+                    $endDate=  $dateArray['CALENDAR']["5"];
+                }
+                if ($filter['quarter'] == 'Annual'){
+                    $startDate=  $dateArray['CALENDAR']["1"];
+                    $endDate=  $dateArray['CALENDAR']["5"];
+                }
+            
+            $query->whereBetween('orders.date', [$startDate, $endDate])
+            ->where('commission.start_date', '<=', DB::raw('orders.date'))
+            ->where('commission.end_date', '>=', DB::raw('orders.date'));
+        }
+    
+        $query->groupBy('m2.account_name');
+        // dd($query->toSql());
+        // dd($query->toSql(), $query->getBindings());
+        $totalRecords = $query->getQuery()->getCountForPagination();
+
+        /** Get total records count (without filtering) */
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+            /** Order by column and direction */
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
+        }
+
+        $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
+        foreach ($query->get() as $key => $value) {
+            $totalVolumeRebate += $value->volume_rebate;
+            $totalCommissionRebate += $value->commissions;
+            $totalAmount += $value->amount;
+        }
+
+        $totalVolumeRebate = number_format($totalVolumeRebate, 2);
+        $totalCommissionRebate = number_format($totalCommissionRebate, 2);
+        $totalAmounts = number_format($totalAmount, 2, '.', false);
+        $totalAmount = number_format($totalAmount, 2);
+
+        $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
+            return $query->skip($filter['start'])->take($filter['length']);
+        })->get();
+        
+        $finalArray=[];
+        if (isset($formatuserdata) && !empty($formatuserdata)) {
+            foreach ($formatuserdata as $key => $value) {
+                if ($csv) {
+                    $finalArray[$key]['supplier'] = $value->supplier_name;
+                    $finalArray[$key]['account_name'] = $value->account_name;
+                    $finalArray[$key]['amount'] = $value->amount;
+                    $finalArray[$key]['volume_rebate'] = $value->volume_rebate;
+                    $finalArray[$key]['commissions'] = $value->commissions;
+                } else {
+                    $finalArray[$key]['supplier'] = $value->supplier_name;
+                    $finalArray[$key]['account_name'] = $value->account_name;
+                    $finalArray[$key]['amount'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->amount, 2);
+                    $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
+                    $finalArray[$key]['commission'] = '<input type="hidden" value="'.$totalCommissionRebate.'"class="input_commission_rebate"> $'.number_format($value->commissions, 2).' ('.(!empty($value->commissions) ? ($value->commission.'%') : ('N/A')).')';
+                }
+            }
+        }
+    
+        if ($csv) {
+            $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
+            $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
+            $finalArray['heading'] = ['Supplier', 'Account_name', 'Amount', 'Volume Rebate', 'Commission', '', '', '', 'Total Amount', $totalAmounts, 'Total Volume Rebate', $totalVolumeRebate, 'Total Commission', $totalCommissionRebate, 'Start Date', $startDates, 'End Date', $endDates];
+            return $finalArray;
+        } else {
+            return [
+                'data' => $finalArray,
+                'recordsTotal' => $totalRecords, // Use count of formatted data for total records
+                'recordsFiltered' => $totalRecords, // Use total records from the query
+            ];
+        }
+    }
 }

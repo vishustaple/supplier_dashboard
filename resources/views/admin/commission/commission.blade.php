@@ -185,7 +185,7 @@
                     var formData = {
                         'sales_rep': $('.mySelectSalesRep'+count+'').val(),
                         'supplier': $('.supplier_id'+count+'').val(),
-                        'account_name': $('.mySelectAccountName'+count+'').val(),
+                        'account_name': accountName, //$('.mySelectAccountName'+count+'').val(),
                         'commission': commission,
                         'date': $('.dateRangePicker'+count+'').val(),
                     };
