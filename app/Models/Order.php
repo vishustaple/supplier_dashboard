@@ -315,21 +315,31 @@ class Order extends Model
         if (isset($filter['sales_rep']) && !empty($filter['sales_rep'])) {
             $query->where('commission.sales_rep', $filter['sales_rep']);
         } else {
-            return [
-                'data' => [],
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
+            if ($csv) {
+                $finalArray['heading'] = ['Supplier', 'Account_name', 'Amount', 'Volume Rebate', 'Commission', '', '', '', 'Total Amount', '', 'Total Volume Rebate', '', 'Total Commission', '', 'Start Date', '', 'End Date', ''];
+                return $finalArray;
+            } else {
+                return [
+                    'data' => [],
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                ];
+            }
         }
 
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query->where('commission.supplier', $filter['supplier']);
         } else {
-            return [
-                'data' => [],
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
+            if ($csv) {
+                $finalArray['heading'] = ['Supplier', 'Account_name', 'Amount', 'Volume Rebate', 'Commission', '', '', '', 'Total Amount', '', 'Total Volume Rebate', '', 'Total Commission', '', 'Start Date', '', 'End Date', ''];
+                return $finalArray;
+            } else {
+                return [
+                    'data' => [],
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                ];
+            }
         }
     
         if (isset($filter['year']) || !empty($filter['quarter'])) {
@@ -344,26 +354,30 @@ class Order extends Model
                 $dateArray[$key] = $res;
             }
            
-                if($filter['quarter'] == 'Quarter 1'){
-                    $startDate =  $dateArray['CALENDAR']["1"];
-                    $endDate =  $dateArray['CALENDAR']["2"];
-                }
-                if($filter['quarter'] == 'Quarter 2'){
-                    $startDate=  $dateArray['CALENDAR']["2"];
-                    $endDate=  $dateArray['CALENDAR']["3"];
-                }
-                if($filter['quarter'] == 'Quarter 3'){
-                    $startDate=  $dateArray['CALENDAR']["3"];
-                    $endDate=  $dateArray['CALENDAR']["4"];
-                }
-                if($filter['quarter'] == 'Quarter 4'){
-                    $startDate=  $dateArray['CALENDAR']["4"];
-                    $endDate=  $dateArray['CALENDAR']["5"];
-                }
-                if ($filter['quarter'] == 'Annual'){
-                    $startDate=  $dateArray['CALENDAR']["1"];
-                    $endDate=  $dateArray['CALENDAR']["5"];
-                }
+            if($filter['quarter'] == 'Quarter 1'){
+                $startDate =  $dateArray['CALENDAR']["1"];
+                $endDate =  $dateArray['CALENDAR']["2"];
+            }
+
+            if($filter['quarter'] == 'Quarter 2'){
+                $startDate=  $dateArray['CALENDAR']["2"];
+                $endDate=  $dateArray['CALENDAR']["3"];
+            }
+
+            if($filter['quarter'] == 'Quarter 3'){
+                $startDate=  $dateArray['CALENDAR']["3"];
+                $endDate=  $dateArray['CALENDAR']["4"];
+            }
+
+            if($filter['quarter'] == 'Quarter 4'){
+                $startDate=  $dateArray['CALENDAR']["4"];
+                $endDate=  $dateArray['CALENDAR']["5"];
+            }
+
+            if ($filter['quarter'] == 'Annual'){
+                $startDate=  $dateArray['CALENDAR']["1"];
+                $endDate=  $dateArray['CALENDAR']["5"];
+            }
             
             $query->whereBetween('orders.date', [$startDate, $endDate])
             ->where('commission.start_date', '<=', DB::raw('orders.date'))
