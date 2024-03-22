@@ -93,16 +93,18 @@ class Order extends Model
     
                     if (in_array($value[$i]['key'], ['Line Total','ON-CORE
                     SPEND','Total Invoice Price','Total Spend','AVGSELLPRICE'])) {
-                        $finalArray[$arrayKey]['total_spend'] = '$'.number_format(intval($value[$i]['value']), 2);
+                        $finalArray[$arrayKey]['total_spend'] = '$'.number_format($value[$i]['value'], 2);
                     }
     
                     if (in_array($value[$i]['key'], ['Ext Price','Actual Price Paid','Unit Net Price','ITEMFREQUENCY'])) {
-                        $finalArray[$arrayKey]['last_of_unit_net_price'] = '$'.number_format(intval($value[$i]['value']), 2);
+                        $finalArray[$arrayKey]['last_of_unit_net_price'] = '$'.number_format($value[$i]['value'], 2);
+                        $finalArray[$arrayKey]['last_of_unit_net_prices'] = $value[$i]['value'];
                     }
     
                     if (in_array($value[$i]['key'], ['Price','OFF-CORE
                     SPEND','Reference Price','(Unit) Web Price','ADJGROSSSALES'])) {
-                        $finalArray[$arrayKey]['web_price'] = '$'.number_format(intval($value[$i]['value']), 2);
+                        $finalArray[$arrayKey]['web_price'] = '$'.number_format($value[$i]['value'], 2);
+                        $finalArray[$arrayKey]['web_prices'] = $value[$i]['value'];
                     }
     
                     if (in_array($value[$i]['key'], ['Uo M','SHIP TOACCOUNT','Track Code','SHIPTOZIPCODE'])) {
@@ -113,9 +115,10 @@ class Order extends Model
             }
 
             foreach($finalArray as $key => $value){
-                if ($value['web_price'] != 0) {
-                    $finalArray[$key]['savings_percentage'] = number_format(($value['web_price'] - $value['last_of_unit_net_price'])/($value['web_price']), 2).'%';
+                if ($value['web_prices'] != 0) {
+                    $finalArray[$key]['savings_percentage'] = number_format(($value['web_prices'] - $value['last_of_unit_net_prices'])/($value['web_prices']), 2).'%';
                 }
+                unset($value['web_prices'], $value['last_of_unit_net_prices']);
             }
         } else {
             $finalArray=[];
