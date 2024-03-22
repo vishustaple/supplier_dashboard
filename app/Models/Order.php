@@ -233,10 +233,13 @@ class Order extends Model
             $totalAmount += $value->amount;
         }
 
+        $totalAmounts = number_format($totalAmount, 2, '.', false);
+        $totalVolumeRebates = number_format($totalVolumeRebate, 2, '.', false);
+        $totalIncentiveRebates = number_format($totalIncentiveRebate, 2, '.', false);
+
+        $totalAmount = number_format($totalAmount, 2);
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
-        $totalAmounts = number_format($totalAmount, 2, '.', false);
-        $totalAmount = number_format($totalAmount, 2);
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
@@ -248,9 +251,9 @@ class Order extends Model
                 if ($csv) {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = $value->amount;
-                    $finalArray[$key]['volume_rebate'] = $value->volume_rebate;
-                    $finalArray[$key]['incentive_rebate'] = $value->incentive_rebate;
+                    $finalArray[$key]['amount'] = number_format($value->amount, 2, '.', false);
+                    $finalArray[$key]['volume_rebate'] = number_format($value->volume_rebate, 2, '.', false);
+                    $finalArray[$key]['incentive_rebate'] = number_format($value->incentive_rebate, 2, '.', false);
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
@@ -268,9 +271,28 @@ class Order extends Model
     
         if ($csv) {
             $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
-            // print($startDates);die;
             $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
-            $finalArray['heading'] = ['Supplier', 'Account_name', 'Amount', 'Volume Rebate', 'Incentive Rebate', '', '', '', 'Total Amount', $totalAmounts, 'Total Volume Rebate', $totalVolumeRebate, 'Total Incentive Rebate', $totalIncentiveRebate, 'Start Date', $startDates, 'End Date', $endDates];
+
+            $finalArray['heading'] = ['Supplier',
+                'Account_name',
+                'Amount',
+                'Volume Rebate',
+                'Incentive Rebate',
+                '',
+                '',
+                '',
+                'Total Amount',
+                $totalAmounts,
+                'Total Volume Rebate',
+                $totalVolumeRebates,
+                'Total Incentive Rebate',
+                $totalIncentiveRebates,
+                'Start Date',
+                $startDates,
+                'End Date',
+                $endDates
+            ];
+
             return $finalArray;
         } else {
             return [
@@ -404,10 +426,13 @@ class Order extends Model
             $totalAmount += $value->amount;
         }
 
+        $totalAmounts = number_format($totalAmount, 2, '.', false);
+        $totalVolumeRebates = number_format($totalVolumeRebate, 2, '.', false);
+        $totalCommissionRebates = number_format($totalCommissionRebate, 2, '.', false);
+
+        $totalAmount = number_format($totalAmount, 2);
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalCommissionRebate = number_format($totalCommissionRebate, 2);
-        $totalAmounts = number_format($totalAmount, 2, '.', false);
-        $totalAmount = number_format($totalAmount, 2);
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
@@ -419,9 +444,9 @@ class Order extends Model
                 if ($csv) {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = $value->amount;
-                    $finalArray[$key]['volume_rebate'] = $value->volume_rebate;
-                    $finalArray[$key]['commissions'] = $value->commissions;
+                    $finalArray[$key]['amount'] = number_format($value->amount, 2, '.', false);
+                    $finalArray[$key]['volume_rebate'] = number_format($value->volume_rebate, 2, '.', false);
+                    $finalArray[$key]['commissions'] = number_format($value->commissions, 2, '.', false);
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
@@ -437,7 +462,28 @@ class Order extends Model
         if ($csv) {
             $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
             $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
-            $finalArray['heading'] = ['Supplier', 'Account_name', 'Amount', 'Volume Rebate', 'Commission', '', '', '', 'Total Amount', $totalAmounts, 'Total Volume Rebate', $totalVolumeRebate, 'Total Commission', $totalCommissionRebate, 'Start Date', $startDates, 'End Date', $endDates];
+
+            $finalArray['heading'] = [
+                'Supplier',
+                'Account_name',
+                'Amount',
+                'Volume Rebate',
+                'Commission',
+                '',
+                '',
+                '',
+                'Total Amount',
+                $totalAmounts,
+                'Total Volume Rebate',
+                $totalVolumeRebates,
+                'Total Commission',
+                $totalCommissionRebates,
+                'Start Date',
+                $startDates,
+                'End Date',
+                $endDates
+            ];
+
             return $finalArray;
         } else {
             return [
