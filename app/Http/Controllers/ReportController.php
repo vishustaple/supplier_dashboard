@@ -114,6 +114,13 @@ class ReportController extends Controller
         }
     }
 
+    public function getCommissionsWithAjax(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = Order::getCommissionReportFilterdDataSecond($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
+
     public function supplierReportExportCsv(Request $request){
         /** Retrieve data based on the provided parameters */
         $filter['order'][0]['column'] = $request->input('column');

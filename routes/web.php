@@ -69,6 +69,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/reports/supplier-filter', [ReportController::class, 'supplierReportFilter'])->name('report.supplier_filter');
         Route::get('/reports/supplier-csv', [ReportController::class, 'supplierReportExportCsv'])->name('report.export-supplier_report-csv');
         Route::get('/reports/commission-csv', [ReportController::class, 'commissionReportExportCsv'])->name('report.export-commission_report-csv');
+        Route::post('/reports/commissions-report-filter', [ReportController::class, 'getCommissionsWithAjax'])->name('report.commission_report_filter_secound');
         Route::post('/reports/commission-report-filter', [ReportController::class, 'commissionReportFilter'])->name('report.commission_report_filter');
         
         /** Report Section End */
