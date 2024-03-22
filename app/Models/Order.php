@@ -93,16 +93,16 @@ class Order extends Model
     
                     if (in_array($value[$i]['key'], ['Line Total','ON-CORE
                     SPEND','Total Invoice Price','Total Spend','AVGSELLPRICE'])) {
-                        $finalArray[$arrayKey]['total_spend'] = $value[$i]['value'];
+                        $finalArray[$arrayKey]['total_spend'] = '$'.number_format($value[$i]['value'], 2);
                     }
     
                     if (in_array($value[$i]['key'], ['Ext Price','Actual Price Paid','Unit Net Price','ITEMFREQUENCY'])) {
-                        $finalArray[$arrayKey]['last_of_unit_net_price'] = $value[$i]['value'];
+                        $finalArray[$arrayKey]['last_of_unit_net_price'] = '$'.number_format($value[$i]['value'], 2);
                     }
     
                     if (in_array($value[$i]['key'], ['Price','OFF-CORE
                     SPEND','Reference Price','(Unit) Web Price','ADJGROSSSALES'])) {
-                        $finalArray[$arrayKey]['web_price'] = $value[$i]['value'];
+                        $finalArray[$arrayKey]['web_price'] = '$'.number_format($value[$i]['value'], 2);
                     }
     
                     if (in_array($value[$i]['key'], ['Uo M','SHIP TOACCOUNT','Track Code','SHIPTOZIPCODE'])) {
