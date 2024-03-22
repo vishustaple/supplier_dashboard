@@ -34,8 +34,8 @@
                     </div> -->
                     <!-- disabled -->
                     <div class="col-md-3 mt-1 mb-0 text-end">
-                    <button id="submitBtn" class="btn btn-primary">Submit</button>
-                    <button id="downloadCsvBtn" class="btn-success btn " title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                    <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
+                    <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
