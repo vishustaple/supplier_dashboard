@@ -10,10 +10,8 @@
         <div class="container">
             <div class="m-1 mb-2 row align-items-start justify-content-between">
                 <div class="col-md-4">
-                <h3 class="mb-0 ">{{ $pageTitle }}</h3>
-            </div>
-                   
-                
+                    <h3 class="mb-0 ">{{ $pageTitle }}</h3>
+                </div>
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
@@ -59,9 +57,9 @@
                             <label class="form-check-label" for="incentive_rebate_check">Incentive Rebate</label>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-0">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                        <button id="downloadCsvBtn" class="btn-success btn " title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                    <div class="col-md-3 mt-2">
+                        <button type="submit" class="btn btn-primary m-1">Submit</button>
+                        <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
@@ -87,23 +85,15 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
-        // $('#dates').daterangepicker();
-
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
             $('#startDates').text($('#year').val());
             $('#endDates').text($('#quarter').val());
-
             $('.header_bar').attr('style', 'display:flex !important;');
+
             // Initiate DataTable AJAX request
             $('#supplier_report_data').DataTable().ajax.reload();
-        });
-
-        // Event handler for when the user applies the date range
-        $('#dates').on('apply.daterangepicker', function(ev, picker) {
-            // $('#endDates').text(picker.endDate.format('MM/DD/YYYY'));
-            // $('#startDates').text(picker.startDate.format('MM/DD/YYYY'));
         });
 
         function setPercentage() {
@@ -181,15 +171,10 @@
                 { data: 'amount', name: 'amount', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'incentive_rebate', name: 'incentive_rebate', title: 'Incentive Rebate'},
-                // { data: 'date', name: 'date', title: 'Date'},
-                // { data: 'start_date', name: 'start_date', title: 'Start Date'},
-                // { data: 'end_date', name: 'end_date', title: 'End Date'},
             ],
 
             fnDrawCallback: function( oSettings ) {
                 setPercentage();
-                // $('#endDates').text($('#dates').val().split(" - ")[1]);
-                // $('#startDates').text($('#dates').val().split(" - ")[0]);
             },
         });  
 
