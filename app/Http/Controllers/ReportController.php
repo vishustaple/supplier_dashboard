@@ -157,7 +157,7 @@ class ReportController extends Controller
 
         /** Set headers for CSV download */
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename="BusinessData_'.now()->format('YmdHis').'.csv"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="supplier_rebate_report_'.now()->format('YmdHis').'.csv"');
   
         /** return $csvResponse; */
         return $response;
@@ -170,52 +170,52 @@ class ReportController extends Controller
         }
     }
     public function commissionReportExportCsv(Request $request){
-          /** Retrieve data based on the provided parameters */
-          $filter['order'][0]['column'] = $request->input('column');
-          $filter['order'][0]['dir'] = $request->input('order');
-          $filter['quarter'] = $request->input('quarter');
-          $filter['year'] = $request->input('year');
-          $filter['supplier'] = $request->input('supplier');
-          $filter['sales_rep'] = $request->input('sales_rep');
+        /** Retrieve data based on the provided parameters */
+        $filter['order'][0]['column'] = $request->input('column');
+        $filter['order'][0]['dir'] = $request->input('order');
+        $filter['quarter'] = $request->input('quarter');
+        $filter['year'] = $request->input('year');
+        $filter['supplier'] = $request->input('supplier');
+        $filter['sales_rep'] = $request->input('sales_rep');
   
-          // dd($filter);
-          $csv = true;
+        // dd($filter);
+        $csv = true;
+
+        /** Fetch data using the parameters and transform it into CSV format */
+        /** Replace this with your actual data fetching logic */
+        $data = Order::getCommissionReportFilterdData($filter, $csv);
+
+        /** Create a stream for output */
+        $stream = fopen('php://temp', 'w+');
+
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+        
+        $heading = $data['heading'];
+        unset($data['heading']);
+
+        /** Add column headings */
+        $csvWriter->insertOne($heading);
+
+        /** Add column headings */
+        // $csvWriter->insertOne(['Id', 'Customer Number', 'Customer Name', 'Supplier Name', 'Amount', 'Date']);
+
+        /** Insert the data into the CSV */
+        $csvWriter->insertAll($data);
+
+        /** Rewind the stream pointer */
+        rewind($stream);
   
-          /** Fetch data using the parameters and transform it into CSV format */
-          /** Replace this with your actual data fetching logic */
-          $data = Order::getCommissionReportFilterdData($filter, $csv);
-  
-          /** Create a stream for output */
-          $stream = fopen('php://temp', 'w+');
-  
-          /** Create a new CSV writer instance */
-          $csvWriter = Writer::createFromStream($stream);
-          
-          $heading = $data['heading'];
-          unset($data['heading']);
-  
-          /** Add column headings */
-          $csvWriter->insertOne($heading);
-  
-          /** Add column headings */
-          // $csvWriter->insertOne(['Id', 'Customer Number', 'Customer Name', 'Supplier Name', 'Amount', 'Date']);
-  
-          /** Insert the data into the CSV */
-          $csvWriter->insertAll($data);
-  
-          /** Rewind the stream pointer */
-          rewind($stream);
-  
-          /** Create a streamed response with the CSV data */
-          $response = new StreamedResponse(function () use ($stream) {
-              fpassthru($stream);
-          });
-  
-          /** Set headers for CSV download */
-          $response->headers->set('Content-Type', 'text/csv');
-          $response->headers->set('Content-Disposition', 'attachment; filename="BusinessData_'.now()->format('YmdHis').'.csv"');
-    
-          /** return $csvResponse; */
-          return $response;
+        /** Create a streamed response with the CSV data */
+        $response = new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+        });
+
+        /** Set headers for CSV download */
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="commission_report_'.now()->format('YmdHis').'.csv"');
+
+        /** return $csvResponse; */
+        return $response;
     }
 }
