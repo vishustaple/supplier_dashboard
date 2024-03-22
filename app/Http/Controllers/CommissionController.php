@@ -54,16 +54,22 @@ class CommissionController extends Controller
 
     public function commissionAdd(Request $request){
         if ($request->ajax()) {
-            DB::table('commission')->insert(['sales_rep' => $request->input('sales_rep'),
-            'supplier' =>  $request->input('supplier'),
-            'account_name' => $request->input('account_name'),
-            'commission' => $request->input('commission'),
-            'start_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[0])),"Y-m-d H:i:s"),
-            'end_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[1])),"Y-m-d H:i:s"),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),]);
-
-            return response()->json(['success' => 'Commissions added successfully'], 200);
+            $result = DB::table('commission')
+            ->where('commission.account_name', $request->input('account_name'))
+            ->exists();
+            if (!$result) {
+                DB::table('commission')->insert(['sales_rep' => $request->input('sales_rep'),
+                'supplier' =>  $request->input('supplier'),
+                'account_name' => $request->input('account_name'),
+                'commission' => $request->input('commission'),
+                'start_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[0])),"Y-m-d H:i:s"),
+                'end_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[1])),"Y-m-d H:i:s"),
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),]);
+                return response()->json(['success' => 'Commissions added successfully'], 200);
+            } else {
+                return response()->json(['error' => 'You have alraedy added commission of this account.'], 200);
+            }
         }
     }
 
