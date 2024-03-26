@@ -164,7 +164,7 @@ class ReportController extends Controller
 
         /** Set headers for CSV download */
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename="supplier_rebate_report_'.now()->format('YmdHis').'.csv"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="supplierRebateReport_'.now()->format('YmdHis').'.csv"');
   
         /** return $csvResponse; */
         return $response;
@@ -220,7 +220,7 @@ class ReportController extends Controller
 
         /** Set headers for CSV download */
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename="commission_report_'.now()->format('YmdHis').'.csv"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="commissionReport_'.now()->format('YmdHis').'.csv"');
 
         /** return $csvResponse; */
         return $response;
