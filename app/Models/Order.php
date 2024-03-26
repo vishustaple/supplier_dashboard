@@ -497,12 +497,12 @@ class Order extends Model
     public static function getCommissionReportFilterdDataSecond($filter = [], $csv = false){
         $orderColumnArray = [
             0=>'suppliers.supplier_name',
-            1=>'m2.account_name',
-            2=>'amount',
-            3=>'volume_rebate',
-            4=>'commissions',
-            5=>'commission.start_date',
-            6=>'commission.end_date',
+            // 1=>'m2.account_name',
+            1=>'amount',
+            2=>'volume_rebate',
+            3=>'commissions',
+            4=>'start_date',
+            5=>'end_date',
         ];
 
         $query = self::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
