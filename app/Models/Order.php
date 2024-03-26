@@ -402,6 +402,7 @@ class Order extends Model
         // dd($query->toSql());
         // dd($query->toSql(), $query->getBindings());
         $totalRecords = $query->getQuery()->getCountForPagination();
+        // dd($totalRecords);
 
         /** Get total records count (without filtering) */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
@@ -432,11 +433,8 @@ class Order extends Model
         //     return $query->skip($filter['start'])->take($filter['length']);
         // })->get();
         
-        // echo"<pre>";
-        // print_r($formatuserdata->toArray());
-        // die;
         $finalArray=[];
-        if (isset($formatuserdata) && !empty($formatuserdata)) {
+        if (isset($formatuserdata) && $formatuserdata->isNotEmpty()) {
             // foreach ($formatuserdata as $key => $value) {
                 if ($csv) {
                     $finalArray[0]['approved'] = 'N';
