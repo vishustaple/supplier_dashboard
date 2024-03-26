@@ -38,11 +38,25 @@ class Order extends Model
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
             $query->where('master_account_detail.account_name', $filter['account_name']);
         } else {
-            return [
-                'data' => [],
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
+            if ($csv == true) {
+                $finalArray['heading'] = ['SKU',
+                    'Category',
+                    'Description',
+                    'Uom',
+                    'Savings Percentage',
+                    'Quantity Purchased',
+                    'Web Price',
+                    'Last Of Unit Net Price',
+                    'Total Spend'
+                ];
+                return $finalArray;
+            } else {
+                return [
+                    'data' => [],
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                ];
+            }
         }
 
         $query->orderBy(DB::raw('CAST(`value` AS DECIMAL(10,2))'), 'desc')->limit(100);
@@ -64,9 +78,7 @@ class Order extends Model
                 'value' => $value->value,
             ];
         }
-        // echo"<pre>";
-        // print_r($formatuserdata);
-        // die;
+
         if (isset($formatuserdata) && !empty($formatuserdata)) {
             $arrayKey=0;
             foreach ($formatuserdata as $key => $value) {
@@ -133,7 +145,17 @@ class Order extends Model
 
         $totalRecords = count($finalArray);
         if ($csv == true) {
-            $finalArray['heading'] = ['SKU', 'Category', 'Description', 'Uom', 'Savings Percentage', 'Quantity Purchased', 'Web Price', 'Last Of Unit Net Price', 'Total Spend'];
+            $finalArray['heading'] = [   
+                'SKU',
+                'Category',
+                'Description',
+                'Uom',
+                'Savings Percentage',
+                'Quantity Purchased',
+                'Web Price',
+                'Last Of Unit Net Price',
+                'Total Spend'
+            ];
             return $finalArray;
         } else {
             // Return the result along with total and filtered counts
