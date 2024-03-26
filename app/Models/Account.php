@@ -381,19 +381,18 @@ class Account extends Model
             0 => 'master_account_detail.account_number',
             1 => 'master_account_detail.customer_name',
             2 => 'master_account_detail.account_name',
-            3 => 'master_account_detail.category_supplier',
-            4 => 'master_account_detail.parent_name',
-            5 => 'master_account_detail.grandparent_name',
-            6 => 'master_account_detail.record_type',
-            7 => 'master_account_detail.id',
+            3 => 'suppliers.supplier_name',
+            // 4 => 'master_account_detail.parent_name',
+            // 5 => 'master_account_detail.grandparent_name',
+            // 6 => 'master_account_detail.record_type',
+            // 7 => 'master_account_detail.id',
         ];
 
         $query = self::query() /** Eager load relationships */
         ->select('rebate.volume_rebate as volume_rebate',
         'rebate.incentive_rebate as incentive_rebate',
         'master_account_detail.id as id',
-        'master_account_detail.record_type as record_type',
-        'master_account_detail.created_at as date',
+        // 'master_account_detail.record_type as record_type',
         'suppliers.supplier_name as supplier_name',
         'master_account_detail.account_number as account_number',
         'master_account_detail.customer_name as customer_name',
@@ -402,7 +401,10 @@ class Account extends Model
         ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
         ->whereNotNull('master_account_detail.account_name')
         ->where('master_account_detail.account_name', '!=', '');
+        $query->whereNotNull('rebate.volume_rebate')->whereNotNull('rebate.incentive_rebate');
 
+        // dd($query->count());
+         
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
@@ -413,15 +415,17 @@ class Account extends Model
                 }
             });
             
-            $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
+            // $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
         }
-
-        $query->whereNotNull('rebate.volume_rebate')->whereNotNull('rebate.incentive_rebate');
-
-        /** Get total records count (without filtering) */
-        $query->groupBy('master_account_detail.account_name');
-        $totalRecords = $query->getQuery()->getCountForPagination();
         
+       
+            /** Get total records count (without filtering) */
+        $query->groupBy('master_account_detail.account_name');
+        // dd($query->count());
+     
+        $totalRecords = $query->getQuery()->getCountForPagination();
+        // dd($totalRecords);
+        // dd($totalRecords );
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -452,7 +456,8 @@ class Account extends Model
             $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
             $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';
         }
-
+       
+          
         if ($csv == true) {
             return $formatuserdata;
         } else {
