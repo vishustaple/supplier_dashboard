@@ -160,8 +160,7 @@
                     //colaapse sidebar 
                     $('#sidebarToggle').click(function() {
                     $('#layoutSidenav_nav').toggleClass('collapsed');
-                    $('#layoutSidenav_content').toggleClass('collapsedfull');
-                    
+                    $('#layoutSidenav_content').toggleClass('collapsedfull');                    
                     });
 
                 </script>
