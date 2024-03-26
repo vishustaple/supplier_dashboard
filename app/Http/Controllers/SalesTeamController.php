@@ -205,7 +205,7 @@ class SalesTeamController extends Controller
 
         /** Set headers for CSV download */
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename="CatalogData_'.now()->format('YmdHis').'.csv"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="SalesTeamData_'.now()->format('YmdHis').'.csv"');
   
         /** return $csvResponse; */
         return $response;

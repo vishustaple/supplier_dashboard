@@ -93,12 +93,14 @@ class SalesTeam extends Model
         foreach ($filteredData as $key => $data) {
             $formatuserdata[$key]['name'] = $data->first_name.' '.$data->last_name;
             $formatuserdata[$key]['email'] = $data->email;
-            $formatuserdata[$key]['phone'] = $data->phone;
-           if ($csv) {
-            if ($data->status == 1) {
-                $formatuserdata[$key]['status'] = 'Active';
-            }
-           } else {
+            $formatuserdata[$key]['phone'] = isset($data->phone) ? "\t" .$data->phone : null;
+            if ($csv) {
+                if ($data->status == 1) {
+                    $formatuserdata[$key]['status'] = 'Active';
+                } else {
+                    $formatuserdata[$key]['status'] = 'In-Active';
+                }
+            } else {
                 // $formatuserdata[$key]['status'] = ($data->status == 1) ? ("Active") : ("In-Active");    
                 $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
                 // <a class=" " title="View Details" href= '.route('sales.index', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a>
@@ -119,7 +121,7 @@ class SalesTeam extends Model
                 } else {
                     $formatuserdata[$key]['status'] .= '<label class="form-check-label" for="flexCheckDefault">In-Active</label></div>';
                 }
-           }
+            }
            
             
             $userType = isset($userTypeLabels[$data->team_user_type]) ? $userTypeLabels[$data->team_user_type] : 'Unknown';

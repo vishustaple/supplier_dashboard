@@ -118,7 +118,7 @@ class Order extends Model
                 if ($value['web_prices'] != 0) {
                     $finalArray[$key]['savings_percentage'] = number_format(($value['web_prices'] - $value['last_of_unit_net_prices'])/($value['web_prices']), 2).'%';
                 }
-                unset($value['web_prices'], $value['last_of_unit_net_prices']);
+                unset($finalArray[$key]['web_prices'], $finalArray[$key]['last_of_unit_net_prices']);
             }
         } else {
             $finalArray=[];
@@ -435,27 +435,21 @@ class Order extends Model
         
         $finalArray=[];
         if (isset($formatuserdata) && $formatuserdata->isNotEmpty()) {
-            // foreach ($formatuserdata as $key => $value) {
-                if ($csv) {
-                    $finalArray[0]['approved'] = 'N';
-                    $finalArray[0]['paid'] = 'N';
-                    $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
-                    $finalArray[0]['amount'] = $totalAmounts;
-                    $finalArray[0]['volume_rebate'] = $totalVolumeRebate;
-                    $finalArray[0]['commissions'] = $totalCommissionRebate;
-                } else {
-                    $finalArray[0]['approved'] = 'N';
-                    $finalArray[0]['paid'] = 'N';
-                    $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
-                    $finalArray[0]['amount'] = '$'.$totalAmount;
-                    $finalArray[0]['volume_rebate'] = '$'.$totalVolumeRebate;
-                    $finalArray[0]['commission'] = '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                    $'.$totalCommissionRebate.'
-                </button>';
-                    // $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
-                    // $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
-                }
-            // }
+            if ($csv) {
+                $finalArray[0]['approved'] = 'N';
+                $finalArray[0]['paid'] = 'N';
+                $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
+                $finalArray[0]['amount'] = $totalAmounts;
+                $finalArray[0]['volume_rebate'] = $totalVolumeRebates;
+                $finalArray[0]['commissions'] = $totalCommissionRebates;
+            } else {
+                $finalArray[0]['approved'] = 'N';
+                $finalArray[0]['paid'] = 'N';
+                $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
+                $finalArray[0]['amount'] = '$'.$totalAmount;
+                $finalArray[0]['volume_rebate'] = '$'.$totalVolumeRebate;
+                $finalArray[0]['commission'] = '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.$totalCommissionRebate.'</button>';
+            }
         }
     
         if ($csv) {
