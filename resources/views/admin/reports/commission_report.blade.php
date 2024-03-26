@@ -175,7 +175,7 @@
             serverSide: true,
             lengthMenu: [40], // Specify the options you want to show
             lengthChange: false, // Hide the "Show X entries" dropdown
-            // paging: false,
+            paging: false,
             searching:false, 
             pageLength: 40,
             order: [[3, 'desc']],
