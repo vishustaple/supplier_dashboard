@@ -427,9 +427,10 @@ class Order extends Model
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalCommissionRebate = number_format($totalCommissionRebate, 2);
 
-        $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
-            return $query->skip($filter['start'])->take($filter['length']);
-        })->get();
+        $formatuserdata = $query->get();
+        // $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
+        //     return $query->skip($filter['start'])->take($filter['length']);
+        // })->get();
         
         // echo"<pre>";
         // print_r($formatuserdata->toArray());
@@ -441,9 +442,9 @@ class Order extends Model
                     $finalArray[0]['approved'] = 'N';
                     $finalArray[0]['paid'] = 'N';
                     $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
-                    $finalArray[0]['amount'] = number_format($value->amount, 2, '.', false);
-                    $finalArray[0]['volume_rebate'] = number_format($value->volume_rebate, 2, '.', false);
-                    $finalArray[0]['commissions'] = number_format($value->commissions, 2, '.', false);
+                    $finalArray[0]['amount'] = $totalAmounts;
+                    $finalArray[0]['volume_rebate'] = $totalVolumeRebate;
+                    $finalArray[0]['commissions'] = $totalCommissionRebate;
                 } else {
                     $finalArray[0]['approved'] = 'N';
                     $finalArray[0]['paid'] = 'N';
