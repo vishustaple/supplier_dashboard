@@ -80,8 +80,8 @@
                 { data: 'customer_name', name: 'customer_name' },
                 { data: 'account_name', name: 'account_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
-                { data: 'volume_rebate', name: 'volume_rebate' },
-                { data: 'incentive_rebate', name: 'incentive_rebate' },
+                { data: 'volume_rebate', name: 'volume_rebate', 'orderable': false, 'searchable': false  },
+                { data: 'incentive_rebate', name: 'incentive_rebate', 'orderable': false, 'searchable': false  },
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
             ],
             
