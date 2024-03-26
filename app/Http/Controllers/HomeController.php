@@ -94,7 +94,7 @@
                     ]);
 
                     $email=$request->email;
-                    $key = 'base64:58UejRIrfFUBpHhIZ1uoxbP9iYHTNXpP2Glzx02Fgp8=';
+                    $key = env('APP_KEY');
                     $salt = openssl_random_pseudo_bytes(16); // Generate salt
                     $data = ''.$user->id . '|' . $user->remember_token.'';
                     // encryptData($data, $key, $salt);
@@ -145,7 +145,7 @@
                 Auth::logoutOtherDevices($request->password);
                 // Authentication passed...
                 // $email='vishustaple.in@gmail.com';
-                // $key = 'base64:58UejRIrfFUBpHhIZ1uoxbP9iYHTNXpP2Glzx02Fgp8=';
+                // $key = env('APP_KEY');
                 // $salt = openssl_random_pseudo_bytes(16); // Generate salt
                 // $data = $request->email;
                 // Log::info('new login attempt...');
@@ -250,7 +250,7 @@
         }
 
         public function createPassword(Request $request){
-            $key = 'base64:58UejRIrfFUBpHhIZ1uoxbP9iYHTNXpP2Glzx02Fgp8=';
+            $key = env('APP_KEY');
             $data = $request->input('data');
             $decryptedData=decryptData($data, $key);
             //  dd($pdata);
