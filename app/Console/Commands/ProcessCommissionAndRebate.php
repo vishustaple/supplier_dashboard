@@ -52,7 +52,7 @@ class ProcessCommissionAndRebate extends Command
         foreach ($salesRep as $key => $values) {
             foreach ($filters as $key => $filter) {
                 $query = Order::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
-                `m2`.`account_name` AS `account_name`,
+                /`m2`.`account_name` AS `account_name`,
                 ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
                 (((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) / 100) * MAX(`commission`.`commission`) AS `commissions`,
                 `commission`.`commission` AS `commission`,
@@ -97,6 +97,7 @@ class ProcessCommissionAndRebate extends Command
                     $startDate=  $dateArray['CALENDAR']["1"];
                     $endDate=  $dateArray['CALENDAR']["5"];
                 }
+
                 $query->whereBetween('orders.date', [$startDate, $endDate])
                 ->where('commission.start_date', '<=', DB::raw('orders.date'))
                 ->where('commission.end_date', '>=', DB::raw('orders.date'));
@@ -112,17 +113,17 @@ class ProcessCommissionAndRebate extends Command
                     $totalAmount += $value->amount;
                 }
 
-                if ($totalVolumeRebate > 0) {
-                    $volumeRebatePercentage = ($totalVolumeRebate / $totalAmount) * 100;
-                } else {
-                    $volumeRebatePercentage = 0;
-                }
+                // if ($totalVolumeRebate > 0) {
+                //     $volumeRebatePercentage = ($totalVolumeRebate / $totalAmount) * 100;
+                // } else {
+                //     $volumeRebatePercentage = 0;
+                // }
 
-                if ($totalCommissionRebate > 0) {
-                    $commissionRebatePercentage = ($totalCommissionRebate / $totalVolumeRebate) * 100;
-                } else {
-                    $commissionRebatePercentage = 0;
-                }
+                // if ($totalCommissionRebate > 0) {
+                //     $commissionRebatePercentage = ($totalCommissionRebate / $totalVolumeRebate) * 100;
+                // } else {
+                //     $commissionRebatePercentage = 0;
+                // }
 
                 // print_r($volumeRebatePercentage);
                 // echo"                          ";
@@ -136,8 +137,6 @@ class ProcessCommissionAndRebate extends Command
                     'end_date' => $endDate,
                     'approved' => 0,
                     'paid' => 0,
-                    // 'commission_percentage' => $commissionRebatePercentage,
-                    // 'volume_rebate_percentage' => $volumeRebatePercentage,
                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
