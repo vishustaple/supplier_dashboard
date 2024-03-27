@@ -521,7 +521,7 @@ class Order extends Model
         $orderColumnArray = [
             0=>'suppliers.supplier_name',
             // 1=>'m2.account_name',
-            1=>'`commission_rebate_detail`.`spend`',
+            1=>'amount',
             2=>'volume_rebate',
             3=>'commissions',
             4=>'start_date',
