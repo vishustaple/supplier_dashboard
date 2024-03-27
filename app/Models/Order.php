@@ -39,7 +39,8 @@ class Order extends Model
             $query->where('master_account_detail.account_name', $filter['account_name']);
         } else {
             if ($csv == true) {
-                $finalArray['heading'] = ['SKU',
+                $finalArray['heading'] = [
+                    'SKU',
                     'Category',
                     'Description',
                     'Uom',
@@ -67,9 +68,8 @@ class Order extends Model
             $indexedArray[] = $value['order_id'];
         }
     
-        $query1 = DB::table('order_product_details')
-            ->select('order_product_details.*')
-            ->whereIn('order_product_details.order_id', $indexedArray);
+        $query1 = DB::table('order_product_details')->select('order_product_details.*')
+        ->whereIn('order_product_details.order_id', $indexedArray);
 
         $filteredData = $query1->get();
         foreach ($filteredData as $key => $value) {
@@ -167,24 +167,26 @@ class Order extends Model
         }
     }
 
-    public static function getSupplierReportFilterdData($filter = [], $csv = false)
-    {
+    public static function getSupplierReportFilterdData($filter = [], $csv = false){
         $orderColumnArray = [
-            0=>'suppliers.supplier_name',
-            1=>'master_account_detail.account_name',
-            2=>'amount',
-            3=>'volume_rebate',
-            4=>'incentive_rebate',
+            0 => 'suppliers.supplier_name',
+            1 => 'master_account_detail.account_name',
+            2 => 'amount',
+            3 => 'volume_rebate',
+            4 => 'incentive_rebate',
         ];
 
-        $query = self::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
-        `m2`.`account_name` AS `account_name`,
-        ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
-        ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
-        `rebate`.`volume_rebate` AS `volume_rebates`,
-        `rebate`.`incentive_rebate` AS `incentive_rebates`,
-        `suppliers`.`supplier_name` AS `supplier_name`, 
-        `orders`.`date` AS `date`")
+        $query = self::query()->selectRaw(
+            "SUM(`orders`.`amount`) AS `amount`, 
+            `m2`.`account_name` AS `account_name`,
+            ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
+            ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
+            `rebate`.`volume_rebate` AS `volume_rebates`,
+            `rebate`.`incentive_rebate` AS `incentive_rebates`,
+            `suppliers`.`supplier_name` AS `supplier_name`, 
+            `orders`.`date` AS `date`"
+        )
+
         ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('rebate', 'm2.account_name', '=', 'rebate.account_name')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
@@ -193,7 +195,8 @@ class Order extends Model
             $query->where('orders.supplier_id', $filter['supplier']);
         } else {
             if ($csv) {
-                $finalArray['heading'] = ['Supplier',
+                $finalArray['heading'] = [
+                'Supplier',
                 'Account_name',
                 'Amount',
                 'Volume Rebate',
@@ -235,22 +238,27 @@ class Order extends Model
                 $startDate =  $dateArray['CALENDAR']["1"];
                 $endDate =  $dateArray['CALENDAR']["2"];
             }
+
             if($filter['quarter'] == 'Quarter 2'){
                 $startDate=  $dateArray['CALENDAR']["2"];
                 $endDate=  $dateArray['CALENDAR']["3"];
             }
+
             if($filter['quarter'] == 'Quarter 3'){
                 $startDate=  $dateArray['CALENDAR']["3"];
                 $endDate=  $dateArray['CALENDAR']["4"];
             }
+
             if($filter['quarter'] == 'Quarter 4'){
                 $startDate=  $dateArray['CALENDAR']["4"];
                 $endDate=  $dateArray['CALENDAR']["5"];
             }
+
             if ($filter['quarter'] == 'Annual'){
                 $startDate=  $dateArray['CALENDAR']["1"];
                 $endDate=  $dateArray['CALENDAR']["5"];
             }
+
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
     
@@ -313,7 +321,8 @@ class Order extends Model
             $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
 
             /** Defining heading array for csv genration */
-            $finalArray['heading'] = ['Supplier',
+            $finalArray['heading'] = [
+                'Supplier',
                 'Account_name',
                 'Amount',
                 'Volume Rebate',
@@ -346,13 +355,13 @@ class Order extends Model
 
     public static function getCommissionReportFilterdData($filter = [], $csv = false){
         $orderColumnArray = [
-            0=>'approved',
-            1=>'paid',
-            2=>'spend',
-            3=>'volume_rebate',
-            4=>'commission',
-            5=>'start_date',
-            6=>'end_date',
+            0 => 'approved',
+            1 => 'paid',
+            2 => 'spend',
+            3 => 'volume_rebate',
+            4 => 'commission',
+            5 => 'start_date',
+            6 => 'end_date',
         ];
 
         $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))->where('id', $filter['sales_rep'])->first();
@@ -363,7 +372,25 @@ class Order extends Model
             $query->where('sales_rep', $filter['sales_rep']);
         } else {
             if ($csv) {
-                $finalArray['heading'] = ['Supplier', 'Account_name', 'Amount', 'Volume Rebate', 'Commission', '', '', '', 'Total Amount', '', 'Total Volume Rebate', '', 'Total Commission', '', 'Start Date', '', 'End Date', ''];
+                $finalArray['heading'] = [
+                    'Supplier',
+                    'Account_name',
+                    'Amount',
+                    'Volume Rebate',
+                    'Commission',
+                    '',
+                    '',
+                    '',
+                    'Total Amount',
+                    '',
+                    'Total Volume Rebate',
+                    '',
+                    'Total Commission',
+                    '',
+                    'Start Date',
+                    '',
+                    'End Date',
+                ];
                 return $finalArray;
             } else {
                 return [
@@ -385,6 +412,7 @@ class Order extends Model
         /** Year and quarter filter here */
         if (isset($filter['year']) || !empty($filter['quarter'])) {
             $fys = ['CALENDAR' => $filter['year'].'-01-01'];
+
             foreach ($fys as $key => $start){
                 $nextYear = $filter['year']+1;
                 $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
@@ -438,6 +466,7 @@ class Order extends Model
         $data = $query->first();
         if (isset($data) && $data) {
             $finalArray=[];
+
             /** Making final array */
             if ($csv) {
                 $finalArray[0]['approved'] = ($data->approved == 1) ? ('Yes') : ('No');
@@ -545,27 +574,31 @@ class Order extends Model
     public static function getCommissionReportFilterdDataSecond($filter = [], $csv = false){
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
-            0=>'suppliers.supplier_name',
-            1=>'amount',
-            2=>'volume_rebate',
-            3=>'commissions',
-            4=>'start_date',
-            5=>'end_date',
+            0 => 'suppliers.supplier_name',
+            1 => 'amount',
+            2 => 'volume_rebate',
+            3 => 'commissions',
+            4 => 'start_date',
+            5 => 'end_date',
         ];
 
-        $query = CommissionRebateDetail::query()->selectRaw("`commission_rebate_detail`.`spend` AS `amount`, 
-        `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
-        `commission_rebate_detail`.`commission` AS `commissions`,
-        `commission_rebate_detail`.`commission_percentage` AS `commission`,
-        `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
-        `suppliers`.`supplier_name` AS `supplier_name`,
-        `commission_rebate_detail`.`start_date` as start_date,
-        `commission_rebate_detail`.`end_date` as end_date")
+        $query = CommissionRebateDetail::query()->selectRaw(
+            "`commission_rebate_detail`.`spend` AS `amount`, 
+            `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
+            `commission_rebate_detail`.`commission` AS `commissions`,
+            `commission_rebate_detail`.`commission_percentage` AS `commission`,
+            `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
+            `suppliers`.`supplier_name` AS `supplier_name`,
+            `commission_rebate_detail`.`start_date` as start_date,
+            `commission_rebate_detail`.`end_date` as end_date"
+        )
+
         ->leftJoin('suppliers', 'suppliers.id', '=', 'commission_rebate_detail.supplier');
     
         /** Year and quarter filter here */
         if (isset($filter['year']) || !empty($filter['quarter'])) {
             $fys = ['CALENDAR' => $filter['year'].'-01-01'];
+
             foreach ($fys as $key => $start){
                 $nextYear = $filter['year']+1;
                 $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
@@ -605,13 +638,11 @@ class Order extends Model
             ->where('commission_rebate_detail.end_date', '<=', $endDate);
         }
 
+        /** Filter the data on the bases of commission_rebate_id */
         if (isset($filter['commission_rebate_id']) && !empty($filter['commission_rebate_id'])) {
             $query->where('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
         }
 
-        /** Group by with account name */
-        // $query->groupBy('m2.account_name');
-        // dd($query->toSql());
         // dd($query->toSql(), $query->getBindings());
 
         /** Selecting total record for pagination */
@@ -646,8 +677,9 @@ class Order extends Model
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
         
-        /** Making final array */
         $finalArray=[];
+
+        /** Making final array */
         if (isset($formatuserdata) && !empty($formatuserdata)) {
             foreach ($formatuserdata as $key => $value) {
                 if ($csv) {
