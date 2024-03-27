@@ -1,19 +1,13 @@
-<!-- resources/views/excel-import.blade.php -->
-
-
 @extends('layout.app', ['pageTitleCheck' => $pageTitle])
-
  @section('content')
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
-    <div id="layoutSidenav_content">
-        <div class="container">
-            <div class="m-1 mb-2 row align-items-start justify-content-between">
-                <div class="col-md-4">
-                <h3 class="mb-0 ">{{ $pageTitle }}</h3>
-            </div>
-                   
-                
+        <div id="layoutSidenav_content">
+            <div class="container">
+                <div class="m-1 mb-2 row align-items-start justify-content-between">
+                    <div class="col-md-4">
+                    <h3 class="mb-0 ">{{ $pageTitle }}</h3>
+                </div>
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
@@ -53,28 +47,18 @@
                         <label for="approved">Select Approved:</label>
                         <select id="approved" name="approved" class="form-control" required> 
                             <option value="" selected>--Select--</option>
-                            <option value="1" selected>Yes</option>
-                            <option value="0" selected>NO</option>
+                            <option value="1">Yes</option>
+                            <option value="0">NO</option>
                         </select>
                     </div>
                     <div class="form-group col-md-4 mb-0">
                         <label for="paid">Select Paid:</label>
                         <select id="paid" name="paid" class="form-control" required> 
                             <option value="" selected>--Select--</option>
-                            <option value="1" selected>Yes</option>
-                            <option value="0" selected>NO</option>
+                            <option value="1">Yes</option>
+                            <option value="0">NO</option>
                         </select>
                     </div>
-                    <!-- <div class="form-check relative col-md-2 mb-0">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="volume_rebate_check" checked>
-                            <label class="form-check-label" for="volume_rebate_check">Volume Rebate</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="commission_rebate_check" checked>
-                            <label class="form-check-label" for="commission_rebate_check">Commission</label>
-                        </div>
-                    </div> -->
                     <div class="col-md-3 mb-0">
                         <button type="submit" class="btn btn-primary m-1">Submit</button>
                         <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
@@ -82,11 +66,14 @@
                     <!-- Button trigger modal -->
                 </div>
             </form>
+
+            <div class="" id="successMessages"></div>
+            <div class="" id="errorMessage"></div>
+
             <table id="commission_report_data" class="data_table_files">
                 <!-- Your table content goes here -->
             </table>
         </div>
-        <!-- Button trigger modal -->
 
         <!-- Modal -->
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -121,6 +108,96 @@
             // Initiate DataTable AJAX request
             $('#commission_report_data').DataTable().ajax.reload();
             $('#commission_report_data1').DataTable().ajax.reload();
+        });
+
+        $(document).on('change', '.approved_input_select', function(){
+            var formData = { 
+                approved : $(this).val(),
+                id : $(this).data('approved_id')
+            },
+            token = "{{ csrf_token() }}";
+
+            $.ajax({
+                type: 'POST',
+                url: "{{route('approved.update')}}",
+                dataType: 'json',
+                data: JSON.stringify(formData),                        
+                headers: {'X-CSRF-TOKEN': token},
+                contentType: 'application/json',                     
+                processData: false,
+                
+                success: function(response) {
+                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+                    if(response.error){
+                        var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                            errorMessage = response.error;
+                        }
+                        $('#errorMessage').html('');
+                        $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    }
+
+                    if(response.success){
+                        $('#successMessages').html('');
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    }
+                },
+
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
+        $(document).on('change', '.paid_input_select', function(){
+            var formData = { 
+                paid : $(this).val(),
+                id : $(this).data('paid_id')
+            },
+            token = "{{ csrf_token() }}";
+
+            $.ajax({
+                type: 'POST',
+                url: "{{route('paid.update')}}",
+                dataType: 'json',
+                data: JSON.stringify(formData),                        
+                headers: {'X-CSRF-TOKEN': token},
+                contentType: 'application/json',                     
+                processData: false,
+                
+                success: function(response) {
+                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+                    if(response.error){
+                        var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                            errorMessage = response.error;
+                        }
+                        $('#errorMessage').html('');
+                        $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    }
+
+                    if(response.success){
+                        $('#successMessages').html('');
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    }
+                },
+
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.error(xhr.responseText);
+                }
+            });
         });
 
         // DataTable initialization
@@ -175,78 +252,63 @@
             ],
 
             fnDrawCallback: function( oSettings ) {
-                // setPercentage();
                 $('#commission_report_data1').DataTable().ajax.reload();
             },
         });  
 
-        // function setPercentage(){
-            // if (supplierDataTable.row(0).node()) {
-            //     var buttonElement = supplierDataTable.row(0).node().querySelector('button');
-            // }
-
-            // if (buttonElement) {
-            //     var id = buttonElement.getAttribute('data-id'); 
-            // } else {
-            //     var id = '';
-            // }
-
-            // DataTable initialization
-            var supplierDataTable1 = $('#commission_report_data1').DataTable({
-                oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
-                processing: true,
-                serverSide: true,
-                lengthMenu: [40], // Specify the options you want to show
-                lengthChange: false, // Hide the "Show X entries" dropdown
-                // paging: false,
-                searching:false, 
-                pageLength: 40,
-                order: [[3, 'desc']],
-                ajax: {
-                    url: '{{ route("report.commission_report_filter_secound") }}',
-                    type: 'POST',
-                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    data: function (d) {
-                        // Pass date range and supplier ID when making the request
-                        d.year = $('#year').val();
-                        d.quarter = $('#quarter').val();
-                        d.sales_rep = $('#sales_rep').val();
-                        d.supplier = $('#supplier').val();
-                        if (supplierDataTable.row(0).node()) {
-                            d.commission_rebate_id = supplierDataTable.row(0).node().querySelector('button').getAttribute('data-id');
-                        }
-                    },
-                },
-
-                beforeSend: function() {
-                    // Show both the DataTables processing indicator and the manual loader before making the AJAX request
-                    $('.dataTables_processing').show();
-                    $('#manualLoader').show();
-                },
-
-                complete: function(response) {
-                    // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
-                    $('.dataTables_processing').hide();
-                    $('#manualLoader').hide();
-                    if (businessdataTable.data().count() > 40) {
-                        $('#business_data_paginate').show(); // Enable pagination
-                    } else {
-                        $('#business_data_paginate').hide();
+        // DataTable initialization
+        var supplierDataTable1 = $('#commission_report_data1').DataTable({
+            oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
+            processing: true,
+            serverSide: true,
+            lengthMenu: [40], // Specify the options you want to show
+            lengthChange: false, // Hide the "Show X entries" dropdown
+            // paging: false,
+            searching:false, 
+            pageLength: 40,
+            order: [[3, 'desc']],
+            ajax: {
+                url: '{{ route("report.commission_report_filter_secound") }}',
+                type: 'POST',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: function (d) {
+                    // Pass date range and supplier ID when making the request
+                    d.year = $('#year').val();
+                    d.quarter = $('#quarter').val();
+                    d.sales_rep = $('#sales_rep').val();
+                    d.supplier = $('#supplier').val();
+                    if (supplierDataTable.row(0).node()) {
+                        d.commission_rebate_id = supplierDataTable.row(0).node().querySelector('button').getAttribute('data-id');
                     }
                 },
+            },
 
-                columns: [
-                    { data: 'supplier', name: 'supplier', title: 'Supplier'},
-                    // { data: 'account_name', name: 'account_name', title: 'Account Name'},
-                    { data: 'amount', name: 'amount', title: 'Spend'},
-                    { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
-                    { data: 'commission', name: 'commission', title: 'Commission'},
-                    { data: 'start_date', name: 'start_date', title: 'Start Date'},
-                    { data: 'end_date', name: 'end_date', title: 'End Date'},
-                ],
-            });  
-        // }
+            beforeSend: function() {
+                // Show both the DataTables processing indicator and the manual loader before making the AJAX request
+                $('.dataTables_processing').show();
+                $('#manualLoader').show();
+            },
 
+            complete: function(response) {
+                // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
+                $('.dataTables_processing').hide();
+                $('#manualLoader').hide();
+                if (businessdataTable.data().count() > 40) {
+                    $('#business_data_paginate').show(); // Enable pagination
+                } else {
+                    $('#business_data_paginate').hide();
+                }
+            },
+
+            columns: [
+                { data: 'supplier', name: 'supplier', title: 'Supplier'},
+                { data: 'amount', name: 'amount', title: 'Spend'},
+                { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
+                { data: 'commission', name: 'commission', title: 'Commission'},
+                { data: 'start_date', name: 'start_date', title: 'Start Date'},
+                { data: 'end_date', name: 'end_date', title: 'End Date'},
+            ],
+        });
 
         $('#downloadCsvBtn').on('click', function () {
             // Trigger CSV download

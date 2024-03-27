@@ -52,17 +52,19 @@ class ProcessCommissionAndRebate extends Command
         foreach ($salesRep as $key => $values) {
             foreach ($filters as $key => $filter) {
                 $query = Order::query()->selectRaw("SUM(`orders`.`amount`) AS `amount`, 
-                /`m2`.`account_name` AS `account_name`,
-                ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
-                (((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) / 100) * MAX(`commission`.`commission`) AS `commissions`,
-                `commission`.`commission` AS `commission`,
-                `rebate`.`volume_rebate` AS `volume_rebates`,
-                `rebate`.`incentive_rebate` AS `incentive_rebates`,
-                `suppliers`.`supplier_name` AS `supplier_name`,
-                `suppliers`.`id` AS `supplier_id`,
-                `commission`.`start_date` as start_date,
-                `commission`.`end_date` as end_date, 
-                `orders`.`date` AS `date`")
+                    `m2`.`account_name` AS `account_name`,
+                    ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
+                    (((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) / 100) * MAX(`commission`.`commission`) AS `commissions`,
+                    `commission`.`commission` AS `commission`,
+                    `rebate`.`volume_rebate` AS `volume_rebates`,
+                    `rebate`.`incentive_rebate` AS `incentive_rebates`,
+                    `suppliers`.`supplier_name` AS `supplier_name`,
+                    `suppliers`.`id` AS `supplier_id`,
+                    `commission`.`start_date` as start_date,
+                    `commission`.`end_date` as end_date, 
+                    `orders`.`date` AS `date`"
+                )
+                
                 ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
                 ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
                 ->leftJoin('rebate', 'rebate.account_name', '=', 'm2.account_name')
