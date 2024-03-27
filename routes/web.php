@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{ExcelImportController, SalesTeamController, CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
+use App\Http\Controllers\{ExcelImportController, SalesTeamController, RebateController, CommissionController,  CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
 use Illuminate\Support\Facades\Auth; 
 /*
 |--------------------------------------------------------------------------
@@ -32,13 +32,15 @@ Route::post('/user-register' , [HomeController::class,'userRegister'])->name('us
 
 Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
+        Route::get('/adminupdate', [HomeController::class, 'changePasswordView'])->name('admin.changePasswordView');
+        Route::post('/changepassword', [HomeController::class, 'changePassword'])->name('admin.changePassword');
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::get('/supplier' , [ExcelImportController::class,'allSupplier'])->name('supplier');
         Route::get('/upload-sheet' , [ExcelImportController::class,'index'])->name('upload.sheets');
         Route::post('/import-excel' , [ExcelImportController::class,'import'])->name('import.excel');
         Route::get('/delete-file/{id?}' , [ExcelImportController::class,'deleteFile'])->name('upload.delete');
         Route::get('/download/{id?}', [ExcelImportController::class, 'downloadSampleFile'])->name('file.download');
-
+        Route::post('/export/filter' , [ExcelImportController::class,'getExportWithAjax'])->name('export.filter');
         /** Account Section Start */
         Route::get('/account/{id?}' , [AccountController::class,'allAccount'])->name('account');
         Route::post('/addaccount' , [AccountController::class,'addAccount'])->name('account.add');
@@ -48,6 +50,15 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/accounts/csv' , [AccountController::class,'exportAccountCsv'])->name('account.export-csv');
         Route::post('/account/filter' , [AccountController::class,'getAccountsWithAjax'])->name('account.filter');
         Route::get('/accounts/edit/{id}/{routename}' , [AccountController::class,'editAccount'])->name('account.edit');
+        Route::get('/accounts/customer-edit' , [AccountController::class,'editCustomerName'])->name('account.customer-edit');
+        Route::post('/accounts/update-missing-account',[AccountController::class,'updateMissingAccount'])->name('account.missing');
+        Route::post('/accounts/editaccountname',[AccountController::class,'editAccountName'])->name('accountname.edit');
+        Route::get('/accounts/gp-name',[AccountController::class,'gPName'])->name('grandParentName');
+        Route::get('/accounts/gp-number',[AccountController::class,'gPNumber'])->name('grandParentNumber');
+        Route::get('/accounts/p-name',[AccountController::class,'PName'])->name('ParentName');
+        Route::get('/accounts/p-number',[AccountController::class,'PNumber'])->name('ParentNumber');
+        Route::get('/accounts/count',[AccountController::class,'getEmptyAccountNameAccounts'])->name('accounts.counts');
+        Route::post('/accounts/account-number',[AccountController::class,'getAccountNumber'])->name('get.accountNumber');
         /** Account Section End */
 
         /** Report Section Start */
@@ -55,6 +66,12 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/report/filter', [ReportController::class, 'dataFilter'])->name('report.filter');
         Route::get('/reports/csv' , [ReportController::class,'exportCsv'])->name('report.export-csv');
         Route::get('/report/{reportType}/{id?}' , [ReportController::class,'index'])->name('report.type');
+        Route::post('/reports/supplier-filter', [ReportController::class, 'supplierReportFilter'])->name('report.supplier_filter');
+        Route::get('/reports/supplier-csv', [ReportController::class, 'supplierReportExportCsv'])->name('report.export-supplier_report-csv');
+        Route::get('/reports/commission-csv', [ReportController::class, 'commissionReportExportCsv'])->name('report.export-commission_report-csv');
+        Route::post('/reports/commissions-report-filter', [ReportController::class, 'getCommissionsWithAjax'])->name('report.commission_report_filter_secound');
+        Route::post('/reports/commission-report-filter', [ReportController::class, 'commissionReportFilter'])->name('report.commission_report_filter');
+        
         /** Report Section End */
     
         //not in use now this route     
@@ -82,8 +99,33 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/sales/update',[SalesTeamController::class,'updateSales'])->name('sales.update');
         Route::post('/sales/filter' , [SalesTeamController::class,'salesAjaxFilter'])->name('sales.filter');
         Route::get('/sales/edit/{id}/{routename}' , [SalesTeamController::class,'editSales'])->name('sales.edit');
+        Route::get('/sales/updatestatus' , [SalesTeamController::class,'status_sales'])->name('sales.status');
+        Route::get('/sales/csv' , [SalesTeamController::class,'exportSaleCsv'])->name('sales.export-csv');
 
         /** Sales team Section End */
+
+
+        /** Rebate Section Start */
+        Route::get('/rebate/{rebateType}/{id?}' , [RebateController::class,'index'])->name('rebate.list');
+        Route::post('/rebates/filter' , [RebateController::class,'getRebateWithAjax'])->name('rebate.filter');
+        Route::post('/rebates/update-filter' , [RebateController::class,'getUpdateRebateWithAjax'])->name('rebate.update-filter');
+        Route::post('/rebates/update' , [RebateController::class,'rebateUpdate'])->name('rebate.update');
+        Route::get('/rebates/count' , [RebateController::class,'rebateCount'])->name('rebate.counts');
+        // Route::get('/rebates/csv' , [RebateController::class,'exportCatalogCsv'])->name('rebate.export-csv');
+        
+        /** Rebate Section End */
+
+        /** Commission Section Start */
+        Route::get('/commission/{commissionType}/{id?}' , [CommissionController::class,'index'])->name('commission.list');
+        Route::post('/commissions/filter' , [CommissionController::class,'commissionAjaxFilter'])->name('commission.filter');
+        Route::get('/commissions/view-add' , [CommissionController::class,'commissionAddView'])->name('commission.add-view');
+        Route::get('/commissions/customer-search' , [CommissionController::class,'commissionAjaxCustomerSearch'])->name('commission.customerSearch');
+        Route::get('/commissions/supplier-search' , [CommissionController::class,'commissionAjaxSupplierSearch'])->name('commission.supplierSearch');
+        Route::post('/commissions/add' , [CommissionController::class,'commissionAdd'])->name('commission.add');
+        Route::get('/commissions/csv' , [CommissionController::class,'exportCatalogCsv'])->name('commission.export-csv');
+        Route::post('/commissions/edit' , [CommissionController::class,'editCommission'])->name('commission.edit');
+      
+        /** Commission Section End */
     });
 });
 
@@ -93,3 +135,5 @@ Route::fallback(function () {
 });
 
 Route::get('/random-function' , [CategorySupplierController::class,'index'])->name('random.number');
+Route::get('/create-password' , [HomeController::class,'createPassword'])->name('create.password');
+Route::post('/update-password', [HomeController::class, 'updatePassword'])->name('update.password');

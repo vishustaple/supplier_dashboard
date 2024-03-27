@@ -5,40 +5,75 @@
 
  @section('content')
  <div id="layoutSidenav">
-    @include('layout.sidenavbar')
+    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="container">
-            <div class="m-1 mb-2 d-md-flex align-items-center justify-content-between">
-                <h3 class="mb-0 ">{{ $pageTitle }}</h3>
-                
+            <div class="m-1 mb-2 row align-items-start justify-content-between">
+                <div class="col-md-4">
+                    <h3 class="mb-0 ">{{ $pageTitle }}</h3>
+                </div>
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
-                <div class="row align-items-end">
+                <div class="row align-items-end py-3 border-top border-bottom mb-3">
                     <div class="form-group col-md-4 mb-0">
-                        <label for="selectBox">Select Supplier:</label>
-                        <select id="selectBox" name="supplierselect" class="form-control"> 
+                        <label for="supplier">Select Supplier:</label>
+                        <select id="supplier" name="supplier" class="form-control" required> 
                             <option value="" selected>--Select--</option>
                             @if(isset($categorySuppliers))
-                            @foreach($categorySuppliers as $categorySupplier)
-                            <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
-                            @endforeach
+                                @foreach($categorySuppliers as $categorySupplier)
+                                    <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                                @endforeach
                             @endif
-                            </select>
-                        </div>
-                    <div class="form-group relative col-md-4 mb-0">  
-                        <label for="enddate">Select Date:</label>
-                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                        </select>
                     </div>
-
-                    <div class="col-md-4 mb-0">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <div class="form-group relative col-md-3 mb-0">  
+                        <label for="enddate">Select Year:</label>
+                        <select class="form-control" name="year" id="year" required>
+                            <option value="">--Select--</option>
+                            @for ($year = 2010; $year <= date('Y'); $year++)
+                                <option value="{{$year}}">{{$year}}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="form-group relative col-md-3 mb-0">  
+                        <label for="enddate">Select Quarter:</label>
+                        <select class="form-control" name="quarter" id="quarter" required>
+                            <option value="">--Select--</option>
+                            <option value="Annual">Annual</option>
+                            <option value="Quarter 1">Quarter 1</option>
+                            <option value="Quarter 2">Quarter 2</option>
+                            <option value="Quarter 3">Quarter 3</option>
+                            <option value="Quarter 4">Quarter 4</option>
+                        </select>
+                    </div>
+                    <div class="form-check relative col-md-2 mb-0">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="volume_rebate_check" checked>
+                            <label class="form-check-label" for="volume_rebate_check">Volume Rebate</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="incentive_rebate_check" checked>
+                            <label class="form-check-label" for="incentive_rebate_check">Incentive Rebate</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mt-2">
+                        <button type="submit" class="btn btn-primary m-1">Submit</button>
+                        <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
-               
             </form>
-            <table id="account_data" class="data_table_files">
+            <div class="row justify-content-end py-3 header_bar" style="display:none !important;">
+                <div class="col-md-4 card shadow border-0">
+                    <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_amount"></b></h6>
+                    <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
+                    <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
+                    <h6 class="d-flex justify-content-between">Year: <b style="color:#000;" id="startDates"></b></h6>
+                    <h6 class="d-flex justify-content-between">Quarter: <b style="color:#000;" id="endDates"></b></h6>
+                </div>
+            </div>
+            <table id="supplier_report_data" class="data_table_files">
                 <!-- Your table content goes here -->
             </table>
         </div>
@@ -50,153 +85,115 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
-        $('input[name="dates"]').daterangepicker();
-    });
-    $(document).ready(function() {
-        $('#account_data').DataTable({
-            "paging": true,   // Enable pagination
-            "ordering": true, // Enable sorting
-            "searching": true, // Enable search
-            "pageLength": 40,
-            "lengthChange":false,
-            "data": '',
-            "columns": [
-                { title: 'SR. No' },
-                { title: 'Account Name' },
-                { title: 'Account Number' },
-                { title: 'Parent Name' },
-                { title: 'GrandParent Name' },
-                { title :'Internal Reporting Name'},
-                { title :'QBR'},
-                { title :'Spend Name'},
-                { title :'Supplier Acct Rep'},
-                { title :'Management Fee'},
-                { title :'Record Type'},
-                { title :'Categroy Supplier'},
-                { title :'CPG Sales Representative'},
-                { title :'CPG Customer Service Rep'},
-                { title :'SF Cat'},
-                { title :'Rebate Freq'},
-                { title :'Member Rebate'},
-                { title :'Comm Rate'},
-            ]
+        // Button click event
+        $('#import_form').on('submit', function () {
+            event.preventDefault();
+            $('#startDates').text($('#year').val());
+            $('#endDates').text($('#quarter').val());
+            $('.header_bar').attr('style', 'display:flex !important;');
+
+            // Initiate DataTable AJAX request
+            $('#supplier_report_data').DataTable().ajax.reload();
         });
 
-        
-        // Attach a change event handler to the checkboxes
-        $('input[type="checkbox"]').change(function() {
-            // Check if the checkbox is checked or unchecked
-            if ($(this).prop('checked')) {
-                $('#grandparentSelect').prop('disabled', false);
-            } else{
-                $('#grandparentSelect').val('');
-                $('#grandparentSelect').prop('disabled', true);
+        function setPercentage() {
+            var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="total_amount">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
+            hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
+            hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
+            totalAmount = $html.find('.total_amount').val();
+
+            $('#total_amount').text('$'+totalAmount);
+            console.log(supplierDataTable.column(3).data()[0]);
+            if ($('#volume_rebate_check').is(':checked')) {
+                supplierDataTable.column('volume_rebate:name').visible(true);
+                $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + hiddenVolumeRebateInputValue : 'N/A'));
+                $('.volume_rebate_header').attr('style', 'display:flex !important;');
+            } else {
+                supplierDataTable.column('volume_rebate:name').visible(false);
+                $('.volume_rebate_header').attr('style', 'display:none !important;');
+                $('#volume_rebate').text('');
             }
-        });
 
-        $('#exampleModal').on('show.bs.modal', function (e) {
-            $('#errorMessage').fadeOut();
-            $("#add_supplier")[0].reset();
-            $('#grandparentSelect').prop('disabled', true);
-        })
+            if ($('#incentive_rebate_check').is(':checked')) {
+                supplierDataTable.column('incentive_rebate:name').visible(true);
+                $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + hiddenIncentiveRebateInputValue : 'N/A'));
+                $('.incentive_rebate_header').attr('style', 'display:flex !important;');
+            } else {
+                supplierDataTable.column('incentive_rebate:name').visible(false);
+                $('.incentive_rebate_header').attr('style', 'display:none !important;');
+                $('#incentive_rebate').text('');
+            }
+        }
 
-        //submit form with ajax
-
-        $("#add_supplier").on('submit', function (e){
-            // alert("here");
-
-        e.preventDefault();
-        var formData = new FormData($('#add_supplier')[0]);
-        console.log(formData);
-        $.ajax({
+        // DataTable initialization
+        var supplierDataTable = $('#supplier_report_data').DataTable({
+            oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
+            processing: true,
+            serverSide: true,
+            lengthMenu: [40], // Specify the options you want to show
+            lengthChange: false, // Hide the "Show X entries" dropdown
+            // paging: false,
+            searching:false, 
+            pageLength: 40,
+            order: [[3, 'desc']],
+            ajax: {
+                url: '{{ route("report.supplier_filter") }}',
                 type: 'POST',
-                url: '{{ route('account.add') }}', // Replace with your actual route name
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                     if(response.error){
-                   
-                        $('#errorMessage').text(response.error);
-                        $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 5000);
-                      
-                    }
-                    // Assuming `response` is the error response object
-                    let errorMessages = [];
-
-                    if (response && response.error) {
-                    // Iterate over each field in the error object
-                    Object.keys(response.error).forEach(field => {
-                    // Get the error messages for the current field
-                    let fieldErrorMessages = response.error[field];
-
-                    // Concatenate the field name and its error messages
-                    let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
-                    console.log(errorMessageText);
-
-                    // Accumulate the error messages
-                    errorMessages.push(errorMessageText);
-                    });
-                    $('#errorMessage').html(errorMessages.join('<br>'));
-                    $('#errorMessage').css('display','block');
-                    setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 5000);
-                    }
-
-                    // Set the content of the div with all accumulated error messages
-                   
-                   
-                    if(response.success){
-                        $('#page-loader').hide();
-                        $('#successMessage').text(response.success);
-                        $('#successMessage').css('display','block');
-                        $("form")[0].reset();
-                        //disable all field 
-                        $('#enddate,#file,#importBtn').prop('disabled', true);
-                        setTimeout(function () {
-                            $('#successMessage').fadeOut();
-                            window.location.reload();
-                        }, 5000); 
-                        
-                    }
-                    // Handle success response
-                    console.log(response);
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: function (d) {
+                    // Pass date range and supplier ID when making the request
+                    d.year = $('#year').val();
+                    d.quarter = $('#quarter').val();
+                    d.supplier = $('#supplier').val();
                 },
-                error: function(xhr, status, error) {
-                    // Handle error response
-                    // console.error(xhr.responseText);
-                    const errorresponse = JSON.parse(xhr.responseText);
-                        $('#errorMessage').text(errorresponse.error);
-                        $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 5000);
+            },
+
+            beforeSend: function() {
+                // Show both the DataTables processing indicator and the manual loader before making the AJAX request
+                $('.dataTables_processing').show();
+                $('#manualLoader').show();
+            },
+
+            complete: function(response) {
+                // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
+                $('.dataTables_processing').hide();
+                $('#manualLoader').hide();
+                if (businessdataTable.data().count() > 40) {
+                    $('#business_data_paginate').show(); // Enable pagination
+                } else {
+                    $('#business_data_paginate').hide();
                 }
-            });
+            },
+
+            columns: [
+                { data: 'supplier', name: 'supplier', title: 'Supplier'},
+                { data: 'account_name', name: 'account_name', title: 'Account Name'},
+                { data: 'amount', name: 'amount', title: 'Spend'},
+                { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
+                { data: 'incentive_rebate', name: 'incentive_rebate', title: 'Incentive Rebate'},
+            ],
+
+            fnDrawCallback: function( oSettings ) {
+                setPercentage();
+            },
+        });  
 
 
+        $('#downloadCsvBtn').on('click', function () {
+            // Trigger CSV download
+            downloadCsv();
         });
 
-    });
-            
-     
-    // JavaScript to make checkboxes act like radio buttons
-    const radioCheckboxes = document.querySelectorAll('.radio-checkbox');
+        function downloadCsv() {
+            // You can customize this URL to match your backend route for CSV download
+            var csvUrl = '{{ route("report.export-supplier_report-csv") }}';
+            // Add query parameters for date range and supplier ID
 
-        radioCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-            // Uncheck all other checkboxes in the group
-            radioCheckboxes.forEach(otherCheckbox => {
-                if (otherCheckbox !== checkbox) {
-                otherCheckbox.checked = false;
-                }
-            });
-        });
-    });
-    
+            var order = supplierDataTable.order();
+            csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
+            // Open a new window to download the CSV file
+            window.open(csvUrl, '_blank');
+        } 
+    });        
 </script>
 @endsection

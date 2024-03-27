@@ -17,14 +17,20 @@ class SalesTeam extends Model
         'status',
         'last_name',
         'first_name',
+        'team_user_type',
     ];
-    
+    const STATUS_ACTIVE = 1;
+    const STATUS_INACTIVE = 0;
+    const USERTYPE_SALES = 1;
+    const USERTYPE_AGENT = 2;
+    const USERTYPE_CUSTOMER_SERVICES = 3;
     public static function getFilterdSalesData($filter=[], $csv=false){
         $orderColumnArray = [
             0 => 'sales_team.first_name',
             1 => 'sales_team.email',
             2 => 'sales_team.phone',
             3 => 'sales_team.status',
+            4 => 'sales_team.team_user_type',
         ];
 
         $query = self::query() // Replace YourModel with the actual model you are using for the data
@@ -35,6 +41,7 @@ class SalesTeam extends Model
             'sales_team.email as email' ,
             'sales_team.phone as phone',
             'sales_team.status as status' ,
+            'sales_team.team_user_type as team_user_type',
         ); // Adjust the column names as needed
 
         // Search functionality
@@ -77,14 +84,58 @@ class SalesTeam extends Model
         // Get filtered records count
         $filteredRecords = $query->count();
         $formatuserdata=[];
+        $userTypeLabels = [
+            1 => 'Sales',
+            2 => 'Agent',
+            3 => 'Customer Services',
+         
+        ];
         foreach ($filteredData as $key => $data) {
             $formatuserdata[$key]['name'] = $data->first_name.' '.$data->last_name;
             $formatuserdata[$key]['email'] = $data->email;
-            $formatuserdata[$key]['phone'] = $data->phone;
-            $formatuserdata[$key]['status'] = ($data->status == 1) ? ("Active") : ("In-Active");    
-            $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('sales.index', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
+            $formatuserdata[$key]['phone'] = isset($data->phone) ? "\t" .$data->phone : null;
+            if ($csv) {
+                if ($data->status == 1) {
+                    $formatuserdata[$key]['status'] = 'Active';
+                } else {
+                    $formatuserdata[$key]['status'] = 'In-Active';
+                }
+            } else {
+                // $formatuserdata[$key]['status'] = ($data->status == 1) ? ("Active") : ("In-Active");    
+                $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+                // <a class=" " title="View Details" href= '.route('sales.index', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a>
+                // <a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a>
+                // $formatuserdata[$key]['status'] = '<div class="form-check form-switch">
+                // <input class="form-check-input m-0" type="checkbox" role="switch" id="flexSwitchCheckChecked"';
+
+                $formatuserdata[$key]['status'] = '<div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"';
+                if ($data->status == 1) {
+                    $formatuserdata[$key]['status'] .= ' checked';
+                }
+                // Add onclick event handler
+                $formatuserdata[$key]['status'] .= ' onclick="toggleDisableEnable('.$data->id.')"';
+                $formatuserdata[$key]['status'] .= '>';
+                if ($data->status == 1) {
+                    $formatuserdata[$key]['status'] .= '<label class="form-check-label" for="flexCheckDefault">Active</label></div>';
+                } else {
+                    $formatuserdata[$key]['status'] .= '<label class="form-check-label" for="flexCheckDefault">In-Active</label></div>';
+                }
+            }
+           
+            
+            $userType = isset($userTypeLabels[$data->team_user_type]) ? $userTypeLabels[$data->team_user_type] : 'Unknown';
+
+            $formatuserdata[$key]['team_user_type'] = $userType;
         }
         
+        if($csv) {
+            $finalArray = $formatuserdata;
+            $finalArray['heading'] = ['Name', 'Email', 'Phone', 'Status', 'Sales Repersentative Type'];
+            return $finalArray;
+        }
+        
+
         // echo"<pre>";
         // print_r($formatuserdata);
         // die;
@@ -95,4 +146,5 @@ class SalesTeam extends Model
             'recordsFiltered' => $totalRecords,
         ];
     }
+    
 }

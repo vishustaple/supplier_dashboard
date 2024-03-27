@@ -10,8 +10,8 @@
             </div>
             <div class="row align-items-end border-bottom pb-3 mb-4">
                     <div class="col-md-12 mb-0 text-end">
-                    <button id="downloadCatalogCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                    </div>
+                    <!-- <button id="downloadCatalogCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                    </div> -->
                     <!-- Button trigger modal -->
                    
                 </div>
@@ -69,7 +69,7 @@
             serverSide: true,
             pageLength: 50,
             ajax: {
-                url: '{{ route('catalog.filter') }}',
+                url: '{{ route("catalog.filter") }}',
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -105,7 +105,7 @@
 
         function downloadCatalogCsv() {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route('catalog.export-csv') }}';
+            var csvUrl = '{{ route("catalog.export-csv") }}';
             csvUrl += '?search=' + dataTable.search();
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');

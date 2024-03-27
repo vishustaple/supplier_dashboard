@@ -1,33 +1,35 @@
 
 
 
-@extends('layout.app', ['pageTitleCheck' => 'Upload Sheets'])
+@extends('layout.app', ['pageTitleCheck' => $pageTitle])
 
  @section('content')
 
  <div id="layoutSidenav">
-    @include('layout.sidenavbar', ['pageTitleCheck' => 'Upload Sheets'])
+    @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
                 <h3 class="mb-0 ps-2">Data Management</h3>
         </div>
         <div class="alert alert-success m-3" id="user_del_success" style="display:none;"></div>
         <div class="container">
-            <div class="alert alert-success" id="successMessage" style="display:none;">
+            <div class="" id="successMessages">
             </div>
-            <div class="alert alert-danger" id="errorMessage" style="display:none;">
-          
+
+            <div class="" id="errorMessage">    
             </div>
         
             @if(session('error'))
-                <div class="alert alert-danger">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
             @endif
 
             @if(session('success'))
-                <div class="alert alert-success">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
             @endif
 
@@ -108,216 +110,293 @@
 
             <table id="example" class="data_table_files">
             <!-- Your table content goes here -->
+            <thead>
+                    <tr>
+                        <th>Supplier</th>
+                        <th>File Name</th>
+                        <th>Status</th>
+                        <th style="white-space: nowrap;">Uploaded By</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+
             </table>
         </div>
         @include('layout.footer')
     </div>
 </div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-    .spinner {
-        margin: 0 auto;
-        width: 70px;
-        text-align: center;
-    }
-
-    .spinner div {
-        width: 10px;
-        height: 10px;
-        background-color: #333;
-        border-radius: 100%;
-        display: inline-block;
-        animation: sk-bouncedelay 1.2s infinite ease-in-out both;
-    }
-
-    .spinner  .bounce1 {
-        animation-delay: -0.32s;
-    }
-
-    .spinner  .bounce2 {
-        animation-delay: -0.16s;
-    }
-
-    @-webkit-keyframes sk-bouncedelay {
-        0%, 80%, 100% {
-            transform: scale(0);
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .spinner {
+            margin: 0 auto;
+            width: 70px;
+            text-align: center;
         }
 
-        40% {
-            transform: scale(1);
+        .spinner div {
+            width: 10px;
+            height: 10px;
+            background-color: #333;
+            border-radius: 100%;
+            display: inline-block;
+            animation: sk-bouncedelay 1.2s infinite ease-in-out both;
         }
-    }
 
-    @keyframes sk-bouncedelay {
-        0%, 80%, 100% {
-            transform: scale(0);
+        .spinner  .bounce1 {
+            animation-delay: -0.32s;
         }
 
-        40% {
-            transform: scale(1);
+        .spinner  .bounce2 {
+            animation-delay: -0.16s;
         }
-    }
-      
-    div#page-loader {
-        top: 0;
-        left: 0;
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        background: #00000080;
-        z-index: 999999;
-    }
 
-    div#page-loader-wrap {
-        text-align: center;
-        /* vertical-align: center !important; */
-        margin-top: 20%;
-    }
-    .file_td{
-        width: 388px;
-        display: block;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .list_filed .list-group-item {
-        font-size: 14px;
-        padding: 5px 10px 5px 10px;
-        text-transform: capitalize !important;
-        border: 0px;
-        min-height: 31px;
-    }
-    #necessaryFieldList .list-group-item:nth-child(2n),
-        #necessaryFieldList1 .list-group-item:nth-child(2n) {
-        background-color: #cccccc5e !important;
-    }
-    .list_filed .list_heading{
-        background-color: #b17828; 
-        padding: 5px 10px 5px 10px;
-        color: #fff;
-        font-size: 17px;
-    }
-    #necessaryFieldList1 .list-group-item {
-    color: #008000;
-    }
-    .modal_custom.modal-dialog.modal-dialog-scrollable {
-    max-width: 800px;
-}
+        @-webkit-keyframes sk-bouncedelay {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
 
-.modal_custom.modal-dialog.modal-dialog-scrollable .edit_column {
-    padding: 0px;
-}
+            40% {
+                transform: scale(1);
+            }
+        }
 
-.column_table tbody#tableBody tr td:nth-child(3n) {
-    color: green;
-}
-table.table.column_table thead {
-    position: sticky;
-    top: -10px;
-}
-button#close_popup {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-}
-button#closeErrorMessage {
-    position: absolute;
-    right: 20px;
-    top: 5px;
-}
-div#errorMessage {
-    position: relative;
-}
-</style>
+        @keyframes sk-bouncedelay {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+        
+        div#page-loader {
+            top: 0;
+            left: 0;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #00000080;
+            z-index: 999999;
+        }
+
+        div#page-loader-wrap {
+            text-align: center;
+            /* vertical-align: center !important; */
+            margin-top: 20%;
+        }
+        .file_td{
+            width: 388px;
+            display: block;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .list_filed .list-group-item {
+            font-size: 14px;
+            padding: 5px 10px 5px 10px;
+            text-transform: capitalize !important;
+            border: 0px;
+            min-height: 31px;
+        }
+        #necessaryFieldList .list-group-item:nth-child(2n),
+            #necessaryFieldList1 .list-group-item:nth-child(2n) {
+            background-color: #cccccc5e !important;
+        }
+        .list_filed .list_heading{
+            background-color: #b17828; 
+            padding: 5px 10px 5px 10px;
+            color: #fff;
+            font-size: 17px;
+        }
+        #necessaryFieldList1 .list-group-item {
+        color: #008000;
+        }
+        .modal_custom.modal-dialog.modal-dialog-scrollable {
+        max-width: 800px;
+        }
+
+        .modal_custom.modal-dialog.modal-dialog-scrollable .edit_column {
+            padding: 0px;
+        }
+
+        .column_table tbody#tableBody tr td:nth-child(3n) {
+            color: green;
+        }
+        table.table.column_table thead {
+            position: sticky;
+            top: -10px;
+        }
+        button#close_popup {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+        button#closeErrorMessage {
+            position: absolute;
+            right: 20px;
+            top: 5px;
+        }
+        div#errorMessage {
+            position: relative;
+        }
+        /* div#successMessage {
+            position: relative;
+        } */
+    </style>
  <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
     </body>
     <script>
     $(document).ready(function() {
+        var exportTable = $('#example').DataTable({
+            oLanguage: {
+                sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
+            },
+            processing: true,
+            serverSide: true,
+            lengthMenu: [],
+            pageLength: 50,
+            ajax: {
+                url: '{{ route("export.filter") }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: function (d) {
+                    // Pass date range and supplier ID when making the request
+                  
+                },
+            },
+            beforeSend: function() {
+                // Show both the DataTables processing indicator and the manual loader before making the AJAX request
+                $('.dataTables_processing').show();
+                $('#manualLoader').show();
+            },
+            complete: function() {
+                // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
+                $('.dataTables_processing').hide();
+                $('#manualLoader').hide();     
+            },
+            columns: [
+                { data: 'supplier_name', name: 'supplier_name' , 'orderable': false, 'searchable': false },
+                { data: 'file_name', name: 'file_name' , 'orderable': false, 'searchable': false },
+                { data: 'status', name: 'status' , 'orderable': false, 'searchable': false },
+                { data: 'uploaded_by', name: 'uploaded_by' , 'orderable': false, 'searchable': false },
+                { data: 'date', name: 'date' , 'orderable': false, 'searchable': false },
+                { data: 'id', name: 'id' , 'orderable': false, 'searchable': false },
+            ],
+            "rowCallback": function(row, data, index) {
+                // Loop through each cell in the row
+                $('td', row).each(function() {
+                    // Check if the cell contains a button with a specific class
+                    if ($(this).find('button.invisible').length) {
+                        $(row).css('background-color','#f09b9b');
+                    }
+                });
+            }
+        });
+
+    
+
+    //    //datatable intialization
+    //    var exportTable =  $('#example').DataTable({
+    //         "paging": true,   // Enable pagination
+    //         "ordering": false, // Enable sorting
+    //         "searching": true, // Enable search
+    //         "lengthChange":false,
+    //         "pageLength": 40,
+    //         "data": <?php if(isset($data)){ echo $data; }  ?>,
+    //         "columns": [
+    //             { title: 'Supplier' },
+    //             { title: 'File Name' },
+    //             { title: 'Status' },
+    //             { title: 'Uploaded By' },
+    //             { title: 'Date' },
+    //             { title: 'Action' },
+    //             // Add more columns as needed
+    //         ],
+    //         "rowCallback": function(row, data, index) {
+    //             // Loop through each cell in the row
+    //             $('td', row).each(function() {
+    //                 // Check if the cell contains a button with a specific class
+    //                 if ($(this).find('button.invisible').length) {
+    //                     $(row).css('background-color','#f09b9b');
+    //                 }
+    //             });
+    //         }
+            
+    //     });
+         $('#example_length').hide();
+        // if (exportTable.data().count() > 40) {
+        //     // console.log("here");
+        //     $('#example_paginate').show(); // Enable pagination
+        // } else {
+          
+        //     $('#example_paginate').hide();
+        // }
+        //end of datatable
+
         $('#page-loader').hide();
         $('#importBtn').on( "click", function(event) {
             event.preventDefault();
             $('#page-loader').show();
             var button = document.getElementById('importBtn'),
             formData = new FormData($('#import_form')[0]);
-            
             button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading';
             button.disabled = true;
-        
             $.ajax({
                 type: 'POST',
                 url: "{{route('import.excel')}}", // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
+                // dataType: 'json',
                 success: function(response) {
+                    console.log(response);
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                     if(response.error){
-                       
-                        console.log("error from first");
-                        $('#page-loader').hide();
-                        $('#errorMessage').text(response.error);
-                        $('#errorMessage').css('display','block');
-                         // Adding close button
-                        $('#errorMessage').append('<button type="button" id="closeErrorMessage"class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
-
-                        // Functionality to close the error message when close button is clicked
-                        $('#closeErrorMessage').on('click', function() {
-                        $('#errorMessage').fadeOut();
-                        $('#import_form')[0].reset();
-                        });
-                        // setTimeout(function () {
-                        // $('#errorMessage').fadeOut();
-                        // }, 10000);
-                      
-                    }
-                    let errorMessages = [];
-
-                    if (response && response.error) {
-
-                        console.log("error from second");
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
                         button.disabled = false;
-
+                        var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {
+                                errorMessage = response.error;
+                        }
+                        $('#errorMessage').html('');
                         $('#page-loader').hide();
-                        // Iterate over each field in the error object
-                        Object.keys(response.error).forEach(field => {
-                            // Get the error messages for the current field
-                            let fieldErrorMessages = response.error[field];
-
-                            // Concatenate the field name and its error messages
-                            let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
-                            console.log(errorMessageText);
-
-                            // Accumulate the error messages
-                            errorMessages.push(errorMessageText);
-                        });
-                        $('#errorMessage').html(errorMessages.join('<br>'));
-                        $('#errorMessage').css('display','block');
-                        $('#errorMessage').append('<button type="button" id="closeErrorMessage"class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
-
-                        // Functionality to close the error message when close button is clicked
-                        $('#closeErrorMessage').on('click', function() {
-                        $('#errorMessage').fadeOut();
-                        $('#import_form')[0].reset();
-                        });
+                        $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                     }
 
                     if(response.success){
-                        document.getElementById('importBtn').disabled = false;
+                    
+                        // button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
+                        button.disabled = false;
+                        // document.getElementById('importBtn').disabled = false;
                         button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
+                        $('#successMessages').html('');
                         $('#page-loader').hide();
-                        $('#successMessage').text(response.success);
-                        $('#successMessage').css('display','block');
-                        $("form")[0].reset();
-                        //disable all field 
-                        $('#enddate,#file,#importBtn').prop('disabled', true);
-                        setTimeout(function () {
-                            $('#successMessage').fadeOut();
-                            location.reload();
-                        }, 2000); 
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="successclose close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        // $("form")[0].reset();
+                        
+                        var dataTable = $('#example').DataTable();
+                            if (dataTable) {
+                            // Reload DataTable only if it exists
+                            dataTable.ajax.reload();
+                            } else {
+                            console.error('DataTable instance is not available or properly initialized.');
+                            }
+
+   
+
                     }
                     // Handle success response
                     // console.log(response);
@@ -412,40 +491,7 @@ div#errorMessage {
             }
         });
 
-         var exportTable =  $('#example').DataTable({
-            "paging": true,   // Enable pagination
-            "ordering": false, // Enable sorting
-            "searching": true, // Enable search
-            "lengthChange":false,
-            "pageLength": 40,
-            "data": <?php if(isset($data)){ echo $data; }  ?>,
-            "columns": [
-                { title: 'Supplier' },
-                { title: 'File Name' },
-                { title: 'Status' },
-                { title: 'Uploaded By' },
-                { title: 'Date' },
-                { title: 'Action' },
-                // Add more columns as needed
-            ],
-            "rowCallback": function(row, data, index) {
-                // Loop through each cell in the row
-                $('td', row).each(function() {
-                    // Check if the cell contains a button with a specific class
-                    if ($(this).find('button.invisible').length) {
-                        $(row).css('background-color','#f09b9b');
-                    }
-                });
-            }
-            
-        });
-        if (exportTable.data().count() > 40) {
-            // console.log("here");
-            $('#example_paginate').show(); // Enable pagination
-        } else {
-          
-            $('#example_paginate').hide();
-        }
+      
         $(document).on('click','.edit_column',function(){
             var id = $(this).attr('data-id'); 
             console.log(id);
@@ -477,13 +523,19 @@ div#errorMessage {
         // });
       
         $("#saveChangesBtn").click(function() {
-       
+            // Define the htmlspecialchars function
+        function htmlspecialchars(str) {
+            var elem = document.createElement('div');
+            elem.innerText = str;
+            return elem.innerHTML;
+        }
         var dataToSave = []; // Array to store the data to be saved
         var fieldValues = {};
         var isValid = true;
         // Iterate over each input field with name 'field_name[]'
         $('input[name="field_names[]"]').each(function(index) {
             var fieldValue = $(this).val(); // Get the value of the input field
+            fieldValue = htmlspecialchars(fieldValue); 
             console.log(fieldValue);
             var fieldId = $(this).data('id'); // Get the name attribute of the input field
             let inputField = $(this);
@@ -558,7 +610,13 @@ div#errorMessage {
                     var serverResponse = JSON.stringify(response);
                     console.log(response);
                     if (response.status == "success") {
-                     location.reload();
+                        $("#close_popup").trigger("click");
+                        // $('#successMessage').text(response.message);
+                        // $('#successMessage').css('display','block');
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.message+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        // setTimeout(function() {
+                        //     location.reload();
+                        // }, 3000); // 3000 milliseconds = 3 seconds
                     }
                     // Handle success response from the server
                     console.log("Data saved successfully:", response);
@@ -573,10 +631,13 @@ div#errorMessage {
             });
         }
     });
-    
-        //reset table after closing popup
-        $("#close_popup").click(function() {
+        // $('.successclose').click(function() {
+        //     $('#example').DataTable().ajax.reload();
 
+        // });
+        //reset table after closing popup
+        $("#close_popup,#close_popup2").click(function() {
+            // location.reload();
             // Loop through each table row
             $("#table_column tbody tr").each(function() {
             var td = $(this).find("td:eq(1)");
@@ -596,7 +657,7 @@ div#errorMessage {
             var id = $(this).attr('data-id');
             
             swal.fire({
-                title: "Oops....",
+                // title: "Oops....",
                 text: "Are you sure you want to delete this file?",
                 icon: "error",
                 showCancelButton: true,

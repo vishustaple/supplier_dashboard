@@ -12,27 +12,25 @@
             <i class="fa-solid fa-plus"></i> User
             </button>
         </div>
-        <div class="alert alert-success m-3" id="user_del_success" style="display:none;">
-                        </div>
+        <div id="user_del_success" ></div>
         <div class="mx-auto py-0 d-flex justify-content-between align-items-center">
-        
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
+                    <!--Add User Modal -->
+            <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLabel">Add User</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close addpopup" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                        <div class="alert alert-success" id="successMessage" style="display:none;">
-                        </div>
-                        <div class="alert alert-danger" id="errorMessage" style="display:none;">
-                        </div>
-                        <form action="" id="add_user" method="POST">
+                            <div  id="successMessage" >
+                            </div>
+                            <div  id="errorMessage" >
+                            </div>
+
+                            <form action="" id="add_user" method="POST">
                                         @csrf
                                             <div class="row">
                                                 <div class="col-md-6">
@@ -52,7 +50,7 @@
                                                 <label for="inputEmail">Email address</label>
                                                 <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
                                             </div>
-                                            <div class="row mb-3">
+                                            <!-- <div class="row mb-3">
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-3 mb-md-0">
                                                         <label for="inputPassword">Password</label>
@@ -65,7 +63,7 @@
                                                         <input class="form-control" id="inputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="form-group mb-3">
                                                 <label for="userrole">User Role</label>
                                                     <select id="user_role" name="user_role" class="form-control"> 
@@ -80,88 +78,83 @@
                                                     <button type="submit" class="btn btn-primary mx-auto">Create User</button>
                                                 </div>
                                             </div>
-                                        </form>
-                        </div>
+                            </form>
                         </div>
                     </div>
-                    </div>
+                </div>
+            </div>
         </div>
         <div class="mx-auto py-0 d-flex justify-content-between align-items-center">
-        
-
-        <!-- Modal -->
-        <div class="modal fade" id="updateuserModal" tabindex="-1" role="dialog" aria-labelledby="updateuserModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="updateuserModalLabel">Update User</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-            <div class="alert alert-success" id="updatesuccessMessage" style="display:none;">
-            </div>
-            <div class="alert alert-danger" id="updateerrorMessage" style="display:none;">
-            </div>
-            <form action="" id="update_user" method="POST">
-                            @csrf
-                             <input type="hidden" name="update_user_id" id="update_user_id">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3 mb-md-0">
-                                            <label for="inputFirstName">First name</label>
-                                            <input class="form-control" id="updateFirstName" name="first_name" type="text" placeholder="Enter your first name" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="inputLastName">Last name</label>
-                                            <input class="form-control" id="updateLastName" name="last_name"type="text" placeholder="Enter your last name" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="inputEmail">Email address</label>
-                                    <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3 mb-md-0">
-                                            <label for="inputPassword">Password</label>
-                                            <input class="form-control" id="updateinputPassword" name="password" type="password" placeholder="Create a password" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3 mb-md-0">
-                                            <label for="inputPasswordConfirm">Confirm Password</label>
-                                            <input class="form-control" id="updateinputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="userrole">User Role</label>
-                                        <select id="update_user_role" name="update_user_role" class="form-control"> 
-                                        <option value="" selected>--Select--</option>
-                                        <option value="2">Admin</option>
-                                        <option value="3">User</option>
-                                        </select>
-                                </div>
-                                <div class="mt-4 mb-0">
-                                    <div class="d-grid">
-                                        <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
-                                        <button type="submit" class="btn btn-primary mx-auto">Update User</button>
-                                    </div>
-                                </div>
-                            </form>
-            </div>
+            <!-- Update User Modal -->
+            <div class="modal fade" id="updateuserModal" tabindex="-1" role="dialog" aria-labelledby="updateuserModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateuserModalLabel">Update User</h5>
+                            <button type="button" class="close updatemodal" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div  id="updatesuccessMessage" >  </div>
+                            <div  id="updateerrorMessage" ></div>
+                                <form action="" id="update_user" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="update_user_id" id="update_user_id">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3 mb-md-0">
+                                                        <label for="inputFirstName">First name</label>
+                                                        <input class="form-control" id="updateFirstName" name="first_name" type="text" placeholder="Enter your first name" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="inputLastName">Last name</label>
+                                                        <input class="form-control" id="updateLastName" name="last_name"type="text" placeholder="Enter your last name" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="inputEmail">Email address</label>
+                                                <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
+                                            </div>
+                                            <!-- <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3 mb-md-0">
+                                                        <label for="inputPassword">Password</label>
+                                                        <input class="form-control" id="updateinputPassword" name="password" type="password" placeholder="Create a password" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-3 mb-md-0">
+                                                        <label for="inputPasswordConfirm">Confirm Password</label>
+                                                        <input class="form-control" id="updateinputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <div class="form-group mb-3">
+                                                <label for="userrole">User Role</label>
+                                                    <select id="update_user_role" name="update_user_role" class="form-control"> 
+                                                    <option value="" selected>--Select--</option>
+                                                    <option value="2">Admin</option>
+                                                    <option value="3">User</option>
+                                                    </select>
+                                            </div>
+                                            <div class="mt-4 mb-0">
+                                                <div class="d-grid">
+                                                    <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
+                                                    <button type="submit" class="btn btn-primary mx-auto">Update User</button>
+                                                </div>
+                                            </div>
+                                </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        </div>
-</div>
 
         <div class="container">
-         
             <table id="user_data" class="data_table_files">
             <!-- Your table content goes here -->
             </table>
@@ -176,7 +169,7 @@
      
        var userTable = $('#user_data').DataTable({
             "paging": true,   // Enable pagination
-            // "ordering": true, // Enable sorting
+            "ordering": false, // Enable sorting
             "searching": true, // Enable search
             "pageLength": 40,
             "lengthChange":false,
@@ -190,14 +183,15 @@
             
             ]
         });
-        if (userTable.data().count() > 40) {
-            $('#user_data_paginate').show(); // Enable pagination
-        } else {
-            $('#user_data_paginate').hide();
-        }
+        // if (userTable.data().count() > 40) {
+        //     $('#user_data_paginate').show(); // Enable pagination
+        // } else {
+        //     $('#user_data_paginate').hide();
+        // }
 
         $('#userModal').on('show.bs.modal', function (e) {
             $('#errorMessage').fadeOut();
+            $('#successMessage').fadeOut();
             $("#add_user")[0].reset();
         })
 
@@ -209,71 +203,47 @@
         // console.log(formData);
         $.ajax({
                 type: 'POST',
-                url: '{{ route('user.register') }}', // Replace with your actual route name
+                url: '{{ route("user.register") }}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
                      console.log(response);
                      if(response.error){
-                        $('#errorMessage').text(response.error);
+                        var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {   
+                            errorMessage = response.error;
+                        }
+                        $('#errorMessage').html('');
                         $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 3000);
-                      
+                        $('#page-loader').hide();
+                        $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                     }
-                    // Assuming `response` is the error response object
-                    let errorMessages = [];
-                    if (response && response.error) {
-                    // Iterate over each field in the error object
-                    Object.keys(response.error).forEach(field => {
-                    // Get the error messages for the current field
-                    let fieldErrorMessages = response.error[field];
-                    // Concatenate the field name and its error messages
-                    let errorMessageText = `${fieldErrorMessages.join('</br>')}`;
-                    // console.log(errorMessageText);
-                    // Accumulate the error messages
-                    errorMessages.push(errorMessageText);
-                    });
-                    $('#errorMessage').html(errorMessages.join('<br>'));
-                    $('#errorMessage').css('display','block');
-                    setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        },3000);
-                    }
-
-                    // Set the content of the div with all accumulated error messages
-                   
-                   
                     if(response.success){
                         $('#page-loader').hide();
-                        $('#successMessage').text(response.success);
+                        $('#successMessage').html('');
                         $('#successMessage').css('display','block');
+                        $('#successMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         $("form")[0].reset();
-                        //disable all field 
-                       
-                        setTimeout(function () {
-                            $('#successMessage').fadeOut();
-                            window.location.reload();
-                        }, 3000); 
-                        
-                    }
-                   
+                    }    
                 },
-                error: function(xhr, status, error) {
-               
+                error: function(xhr, status, error) {          
                     const errorresponse = JSON.parse(xhr.responseText);
-                        $('#errorMessage').text(errorresponse.error);
-                        $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                        $('#errorMessage').fadeOut();
-                        }, 3000);
+                        // $('#errorMessage').text(errorresponse.error);
+                        // $('#errorMessage').css('display','block');
+                        // setTimeout(function () {
+                        // $('#errorMessage').fadeOut();
+                        // }, 3000);
                 }
             });
-
-
         });
+
+       
          //get data on updateform
             $('.updateuser').on('click',function(e){ 
             e.preventDefault();
@@ -281,26 +251,26 @@
             // alert(id);
             $.ajax({
                 type: 'GET',
-                url: '{{ route('user.updateuser') }}',
+                url: '{{ route("user.updateuser") }}',
                 data: { id: id },
                 success: function(response) {
                     if (response.error) {
-                $('#errorMessage').text(response.error);
-                $('#errorMessage').css('display', 'block');
-                setTimeout(function () {
-                    $('#errorMessage').fadeOut();
-                }, 3000);
-            } else {
-                // console.log(response.editUserData.password);
-                $('#update_user_id').val(response.editUserData.id);
-                $('#updateFirstName').val(response.editUserData.first_name);
-                $('#updateLastName').val(response.editUserData.last_name);
-                $('#updateinputEmail').val(response.editUserData.email);
-                // $('#user_type').val(response.editUserData.user_type);
-                $('#update_user_role option[value="' + response.editUserData.user_type + '"]').prop('selected', true);
+                        $('#errorMessage').text(response.error);
+                        $('#errorMessage').css('display', 'block');
+                        setTimeout(function () {
+                        $('#errorMessage').fadeOut();
+                        }, 3000);
+                    } else {
+                    // console.log(response.editUserData.password);
+                        $('#update_user_id').val(response.editUserData.id);
+                        $('#updateFirstName').val(response.editUserData.first_name);
+                        $('#updateLastName').val(response.editUserData.last_name);
+                        $('#updateinputEmail').val(response.editUserData.email);
+                        // $('#user_type').val(response.editUserData.user_type);
+                        $('#update_user_role option[value="' + response.editUserData.user_type + '"]').prop('selected', true);
 
-                $('#updateuserModal').modal('show');
-            }
+                        $('#updateuserModal').modal('show');
+                    }
                 },
                 error:function(xhr, status, error) {
                
@@ -320,6 +290,7 @@
                 updateuserModal.modal('hide');
                 });
 
+
             // updateform data on submit 
             $('#updateuserModal').on('submit',function(e){ 
             e.preventDefault();
@@ -327,49 +298,35 @@
             // console.log(formData);
                 $.ajax({
                 type: 'POST',
-                url: '{{ route('user.updateuserdata') }}',
+                url: '{{ route("user.updateuserdata") }}',
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
                     console.log(response);
-                    if (response.error) {
-                    $('#updateerrorMessage').text(response.error);
-                    $('#updateerrorMessage').css('display', 'block');
-                    setTimeout(function () {
-                    $('#updateerrorMessage').fadeOut();
-                    }, 3000);
-                    } 
-                    
-                    let updateerrorMessages = [];
-                    if (response && response.error) {
-                        Object.keys(response.error).forEach(field => {
-                            let updatefieldErrorMessages = response.error[field];
-                            let updateerrorMessageText = `${updatefieldErrorMessages.join('</br>')}`;
-                            updateerrorMessages.push(updateerrorMessageText);
-                        });
-                        // console.log(errorMessages);
-                        let errorMessageString = updateerrorMessages.join('<br>');
-                        $('#updateerrorMessage').html(errorMessageString);
+                    if(response.error){
+                        var errorMessage = '';
+                        if (typeof response.error === 'object') {
+                            // Iterate over the errors object
+                            $.each(response.error, function (key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                        } else {   
+                            errorMessage = response.error;
+                        }
+                        $('#updateerrorMessage').html('');
                         $('#updateerrorMessage').css('display','block');
-                        setTimeout(function () {
-                            $('#updateerrorMessage').fadeOut();
-                            },3000);
+                        $('#page-loader').hide();
+                        $('#updateerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                     }
+                    
                     if(response.success){
                         $('#page-loader').hide();
-                        $('#updatesuccessMessage').text(response.success);
+                        $('#updatesuccessMessage').html('');
                         $('#updatesuccessMessage').css('display','block');
+                        $('#updatesuccessMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         $("form")[0].reset();
-                     
-                       
-                        setTimeout(function () {
-                            $('#updatesuccessMessage').fadeOut();
-                            window.location.reload();
-                        }, 3000); 
-                        
-                    }
-                 
+                    }   
                 },
                 error:function(xhr, status, error) {
                
@@ -379,7 +336,7 @@
                     setTimeout(function () {
                     $('#updateerrorMessage').fadeOut();
                     }, 3000);
-                    }
+                    }   
                 });
 
             });
@@ -388,7 +345,7 @@
                 $(document).on('click','.remove',function(){               
                 var id = $(this).attr('data-id');
                     swal.fire({
-                        title: "Oops....",
+                        // title: "Oops....",
                         text: "Are you sure you want to delete this user?",
                         icon: "error",
                         showCancelButton: true,
@@ -402,24 +359,9 @@
                                     data:{id:id},
                                     success:function(data)
                                     {
-                                        
-                                        // swal.fire({
-                                        //     position: 'top-end',
-                                        //     icon: 'success',
-                                        //     title: 'Remove Successfully',
-                                        //     showConfirmButton: false,
-                                        //     timer: 1500
-                                        // })
-                                        // location.reload();
-                                        // }, 1500);
-                                        
-                                        $('#user_del_success').text('User Delete Successfully!');
+                                        $('#user_del_success').html('');
                                         $('#user_del_success').css('display','block');
-                                                            setTimeout(function () {
-                                        $('#user_del_success').fadeOut();
-                                        location.reload();
-                                        }, 3000);
-                                        
+                                        $('#user_del_success').append('<div class="alert alert-success alert-dismissible fade show m-3" role="alert"> User Delete Successfully! <button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
                                     },
                                     error:function(error){
                                     
@@ -432,21 +374,13 @@
                     });
                 });
     });
-
- 
-    // JavaScript to make checkboxes act like radio buttons
-    const radioCheckboxes = document.querySelectorAll('.radio-checkbox');
-
-        radioCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-            // Uncheck all other checkboxes in the group
-            radioCheckboxes.forEach(otherCheckbox => {
-                if (otherCheckbox !== checkbox) {
-                otherCheckbox.checked = false;
-                }
-            });
+     //on close window reload after adding user 
+        $(document).on('click', '.updatemodal, .addpopup, .deletemodal', function() {
+              location.reload();
+        
         });
-    });
+      
+ 
     
 </script>
 

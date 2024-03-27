@@ -123,6 +123,9 @@ table thead tr th{
 table#account_data  thead tr th{
   white-space: nowrap !important; 
 }
+/* table#account_data {
+  display: block !important;
+} */
 /* .data_table_files tbody tr td:last-child{
     width: 70px !important;
     min-width: 70px;
@@ -220,9 +223,10 @@ div#userModal .modal-header button.close,
   border-radius: 50%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
   opacity: 1;
   color: #fff;
+  padding: 5px !important;
 }
 div#userModal .modal-content,
 #updateuserModal .modal-content,
@@ -254,12 +258,12 @@ div#userModal .modal-header h5,
 }
 div#layoutSidenav_nav {
   position: fixed;
-  width: 225px;
+  width: 250px;
   height: 100vh;
 }
 
 div#layoutSidenav_content {
-  margin-left: 225px !important;
+  margin-left: 250px !important;
   overflow: hidden;
 }
 .sb-sidenav .sb-sidenav-menu .nav {
@@ -335,8 +339,115 @@ div#layoutSidenav_content {
 .dropdown.custom_drop_down .dropdown-menu.show svg {
     margin-right: 7px;
 }
+.notification-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  transform: translate(50%, -50%);
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.manage_account_link {
+  display: flex;
+  align-items: center;
+}
+.manage_account_link  .notification-count{
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+}
+.manage_account_link .nav-link {
+  padding-right: 0px;
+  margin-right: 20px;
+}
+
+.manage_account_link a.bell_icon_link.position-relative {
+  color: #fff;
+}
 @media (max-width:992px) {
   div#example_wrapper {
     overflow: auto;
     }
+}
+
+/* ___ */
+div#editAccountModal .modal-dialog {
+  max-width: 700px;
+}
+div#editAccountModal .modal-dialog .modal-body {
+  padding: 15px 58px;
+}
+div#editAccountModal .modal-header {
+  justify-content: center;
+}
+
+div#editAccountModal .modal-header button.btn-close {
+  position: absolute;
+  right: 10px;
+  top: 7px;
+}
+div#editAccountModal .modal-footer {
+  justify-content: center;
+}
+th.inncnetive_rebate.sorting {
+  width: auto !important;
+}
+.password_card .card-header {
+  /* text-align: center; */
+  background: #b17828 !important;
+  border: 0px;
+  color: #fff;
+  font-weight: 500;
+  font-size: 22px;
+}
+ul.dropdown-menu.dropdown-menu-end.hover.show {
+  margin: 0px;
+  padding: 0px;
+  box-shadow: 0 0 13px rgba(0,0,0,0.3);
+  border: 0px;
+}
+ul.dropdown-menu.dropdown-menu-end.hover.show li a{
+  padding: 10px ;
+  transition: 0.3s ease-in-out;
+}
+ul.dropdown-menu.dropdown-menu-end.hover.show li a:hover {
+  background: #b17828;
+  color: #fff;
+}
+ul.dropdown-menu.dropdown-menu-end.hover.show hr.dropdown-divider {
+  margin: 0px;
+}
+div#layoutSidenav div#layoutSidenav_content.ms-0 {
+  margin-left: 0px !important;
+}
+
+/* -collapsible sidebar css- */
+/* --- */
+div#layoutSidenav_nav{
+  left: 0px !important;
+  transition: left 0.5s ease-in-out !important;
+  transform: none !important;
+}
+div#layoutSidenav_nav.collapsed {
+ left: -260px !important;
+}
+#layoutSidenav #layoutSidenav_content{
+
+  transition: margin 0.6s ease-in-out !important;
+}
+div#layoutSidenav_content.collapsedfull{
+  margin-left: 0px !important;
+}
+.container{
+  max-width: 100% !important;
+}
+#example_wrapper #example {
+  display: inline-table !important;
 }

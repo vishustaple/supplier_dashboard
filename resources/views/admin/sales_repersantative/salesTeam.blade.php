@@ -7,16 +7,16 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content" >
-        <h3 class="mb-0 ps-2">Sales Team Accounts</h3>
+        <h3 class="mb-0 ps-2 ms-1">Sales Team Accounts</h3>
         <div class="row align-items-end border-bottom pb-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
                 <!-- Button trigger modal -->
                 <a href="{{ route('sales.add') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Sales Repersentative Account</a>
-                <button id="downloadSaleTeamCsvBtn" class="btn-success btn disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                <button id="downloadSaleTeamCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
             </div>
         </div>
-        <div class="alert alert-success m-3" id="account_del_success" style="display:none;"></div>
+        <div  class="alert alert-success m-3" id="account_del_success" style="display:none;"></div>
         <div class="container">
       
             <table id="sales_data" class="data_table_files">
@@ -25,6 +25,8 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone Number</th>
+                        <th>Team User Type</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -33,9 +35,11 @@
         
     </div>
 </div>
+<div id="page-loader" style="display:none"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>
 <script>
     $(document).ready(function() {
-        var accountTable = $('#sales_data').DataTable({
+      
+    var salesTable = $('#sales_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
             },
@@ -70,32 +74,53 @@
                 { data: 'name', name: 'name' },
                 { data: 'email', name: 'email' },
                 { data: 'phone', name: 'phone' },
+                { data: 'team_user_type', name: 'team_user_type' },
+                { data: 'status', name: 'status' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
         });
 
-    $('#sales_data_length').hide();
-    if (accountTable.data().count() > 40) {
-            $('#sales_data_paginate').show(); // Enable pagination
-        } else {
-            $('#sales_data_paginate').hide();
-        }
-
-    });
-
-    $('#downloadAccountCsvBtn').on('click', function () {
+      $('#sales_data_length').hide();
+    $('#downloadSaleTeamCsvBtn').on('click', function () {
         // Trigger CSV download
-        downloadAccountCsv();
+        downloadSalesCsv();
     });
 
-    function downloadAccountCsv() {
+    function downloadSalesCsv() {
         // You can customize this URL to match your backend route for CSV download
-        var csvUrl = '{{ route("account.export-csv") }}';
-
+        var csvUrl = '{{ route("sales.export-csv") }}';
+        csvUrl += '?search=' + salesTable.search();
         // Open a new window to download the CSV file
         window.open(csvUrl, '_blank');
     }
+    });
 
+    
+
+    //toggle disable enable 
+    function toggleDisableEnable(id){
+        var id = id;
+        $('#page-loader').show();
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+        });
+            $.ajax({
+            url:'{{route("sales.status")}}',
+            data:{id:id},
+            dataType: "JSON",
+            success:function(data)
+            { 
+            $('#page-loader').hide();
+            location.reload();
+        
+            },
+            error:function(error){
+            $('#page-loader').hide();
+        }
+        });
+    }
     // JavaScript to make checkboxes act like radio buttons
     const radioCheckboxes = document.querySelectorAll('.radio-checkbox');
 
@@ -114,7 +139,7 @@
      $(document).on('click', '.remove', function () {
     var id = $(this).attr('data-id');
     swal.fire({
-        title: "Oops....",
+        // title: "Oops....",
         text: "Are you sure you want to delete this sales representative?",
         icon: "error",
         showCancelButton: true,
@@ -130,10 +155,10 @@
                     if (response.success) {
                         $('#account_del_success').text('Sales Representative Delete Successfully!');
                         $('#account_del_success').css('display', 'block');
-                        setTimeout(function () {
-                            $('#account_del_success').fadeOut();
-                            location.reload();
-                        }, 3000);
+                         $('#account_del_success').append('<button type="button" id="closeSuccessMessage" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+                             $('#closeSuccessMessage').on('click', function() {
+                                location.reload();
+                            });
                     } else {
                         // Handle other cases where response.success is false
                     }
@@ -147,6 +172,8 @@
             // Handle cancellation
         }
     });
+
+    
 });
 
 </script>
