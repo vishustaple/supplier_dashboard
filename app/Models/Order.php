@@ -447,8 +447,34 @@ class Order extends Model
                 $finalArray[0]['volume_rebate'] = number_format($data->volume_rebate, 2, '.', false);
                 $finalArray[0]['commissions'] = number_format($data->commission, 2, '.', false);
             } else {
-                $finalArray[0]['approved'] = ($data->approved == 1) ? ('Y') : ('N');
-                $finalArray[0]['paid'] = ($data->paid == 1) ? ('Y') : ('N');
+                if ($data->approved == 1) {
+                    $finalArray[0]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" required> 
+                        <option value="">--Select--</option>
+                        <option value="1" selected>Yes</option>
+                        <option value="0">NO</option>
+                    </select>';
+                } else {
+                    $finalArray[0]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" required> 
+                        <option value="" selected>--Select--</option>
+                        <option value="1">Yes</option>
+                        <option selected value="0">NO</option>
+                    </select>';
+                }
+
+                if ($data->paid == 1) {
+                    $finalArray[0]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" required> 
+                        <option value="">--Select--</option>
+                        <option value="1" selected>Yes</option>
+                        <option value="0">NO</option>
+                    </select>';
+                } else {
+                    $finalArray[0]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" required> 
+                        <option value="">--Select--</option>
+                        <option value="1">Yes</option>
+                        <option value="0" selected>NO</option>
+                    </select>';
+                }
+
                 $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
                 $finalArray[0]['amount'] = '$'.number_format($data->spend, 2);
                 $finalArray[0]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);

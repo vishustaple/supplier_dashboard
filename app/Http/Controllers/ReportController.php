@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use DB;
 use League\Csv\Writer;
-use App\Models\{Order, CategorySupplier, Account, SalesTeam};
+use App\Models\{Order, CategorySupplier, Account, SalesTeam, CommissionRebate};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 use Illuminate\Http\Request;
@@ -224,5 +224,37 @@ class ReportController extends Controller
 
         /** return $csvResponse; */
         return $response;
+    }
+
+    public function approvedUpdate(Request $request){
+        if ($request->ajax()) {
+            $commissionRebate = CommissionRebate::find($request->id);
+
+            $commissionRebate->update([
+                'approved'=> $request->approved,
+            ]);
+
+            if ($request->approved == 1) {
+                return response()->json(['success' => 'Commission approved'], 200);
+            } else {
+                return response()->json(['success' => 'Commission disapproved'], 200);
+            }
+        }
+    }
+
+    public function paidUpdate(Request $request){
+        if ($request->ajax()) {
+            $commissionRebate = CommissionRebate::find($request->id);
+
+            $commissionRebate->update([
+                'paid'=> $request->paid,
+            ]);
+            
+            if ($request->paid == 1) {
+                return response()->json(['success' => 'Commission paid'], 200);
+            } else {
+                return response()->json(['success' => 'Commission unpaid'], 200);
+            }
+        }
     }
 }
