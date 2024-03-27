@@ -520,7 +520,6 @@ class Order extends Model
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
             0=>'suppliers.supplier_name',
-            // 1=>'m2.account_name',
             1=>'amount',
             2=>'volume_rebate',
             3=>'commissions',
