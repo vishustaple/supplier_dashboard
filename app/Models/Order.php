@@ -446,6 +446,7 @@ class Order extends Model
             if ($filter['quarter'] == 'Annual'){
                 $startDate=  $dateArray['CALENDAR']["1"];
                 $endDate=  $dateArray['CALENDAR']["5"];
+                $query->where('spend', '!=', 0);    
             }
             
             $query->whereDate('start_date', '>=', $startDate)
