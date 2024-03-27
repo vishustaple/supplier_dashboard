@@ -440,8 +440,8 @@ class Order extends Model
             $finalArray=[];
             /** Making final array */
             if ($csv) {
-                $finalArray[0]['approved'] = ($data->approved == 1) ? ('Y') : ('N');
-                $finalArray[0]['paid'] = ($data->paid == 1) ? ('Y') : ('N');
+                $finalArray[0]['approved'] = ($data->approved == 1) ? ('Yes') : ('No');
+                $finalArray[0]['paid'] = ($data->paid == 1) ? ('Yes') : ('No');
                 $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
                 $finalArray[0]['amount'] = number_format($data->spend, 2, '.', false);
                 $finalArray[0]['volume_rebate'] = number_format($data->volume_rebate, 2, '.', false);
