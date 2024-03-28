@@ -20,6 +20,7 @@ class CommissionRebate extends Model
     protected $fillable = [
         'paid',
         'spend',
+        'quarter',
         'end_date',
         'approved',
         'sales_rep',

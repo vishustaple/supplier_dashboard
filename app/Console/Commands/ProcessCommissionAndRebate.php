@@ -44,10 +44,10 @@ class ProcessCommissionAndRebate extends Command
         }
         
         $filters = [
-            0 => ['quarter' => 'Quarter 1'],
-            1 => ['quarter' => 'Quarter 2'],
-            2 => ['quarter' => 'Quarter 3'],
-            3 => ['quarter' => 'Quarter 4'],
+            0 => ['quarter' => 'Quarter 1', 'quarter1' => '1'],
+            1 => ['quarter' => 'Quarter 2', 'quarter1' => '2'],
+            2 => ['quarter' => 'Quarter 3', 'quarter1' => '3'],
+            3 => ['quarter' => 'Quarter 4', 'quarter1' => '4'],
         ];
         
         foreach ($salesRep as $key => $values) {
@@ -127,6 +127,7 @@ class ProcessCommissionAndRebate extends Command
                         'start_date' => $startDate,
                         'end_date' => $endDate,
                         'approved' => 0,
+                        'quarter' => $filter['quarter1'],
                         'paid' => 0,
                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
