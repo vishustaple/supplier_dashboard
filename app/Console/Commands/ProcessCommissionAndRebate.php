@@ -29,9 +29,9 @@ class ProcessCommissionAndRebate extends Command
      */
     public function handle()
     {
-        $salesRep = SalesTeam::select('id as sales_rep')->get();
         $filter1['year'] = 2023;
         $fys = ['CALENDAR' => $filter1['year'].'-01-01'];
+        $salesRep = SalesTeam::select('id as sales_rep')->get();
 
         foreach ($fys as $key => $start){
             $nextYear = $filter1['year'] + 1;
@@ -78,28 +78,28 @@ class ProcessCommissionAndRebate extends Command
             
                 /** Year and quarter filter here */
                 if($filter['quarter'] == 'Quarter 1'){
-                    $startDate =  $dateArray['CALENDAR']["1"];
-                    $endDate =  $dateArray['CALENDAR']["2"];
+                    $startDate = $dateArray['CALENDAR']["1"];
+                    $endDate = $dateArray['CALENDAR']["2"];
                 }
         
                 if($filter['quarter'] == 'Quarter 2'){
-                    $startDate=  $dateArray['CALENDAR']["2"];
-                    $endDate=  $dateArray['CALENDAR']["3"];
+                    $startDate = $dateArray['CALENDAR']["2"];
+                    $endDate = $dateArray['CALENDAR']["3"];
                 }
         
                 if($filter['quarter'] == 'Quarter 3'){
-                    $startDate=  $dateArray['CALENDAR']["3"];
-                    $endDate=  $dateArray['CALENDAR']["4"];
+                    $startDate = $dateArray['CALENDAR']["3"];
+                    $endDate = $dateArray['CALENDAR']["4"];
                 }
         
                 if($filter['quarter'] == 'Quarter 4'){
-                    $startDate=  $dateArray['CALENDAR']["4"];
-                    $endDate=  $dateArray['CALENDAR']["5"];
+                    $startDate = $dateArray['CALENDAR']["4"];
+                    $endDate = $dateArray['CALENDAR']["5"];
                 }
         
                 if ($filter['quarter'] == 'Annual'){
-                    $startDate=  $dateArray['CALENDAR']["1"];
-                    $endDate=  $dateArray['CALENDAR']["5"];
+                    $startDate = $dateArray['CALENDAR']["1"];
+                    $endDate = $dateArray['CALENDAR']["5"];
                 }
 
                 $query->whereBetween('orders.date', [$startDate, $endDate])
