@@ -247,18 +247,14 @@ class Account extends Model
     public static function getSearchSupplierDatas($search=[]){
         if (!empty($search)) {
             $query = self::query()->select('suppliers.supplier_name as supplier_name', 'master_account_detail.category_supplier as id')
+
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            // ->where('supplier_name', 'LIKE', '%' . $search['q'] . '%')
-            // ->where('master_account_detail.account_number', $search['customer_number']);
+            
             ->where('master_account_detail.account_name', $search['account_name']);
             $results = $query->first();
 
-            // if ($results->isNotEmpty()) {
             if ($results !== null) {
-                // foreach ($results as $value) {
-                    // $finalArray[] = ['id' => $value->id, 'text' => $value->supplier_name];
-                    $finalArray[] = ['supplier' => $results->supplier_name, 'id' => $results->id];
-                // }
+                $finalArray[] = ['supplier' => $results->supplier_name, 'id' => $results->id];
                 return $finalArray;
             }
             return [];
@@ -268,10 +264,12 @@ class Account extends Model
     public static function getSearchAccountData($search=[]){
         if (!empty($search)) {
             $query = self::query()->select('master_account_detail.account_number as account')
+
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+
             ->where('master_account_detail.account_number', 'LIKE', '%' . $search['q'] . '%')
             ->where('master_account_detail.account_number', $search['customer_number']);
-            // ->where('master_account_detail.category_supplier', $search['supplier_number']);
+
             $results = $query->get();
 
             if ($results->isNotEmpty()) {
@@ -283,7 +281,6 @@ class Account extends Model
             }
 
             return [];
-            
         }
     }
 
@@ -300,17 +297,21 @@ class Account extends Model
         ];
       
         $query = self::query() /** Eager load relationships */
-        ->select('rebate.volume_rebate as volume_rebate',
-        'rebate.incentive_rebate as incentive_rebate',
-        'master_account_detail.id as id',
-        'master_account_detail.record_type as record_type',
-        'master_account_detail.created_at as date',
-        'suppliers.supplier_name as supplier_name',
-        'master_account_detail.account_number as account_number',
-        'master_account_detail.customer_name as customer_name',
-        'master_account_detail.account_name as account_name')
+        ->select(
+            'rebate.volume_rebate as volume_rebate',
+            'rebate.incentive_rebate as incentive_rebate',
+            'master_account_detail.id as id',
+            'master_account_detail.record_type as record_type',
+            'master_account_detail.created_at as date',
+            'suppliers.supplier_name as supplier_name',
+            'master_account_detail.account_number as account_number',
+            'master_account_detail.customer_name as customer_name',
+            'master_account_detail.account_name as account_name'
+        )
+
         ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
         ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+
         ->whereNotNull('master_account_detail.account_name')
         ->where('master_account_detail.account_name', '!=', '');
 
@@ -328,7 +329,6 @@ class Account extends Model
         }
 
         $query->whereNull('rebate.volume_rebate');
-        // $query->whereNo('master_account_detail.account_number');
 
         /** Get total records count (without filtering) */
         $query->groupBy('master_account_detail.account_name');
@@ -347,11 +347,9 @@ class Account extends Model
         } else {
             $filteredData = $query->get();
         }
-        /** Print the SQL query */
-        // dd($query->toSql());    
 
-        /** Get filtered records count */
-        $filteredRecords = $query->count();
+        /** Print the SQL query */
+        // dd($query->toSql());
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
@@ -389,21 +387,22 @@ class Account extends Model
         ];
 
         $query = self::query() /** Eager load relationships */
-        ->select('rebate.volume_rebate as volume_rebate',
-        'rebate.incentive_rebate as incentive_rebate',
-        'master_account_detail.id as id',
-        // 'master_account_detail.record_type as record_type',
-        'suppliers.supplier_name as supplier_name',
-        'master_account_detail.account_number as account_number',
-        'master_account_detail.customer_name as customer_name',
-        'master_account_detail.account_name as account_name')
+        ->select(
+            'rebate.volume_rebate as volume_rebate',
+            'rebate.incentive_rebate as incentive_rebate',
+            'master_account_detail.id as id',
+            'suppliers.supplier_name as supplier_name',
+            'master_account_detail.account_number as account_number',
+            'master_account_detail.customer_name as customer_name',
+            'master_account_detail.account_name as account_name'
+        )
+
         ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
         ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+
         ->whereNotNull('master_account_detail.account_name')
         ->where('master_account_detail.account_name', '!=', '');
         $query->whereNotNull('rebate.volume_rebate')->whereNotNull('rebate.incentive_rebate');
-
-        // dd($query->count());
          
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -413,19 +412,13 @@ class Account extends Model
                 foreach ($orderColumnArray as $column) {
                     $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
                 }
-            });
-            
-            // $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
+            });            
         }
-        
        
-            /** Get total records count (without filtering) */
+        /** Get total records count (without filtering) */
         $query->groupBy('master_account_detail.account_name');
-        // dd($query->count());
-     
         $totalRecords = $query->getQuery()->getCountForPagination();
-        // dd($totalRecords);
-        // dd($totalRecords );
+
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -433,18 +426,15 @@ class Account extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        // $totalRecords = $query->count();
         if (isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
         }
-        /** Print the SQL query */
-        // dd($query->toSql());    
 
-        /** Get filtered records count */
-        $filteredRecords = $query->count();
+        /** Print the SQL query */
+        // dd($query->toSql());
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
@@ -471,9 +461,7 @@ class Account extends Model
     }
 
     public static function getSearchGPNameData(){
-        $query = self::query()->select('grandparent_name')
-        ->whereNotNull('grandparent_name');
-        // ->whereNotNull('grandparent_id');
+        $query = self::query()->select('grandparent_name')->whereNotNull('grandparent_name');
         $query->groupBy('grandparent_name');
         $results = $query->get();
 
@@ -487,9 +475,7 @@ class Account extends Model
     }
 
     public static function getSearchGPNumberData(){
-        $query = self::query()->select('grandparent_id')
-        // ->whereNotNull('grandparent_name')
-        ->whereNotNull('grandparent_id');
+        $query = self::query()->select('grandparent_id')->whereNotNull('grandparent_id');
         $query->groupBy('grandparent_id');
         $results = $query->get();
 
@@ -503,9 +489,7 @@ class Account extends Model
     }
 
     public static function getSearchPNameData(){
-        $query = self::query()->select('parent_name')
-        ->whereNotNull('parent_name');
-        // ->whereNotNull('parent_id');
+        $query = self::query()->select('parent_name')->whereNotNull('parent_name');
         $query->groupBy('parent_name');
         $results = $query->get();
 
@@ -519,8 +503,7 @@ class Account extends Model
     }
 
     public static function getSearchPNumberData(){
-        $query = self::query()->select('parent_id')
-        ->whereNotNull('parent_id');
+        $query = self::query()->select('parent_id')->whereNotNull('parent_id');
         $query->groupBy('parent_name');
         $results = $query->get();
 
