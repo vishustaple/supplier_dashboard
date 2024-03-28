@@ -45,7 +45,7 @@
                     </div>
                     <div class="form-group col-md-4 mb-0">
                         <label for="approved">Select Approved:</label>
-                        <select id="approved" name="approved" class="form-control" required> 
+                        <select id="approved" name="approved" class="form-control"> 
                             <option value="" selected>--Select--</option>
                             <option value="1">Yes</option>
                             <option value="0">NO</option>
@@ -53,7 +53,7 @@
                     </div>
                     <div class="form-group col-md-4 mb-0">
                         <label for="paid">Select Paid:</label>
-                        <select id="paid" name="paid" class="form-control" required> 
+                        <select id="paid" name="paid" class="form-control" > 
                             <option value="" selected>--Select--</option>
                             <option value="1">Yes</option>
                             <option value="0">NO</option>

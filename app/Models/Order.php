@@ -403,10 +403,14 @@ class Order extends Model
     
         if (isset($filter['approved']) || !empty($filter['approved'])) {
             $query->where('approved', $filter['approved']);
+        } else {
+            $query->whereIn('approved', [0, 1]);
         }
 
         if (isset($filter['paid']) || !empty($filter['paid'])) {
             $query->where('paid', $filter['paid']);
+        } else {
+            $query->whereIn('paid', [0, 1]);
         }
 
         /** Year and quarter filter here */
@@ -464,51 +468,57 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        $data = $query->first();
-        if (isset($data) && $data) {
-            $finalArray=[];
+        $datas = $query->get();
 
+        // echo"<pre>";
+        // print_r($datas);
+        // die;
+        if (isset($datas) && $datas->isNotEmpty()) {
+            
             /** Making final array */
-            if ($csv) {
-                $finalArray[0]['approved'] = ($data->approved == 1) ? ('Yes') : ('No');
-                $finalArray[0]['paid'] = ($data->paid == 1) ? ('Yes') : ('No');
-                $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
-                $finalArray[0]['amount'] = number_format($data->spend, 2, '.', false);
-                $finalArray[0]['volume_rebate'] = number_format($data->volume_rebate, 2, '.', false);
-                $finalArray[0]['commissions'] = number_format($data->commission, 2, '.', false);
-            } else {
-                if ($data->approved == 1) {
-                    $finalArray[0]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" required> 
-                        <option value="">--Select--</option>
-                        <option value="1" selected>Yes</option>
-                        <option value="0">NO</option>
-                    </select>';
+            $finalArray=[];
+            foreach ($datas as $key => $data) {
+                if ($csv) {
+                    $finalArray[$key]['approved'] = ($data->approved == 1) ? ('Yes') : ('No');
+                    $finalArray[$key]['paid'] = ($data->paid == 1) ? ('Yes') : ('No');
+                    $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
+                    $finalArray[$key]['amount'] = number_format($data->spend, 2, '.', false);
+                    $finalArray[$key]['volume_rebate'] = number_format($data->volume_rebate, 2, '.', false);
+                    $finalArray[$key]['commissions'] = number_format($data->commission, 2, '.', false);
                 } else {
-                    $finalArray[0]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" required> 
-                        <option value="" selected>--Select--</option>
-                        <option value="1">Yes</option>
-                        <option selected value="0">NO</option>
-                    </select>';
+                    if ($data->approved == 1) {
+                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" required> 
+                            <option value="">--Select--</option>
+                            <option value="1" selected>Yes</option>
+                            <option value="0">NO</option>
+                        </select>';
+                    } else {
+                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" required> 
+                            <option value="" selected>--Select--</option>
+                            <option value="1">Yes</option>
+                            <option selected value="0">NO</option>
+                        </select>';
+                    }
+    
+                    if ($data->paid == 1) {
+                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" required> 
+                            <option value="">--Select--</option>
+                            <option value="1" selected>Yes</option>
+                            <option value="0">NO</option>
+                        </select>';
+                    } else {
+                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" required> 
+                            <option value="">--Select--</option>
+                            <option value="1">Yes</option>
+                            <option value="0" selected>NO</option>
+                        </select>';
+                    }
+    
+                    $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
+                    $finalArray[$key]['amount'] = '$'.number_format($data->spend, 2);
+                    $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
+                    $finalArray[$key]['commission'] = '<button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button>';
                 }
-
-                if ($data->paid == 1) {
-                    $finalArray[0]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" required> 
-                        <option value="">--Select--</option>
-                        <option value="1" selected>Yes</option>
-                        <option value="0">NO</option>
-                    </select>';
-                } else {
-                    $finalArray[0]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" required> 
-                        <option value="">--Select--</option>
-                        <option value="1">Yes</option>
-                        <option value="0" selected>NO</option>
-                    </select>';
-                }
-
-                $finalArray[0]['sales_rep'] = $salesRep->sales_rep;
-                $finalArray[0]['amount'] = '$'.number_format($data->spend, 2);
-                $finalArray[0]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
-                $finalArray[0]['commission'] = '<button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button>';
             }
 
             if ($csv) {
