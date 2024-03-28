@@ -16,10 +16,12 @@
             width: 170px;
             min-width: 170px;
             max-width: 170px;
-        } 
+        }
+
         #commission_table tbody tr td:nth-of-type(2) input{
             width: 100%;
         }
+
         #commission_table tbody tr td:nth-of-type(3) {
             width: 150px;
         }
@@ -27,10 +29,12 @@
         #commission_table tbody tr td:nth-of-type(4) {
             width: 140px;
         }
+
         #commission_table tbody tr td select{
             background-color: transparent;
             border-color: #ccc;
         }
+
         #commission_table tbody tr td:nth-of-type(5) {
             width: 176px;
         }
@@ -57,6 +61,7 @@
         #commission_table td{
             padding:.50rem;
         }
+        
         #commission_table tbody tr td:nth-of-type(6) #add_commission,
         #commission_table tbody  button.btn.btn-primary.check.save,
         #commission_table tbody  button.removeRowBtn.btn.btn-danger,
