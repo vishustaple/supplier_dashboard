@@ -47,7 +47,7 @@ class CommissionController extends Controller
             } else {
                 $formatuserdata = Account::getSearchSupplierDatas($request->all());
             }
-            // $formatuserdata = Supplier::getSearchSupplierData($request->input('q'));
+            
             return response()->json($formatuserdata);
         }
     }

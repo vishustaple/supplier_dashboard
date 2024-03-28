@@ -71,11 +71,11 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['p_customer_name'] = $value->field_name;
                     }
 
-                    if (in_array($value->id, [1, 18, 48, 71, 125, 149, 203])) {
+                    if (in_array($value->id, [1, 18, 48, 71, 125, 148, 203])) {
                         $columnArray[$value->supplier_id]['customer_number'] = $value->field_name;
                     }
 
-                    if (in_array($value->id, [2, 19, 49, 72, 126, 148, 204])) {
+                    if (in_array($value->id, [2, 19, 49, 72, 126, 149, 204])) {
                         $columnArray[$value->supplier_id]['customer_name'] = $value->field_name;
                     }
 

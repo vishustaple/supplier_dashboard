@@ -33,7 +33,6 @@ class DeleteUploadedFilesData extends Command
     {
         /** Selecting the file data row using table id */
         $fileData = UploadedFiles::where('delete', 1)->first();
-
         
         if (isset($fileData->id) && !empty($fileData->id)) {
             /** Update delete two means start deleting data into excel */
