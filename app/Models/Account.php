@@ -235,7 +235,7 @@ class Account extends Model
                 if ($results->isNotEmpty()) {
                     foreach ($results as $value) {
                         // $finalArray[] = ['id' => $value->customer_number, 'text' => $value->customer_name];        
-                        $finalArray[] = ['id' => $value->customer_number, 'text' => $value->account_name];        
+                        $finalArray[] = ['id' => $value->account_name, 'text' => $value->account_name];        
                     }
                     return $finalArray;
                 }
@@ -250,7 +250,7 @@ class Account extends Model
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
             // ->where('supplier_name', 'LIKE', '%' . $search['q'] . '%')
             // ->where('master_account_detail.account_number', $search['customer_number']);
-            ->where('master_account_detail.account_number', $search['customer_number']);
+            ->where('master_account_detail.account_name', $search['account_name']);
             $results = $query->first();
 
             // if ($results->isNotEmpty()) {

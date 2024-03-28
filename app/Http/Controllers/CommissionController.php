@@ -53,22 +53,54 @@ class CommissionController extends Controller
     }
 
     public function commissionAdd(Request $request){
+        /** Checking request is ajax or not */
         if ($request->ajax()) {
-            $result = DB::table('commission')
-            ->where('commission.account_name', $request->input('account_name'))
-            ->exists();
-            if (!$result) {
-                DB::table('commission')->insert(['sales_rep' => $request->input('sales_rep'),
-                'supplier' =>  $request->input('supplier'),
-                'account_name' => $request->input('account_name'),
-                'commission' => $request->input('commission'),
-                'start_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[0])),"Y-m-d H:i:s"),
-                'end_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[1])),"Y-m-d H:i:s"),
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),]);
+            /** Getting form data using methos request */
+            $date = $request->input('date');
+            $supplier = $request->input('supplier');
+            $salesRep = $request->input('sales_rep');
+            $commission = $request->input('commission');
+            $accountName = $request->input('account_name');
+
+            /** Setting variables */
+            $error = false;
+            $accountNameArray = [];
+
+            /** Checking the all account names if user have already added commission under any account name then set
+             * error is true and also set value of those account name into accountNameArray
+             * For show account name which have already added commissions into error div
+             */
+            foreach ($accountName as $key => $value) {
+                $result = DB::table('commission')->where('commission.account_name', $value)->exists();
+
+                if ($result) {
+                    $error = true;
+                    $accountNameArray[] = $value;
+                }
+            }
+
+            /** Returning the error message */
+            if ($error == true) {
+                return response()->json(['error' => 'You have alraedy added commission of this '. implode(", ", $accountNameArray).'.'], 200);
+            }
+
+            /** If getting zero errors than save the data into commission table */
+            foreach ($accountName as $key => $value) {
+                DB::table('commission')->insert([
+                    'sales_rep' => $salesRep[$key],
+                    'supplier' =>  $supplier[$key],
+                    'account_name' => $value,
+                    'commission' => $commission[$key],
+                    'start_date' => date_format(date_create(trim(explode(" - ", $date[$key])[0])),"Y-m-d H:i:s"),
+                    'end_date' => date_format(date_create(trim(explode(" - ", $date[$key])[1])),"Y-m-d H:i:s"),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            /** Returning the success message after save commission data */
+            if ($error == false) {
                 return response()->json(['success' => 'Commissions added successfully'], 200);
-            } else {
-                return response()->json(['error' => 'You have alraedy added commission of this account.'], 200);
             }
         }
     }
