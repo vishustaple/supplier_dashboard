@@ -133,9 +133,11 @@
                         </tr>
                     </tbody>
                 </table>
-                <button type="submit"  class="btn btn-primary check save">
-                    Submit
-                </button>
+                <div class="text-end">
+                    <button type="submit"  class="btn btn-primary check save">
+                        Submit
+                    </button>
+                </div>
             </form>
         </div>
     </div>
