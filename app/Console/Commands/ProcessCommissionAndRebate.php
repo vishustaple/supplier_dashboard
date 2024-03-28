@@ -118,35 +118,37 @@ class ProcessCommissionAndRebate extends Command
                     $totalAmount += $value->amount;
                 }
 
-                $newCommissionRebate = CommissionRebate::create([
-                    'sales_rep' => $values->sales_rep,
-                    'commission' => $totalCommissionRebate,
-                    'volume_rebate' => $totalVolumeRebate,
-                    'spend' => $totalAmount,
-                    'start_date' => $startDate,
-                    'end_date' => $endDate,
-                    'approved' => 0,
-                    'paid' => 0,
-                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                ]);
-
-                foreach ($query->get() as $key => $value) {
-                    CommissionRebateDetail::create([
-                        'commission_rebate_id' => $newCommissionRebate->id,
-                        'commission' => $value->commissions,
-                        'volume_rebate' => $value->volume_rebate,
-                        'spend' => $value->amount,
+                if (!empty($totalAmount) && $totalAmount > 0) {
+                    $newCommissionRebate = CommissionRebate::create([
+                        'sales_rep' => $values->sales_rep,
+                        'commission' => $totalCommissionRebate,
+                        'volume_rebate' => $totalVolumeRebate,
+                        'spend' => $totalAmount,
                         'start_date' => $startDate,
                         'end_date' => $endDate,
                         'approved' => 0,
                         'paid' => 0,
-                        'supplier' => $value->supplier_id,
-                        'commission_percentage' => $value->commission,
-                        'volume_rebate_percentage' => $value->volume_rebates,
                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                     ]);
+    
+                    foreach ($query->get() as $key => $value) {
+                        CommissionRebateDetail::create([
+                            'commission_rebate_id' => $newCommissionRebate->id,
+                            'commission' => $value->commissions,
+                            'volume_rebate' => $value->volume_rebate,
+                            'spend' => $value->amount,
+                            'start_date' => $startDate,
+                            'end_date' => $endDate,
+                            'approved' => 0,
+                            'paid' => 0,
+                            'supplier' => $value->supplier_id,
+                            'commission_percentage' => $value->commission,
+                            'volume_rebate_percentage' => $value->volume_rebates,
+                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                        ]);
+                    }
                 }
             }
         }
