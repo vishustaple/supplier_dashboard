@@ -331,7 +331,7 @@
         //     downloadCsv();
         // });
 
-        $(document).on('click', '#commission_report_data tbody button', function() {
+        $(document).on('click', '#commission_report_data tbody #downloadCsvBtn', function() {
             // Trigger CSV download
             downloadCsv();
         });
