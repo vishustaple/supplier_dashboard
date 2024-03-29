@@ -257,4 +257,18 @@ class ReportController extends Controller
             }
         }
     }
+
+    public function downloadSampleCommissionFile() {
+        $filename = 'commission.pdf';
+
+        $destinationPath = public_path('/excel_sheets');
+
+        /** Set the response headers */
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ];
+        
+        return response()->download($destinationPath.'/'.$filename, $filename, $headers);
+    }
 }
