@@ -61,7 +61,7 @@
                     </div>
                     <div class="col-md-3 mb-0">
                         <button type="submit" class="btn btn-primary m-1">Submit</button>
-                        <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                        <!-- <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
                     </div>
                     <!-- Button trigger modal -->
                 </div>
@@ -111,6 +111,12 @@
         });
 
         $(document).on('change', '.approved_input_select', function(){
+            if ($(this).val() == 1) {
+                $('#downloadCsvBtn').removeClass('disabled');
+                $(this).prop('disabled', true);
+                $('.paid_input_select').prop('disabled', false);
+            }
+
             var formData = { 
                 approved : $(this).val(),
                 id : $(this).data('approved_id')
@@ -156,6 +162,10 @@
         });
 
         $(document).on('change', '.paid_input_select', function(){
+            if ($(this).val() == 1) {
+                $(this).prop('disabled', true);
+            }
+
             var formData = { 
                 paid : $(this).val(),
                 id : $(this).data('paid_id')
@@ -310,7 +320,12 @@
             ],
         });
 
-        $('#downloadCsvBtn').on('click', function () {
+        // $('#downloadCsvBtn').on('click', function () {
+        //     // Trigger CSV download
+        //     downloadCsv();
+        // });
+
+        $(document).on('click', '#commission_report_data tbody button', function() {
             // Trigger CSV download
             downloadCsv();
         });

@@ -474,7 +474,6 @@ class Order extends Model
         // print_r($datas);
         // die;
         if (isset($datas) && $datas->isNotEmpty()) {
-            
             /** Making final array */
             $finalArray=[];
             foreach ($datas as $key => $data) {
@@ -487,13 +486,13 @@ class Order extends Model
                     $finalArray[$key]['commissions'] = number_format($data->commission, 2, '.', false);
                 } else {
                     if ($data->approved == 1) {
-                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" required> 
+                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" disabled> 
                             <option value="">--Select--</option>
                             <option value="1" selected>Yes</option>
                             <option value="0">NO</option>
                         </select>';
                     } else {
-                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" required> 
+                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" > 
                             <option value="" selected>--Select--</option>
                             <option value="1">Yes</option>
                             <option selected value="0">NO</option>
@@ -501,13 +500,13 @@ class Order extends Model
                     }
     
                     if ($data->paid == 1) {
-                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" required> 
+                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" disabled> 
                             <option value="">--Select--</option>
                             <option value="1" selected>Yes</option>
                             <option value="0">NO</option>
                         </select>';
                     } else {
-                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" required> 
+                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" '.(($data->approved == 0) ? ('disabled') : ('')).'> 
                             <option value="">--Select--</option>
                             <option value="1">Yes</option>
                             <option value="0" selected>NO</option>
@@ -517,7 +516,11 @@ class Order extends Model
                     $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
                     $finalArray[$key]['amount'] = '$'.number_format($data->spend, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
-                    $finalArray[$key]['commission'] = '<button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button>';
+                    if ($data->approved == 1) {
+                        $finalArray[$key]['commission'] = '<button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>';
+                    } else {
+                        $finalArray[$key]['commission'] = '<button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button id="downloadCsvBtn" class="btn-success btn m-1 disabled" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>';
+                    }
                 }
             }
 
