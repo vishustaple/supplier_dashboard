@@ -486,7 +486,7 @@ class Order extends Model
                     $finalArray[$key]['commissions'] = number_format($data->commission, 2, '.', false);
                 } else {
                     if ($data->approved == 1) {
-                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" disabled> 
+                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" '.(($data->paid == 1) ? ('disabled') : ('')).'> 
                             <option value="">--Select--</option>
                             <option value="1" selected>Yes</option>
                             <option value="0">NO</option>

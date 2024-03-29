@@ -113,8 +113,13 @@
         $(document).on('change', '.approved_input_select', function(){
             if ($(this).val() == 1) {
                 $('#downloadCsvBtn').removeClass('disabled');
-                $(this).prop('disabled', true);
-                $('.paid_input_select').prop('disabled', false);
+                // $(this).prop('disabled', true);
+                if ($('.paid_input_select').val() == 0) {
+                    $('.paid_input_select').prop('disabled', false);
+                }
+            } else {
+                $('#downloadCsvBtn').addClass('disabled');
+                $('.paid_input_select').prop('disabled', true);
             }
 
             var formData = { 
@@ -162,8 +167,9 @@
         });
 
         $(document).on('change', '.paid_input_select', function(){
-            if ($(this).val() == 1) {
+            if ($(this).val() == 1 && $('.approved_input_select').val() == 1) {
                 $(this).prop('disabled', true);
+                $('.approved_input_select').prop('disabled', true);
             }
 
             var formData = { 
