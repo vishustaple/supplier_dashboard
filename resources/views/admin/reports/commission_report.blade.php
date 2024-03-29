@@ -112,13 +112,13 @@
 
         $(document).on('change', '.approved_input_select', function(){
             if ($(this).val() == 1) {
-                $('#downloadCsvBtn').removeClass('disabled');
+                // $('#downloadCsvBtn').removeClass('disabled');
                 // $(this).prop('disabled', true);
                 if ($('.paid_input_select').val() == 0) {
                     $('.paid_input_select').prop('disabled', false);
                 }
             } else {
-                $('#downloadCsvBtn').addClass('disabled');
+                // $('#downloadCsvBtn').addClass('disabled');
                 $('.paid_input_select').prop('disabled', true);
             }
 
@@ -331,10 +331,10 @@
         //     downloadCsv();
         // });
 
-        $(document).on('click', '#commission_report_data tbody #downloadCsvBtn', function() {
-            // Trigger CSV download
-            downloadCsv();
-        });
+        // $(document).on('click', '#commission_report_data tbody #downloadCsvBtn', function() {
+        //     // Trigger CSV download
+        //     downloadCsv();
+        // });
 
         function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download
