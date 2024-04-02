@@ -19,14 +19,18 @@ class CommissionRebateDetail extends Model
     */
     protected $fillable = [
         'paid',
+        'month',
         'spend',
+        'quarter',
         'end_date',
         'approved',
-        'commission_rebate_id',
-        'start_date',
         'supplier',
+        'sales_rep',
+        'start_date',
         'commission',
+        'account_name',
         'volume_rebate',
+        'commission_rebate_id',
         'commission_percentage',
         'volume_rebate_percentage',
     ];

@@ -517,7 +517,7 @@ class Order extends Model
                     $finalArray[$key]['amount'] = '$'.number_format($data->spend, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
                     // if ($data->approved == 1) {
-                        $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <a id="downloadCsvBtn" class="btn ms-2 btn-primary" href="'.route('commission-file.download').'">Download Report</a></div>';
+                        $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <a id="downloadCsvBtn" class="btn ms-2 btn-primary" href="'.route('commission-file.download', ['sales_rep' => $filter['sales_rep']]).'">Download Report</a></div>';
                     // } else {
                     //     $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <a id="downloadCsvBtn" class="btn btn-primary" href="'.route('commission-file.download').'">Download Report</a></div>';
                     // }
@@ -604,9 +604,11 @@ class Order extends Model
             `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
             `suppliers`.`supplier_name` AS `supplier_name`,
             `commission_rebate_detail`.`start_date` as start_date,
-            `commission_rebate_detail`.`end_date` as end_date"
+            `commission_rebate_detail`.`end_date` as end_date,
+            `commission_rebate_detail`.`quarter` as quarter,
+            `commission_rebate_detail`.`account_name` as account_name,
+            `commission_rebate_detail`.`month` as month"
         )
-
         ->leftJoin('suppliers', 'suppliers.id', '=', 'commission_rebate_detail.supplier');
     
         /** Year and quarter filter here */
@@ -657,6 +659,10 @@ class Order extends Model
             $query->where('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
         }
 
+        if (isset($filter['sales_rep']) && !empty($filter['sales_rep'])) {
+            $query->where('commission_rebate_detail.sales_rep', $filter['sales_rep']);
+        }
+
         // dd($query->toSql(), $query->getBindings());
 
         /** Selecting total record for pagination */
@@ -670,23 +676,6 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        /** Calculating total volume rebate, total commission on rebate and total amount */
-        $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
-        foreach ($query->get() as $key => $value) {
-            $totalVolumeRebate += $value->volume_rebate;
-            $totalCommissionRebate += $value->commissions;
-            $totalAmount += $value->amount;
-        }
-
-        /** Formating this */
-        $totalAmounts = number_format($totalAmount, 2, '.', false);
-        $totalVolumeRebates = number_format($totalVolumeRebate, 2, '.', false);
-        $totalCommissionRebates = number_format($totalCommissionRebate, 2, '.', false);
-
-        $totalAmount = number_format($totalAmount, 2);
-        $totalVolumeRebate = number_format($totalVolumeRebate, 2);
-        $totalCommissionRebate = number_format($totalCommissionRebate, 2);
-
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
@@ -699,47 +688,30 @@ class Order extends Model
                 if ($csv) {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = number_format($value->amount, 2, '.', false);
-                    $finalArray[$key]['volume_rebate'] = number_format($value->volume_rebate, 2, '.', false);
-                    $finalArray[$key]['commissions'] = number_format($value->commissions, 2, '.', false);
+                    $finalArray[$key]['amount'] = $value->amount;
+                    $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
+                    $finalArray[$key]['commissions'] = $value->commissions;
+                    $finalArray[$key]['commission'] = $value->commission;
+                    $finalArray[$key]['quarter'] = $value->quarter;
+                    $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
+                    $finalArray[$key]['volume_rebate'] = $value->volume_rebate;
+                    $finalArray[$key]['month'] = $value->month;
+                    // $finalArray[$key]['sales_rep'] = $value->first_name.' '.$value->last_name;
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->amount, 2);
-                    $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
-                    $finalArray[$key]['commission'] = '<input type="hidden" value="'.$totalCommissionRebate.'"class="input_commission_rebate"> $'.number_format($value->commissions, 2).' ('.(!empty($value->commissions) ? ($value->commission.'%') : ('N/A')).')';
-                    $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
                     $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
+                    $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
+                    $finalArray[$key]['amount'] = '$'.number_format($value->amount, 2);
+                    $finalArray[$key]['commission'] = '$'.number_format($value->commissions, 2).' ('.(!empty($value->commissions) ? ($value->commission.'%') : ('N/A')).')';
+                    $finalArray[$key]['volume_rebate'] = '$'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
                 }
             }
         }
     
         if ($csv) {
-            $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
-            $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
-
-            /** Defining heading array for csv genration */
-            $finalArray['heading'] = [
-                'Supplier',
-                'Account_name',
-                'Amount',
-                'Volume Rebate',
-                'Commission',
-                '',
-                '',
-                '',
-                'Total Amount',
-                $totalAmounts,
-                'Total Volume Rebate',
-                $totalVolumeRebates,
-                'Total Commission',
-                $totalCommissionRebates,
-                'Start Date',
-                $startDates,
-                'End Date',
-                $endDates
-            ];
-
+            // $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
+            // $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
             return $finalArray;
         } else {
             /** Defining returning final array for datatable */

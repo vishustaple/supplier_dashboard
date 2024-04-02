@@ -27,7 +27,5 @@ class CommissionRebate extends Model
         'start_date',
         'commission',
         'volume_rebate',
-        // 'commission_percentage',
-        // 'volume_rebate_percentage',
     ];
 }

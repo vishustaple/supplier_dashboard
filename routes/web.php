@@ -74,7 +74,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/reports/commission-csv', [ReportController::class, 'commissionReportExportCsv'])->name('report.export-commission_report-csv');
         Route::post('/reports/commission-report-filter', [ReportController::class, 'commissionReportFilter'])->name('report.commission_report_filter');
         Route::post('/reports/commissions-report-filter', [ReportController::class, 'getCommissionsWithAjax'])->name('report.commission_report_filter_secound');
-        Route::get('/downloads/commission', [ReportController::class, 'downloadSampleCommissionFile'])->name('commission-file.download');
+        Route::get('/downloads/commission/{sales_rep}', [ReportController::class, 'downloadSampleCommissionFile'])->name('commission-file.download');
         
         /** Report Section End */
     
