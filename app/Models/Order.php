@@ -371,34 +371,11 @@ class Order extends Model
         if (isset($filter['sales_rep']) && !empty($filter['sales_rep'])) {
             $query->where('sales_rep', $filter['sales_rep']);
         } else {
-            if ($csv) {
-                $finalArray['heading'] = [
-                    'Supplier',
-                    'Account_name',
-                    'Amount',
-                    'Volume Rebate',
-                    'Commission',
-                    '',
-                    '',
-                    '',
-                    'Total Amount',
-                    '',
-                    'Total Volume Rebate',
-                    '',
-                    'Total Commission',
-                    '',
-                    'Start Date',
-                    '',
-                    'End Date',
-                ];
-                return $finalArray;
-            } else {
                 return [
                     'data' => [],
                     'recordsTotal' => 0,
                     'recordsFiltered' => 0,
                 ];
-            }
         }
     
         if (isset($filter['approved']) || !empty($filter['approved'])) {
@@ -517,71 +494,24 @@ class Order extends Model
                     $finalArray[$key]['amount'] = '$'.number_format($data->spend, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
                     // if ($data->approved == 1) {
-                        $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <a id="downloadCsvBtn" class="btn ms-2 btn-primary" href="'.route('commission-file.download', ['sales_rep' => $filter['sales_rep']]).'">Download Report</a></div>';
+                        // $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <a id="downloadCsvBtn" class="btn ms-2 btn-primary" href="'.route('commission-file.download', ['sales_rep' => $filter['sales_rep']]).'">Download Report</a></div>';
                     // } else {
-                    //     $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <a id="downloadCsvBtn" class="btn btn-primary" href="'.route('commission-file.download').'">Download Report</a></div>';
+                        $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button data-id="'.$data->id.'" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                     // }
                 }
             }
-
-            if ($csv) {
-                $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
-                $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
-    
-                /** Defining heading array for csv genration */
-                $finalArray['heading'] = [
-                    'Approved',
-                    'Paid',
-                    'Sales Rep',
-                    'Amount',
-                    'Volume Rebate',
-                    'Commission',
-                    '',
-                    '',
-                    '',
-                    'Start Date',
-                    $startDates,
-                    'End Date',
-                    $endDates
-                ];
-    
-                return $finalArray;
-            } else {
-                /** Defining returning final array for datatable */
-                return [
-                    'data' => $finalArray,
-                    'recordsTotal' => $totalRecords, // Use count of formatted data for total records
-                    'recordsFiltered' => $totalRecords, // Use total records from the query
-                ];
-            }
+            /** Defining returning final array for datatable */
+            return [
+                'data' => $finalArray,
+                'recordsTotal' => $totalRecords, // Use count of formatted data for total records
+                'recordsFiltered' => $totalRecords, // Use total records from the query
+            ];
         } else {
-            if ($csv) {
-                /** Defining heading array for csv genration */
-                $finalArray['heading'] = [
-                    'Approved',
-                    'Paid',
-                    'Sales Rep',
-                    'Amount',
-                    'Volume Rebate',
-                    'Commission',
-                    '',
-                    '',
-                    '',
-                    'Total Amount',
-                    'Total Volume Rebate',
-                    'Total Commission',
-                    'Start Date',
-                    'End Date',
-                ];
-    
-                return $finalArray;
-            } else {
-                return [
-                    'data' => [],
-                    'recordsTotal' => 0, // Use count of formatted data for total records
-                    'recordsFiltered' => 0, // Use total records from the query
-                ];
-            }
+            return [
+                'data' => [],
+                'recordsTotal' => 0, // Use count of formatted data for total records
+                'recordsFiltered' => 0, // Use total records from the query
+            ];
         }
     }
 
@@ -607,54 +537,71 @@ class Order extends Model
             `commission_rebate_detail`.`end_date` as end_date,
             `commission_rebate_detail`.`quarter` as quarter,
             `commission_rebate_detail`.`account_name` as account_name,
-            `commission_rebate_detail`.`month` as month"
+            `commission_rebate_detail`.`month` as month,
+            `commission_rebate_detail`.`approved` as approved,
+            `commission_rebate_detail`.`paid` as paid"
         )
         ->leftJoin('suppliers', 'suppliers.id', '=', 'commission_rebate_detail.supplier');
     
         /** Year and quarter filter here */
-        if (isset($filter['year']) || !empty($filter['quarter'])) {
-            $fys = ['CALENDAR' => $filter['year'].'-01-01'];
-
-            foreach ($fys as $key => $start){
-                $nextYear = $filter['year']+1;
-                $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
-                $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
-                $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
-                $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
-                $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
-                $dateArray[$key] = $res;
-            }
-           
+        if (!empty($filter['quarter'])) {    
             if($filter['quarter'] == 'Quarter 1'){
-                $startDate =  $dateArray['CALENDAR']["1"];
-                $endDate =  $dateArray['CALENDAR']["2"];
+                $quarter =  [
+                    'January',
+                    'February',
+                    'March',
+                ];
+                
             }
 
             if($filter['quarter'] == 'Quarter 2'){
-                $startDate=  $dateArray['CALENDAR']["2"];
-                $endDate=  $dateArray['CALENDAR']["3"];
+                $quarter=  [
+                    'April',
+                    'May',
+                    'June',
+                ];
             }
 
             if($filter['quarter'] == 'Quarter 3'){
-                $startDate=  $dateArray['CALENDAR']["3"];
-                $endDate=  $dateArray['CALENDAR']["4"];
+                $quarter=   [
+                    'July',
+                    'August',
+                    'September',
+                ];
             }
 
             if($filter['quarter'] == 'Quarter 4'){
-                $startDate=  $dateArray['CALENDAR']["4"];
-                $endDate=  $dateArray['CALENDAR']["5"];
+                $quarter=  [
+                    'October',
+                    'November',
+                    'December',
+                ];
             }
 
             if ($filter['quarter'] == 'Annual'){
-                $startDate=  $dateArray['CALENDAR']["1"];
-                $endDate=  $dateArray['CALENDAR']["5"];
+                $quarter = [
+                    'January',
+                    'February',
+                    'March',
+                    'April',
+                    'May',
+                    'June',
+                    'July',
+                    'August',
+                    'September',
+                    'October',
+                    'November',
+                    'December',
+                ];
             }
             
-            $query->where('commission_rebate_detail.start_date', '>=', $startDate)
-            ->where('commission_rebate_detail.end_date', '<=', $endDate);
+            $query->whereIn('commission_rebate_detail.month', $quarter);
+
+            // $query->where('commission_rebate_detail.start_date', '>=', $startDate)
+            // ->where('commission_rebate_detail.end_date', '<=', $endDate);
         }
 
-        /** Filter the data on the bases of commission_rebate_id */
+        // /** Filter the data on the bases of commission_rebate_id */
         if (isset($filter['commission_rebate_id']) && !empty($filter['commission_rebate_id'])) {
             $query->where('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
         }
@@ -684,6 +631,7 @@ class Order extends Model
 
         /** Making final array */
         if (isset($formatuserdata) && !empty($formatuserdata)) {
+            $paid = false;
             foreach ($formatuserdata as $key => $value) {
                 if ($csv) {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
@@ -696,7 +644,11 @@ class Order extends Model
                     $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
                     $finalArray[$key]['volume_rebate'] = $value->volume_rebate;
                     $finalArray[$key]['month'] = $value->month;
-                    // $finalArray[$key]['sales_rep'] = $value->first_name.' '.$value->last_name;
+                    $finalArray[$key]['approved'] = $value->approved;
+                    $finalArray[$key]['paid'] = $value->paid;
+                    if ($value->approved == 0 || $value->paid == 0)  {
+                        $paid = true;
+                    }
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
@@ -710,8 +662,7 @@ class Order extends Model
         }
     
         if ($csv) {
-            // $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
-            // $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
+            $finalArray['paid_check'] = $paid;
             return $finalArray;
         } else {
             /** Defining returning final array for datatable */

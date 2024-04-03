@@ -8,15 +8,15 @@ use DB;
 // use Dompdf\Options;
 use Barryvdh\DomPDF\Facade\Pdf;
 use League\Csv\Writer;
+use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use App\Models\{Order, CategorySupplier, Account, SalesTeam, CommissionRebate};
+use App\Models\{Order, CategorySupplier, Account, SalesTeam, CommissionRebate, CommissionRebateDetailHtml};
 
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
     public function index(Request $request, $reportType, $id=null){
-        // dd($$id);
         if (!isset($id)) {
             $id = $request->query('id');
         }
@@ -152,9 +152,6 @@ class ReportController extends Controller
         /** Add column headings */
         $csvWriter->insertOne($heading);
 
-        /** Add column headings */
-        // $csvWriter->insertOne(['Id', 'Customer Number', 'Customer Name', 'Supplier Name', 'Amount', 'Date']);
-
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);
 
@@ -238,6 +235,11 @@ class ReportController extends Controller
                 'approved'=> $request->approved,
             ]);
 
+            DB::table('commission_rebate_detail')->where('commission_rebate_id', $request->id)
+            ->update([
+                'approved' => $request->approved
+            ]);
+
             if ($request->approved == 1) {
                 return response()->json(['success' => 'Commission approved'], 200);
             } else {
@@ -248,12 +250,184 @@ class ReportController extends Controller
 
     public function paidUpdate(Request $request){
         if ($request->ajax()) {
-            $commissionRebate = CommissionRebate::find($request->id);
+            $commissionRebate = CommissionRebate::find($request->id); 
 
             $commissionRebate->update([
                 'paid'=> $request->paid,
             ]);
             
+
+            DB::table('commission_rebate_detail')->where('commission_rebate_id', $request->id)
+                ->update([
+                'paid' => $request->paid
+            ]);
+
+            // dd($commissionRebate->paid == 1 && $commissionRebate->approved)
+            if ($commissionRebate->paid == 1 && $commissionRebate->approved) {
+                $csv = true;
+                $filter['sales_rep'] = $commissionRebate->sales_rep;
+                $filter['commission_rebate_id'] = $commissionRebate->commission_rebate_id;
+                $commissionRebateData = CommissionRebate::select('commission', 'volume_rebate', 'spend')->where('id', $commissionRebate->commission_rebate_id)->first();
+
+                /** Fetch data using the parameters and transform it into CSV format */
+                /** Replace this with your actual data fetching logic */
+                $datas = Order::getCommissionReportFilterdDataSecond($filter, $csv);
+        
+                $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))->where('id', $filter['sales_rep'])->first();
+                $datas1['sales_rep'] = $salesRep->sales_rep;
+        
+                $datas1['January'] = $datas1['February'] = $datas1['March'] = $datas1['April'] = $datas1['May'] = $datas1['June'] = $datas1['July'] = $datas1['August'] = $datas1['September'] = $datas1['October'] = $datas1['November'] = $datas1['December'] = 0;
+                $datas1['quarter1'] = $datas1['quarter2'] = $datas1['quarter3'] = $datas1['quarter4'] = $datas1['anual'] = $datas1['amount'] = 0;
+                $datas1['paid_check'] = $datas['paid_check'];
+                unset($datas['paid_check']);
+                foreach ($datas as $key => $data) {
+        
+                    if (isset($data['quarter']) && $data['quarter'] == 1) {
+                        $datas1['quarter1'] += $data['commissions'];
+                    }
+            
+                    if (isset($data['quarter']) && $data['quarter'] == 2) {
+                        $datas1['quarter2'] += $data['commissions'];
+                    }
+            
+                    if (isset($data['quarter']) && $data['quarter'] == 3) {
+                        $datas1['quarter3'] += $data['commissions'];
+                    }
+            
+                    if (isset($data['quarter']) && $data['quarter'] == 4) {
+                        $datas1['quarter4'] += $data['commissions'];
+                    }
+        
+                    if (isset($data['commissions'])) {
+                        $datas1['anual'] += $data['commissions'];
+                    }
+        
+                    if (isset($data['amount'])) {
+                        $datas1['amount'] += $data['amount'];
+                    }
+        
+                    if (isset($data['month']) && $data['month'] == 'January') {
+                        $datas1['January'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['January'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['January'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'February') {
+                        $datas1['February'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['February'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['February'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'March') {
+                        $datas1['March'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['March'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['March'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'April') {
+                        $datas1['April'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['April'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['April'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'May') {
+                        $datas1['May'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['May'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['May'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'June') {
+                        $datas1['June'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['June'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['June'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'July') {
+                        $datas1['July'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['July'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['July'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'August') {
+                        $datas1['August'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['August'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['August'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'September') {
+                        $datas1['September'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['September'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['September'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'October') {
+                        $datas1['October'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['October'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['October'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'November') {
+                        $datas1['November'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['November'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['November'] = 0;
+                    }
+                    
+                    if (isset($data['month']) && $data['month'] == 'December') {
+                        $datas1['December'] += number_format($data['commissions'], 2);
+                        $monthData[$key]['December'] = number_format($data['commissions'], 2);
+                    } else {
+                        $monthData[$key]['December'] = 0;
+                    }
+        
+                    $monthData[$key]['YTD'] = number_format($monthData[$key]['January'] + $monthData[$key]['February'] + $monthData[$key]['March'] + $monthData[$key]['April'] + $monthData[$key]['May'] + $monthData[$key]['June'] + $monthData[$key]['July'] + $monthData[$key]['August'] + $monthData[$key]['September'] + $monthData[$key]['October'] + $monthData[$key]['November'] + $monthData[$key]['December'] , 2);
+                    $datas1['YTD'] = number_format($datas1['January'] + $datas1['February'] + $datas1['March'] + $datas1['April'] + $datas1['May'] + $datas1['June'] + $datas1['July'] + $datas1['August'] + $datas1['September'] + $datas1['October'] + $datas1['November'] + $datas1['December'], 2);
+                }
+        
+                if ($datas1['quarter1'] != 0) {
+                    $datas1['quarter1'] = number_format($datas1['quarter1'], 2);
+                }
+        
+                if ($datas1['quarter2'] != 0) {
+                    $datas1['quarter2'] = number_format($datas1['quarter2'], 2);
+                }
+        
+                if ($datas1['quarter3'] != 0) {
+                    $datas1['quarter3'] = number_format($datas1['quarter3'], 2);
+                }
+        
+                if ($datas1['quarter4'] != 0) {
+                    $datas1['quarter4'] = number_format($datas1['quarter4'], 2);
+                }
+                
+                $datas1['anual'] = number_format($datas1['anual'], 2);
+                $datas1['month'] = $monthData;
+                // dd($datas1);
+                $datas1['commission_data'] = $datas;
+                $view = View::make('admin.pdf.commission_pdf', $datas1);
+                CommissionRebateDetailHtml::create([
+                    'paid' => 1,
+                    'approved' => 1,
+                    'content' => $view,
+                    'month' => $datas[0]['month'],
+                    'sales_rep' => $filter['sales_rep'],
+                    'spend' => $commissionRebateData->spend,
+                    'commission' => $commissionRebateData->commission,
+                    'volume_rebate' => $commissionRebateData->volume_rebate,
+                    'commission_rebate_id' => $filter['commission_rebate_id'],
+                ]);
+            }
+
             if ($request->paid == 1) {
                 return response()->json(['success' => 'Commission paid'], 200);
             } else {
@@ -262,157 +436,163 @@ class ReportController extends Controller
         }
     }
 
-    public function downloadSampleCommissionFile($sales_rep) {  
+    public function downloadSampleCommissionFile(Request $request) {  
         $csv = true;
-        $filter['sales_rep'] = $sales_rep;
+        $filter['sales_rep'] = $request->input('sales_rep');
+        $filter['commission_rebate_id'] = $request->input('commission_rebate_id');
+        $content = CommissionRebateDetailHtml::select('content')->where('commission_rebate_id', $filter['commission_rebate_id'])->first();
 
-        /** Fetch data using the parameters and transform it into CSV format */
-        /** Replace this with your actual data fetching logic */
-        $datas = Order::getCommissionReportFilterdDataSecond($filter, $csv);
-
-        $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))->where('id', $sales_rep)->first();
-        $datas1['sales_rep'] = $salesRep->sales_rep;
-
-        $datas1['January'] = $datas1['February'] = $datas1['March'] = $datas1['April'] = $datas1['May'] = $datas1['June'] = $datas1['July'] = $datas1['August'] = $datas1['September'] = $datas1['October'] = $datas1['November'] = $datas1['December'] = 0;
-        $datas1['quarter1'] = $datas1['quarter2'] = $datas1['quarter3'] = $datas1['quarter4'] = $datas1['anual'] = $datas1['amount'] = 0;
-        // dd($datas);
+        if ($content) {
+            $pdf = Pdf::loadHTML($content->content)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
+            return $pdf->download('pdf_commission_report.pdf');
+        } else {
+            /** Fetch data using the parameters and transform it into CSV format */
+            /** Replace this with your actual data fetching logic */
+            $datas = Order::getCommissionReportFilterdDataSecond($filter, $csv);
+    
+            $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))->where('id', $filter['sales_rep'])->first();
+            $datas1['sales_rep'] = $salesRep->sales_rep;
+    
+            $datas1['January'] = $datas1['February'] = $datas1['March'] = $datas1['April'] = $datas1['May'] = $datas1['June'] = $datas1['July'] = $datas1['August'] = $datas1['September'] = $datas1['October'] = $datas1['November'] = $datas1['December'] = 0;
+            $datas1['quarter1'] = $datas1['quarter2'] = $datas1['quarter3'] = $datas1['quarter4'] = $datas1['anual'] = $datas1['amount'] = 0;
+            $datas1['paid_check'] = $datas['paid_check'];
+            unset($datas['paid_check']);
+            foreach ($datas as $key => $data) {
+    
+                if (isset($data['quarter']) && $data['quarter'] == 1) {
+                    $datas1['quarter1'] += $data['commissions'];
+                }
         
-        foreach ($datas as $key => $data) {
-            if (isset($data['quarter']) && $data['quarter'] == 1) {
-                $datas1['quarter1'] += $data['commissions'];
-            }
-    
-            if (isset($data['quarter']) && $data['quarter'] == 2) {
-                $datas1['quarter2'] += $data['commissions'];
-            }
-    
-            if (isset($data['quarter']) && $data['quarter'] == 3) {
-                $datas1['quarter3'] += $data['commissions'];
-            }
-    
-            if (isset($data['quarter']) && $data['quarter'] == 4) {
-                $datas1['quarter4'] += $data['commissions'];
-            }
-
-            if (isset($data['commissions'])) {
-                $datas1['anual'] += $data['commissions'];
-            }
-
-            if (isset($data['amount'])) {
-                $datas1['amount'] += $data['amount'];
-            }
-
-            if (isset($data['month']) && $data['month'] == 'January') {
-                $datas1['January'] += $data['commissions'];
-                $monthData[$key]['January'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['January'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'February') {
-                $datas1['February'] += $data['commissions'];
-                $monthData[$key]['February'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['February'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'March') {
-                $datas1['March'] += $data['commissions'];
-                $monthData[$key]['March'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['March'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'April') {
-                $datas1['April'] += $data['commissions'];
-                $monthData[$key]['April'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['April'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'May') {
-                $datas1['May'] += $data['commissions'];
-                $monthData[$key]['May'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['May'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'June') {
-                $datas1['June'] += $data['commissions'];
-                $monthData[$key]['June'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['June'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'July') {
-                $datas1['July'] += $data['commissions'];
-                $monthData[$key]['July'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['July'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'August') {
-                $datas1['August'] += $data['commissions'];
-                $monthData[$key]['August'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['August'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'September') {
-                $datas1['September'] += $data['commissions'];
-                $monthData[$key]['September'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['September'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'October') {
-                $datas1['October'] += $data['commissions'];
-                $monthData[$key]['October'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['October'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'November') {
-                $datas1['November'] += $data['commissions'];
-                $monthData[$key]['November'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['November'] = 0;
-            }
-            
-            if (isset($data['month']) && $data['month'] == 'December') {
-                $datas1['December'] += $data['commissions'];
-                $monthData[$key]['December'] = number_format($data['commissions'], 2);
-            } else {
-                $monthData[$key]['December'] = 0;
-            }
-
-            if (isset($data['month'])) {
-                $commission = $data['commissions'];
-                $datas1[$key]['YTD'] = $data['commissions'] + $commission;
-            }
-        }
-
-        if ($datas1['quarter1'] != 0) {
-            $datas1['quarter1'] = number_format($datas1['quarter1'], 2);
-        }
-
-        if ($datas1['quarter2'] != 0) {
-            $datas1['quarter2'] = number_format($datas1['quarter2'], 2);
-        }
-
-        if ($datas1['quarter3'] != 0) {
-            $datas1['quarter3'] = number_format($datas1['quarter3'], 2);
-        }
-
-        if ($datas1['quarter4'] != 0) {
-            $datas1['quarter4'] = number_format($datas1['quarter4'], 2);
-        }
+                if (isset($data['quarter']) && $data['quarter'] == 2) {
+                    $datas1['quarter2'] += $data['commissions'];
+                }
         
-        $datas1['anual'] = number_format($datas1['anual'], 2);
-        $datas1['month'] = $monthData;
-        dd($datas1);
-        $datas1['commission_data'] = $datas;
-        $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setPaper('a4', 'landscape')->setOption(['dpi' => 150, 'defaultFont' => '"Roboto", sans-serif']);
-        return $pdf->download('pdf_commission_report.pdf');
+                if (isset($data['quarter']) && $data['quarter'] == 3) {
+                    $datas1['quarter3'] += $data['commissions'];
+                }
+        
+                if (isset($data['quarter']) && $data['quarter'] == 4) {
+                    $datas1['quarter4'] += $data['commissions'];
+                }
+    
+                if (isset($data['commissions'])) {
+                    $datas1['anual'] += $data['commissions'];
+                }
+    
+                if (isset($data['amount'])) {
+                    $datas1['amount'] += $data['amount'];
+                }
+    
+                if (isset($data['month']) && $data['month'] == 'January') {
+                    $datas1['January'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['January'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['January'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'February') {
+                    $datas1['February'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['February'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['February'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'March') {
+                    $datas1['March'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['March'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['March'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'April') {
+                    $datas1['April'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['April'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['April'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'May') {
+                    $datas1['May'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['May'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['May'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'June') {
+                    $datas1['June'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['June'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['June'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'July') {
+                    $datas1['July'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['July'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['July'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'August') {
+                    $datas1['August'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['August'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['August'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'September') {
+                    $datas1['September'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['September'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['September'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'October') {
+                    $datas1['October'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['October'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['October'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'November') {
+                    $datas1['November'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['November'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['November'] = 0;
+                }
+                
+                if (isset($data['month']) && $data['month'] == 'December') {
+                    $datas1['December'] += number_format($data['commissions'], 2);
+                    $monthData[$key]['December'] = number_format($data['commissions'], 2);
+                } else {
+                    $monthData[$key]['December'] = 0;
+                }
+    
+                $monthData[$key]['YTD'] = number_format($monthData[$key]['January'] + $monthData[$key]['February'] + $monthData[$key]['March'] + $monthData[$key]['April'] + $monthData[$key]['May'] + $monthData[$key]['June'] + $monthData[$key]['July'] + $monthData[$key]['August'] + $monthData[$key]['September'] + $monthData[$key]['October'] + $monthData[$key]['November'] + $monthData[$key]['December'] , 2);
+                $datas1['YTD'] = number_format($datas1['January'] + $datas1['February'] + $datas1['March'] + $datas1['April'] + $datas1['May'] + $datas1['June'] + $datas1['July'] + $datas1['August'] + $datas1['September'] + $datas1['October'] + $datas1['November'] + $datas1['December'], 2);
+            }
+    
+            if ($datas1['quarter1'] != 0) {
+                $datas1['quarter1'] = number_format($datas1['quarter1'], 2);
+            }
+    
+            if ($datas1['quarter2'] != 0) {
+                $datas1['quarter2'] = number_format($datas1['quarter2'], 2);
+            }
+    
+            if ($datas1['quarter3'] != 0) {
+                $datas1['quarter3'] = number_format($datas1['quarter3'], 2);
+            }
+    
+            if ($datas1['quarter4'] != 0) {
+                $datas1['quarter4'] = number_format($datas1['quarter4'], 2);
+            }
+            
+            $datas1['anual'] = number_format($datas1['anual'], 2);
+            $datas1['month'] = $monthData;
+            // dd($datas1);
+            $datas1['commission_data'] = $datas;
+            $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
+            return $pdf->download('pdf_commission_report.pdf');
+        }
     }
 }
