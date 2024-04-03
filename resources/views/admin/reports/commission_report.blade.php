@@ -13,6 +13,7 @@
                 @csrf
                 <div class="row align-items-end py-3 border-top border-bottom mb-3">
                     <div class="form-group col-md-4 mb-0">
+                        <input type="hidden" id="commission_table_id" value="">
                         <label for="supplier">Select Sales Rep:</label>
                         <select id="sales_rep" name="sales_rep" class="form-control" required> 
                             <option value="" selected>--Select--</option>
@@ -112,13 +113,10 @@
 
         $(document).on('change', '.approved_input_select', function(){
             if ($(this).val() == 1) {
-                // $('#downloadCsvBtn').removeClass('disabled');
-                // $(this).prop('disabled', true);
                 if ($('.paid_input_select').val() == 0) {
                     $('.paid_input_select').prop('disabled', false);
                 }
             } else {
-                // $('#downloadCsvBtn').addClass('disabled');
                 $('.paid_input_select').prop('disabled', true);
             }
 
@@ -136,7 +134,6 @@
                 headers: {'X-CSRF-TOKEN': token},
                 contentType: 'application/json',                     
                 processData: false,
-                
                 success: function(response) {
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
                     if(response.error){
@@ -291,11 +288,12 @@
                     // Pass date range and supplier ID when making the request
                     d.year = $('#year').val();
                     d.quarter = $('#quarter').val();
-                    d.sales_rep = $('#sales_rep').val();
+                    d.sales_reps = $('#sales_rep').val();
                     d.supplier = $('#supplier').val();
-                    if (supplierDataTable.row(0).node()) {
-                        d.commission_rebate_id = supplierDataTable.row(0).node().querySelector('button').getAttribute('data-id');
-                    }
+                    d.commission_rebate_id = $('#commission_table_id').val();
+                    // if (supplierDataTable.row(0).node()) {
+                    //     d.commission_rebate_id = supplierDataTable.row(0).node().querySelector('button').getAttribute('data-id');
+                    // }
                 },
             },
 
@@ -326,23 +324,23 @@
             ],
         });
 
-        // $('#downloadCsvBtn').on('click', function () {
-        //     // Trigger CSV download
-        //     downloadCsv();
-        // });
+        $(document).on('click', '#commission_report_data tbody #downloadCsvBtn', function() {
+            var id = $(this).data('id');
+            // Trigger CSV download
+            downloadCsv(id);
+        });
+        $(document).on('click', '#commission_report_data tbody #commission_rebate_id', function() {
+            var value = $(this).data('id');
+            $('#commission_table_id').val(value);
+            $('#commission_report_data1').DataTable().ajax.reload();
+        });
 
-        // $(document).on('click', '#commission_report_data tbody #downloadCsvBtn', function() {
-        //     // Trigger CSV download
-        //     downloadCsv();
-        // });
-
-        function downloadCsv() {
+        function downloadCsv(id='') {
             // You can customize this URL to match your backend route for CSV download
             var csvUrl = '{{ route("report.export-commission_report-csv") }}';
             // Add query parameters for date range and supplier ID
-
             var order = supplierDataTable.order();
-            csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&sales_rep=' + $('#sales_rep').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
+            csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&sales_rep=' + $('#sales_rep').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&commission_rebate_id=' + id + '&supplier=' + $('#supplier').val();
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
         } 

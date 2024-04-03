@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+        /* @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
         body{
             padding: 15px;
             font-family: "Roboto", sans-serif;
-        }
+        } */
 
         .clearfix {
             overflow: auto;
@@ -202,127 +202,46 @@
                         <td class="">$ {{ $month[$key]['October'] }}</td>
                         <td class="border-right-0">$ {{ $month[$key]['November'] }}</td>
                         <td>$ {{ $month[$key]['December'] }}</td>
-                        <td>$ {{ $anual }}</td>
+                        <td>$ {{ $month[$key]['YTD'] }}</td>
                     </tr>
                 @endforeach
             @endif
-            "December" => 75.224957
-  "November" => 823.377795
-  "October" => 0
-  "September" => 0
-  "August" => 0
-  "July" => 0
-  "June" => 0
-  "May" => 0
-  "April" => 0
-  "March" => 0
-  "February" => 97.106463
-  "January" => 77.889275
             <tr class="total_tr">
                <td colspan="5">Total</td>
                <td class="">$ {{ $January }}</td>
-               <td class="border-right-0">$ {{}} </td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td>$ 21,546.79</td>
+               <td class="border-right-0">$ {{ $February }} </td>
+               <td>$ {{ $March }}</td>
+               <td class="">$ {{ $April }}</td>
+               <td class="border-right-0">$ {{ $May }}</td>
+               <td>$ {{ $June }}</td>
+               <td class="">$ {{ $July }}</td>
+               <td class="border-right-0">$ {{ $August }}</td>
+               <td>$ {{ $September }}</td>
+               <td class="">$ {{ $October }}</td>
+               <td class="border-right-0">$ {{ $November }}</td>
+               <td>$ {{ $December }}</td>
+               <td>$ {{ $YTD }}</td>
            </tr>
          </tbody>
     </table>
- 
-    <!-- <table>
-        <thead>
-           <tr>
-               <th class="border-0"></th>
-               <th class="border-0"></th>
-               <th class="border-0"></th>
-               <th class="border-0"></th>
-               <th class="border-0"></th>
-               <th colspan="13" style="background-color: #538dd5;text-align: center;color: #fff;border-bottom: 0px;">Commission 2023</th>
-           </tr>
-           <tr style="background-color: #b8cce4;">
-               <th>Business Name</th>
-               <th>Supplier</th>
-               <th>Rate #1</th>
-               <th>Start Date</th>
-               <th>End Date</th>
-               <th>Jan</th>
-               <th>Feb</th>
-               <th>Mar</th>
-               <th>Apr</th>
-               <th>May</th>
-               <th>Jun</th>
-               <th>Jul</th>
-               <th>Aug</th>
-               <th>Sep</th>
-               <th>Oct</th>
-               <th>Nov</th>
-               <th>Dec</th>
-               <th>YTD</th>
-           </tr>
-        </thead>
-        <tbody>
-           <tr>
-               <td class="border-0 text-left">Impossible Foods</td>
-               <td class="border-0">Grainger</td>
-               <td class="border-0">3%</td>
-               <td class="border-0">3/1/2022</td>
-               <td class="border-0">3/1/2024</td>
-               <td class="">$ 28,246.15</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-           </tr>
-           <tr class="total_tr">
-               <td colspan="5">Total</td>
-               <td class="">$ 28,246.15</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td class="">$ 21,546.79</td>
-               <td class="border-right-0">$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-               <td>$ 21,546.79</td>
-           </tr>
-        </tbody>
-   </table> -->
     </div>
-
-    <div class="sign_block clearfix">
-      <div class="right_sign">
-         <div class="line_sign">
-          <span style="padding-bottom: 15px; display: block;">X</span>
-          <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
-          <p style="text-align: center;">Approved by Joseph Som</p>
-         </div>
-         <div class="line_sign">
-            <span style="padding-bottom: 15px; display: block;">X</span>
-            <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
-            <p style="text-align: center;">Approved by Joseph Som</p>
-           </div>
-      </div>
-    </div>
-
+    @if($paid_check == false)
+        <div class="sign_block clearfix">
+        <div class="right_sign">
+            <div class="line_sign">
+                <span style="padding-bottom: 15px; display: block;">X</span>
+                <img src="{{ public_path('/excel_sheets') .'/'. 'images.png'}}" alt="">
+                <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
+                <p style="text-align: center;">Approved by Joseph Som</p>
+            </div>
+            <div class="line_sign">
+                <span style="padding-bottom: 15px; display: block;">X</span>
+                <img src="{{ public_path('/excel_sheets') .'/'. 'images.png'}}" alt="">
+                <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
+                <p style="text-align: center;">Paid on Joseph Som</p>
+            </div>
+        </div>
+        </div>
+    @endif
 </body>
 </html>
