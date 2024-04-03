@@ -34,7 +34,7 @@
                         </select>
                     </div>
                     <div class="form-group relative col-md-3 mb-0">  
-                        <label for="enddate">Select Quarter:</label>
+                        <label for="enddate">Select Payment:</label>
                         <select class="form-control" name="quarter" id="quarter" required>
                             <option value="">--Select--</option>
                             <option value="Annual">Annual</option>
