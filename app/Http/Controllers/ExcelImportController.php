@@ -296,23 +296,27 @@ class ExcelImportController extends Controller
         }
     }
     public function allSupplier(){
-
-        // dd("here");
         $categorySuppliers = CategorySupplier::all();
         $formattedData = [];
         foreach ($categorySuppliers as $suppliers) {
-            # code...
             $formattedData[] = [
                 // $suppliers->id, 
                 $suppliers->supplier_name,
-                $suppliers->created_at ? $suppliers->created_at->format('m/d/Y') : 'null', 
-                // $suppliers->created_at->format('m/d/Y'),
+                $suppliers->first_name.' '.$suppliers->last_name,
+                $suppliers->email,
+                $suppliers->phone,
+                (($suppliers->status == 1) ? ('Active') : ('In-active')),
+                // '<div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" '.(($suppliers->status == 1) ? ('checked') : ('')).' onclick="toggleDisableEnable('.$suppliers->id.')">'.(($suppliers->status == 1) ? ('<label class="form-check-label" for="flexCheckDefault">Active</label></div>') : ('<label class="form-check-label" for="flexCheckDefault">In-Active</label></div>')).'',
+
+                '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a><div class="dropdown-menu"><a title="Edit Supplier" class="" id="edit_supplier" data-id="'.$suppliers->id.'" data-first_name="'.$suppliers->first_name.'" data-last_name="'.$suppliers->last_name.'" data-email="'.$suppliers->email.'" data-phone="'.$suppliers->phone.'"
+                 data-status="'.$suppliers->status.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>',
+
             ];
         }
        
-        $data=json_encode($formattedData);
+        $data = json_encode($formattedData);
         $pageTitle = 'Supplier Data';
-        return view('admin.supplier',compact('data', 'pageTitle'));
+        return view('admin.supplier', compact('data', 'pageTitle'));
     }
     
 
@@ -393,5 +397,41 @@ class ExcelImportController extends Controller
             return response()->json($formatuserdata);
         }
     }
-    
+ 
+    public function editSupplierName(Request $request) {
+        $validator = Validator::make(
+            [
+                'phone'=> $request->phone,
+                'email'=> $request->email,
+                'status'=> $request->status,
+                'last_name'=> $request->last_name,
+                'first_name'=> $request->first_name,
+                'supplier_id' => $request->supplier_id,
+            ],
+            [
+                'phone'=>'required',
+                'email'=>'required',
+                'status'=>'required',
+                'last_name'=>'required',
+                'first_name'=>'required',
+                'supplier_id' => 'required',
+            ],
+        );
+
+        if( $validator->fails()){  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        $supplierData = CategorySupplier::find($request->supplier_id); 
+        
+        $supplierData->update([
+            'first_name'=> $request->first_name,
+            'last_name'=> $request->last_name,
+            'phone'=> $request->phone,
+            'email'=> $request->email,
+            'status'=> $request->status,
+        ]);
+
+        return response()->json(['success' => 'Supplier info updated'], 200);
+    }
 }

@@ -230,15 +230,15 @@
         <div class="right_sign">
             <div class="line_sign">
                 <span style="padding-bottom: 15px; display: block;">X</span>
-                <img src="{{ public_path('/excel_sheets') .'/'. 'images.png'}}" alt="">
+                <img width="200px" height="90px"  src="{{ public_path('/excel_sheets') .'/'. 'images.png'}}" alt="">
                 <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
-                <p style="text-align: center;">Approved by Joseph Som</p>
+                <p style="text-align: center;">Approved by</p>
             </div>
             <div class="line_sign">
                 <span style="padding-bottom: 15px; display: block;">X</span>
-                <img src="{{ public_path('/excel_sheets') .'/'. 'images.png'}}" alt="">
+                <img width="200px" height="90px" src="{{ public_path('/excel_sheets') .'/'. 'paid.jpg'}}" alt="">
                 <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
-                <p style="text-align: center;">Paid on Joseph Som</p>
+                <p style="text-align: center;">Paid on</p>
             </div>
         </div>
         </div>
