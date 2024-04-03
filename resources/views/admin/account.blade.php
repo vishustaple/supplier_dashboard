@@ -105,118 +105,39 @@
                 </thead>
             </table>
         </div>
-        <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true" data-bs-backdrop="static">
+<div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editAccountModalLabel">Edit Account</h5>
-        <!-- Close icon -->
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-                      <div id="editsuccessMessage">
-                        </div>
-                        <div  id="editerrorMessage" >
-                        </div>
-                        <!-- <div  id="successMessagess" >
-                        </div> -->
-                        <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
-                            <div class="modal-body">
-                                <div class="form-group">
-                                @csrf
-
-                                <div class="modal_input_wrap">
-                                <input type="hidden" name="account_id" id="account_id" value="">
-                                <label>Account Name</label>
-                                </div>
-
-                                <div class="modal_input_wrap pb-3">
-                                <input type="text" placeholder="Enter Account Name" class="form-control" name="account_name" id="account_name" value="">
-                                <div id="account_name_error"></div>
-                                </div>
-                                 
-                                <!-- <div class="row">
-                                <div class="form-group col-md-6 pb-3">
-                                    <label for="selectBox">Grand Parent Name:</label>
-                                    <select id="grandparentSelect" name="grandparent_name" class="form-control" > 
-                                        <option value="" selected>--Select--</option>
-                                        @if(!empty($grandparent))
-                                            @foreach($grandparent as $gp)
-                                            <option value="{{ $gp['id'] }}">{{ $gp['customer_name'] }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                <div class="form-group col-md-6 ">
-                                    <label for="selectBox">Grand Parent Number:</label>
-                                    <select id="grandparentSelect" name="grandparent_id" class="form-control" > 
-                                        <option value="" selected>--Select--</option>
-                                        @if(!empty($grandparent_id))
-                                            @foreach($grandparent_id as $gp)
-                                            <option value="{{ $gp['id'] }}">{{ $gp['customer_name'] }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                </div>
-                                
-                                <div class="row m-0 pb-3">
-                                <div class="form-check col-md-6">
-                                    <input class="form-check-input" type="radio"  value="1" name="parent_check" id="flexRadioDefault1">
-                                    <label class="form-check-label" for="flexRadioDefault1">
-                                        Manually Add Parent
-                                    </label>
-                                    </div>
-                                    <div class="form-check col-md-6">
-                                    <input class="form-check-input" type="radio" value="2" name="parent_check" id="flexRadioDefault2" checked>
-                                    <label class="form-check-label" for="flexRadioDefault2">
-                                        Using Select Add Parent
-                                    </label>
-                                </div>
-                                </div>
-
-                                
-                                <div class="div1 form-group row" style="display:none; ">
-                                <div class="pb-3">
-                                    <label>Parent Name</label>
-                                    <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_name1" id="parent_name" value="">
-                                    </div>
-                                    <div class="">
-                                    <label>Parent Number</label>
-                                    <input type="text" placeholder="Enter Account Name" class="form-control" name="parent_id1" id="parent_id" value="">
-                                </div>
-                                </div>
-
-                                <div class="div2 form-group">
-                                    <label for="selectBox">Parent Name:</label>
-                                    <select id="parentSelect" name="parent_name" class="form-control" > 
-                                        <option value="" selected>--Select--</option>
-                                        @if(!empty($parent))
-                                            @foreach($parent as $p)
-                                            <option value="{{ $p['id'] }}">{{ $p['customer_name'] }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                    </div>
-                                    <div class="div2 form-group">
-                                    <label for="selectBox">Parent Number:</label>
-                                    <select id="parentSelect" name="parent_id" class="form-control" > 
-                                        <option value="" selected>--Select--</option>
-                                        @if(!empty($parent_id))
-                                            @foreach($parent_id as $p)
-                                            <option value="{{ $p['id'] }}">{{ $p['customer_name'] }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div> -->
+      <form action="{{route('accountname.edit')}}" method="post" id="edit_account_name">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAccountModalLabel">Edit Account</h5>
+                <!-- Close icon -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div id="editsuccessMessage"></div>
+            <div  id="editerrorMessage" ></div>
+                <div class="modal-body">
+                    <div class="form-group">
+                    @csrf
+
+                    <div class="modal_input_wrap">
+                    <input type="hidden" name="account_id" id="account_id" value="">
+                    <label>Account Name</label>
+                    </div>
+
+                    <div class="modal_input_wrap pb-3">
+                    <input type="text" placeholder="Enter Account Name" class="form-control" name="account_name" id="account_name" value="">
+                    <div id="account_name_error"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+            </form>   
         </div>
-      <div class="modal-footer">
-        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-        <button type="submit" class="btn btn-primary">Save changes</button>
-      </div>
-      </form>   
     </div>
-  </div>
 </div>
         
     </div>
