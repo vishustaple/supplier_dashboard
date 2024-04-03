@@ -131,14 +131,15 @@
                                 <input type="text" name="date[]" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" required>
                             </td>
                             <td>
-                                <div class="d-flex">
-                                    <button type="button" id="add_commission" class="btn btn-success"><i class="fa-solid fa-plus"></i></button>
-                                </div>
+                                
                             </td>
                         </tr>
                     </tbody>
                 </table>
                 <div class="text-end">
+                    <!-- <div class="d-flex"> -->
+                        <button type="button" id="add_commission" class="btn btn-success"><i class="fa-solid fa-plus"></i></button>
+                    <!-- </div> -->
                     <button type="submit"  class="btn btn-primary check save">
                         Submit
                     </button>
