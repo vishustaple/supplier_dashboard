@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('commission')->nullable();
             $table->string('volume_rebate')->nullable();
             $table->string('spend')->nullable();
+            $table->string('quarter')->nullable();
             $table->string('start_date')->nullable();
             $table->string('end_date')->nullable();
             $table->tinyInteger('approved')->default(0)->comment("1 => Yes, 0 => No,");
