@@ -255,7 +255,6 @@ class ReportController extends Controller
             $commissionRebate->update([
                 'paid'=> $request->paid,
             ]);
-            
 
             DB::table('commission_rebate_detail')->where('commission_rebate_id', $request->id)
                 ->update([
