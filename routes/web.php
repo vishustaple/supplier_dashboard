@@ -76,6 +76,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/reports/commission-report-filter', [ReportController::class, 'commissionReportFilter'])->name('report.commission_report_filter');
         Route::post('/reports/commissions-report-filter', [ReportController::class, 'getCommissionsWithAjax'])->name('report.commission_report_filter_secound');
         // Route::get('/downloads/commission/{sales_rep}', [ReportController::class, 'downloadSampleCommissionFile'])->name('commission-file.download');
+        Route::post('/report/consolidated/filter', [ReportController::class, 'consolidatedReportFilter'])->name('consolidated-report.filter');
         
         /** Report Section End */
     
