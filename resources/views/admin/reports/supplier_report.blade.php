@@ -132,7 +132,6 @@
             serverSide: true,
             lengthMenu: [40], // Specify the options you want to show
             lengthChange: false, // Hide the "Show X entries" dropdown
-            // paging: false,
             searching:false, 
             pageLength: 40,
             order: [[3, 'desc']],
@@ -186,11 +185,11 @@
 
         function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route("report.export-supplier_report-csv") }}';
-            // Add query parameters for date range and supplier ID
+            var csvUrl = '{{ route("report.export-supplier_report-csv") }}', order = supplierDataTable.order();
 
-            var order = supplierDataTable.order();
+            // Add query parameters for date range and supplier ID
             csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
+
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
         } 
