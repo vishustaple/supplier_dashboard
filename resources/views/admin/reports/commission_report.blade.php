@@ -113,11 +113,11 @@
 
         $(document).on('change', '.approved_input_select', function(){
             if ($(this).val() == 1) {
-                if ($('.paid_input_select').val() == 0) {
-                    $('.paid_input_select').prop('disabled', false);
+                if ($('.paid_'+$(this).data('approved_id')+'').val() == 0) {
+                    $('.paid_'+$(this).data('approved_id')+'').prop('disabled', false);
                 }
             } else {
-                $('.paid_input_select').prop('disabled', true);
+                $('.paid_'+$(this).data('approved_id')+'').prop('disabled', true);
             }
 
             var formData = { 
@@ -164,9 +164,9 @@
         });
 
         $(document).on('change', '.paid_input_select', function(){
-            if ($(this).val() == 1 && $('.approved_input_select').val() == 1) {
+            if ($(this).val() == 1 && $('.approved_'+$(this).data('paid_id')+'').val() == 1) {
                 $(this).prop('disabled', true);
-                $('.approved_input_select').prop('disabled', true);
+                $('.approved_'+$(this).data('paid_id')+'').prop('disabled', true);
             }
 
             var formData = { 

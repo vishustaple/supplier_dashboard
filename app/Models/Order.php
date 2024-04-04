@@ -463,13 +463,13 @@ class Order extends Model
                     $finalArray[$key]['commissions'] = number_format($data->commission, 2, '.', false);
                 } else {
                     if ($data->approved == 1) {
-                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" '.(($data->paid == 1) ? ('disabled') : ('')).'> 
+                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select approved_'.$data->id.'" '.(($data->paid == 1) ? ('disabled') : ('')).'> 
                             <option value="">--Select--</option>
                             <option value="1" selected>Yes</option>
                             <option value="0">NO</option>
                         </select>';
                     } else {
-                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select" > 
+                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select approved_'.$data->id.'" > 
                             <option value="" selected>--Select--</option>
                             <option value="1">Yes</option>
                             <option selected value="0">NO</option>
@@ -477,13 +477,13 @@ class Order extends Model
                     }
     
                     if ($data->paid == 1) {
-                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" disabled> 
+                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select paid_'.$data->id.'" disabled> 
                             <option value="">--Select--</option>
                             <option value="1" selected>Yes</option>
                             <option value="0">NO</option>
                         </select>';
                     } else {
-                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select" '.(($data->approved == 0) ? ('disabled') : ('')).'> 
+                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select paid_'.$data->id.'" '.(($data->approved == 0) ? ('disabled') : ('')).'> 
                             <option value="">--Select--</option>
                             <option value="1">Yes</option>
                             <option value="0" selected>NO</option>
