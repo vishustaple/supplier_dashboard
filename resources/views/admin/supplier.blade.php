@@ -135,8 +135,8 @@
                 "data": <?php if(isset($data)){echo $data;}  ?>,
                 "columns": [
                     { title: 'Supplier Name' },
-                    { title: 'First_name' },
-                    { title: 'Last_name' },
+                    { title: 'Name' },
+                    { title: 'Email' },
                     { title: 'Phone' },
                     { title: 'Status' },
                     { title: 'Action' },
