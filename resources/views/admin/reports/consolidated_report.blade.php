@@ -142,10 +142,10 @@
 
             function downloadCsv() {
                 // You can customize this URL to match your backend route for CSV download
-                var csvUrl = '{{ route('report.export-csv') }}';
+                var csvUrl = '{{ route('consolidated-report.export-csv') }}';
 
                 // Add query parameters for date range and supplier ID
-                csvUrl += '?start=' + $('#start_date').val() + '&end=' + $('#end_date').val() + '&supplierId=' + $('#supplierId').val();
+                csvUrl += '?start=' + $('#start_date').val() + '&end=' + $('#end_date').val() + '&supplier_id=' + $('#supplierId').val();
 
                 // Open a new window to download the CSV file
                 window.open(csvUrl, '_blank');
