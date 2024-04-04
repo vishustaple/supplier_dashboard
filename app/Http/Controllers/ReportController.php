@@ -255,18 +255,16 @@ class ReportController extends Controller
             $commissionRebate->update([
                 'paid'=> $request->paid,
             ]);
-
+            
             DB::table('commission_rebate_detail')->where('commission_rebate_id', $request->id)
                 ->update([
                 'paid' => $request->paid
             ]);
 
-            // dd($commissionRebate->paid == 1 && $commissionRebate->approved)
-            if ($commissionRebate->paid == 1 && $commissionRebate->approved) {
+            if ($commissionRebate->paid == 1 && $commissionRebate->approved == 1) {
                 $csv = true;
                 $filter['sales_rep'] = $commissionRebate->sales_rep;
-                $filter['commission_rebate_id'] = $commissionRebate->commission_rebate_id;
-                $commissionRebateData = CommissionRebate::select('commission', 'volume_rebate', 'spend')->where('id', $commissionRebate->commission_rebate_id)->first();
+                $filter['commission_rebate_id'] = $commissionRebate->id;
 
                 /** Fetch data using the parameters and transform it into CSV format */
                 /** Replace this with your actual data fetching logic */
@@ -279,8 +277,8 @@ class ReportController extends Controller
                 $datas1['quarter1'] = $datas1['quarter2'] = $datas1['quarter3'] = $datas1['quarter4'] = $datas1['anual'] = $datas1['amount'] = 0;
                 $datas1['paid_check'] = $datas['paid_check'];
                 unset($datas['paid_check']);
+
                 foreach ($datas as $key => $data) {
-        
                     if (isset($data['quarter']) && $data['quarter'] == 1) {
                         $datas1['quarter1'] += $data['commissions'];
                     }
@@ -409,21 +407,21 @@ class ReportController extends Controller
                     $datas1['quarter4'] = number_format($datas1['quarter4'], 2);
                 }
                 
-                $datas1['anual'] = number_format($datas1['anual'], 2);
                 $datas1['month'] = $monthData;
-                // dd($datas1);
                 $datas1['commission_data'] = $datas;
+                $datas1['anual'] = number_format($datas1['anual'], 2);
                 $view = View::make('admin.pdf.commission_pdf', $datas1);
+
                 CommissionRebateDetailHtml::create([
                     'paid' => 1,
                     'approved' => 1,
                     'content' => $view,
                     'month' => $datas[0]['month'],
                     'sales_rep' => $filter['sales_rep'],
-                    'spend' => $commissionRebateData->spend,
-                    'commission' => $commissionRebateData->commission,
-                    'volume_rebate' => $commissionRebateData->volume_rebate,
-                    'commission_rebate_id' => $filter['commission_rebate_id'],
+                    'spend' => $commissionRebate->spend,
+                    'commission' => $commissionRebate->commission,
+                    'commission_rebate_id' => $commissionRebate->id,
+                    'volume_rebate' => $commissionRebate->volume_rebate,
                 ]);
             }
 
@@ -588,8 +586,8 @@ class ReportController extends Controller
             
             $datas1['anual'] = number_format($datas1['anual'], 2);
             $datas1['month'] = $monthData;
-            // dd($datas1);
             $datas1['commission_data'] = $datas;
+            
             $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
             return $pdf->download('pdf_commission_report.pdf');
         }
