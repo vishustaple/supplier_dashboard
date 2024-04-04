@@ -673,4 +673,102 @@ class Order extends Model
             ];
         }
     }
+
+    public static function getConsolidatedReportFilterdData($filter = [], $csv = false) {
+        /** Define column array for ordering the rows and searching the rows */
+        $orderColumnArray = [
+            0 => 'suppliers.supplier_name',
+            1 => 'master_account_detail.account_name',
+            2 => 'orders.amount',
+            3 => 'order_product_details.value',
+            4 => 'orders.amount',
+            5 => 'orders.amount',
+        ];
+
+        $query = self::query() // Replace YourModel with the actual model you are using for the data   
+    
+        ->selectRaw(
+            '`orders`.`amount` AS spend,
+            `suppliers`.`supplier_name` as supplier_name,
+            `master_account_detail`.`account_name` as account_name,
+            `order_product_details`.`value` as category'
+        )
+        ->whereIn('key', ['Category','CATEGORIES','Material Segment','TRANSTYPECODE','CLASS'])
+        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+        ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+        
+        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+            $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+        }
+        if (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
+            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+        } elseif (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+        } else {
+            if ($csv == true) {
+                $finalArray['heading'] = [
+                    'Supplier Name',
+                    'Account Name',
+                    'Spend',
+                    'Category',
+                    'Current Rolling Spend',
+                    'Previous Rolling Spend',
+                ];
+
+                return $finalArray;
+            } else {
+                return [
+                    'data' => [],
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                ];
+            }
+        }
+
+        /** Get total records count (without filtering) */
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+            /** Order by column and direction */
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
+        }
+
+        $totalRecords = $query->count();
+
+        $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
+            return $query->skip($filter['start'])->take($filter['length']);
+        })->get();
+        // ->toArray();
+        
+        $finalArray = [];
+        foreach ($queryData as $key => $value) {
+            $finalArray[$key]['supplier_name'] = $value->supplier_name;
+            $finalArray[$key]['account_name'] = $value->account_name;
+            $finalArray[$key]['spend'] = '$'.$value->spend;
+            $finalArray[$key]['category'] = $value->category;
+            $finalArray[$key]['current_rolling_spend'] = '$'.$value->spend;
+            $finalArray[$key]['previous_rolling_spend'] = '$'.$value->spend;
+        }
+
+        
+        if ($csv == true) {
+            $finalArray['heading'] = [
+                'Supplier Name',
+                'Account Name',
+                'Spend',
+                'Category',
+                'Current Rolling Spend',
+                'Previous Rolling Spend',
+            ];
+            return $finalArray;
+        } else {
+            // Return the result along with total and filtered counts
+            return [
+                'data' => $finalArray,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+            ];
+        }
+    }
 }

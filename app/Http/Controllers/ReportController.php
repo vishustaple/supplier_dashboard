@@ -45,8 +45,10 @@ class ReportController extends Controller
 
         if ($reportType == 'business_report') {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'accountData' => Account::select('account_name')->groupBy('account_name')->get()]);
-        } elseif($reportType == 'commission_report') {
+        } elseif ($reportType == 'commission_report') {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'sales_rep' => SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'), 'commission.sales_rep as id')->leftJoin('commission', 'commission.sales_rep', '=', 'sales_team.id')->groupBy('commission.sales_rep')->get()]);
+        } elseif ($reportType == 'consolidated_report') {
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get()]);
         } else {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get()]);
         }
@@ -587,9 +589,16 @@ class ReportController extends Controller
             $datas1['anual'] = number_format($datas1['anual'], 2);
             $datas1['month'] = $monthData;
             $datas1['commission_data'] = $datas;
-            
+
             $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
             return $pdf->download('pdf_commission_report.pdf');
+        }
+    }
+
+    public function consolidatedReportFilter(Request $request) {
+        if ($request->ajax()) {
+            $formatuserdata = Order::getConsolidatedReportFilterdData($request->all());
+            return response()->json($formatuserdata);
         }
     }
 }
