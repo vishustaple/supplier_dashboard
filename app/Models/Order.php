@@ -698,13 +698,16 @@ class Order extends Model
         ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
         
+        $totalRecords = $query->getQuery()->getCountForPagination();
+
         if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
             $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
         }
-        if (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
-            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
-        } elseif (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+
+        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
             $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+        } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
+            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
         } else {
             if ($csv == true) {
                 $finalArray['heading'] = [
@@ -736,24 +739,34 @@ class Order extends Model
 
         $query->groupBy($orderColumnArray[1]);
         // $totalRecords = $query->count();
-        $totalRecords = $query->getQuery()->getCountForPagination();
+        $filteredRecords = $query->getQuery()->getCountForPagination();
 
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
+
+
         // ->toArray();
         
         $finalArray = [];
         foreach ($queryData as $key => $value) {
-            $finalArray[$key]['supplier_name'] = $value->supplier_name;
-            $finalArray[$key]['account_name'] = $value->account_name;
-            $finalArray[$key]['spend'] = '$'.$value->spend;
-            $finalArray[$key]['category'] = $value->category;
-            $finalArray[$key]['current_rolling_spend'] = '$'.$value->spend;
-            $finalArray[$key]['previous_rolling_spend'] = '$'.$value->spend;
+            if($csv) {
+                $finalArray[$key]['supplier_name'] = $value->supplier_name;
+                $finalArray[$key]['account_name'] = $value->account_name;
+                $finalArray[$key]['spend'] = $value->spend;
+                $finalArray[$key]['category'] = $value->category;
+                $finalArray[$key]['current_rolling_spend'] = $value->spend;
+                $finalArray[$key]['previous_rolling_spend'] = $value->spend;
+            } else {
+                $finalArray[$key]['supplier_name'] = $value->supplier_name;
+                $finalArray[$key]['account_name'] = $value->account_name;
+                $finalArray[$key]['spend'] = '$'.$value->spend;
+                $finalArray[$key]['category'] = $value->category;
+                $finalArray[$key]['current_rolling_spend'] = '$'.$value->spend;
+                $finalArray[$key]['previous_rolling_spend'] = '$'.$value->spend;
+            }
         }
 
-        
         if ($csv == true) {
             $finalArray['heading'] = [
                 'Supplier Name',
@@ -769,7 +782,7 @@ class Order extends Model
             return [
                 'data' => $finalArray,
                 'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
             ];
         }
     }
