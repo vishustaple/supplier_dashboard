@@ -62,7 +62,6 @@
                     </div>
                     <div class="col-md-3 mb-0">
                         <button type="submit" class="btn btn-primary m-1">Submit</button>
-                        <!-- <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
                     </div>
                     <!-- Button trigger modal -->
                 </div>
@@ -91,7 +90,6 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <!-- <button type="button" class="btn btn-primary">Understood</button> -->
                     </div>
                 </div>
             </div>
@@ -120,10 +118,7 @@
                 $('.paid_'+$(this).data('approved_id')+'').prop('disabled', true);
             }
 
-            var formData = { 
-                approved : $(this).val(),
-                id : $(this).data('approved_id')
-            },
+            var formData = { approved : $(this).val(), id : $(this).data('approved_id') },
             token = "{{ csrf_token() }}";
 
             $.ajax({
@@ -169,10 +164,7 @@
                 $('.approved_'+$(this).data('paid_id')+'').prop('disabled', true);
             }
 
-            var formData = { 
-                paid : $(this).val(),
-                id : $(this).data('paid_id')
-            },
+            var formData = { paid : $(this).val(), id : $(this).data('paid_id') },
             token = "{{ csrf_token() }}";
 
             $.ajax({
@@ -230,24 +222,24 @@
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
                     d.year = $('#year').val();
+                    d.paid = $('#paid').val();
                     d.quarter = $('#quarter').val();
-                    d.sales_rep = $('#sales_rep').val();
                     d.supplier = $('#supplier').val();
                     d.approved = $('#approved').val();
-                    d.paid = $('#paid').val();
+                    d.sales_rep = $('#sales_rep').val();
                 },
             },
 
             beforeSend: function() {
                 // Show both the DataTables processing indicator and the manual loader before making the AJAX request
-                $('.dataTables_processing').show();
                 $('#manualLoader').show();
+                $('.dataTables_processing').show();
             },
 
             complete: function(response) {
                 // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
-                $('.dataTables_processing').hide();
                 $('#manualLoader').hide();
+                $('.dataTables_processing').hide();
                 if (businessdataTable.data().count() > 40) {
                     $('#business_data_paginate').show(); // Enable pagination
                 } else {
@@ -276,7 +268,6 @@
             serverSide: true,
             lengthMenu: [40], // Specify the options you want to show
             lengthChange: false, // Hide the "Show X entries" dropdown
-            // paging: false,
             searching:false, 
             pageLength: 40,
             order: [[3, 'desc']],
@@ -288,12 +279,9 @@
                     // Pass date range and supplier ID when making the request
                     d.year = $('#year').val();
                     d.quarter = $('#quarter').val();
-                    d.sales_reps = $('#sales_rep').val();
                     d.supplier = $('#supplier').val();
+                    d.sales_reps = $('#sales_rep').val();
                     d.commission_rebate_id = $('#commission_table_id').val();
-                    // if (supplierDataTable.row(0).node()) {
-                    //     d.commission_rebate_id = supplierDataTable.row(0).node().querySelector('button').getAttribute('data-id');
-                    // }
                 },
             },
 
@@ -305,8 +293,8 @@
 
             complete: function(response) {
                 // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
-                $('.dataTables_processing').hide();
                 $('#manualLoader').hide();
+                $('.dataTables_processing').hide();
                 if (businessdataTable.data().count() > 40) {
                     $('#business_data_paginate').show(); // Enable pagination
                 } else {
@@ -325,22 +313,23 @@
         });
 
         $(document).on('click', '#commission_report_data tbody #downloadCsvBtn', function() {
-            var id = $(this).data('id');
             // Trigger CSV download
-            downloadCsv(id);
+            downloadCsv($(this).data('id'));
         });
+        
         $(document).on('click', '#commission_report_data tbody #commission_rebate_id', function() {
-            var value = $(this).data('id');
-            $('#commission_table_id').val(value);
+            $('#commission_table_id').val($(this).data('id'));
             $('#commission_report_data1').DataTable().ajax.reload();
         });
 
         function downloadCsv(id='') {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route("report.export-commission_report-csv") }}';
+            var csvUrl = '{{ route("report.export-commission_report-csv") }}',
+            order = supplierDataTable.order();
+
             // Add query parameters for date range and supplier ID
-            var order = supplierDataTable.order();
             csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&sales_rep=' + $('#sales_rep').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&commission_rebate_id=' + id + '&supplier=' + $('#supplier').val();
+
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
         } 
