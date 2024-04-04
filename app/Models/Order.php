@@ -679,7 +679,7 @@ class Order extends Model
         $orderColumnArray = [
             0 => 'suppliers.supplier_name',
             1 => 'master_account_detail.account_name',
-            2 => 'orders.amount',
+            2 => 'spend',
             3 => 'order_product_details.value',
             4 => 'orders.amount',
             5 => 'orders.amount',
@@ -688,7 +688,7 @@ class Order extends Model
         $query = self::query() // Replace YourModel with the actual model you are using for the data   
     
         ->selectRaw(
-            '`orders`.`amount` AS spend,
+            'SUM(`orders`.`amount`) AS spend,
             `suppliers`.`supplier_name` as supplier_name,
             `master_account_detail`.`account_name` as account_name,
             `order_product_details`.`value` as category'
@@ -734,7 +734,9 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        $totalRecords = $query->count();
+        $query->groupBy($orderColumnArray[1]);
+        // $totalRecords = $query->count();
+        $totalRecords = $query->getQuery()->getCountForPagination();
 
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
