@@ -105,8 +105,10 @@
                     if(response.success){
                         $('#page-loader').hide();
                         $('#successMessages').html('');
-                        $('#editsuccessMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                        location.reload();
+                        $('#editsuccessMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage" ><span aria-hidden="true">&times;</span></button></div>');
+                        $('#closesuccessMessage').on('click', function() {
+                            location.reload();
+                        });
                     }
                 },
                 error: function(xhr, status, error) {

@@ -12,7 +12,6 @@ class RebateController extends Controller
         if (!isset($id)) {
             $id = $request->query('id');
         }
-        
 
         $setPageTitleArray = [
             'rebate' => 'Rebate',

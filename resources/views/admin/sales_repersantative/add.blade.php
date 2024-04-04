@@ -63,15 +63,13 @@
     //submit form with ajax
     $("#add_sales").on('submit', function (e){
         e.preventDefault();
-        var formData = new FormData($('#add_sales')[0]);
         $.ajax({
             type: 'POST',
             url: '{{ route("sales.add") }}', // Replace with your actual route name
-            data: formData,
+            data: new FormData($('#add_sales')[0]),
             processData: false,
             contentType: false,
             success: function(response) {
-                console.log(response);
                 if(response.error){
                     // Iterate over each field in the error object
                     var errorMessage = '';
@@ -85,22 +83,18 @@
                         }
 
                     $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
-                  $('#closeerrorMessage').on('click', function() {
-                                location.reload();
-                            });
+                    $('#closeerrorMessage').on('click', function() {
+                        location.reload();
+                    });
                     $('html, body').animate({ scrollTop: 0 }, 'slow');
-                   
-                }
-
-                // Set the content of the div with all accumulated error messages
-                
+                }                
                 
                 if(response.success){
                     $('#page-loader').hide();
                     $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show m-2" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage"><span aria-hidden="true">&times;</span></button></div>');
                     $('#closesuccessMessage').on('click', function() {
-                                location.reload();
-                            });
+                        location.reload();
+                    });
                     $("form")[0].reset();
                 }
             },
