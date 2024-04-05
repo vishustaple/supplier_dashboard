@@ -740,9 +740,9 @@ class Order extends Model
             'suppliers.supplier_name as supplier_name,
             master_account_detail.account_name as account_name,
             order_product_details.value as category,
-            CONCAT("$", SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END)) AS spend,
-            CONCAT("$", SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END)) AS current_rolling_spend,
-            CONCAT("$", SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END)) AS previous_rolling_spend',
+            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS spend,
+            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS current_rolling_spend,
+            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS previous_rolling_spend',
             [$startDate, $endDate, $startDate, $endDate, $prevStartDate, $prevEndDate]
         );
 
@@ -801,9 +801,28 @@ class Order extends Model
 
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
-        $finalArray = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
+        $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
-        })->get()->toArray();
+        })->get();
+
+        $finalArray = [];
+        foreach ($queryData as $key => $value) {
+            if($csv) {
+                $finalArray[$key]['supplier_name'] = $value->supplier_name;
+                $finalArray[$key]['account_name'] = $value->account_name;
+                $finalArray[$key]['spend'] = $value->spend;
+                $finalArray[$key]['category'] = $value->category;
+                $finalArray[$key]['current_rolling_spend'] = $value->spend;
+                $finalArray[$key]['previous_rolling_spend'] = $value->spend;
+            } else {
+                $finalArray[$key]['supplier_name'] = $value->supplier_name;
+                $finalArray[$key]['account_name'] = $value->account_name;
+                $finalArray[$key]['spend'] = '$'.$value->spend;
+                $finalArray[$key]['category'] = $value->category;
+                $finalArray[$key]['current_rolling_spend'] = '$'.$value->spend;
+                $finalArray[$key]['previous_rolling_spend'] = '$'.$value->spend;
+            }
+        }
         // dd($query->toSql(), $query->getBindings());
         // dd($finalArray);
 
