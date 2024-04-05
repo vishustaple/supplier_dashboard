@@ -20,58 +20,31 @@ class Account extends Model
      */
     
     protected $fillable = [
-        // 'qbr',
-        // 'alies',
-        // 'sf_cat',
-        // 'comm_rate',
-        // 'parent_id',
-        // 'spend_name',
-        // 'created_at',
-        // 'created_by',
-        // 'updated_at',
-        // 'rebate_freq',
-        // 'record_type',
-        // 'account_name',
-        // 'member_rebate',
-        // 'temp_end_date',
-        // 'volume_rebate',
-        // 'management_fee',
-        // 'customer_number',
-        // 'temp_active_date',
-        // 'category_supplier',
-        // 'supplier_acct_rep',
-        // 'sales_representative',
-        // 'internal_reporting_name',
-        // 'cpg_sales_representative',
-        // 'cpg_customer_service_rep',
-        // 'customer_service_representative',
-        'account_number',
-        'customer_name',
-        'account_name',
-        'record_type',
-        'volume_rebate',
-        'category_supplier',
-        'cpg_sales_representative',
-        'cpg_customer_service_rep',
         'parent_id',
         'parent_name',
+        'record_type',
+        'account_name',
+        'volume_rebate',
+        'customer_name',
+        'temp_end_date',
+        'member_rebate',
+        'account_number',
         'grandparent_id',
         'grandparent_name',
-        'member_rebate',
         'temp_active_date',
-        'temp_end_date',
+        'category_supplier',
+        'cpg_customer_service_rep',
+        'cpg_sales_representative',
     ];
     
     public function parent(){
         return $this->belongsTo(Account::class, 'parent_id');
     }
-    public function grandparent()
-    {
+    public function grandparent(){
         return $this->parent()->with('parent');
     }
 
-    public static function getHierarchy()
-    {
+    public static function getHierarchy(){
         return self::with(['parent' => function ($query) {
             $query->with('parent');
         }])
@@ -220,36 +193,26 @@ class Account extends Model
 
     public static function getSearchCustomerData($search=''){
         if (!empty($search)) {
-            // $result = DB::table('commission')
-            // ->where('commission.account_name', 'LIKE', '%' . $search . '%')
-            // ->exists();
-            // if (!$result) {
-                $query = self::query()
-                // ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
-                // $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
-                ->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
-                $query->groupBy('master_account_detail.account_name');
-                $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
-                $results = $query->get();
+            $query = self::query()->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
+            $query->groupBy('master_account_detail.account_name');
+            $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
+            $results = $query->get();
 
-                if ($results->isNotEmpty()) {
-                    foreach ($results as $value) {
-                        // $finalArray[] = ['id' => $value->customer_number, 'text' => $value->customer_name];        
-                        $finalArray[] = ['id' => $value->account_name, 'text' => $value->account_name];        
-                    }
-                    return $finalArray;
+            if ($results->isNotEmpty()) {
+                foreach ($results as $value) {
+                    $finalArray[] = ['id' => $value->account_name, 'text' => $value->account_name];        
                 }
-                return [];
-           
+                return $finalArray;
+            }
+
+            return [];
         }
     }
 
     public static function getSearchSupplierDatas($search=[]){
         if (!empty($search)) {
             $query = self::query()->select('suppliers.supplier_name as supplier_name', 'master_account_detail.category_supplier as id')
-
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            
             ->where('master_account_detail.account_name', $search['account_name']);
             $results = $query->first();
 
@@ -264,12 +227,9 @@ class Account extends Model
     public static function getSearchAccountData($search=[]){
         if (!empty($search)) {
             $query = self::query()->select('master_account_detail.account_number as account')
-
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-
             ->where('master_account_detail.account_number', 'LIKE', '%' . $search['q'] . '%')
             ->where('master_account_detail.account_number', $search['customer_number']);
-
             $results = $query->get();
 
             if ($results->isNotEmpty()) {
@@ -387,10 +347,6 @@ class Account extends Model
             1 => 'master_account_detail.customer_name',
             2 => 'master_account_detail.account_name',
             3 => 'suppliers.supplier_name',
-            // 4 => 'master_account_detail.parent_name',
-            // 5 => 'master_account_detail.grandparent_name',
-            // 6 => 'master_account_detail.record_type',
-            // 7 => 'master_account_detail.id',
         ];
 
         $query = self::query() /** Eager load relationships */
