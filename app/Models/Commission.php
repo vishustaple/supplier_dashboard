@@ -54,6 +54,8 @@ class Commission extends Model
             'commission.id as id'
         ); /** Adjust the column names as needed */
     
+        $totalRecords = $query->getQuery()->getCountForPagination();
+
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
@@ -64,7 +66,7 @@ class Commission extends Model
             });
         }
 
-        $totalRecords = $query->getQuery()->getCountForPagination();
+        
 
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
@@ -72,6 +74,8 @@ class Commission extends Model
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
+
+        $filteredRecords = $query->getQuery()->getCountForPagination();
 
         if (isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
@@ -96,6 +100,7 @@ class Commission extends Model
 
             $start_date = date("m/d/Y", strtotime($data->start_date)); /** Convert to mm/dd/yyyy format */
             $end_date = date("m/d/Y", strtotime($data->end_date)); /** Convert to mm/dd/yyyy format */
+            
             /** To create a date range for the same day, just concatenate the start date */
             $date_range = $start_date . " - " . $end_date;
 
@@ -111,7 +116,7 @@ class Commission extends Model
         return [
             'data' => $formatuserdata,
             'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
         ];
     }
 }
