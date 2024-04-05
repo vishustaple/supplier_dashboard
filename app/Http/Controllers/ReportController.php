@@ -179,6 +179,7 @@ class ReportController extends Controller
             return response()->json($formatuserdata);
         }
     }
+    
     public function commissionReportExportCsv(Request $request){
         /** Retrieve data based on the provided parameters */
         $filter['order'][0]['column'] = $request->input('column');

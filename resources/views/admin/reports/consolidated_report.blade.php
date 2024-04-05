@@ -10,7 +10,7 @@
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
                     <div class="row align-items-end border-bottom pb-3 mb-4">
-                        <div class="form-group col-md-4 mb-0">
+                        <div class="form-group col-md-5  mb-0">
                             <label for="selectBox">Select Supplier:</label>
                             <select id="supplierId" name="supplier_id[]" class="form-control" multiple>
                                 <option value="" selected>--Select--</option>
@@ -24,11 +24,31 @@
                                 @endif
                             </select>
                         </div>
-                        <div class="form-group relative col-md-4 mb-0">  
+                        <!-- <div class="form-group relative col-md-4 mb-0">  
                             <label for="enddate">Select Date:</label>
                             <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
                             <input type="hidden" id="start_date" name="start_date" />
                             <input type="hidden" id="end_date" name="end_date" />  
+                        </div> -->
+                        <div class="form-group relative col-md-2 mb-0">  
+                            <label for="enddate">Select Year:</label>
+                            <select class="form-control" name="year" id="year" required>
+                                <option value="">--Select--</option>
+                                @for ($year = 2010; $year <= date('Y'); $year++)
+                                    <option value="{{$year}}">{{$year}}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="form-group relative col-md-2 mb-0">  
+                            <label for="enddate">Select Quarter:</label>
+                            <select class="form-control" name="quarter" id="quarter" required>
+                                <option value="">--Select--</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Quarter 1">Quarter 1</option>
+                                <option value="Quarter 2">Quarter 2</option>
+                                <option value="Quarter 3">Quarter 3</option>
+                                <option value="Quarter 4">Quarter 4</option>
+                            </select>
                         </div>
                         <div class="col-md-3 mt-1 mb-0 text-end">
                             <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
@@ -107,8 +127,10 @@
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
                         // Pass date range and supplier ID when making the request
-                        d.start_date = $('#start_date').val();
-                        d.end_date = $('#end_date').val();
+                        // d.start_date = $('#start_date').val();
+                        // d.end_date = $('#end_date').val();
+                        d.year = $('#year').val();
+                        d.quarter = $('#quarter').val();
                         d.supplier_id = $('#supplierId').val();
                     },
                 },
@@ -128,10 +150,10 @@
                 columns: [
                     { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name' },
                     { data: 'account_name', name: 'account_name', title: 'Account Name' },
-                    { data: 'spend', name: 'spend', title: 'Spend' },
+                    { data: 'spend', name: 'spend', title: 'Spend', 'searchable': false },
                     { data: 'category', name: 'category', title: 'Category' },
-                    { data: 'current_rolling_spend', name: 'current_rolling_spend', title: 'Current Rolling Spend' },
-                    { data: 'previous_rolling_spend', name: 'previous_rolling_spend', title: 'Previous Rolling Spend' },
+                    { data: 'current_rolling_spend', name: 'current_rolling_spend', title: 'Current Rolling Spend',  'searchable': false },
+                    { data: 'previous_rolling_spend', name: 'previous_rolling_spend', title: 'Previous Rolling Spend', 'searchable': false },
                 ],
             });
 
