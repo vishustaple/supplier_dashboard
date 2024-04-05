@@ -24,12 +24,6 @@
                                 @endif
                             </select>
                         </div>
-                        <!-- <div class="form-group relative col-md-4 mb-0">  
-                            <label for="enddate">Select Date:</label>
-                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
-                            <input type="hidden" id="start_date" name="start_date" />
-                            <input type="hidden" id="end_date" name="end_date" />  
-                        </div> -->
                         <div class="form-group relative col-md-2 mb-0">  
                             <label for="enddate">Select Year:</label>
                             <select class="form-control" name="year" id="year" required>
@@ -119,7 +113,6 @@
                 serverSide: true,
                 lengthMenu: [40],
                 paging: true,
-                // searching:false, 
                 pageLength: 40,
                 ajax: {
                     url: '{{ route('consolidated-report.filter') }}',
@@ -127,8 +120,6 @@
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
                         // Pass date range and supplier ID when making the request
-                        // d.start_date = $('#start_date').val();
-                        // d.end_date = $('#end_date').val();
                         d.year = $('#year').val();
                         d.quarter = $('#quarter').val();
                         d.supplier_id = $('#supplierId').val();
@@ -164,10 +155,10 @@
 
             function downloadCsv() {
                 // You can customize this URL to match your backend route for CSV download
-                var csvUrl = '{{ route('consolidated-report.export-csv') }}';
+                var csvUrl = '{{ route('consolidated-report.export-csv') }}', order = consolidateddataTable.order();;
 
                 // Add query parameters for date range and supplier ID
-                csvUrl += '?start=' + $('#start_date').val() + '&end=' + $('#end_date').val() + '&supplier_id=' + $('#supplierId').val();
+                csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier_id=' + $('#supplierId').val();
 
                 // Open a new window to download the CSV file
                 window.open(csvUrl, '_blank');

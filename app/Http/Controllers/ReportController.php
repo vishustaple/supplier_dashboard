@@ -179,7 +179,7 @@ class ReportController extends Controller
             return response()->json($formatuserdata);
         }
     }
-    
+
     public function commissionReportExportCsv(Request $request){
         /** Retrieve data based on the provided parameters */
         $filter['order'][0]['column'] = $request->input('column');
@@ -605,9 +605,11 @@ class ReportController extends Controller
 
     public function exportConsolidatedCsv(Request $request){
         /** Retrieve data based on the provided parameters */
-        $filter['start_date'] = $request->input('start');
-        $filter['end_date'] = $request->input('end');
-        $filter['supplier_id'][] = $request->input('supplier_id');
+        $filter['order'][0]['column'] = $request->input('column');
+        $filter['order'][0]['dir'] = $request->input('order');
+        $filter['quarter'] = $request->input('quarter');
+        $filter['year'] = $request->input('year');
+        $filter['supplier_id'] = explode(",", $request->input('supplier_id'));        
         
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */

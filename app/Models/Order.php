@@ -752,9 +752,6 @@ class Order extends Model
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
 
         $totalRecords = $query->getQuery()->getCountForPagination();
-        // if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
-            // $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
-        // }
 
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -806,8 +803,7 @@ class Order extends Model
 
         $finalArray = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
-        })->get();
-        // ->toArray();
+        })->get()->toArray();
         // dd($query->toSql(), $query->getBindings());
         // dd($finalArray);
 
