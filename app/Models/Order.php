@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use DB;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
@@ -681,29 +682,91 @@ class Order extends Model
             1 => 'master_account_detail.account_name',
             2 => 'spend',
             3 => 'order_product_details.value',
-            4 => 'orders.amount',
-            5 => 'orders.amount',
+            4 => 'current_rolling_spend',
+            5 => 'previous_rolling_spend',
         ];
 
+        /** Year and quarter filter here */
+        if (isset($filter['year']) || !empty($filter['quarter'])) {
+            $fys = ['CALENDAR' => $filter['year'].'-01-01'];
+
+            foreach ($fys as $key => $start){
+                $nextYear = $filter['year']+1;
+                $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
+                $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
+                $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
+                $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
+                $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
+                $dateArray[$key] = $res;
+            }
+           
+            if ($filter['quarter'] == 'Quarter 1') {
+                $startDate = $dateArray['CALENDAR']["1"];
+                $endDate = $dateArray['CALENDAR']["2"];
+            }
+
+            if ($filter['quarter'] == 'Quarter 2') {
+                $startDate = $dateArray['CALENDAR']["2"];
+                $endDate = $dateArray['CALENDAR']["3"];
+            }
+
+            if ($filter['quarter'] == 'Quarter 3') {
+                $startDate = $dateArray['CALENDAR']["3"];
+                $endDate = $dateArray['CALENDAR']["4"];
+            }
+
+            if ($filter['quarter'] == 'Quarter 4') {
+                $startDate = $dateArray['CALENDAR']["4"];
+                $endDate = $dateArray['CALENDAR']["5"];
+            }
+
+            if ($filter['quarter'] == 'Annual') {
+                $startDate = $dateArray['CALENDAR']["1"];
+                $endDate = $dateArray['CALENDAR']["5"];
+            }
+            
+            // Assuming $startDate and $endDate are already calculated for the current quarter or year
+            $prevStartDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($startDate)));
+            $prevEndDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($endDate)));
+        } else {
+            $startDate = Carbon::now()->format('Y-m-d H:i:s');
+            $endDate = date('Y-m-d H:i:s', strtotime('+1 year', strtotime($startDate)));
+            $prevStartDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($startDate)));
+            $prevEndDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($endDate)));
+        }
+
         $query = self::query() // Replace YourModel with the actual model you are using for the data   
-    
         ->selectRaw(
-            'SUM(`orders`.`amount`) AS spend,
-            `suppliers`.`supplier_name` as supplier_name,
-            `master_account_detail`.`account_name` as account_name,
-            `order_product_details`.`value` as category'
-        )
-        ->whereIn('key', ['Category','CATEGORIES','Material Segment','TRANSTYPECODE','CLASS'])
+            'suppliers.supplier_name as supplier_name,
+            master_account_detail.account_name as account_name,
+            order_product_details.value as category,
+            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS spend,
+            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS current_rolling_spend,
+            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS previous_rolling_spend',
+            [$startDate, $endDate, $startDate, $endDate, $prevStartDate, $prevEndDate]
+        );
+
+        $query->whereIn('key', ['Category','CATEGORIES','Material Segment','TRANSTYPECODE','CLASS'])
         ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
         ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
-        
+
         $totalRecords = $query->getQuery()->getCountForPagination();
+        // if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+            // $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+        // }
 
-        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
-            $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+        /** Search functionality */
+        if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
+            $searchTerm = $filter['search']['value'];
+
+            $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
+                foreach ($orderColumnArray as $column) {
+                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                }
+            });            
         }
-
+       
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
             $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
         } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
@@ -738,34 +801,15 @@ class Order extends Model
         }
 
         $query->groupBy($orderColumnArray[1]);
-        // $totalRecords = $query->count();
+
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
-        $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
+        $finalArray = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-
-
         // ->toArray();
-        
-        $finalArray = [];
-        foreach ($queryData as $key => $value) {
-            if($csv) {
-                $finalArray[$key]['supplier_name'] = $value->supplier_name;
-                $finalArray[$key]['account_name'] = $value->account_name;
-                $finalArray[$key]['spend'] = $value->spend;
-                $finalArray[$key]['category'] = $value->category;
-                $finalArray[$key]['current_rolling_spend'] = $value->spend;
-                $finalArray[$key]['previous_rolling_spend'] = $value->spend;
-            } else {
-                $finalArray[$key]['supplier_name'] = $value->supplier_name;
-                $finalArray[$key]['account_name'] = $value->account_name;
-                $finalArray[$key]['spend'] = '$'.$value->spend;
-                $finalArray[$key]['category'] = $value->category;
-                $finalArray[$key]['current_rolling_spend'] = '$'.$value->spend;
-                $finalArray[$key]['previous_rolling_spend'] = '$'.$value->spend;
-            }
-        }
+        // dd($query->toSql(), $query->getBindings());
+        // dd($finalArray);
 
         if ($csv == true) {
             $finalArray['heading'] = [
