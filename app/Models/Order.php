@@ -812,15 +812,15 @@ class Order extends Model
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] = $value->spend;
                 $finalArray[$key]['category'] = $value->category;
-                $finalArray[$key]['current_rolling_spend'] = $value->spend;
-                $finalArray[$key]['previous_rolling_spend'] = $value->spend;
+                $finalArray[$key]['current_rolling_spend'] = $value->current_rolling_spend;
+                $finalArray[$key]['previous_rolling_spend'] = $value->previous_rolling_spend;
             } else {
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] = '$'.$value->spend;
                 $finalArray[$key]['category'] = $value->category;
-                $finalArray[$key]['current_rolling_spend'] = '$'.$value->spend;
-                $finalArray[$key]['previous_rolling_spend'] = '$'.$value->spend;
+                $finalArray[$key]['current_rolling_spend'] = '$'.$value->current_rolling_spend;
+                $finalArray[$key]['previous_rolling_spend'] = '$'.$value->previous_rolling_spend;
             }
         }
         // dd($query->toSql(), $query->getBindings());
