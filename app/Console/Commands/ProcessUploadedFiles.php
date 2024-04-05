@@ -445,6 +445,11 @@ class ProcessUploadedFiles extends Command
                             7 => 'Weekly Sales Account Summary', 
                         ];
 
+                        DB::table('uploaded_files')->where('id', $fileValue->id)
+                        ->update([
+                        'cron' => 4
+                        ]);
+
                         // print_r($sheetCount);die;
                         for ($i = 0; $i <= $sheetCount; $i++) {
                             $count = $maxNonEmptyCount = 0;
@@ -835,6 +840,11 @@ class ProcessUploadedFiles extends Command
                             unset($workSheetArray1, $count, $maxNonEmptyValue);
                             if (isset($finalInsertArray) && !empty($finalInsertArray)) {
                                 try {
+                                    DB::table('uploaded_files')->where('id', $fileValue->id)
+                                        ->update([
+                                        'cron' => 5
+                                    ]);
+
                                     if ($fileValue->supplier_id == 1) {
                                         DB::table('g_and_t_laboratories_charles_river_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 2) {
@@ -872,7 +882,7 @@ class ProcessUploadedFiles extends Command
 
                 try {
                     /** Update the 'cron' field three after processing done */
-                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => UploadedFiles::PROCESSED]);
+                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 6]);
 
                     $this->info('Uploaded files processed successfully.');
                 } catch (QueryException $e) {   

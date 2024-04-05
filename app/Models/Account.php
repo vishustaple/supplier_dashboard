@@ -40,6 +40,7 @@ class Account extends Model
     public function parent(){
         return $this->belongsTo(Account::class, 'parent_id');
     }
+    
     public function grandparent(){
         return $this->parent()->with('parent');
     }

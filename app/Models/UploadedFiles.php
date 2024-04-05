@@ -112,6 +112,10 @@ class UploadedFiles extends Model
                 $cronString = 0;
             } elseif ($data->cron == 2) {
                 $cronString = 30;
+            } elseif ($data->cron == 4) {
+                $cronString = 50;
+            } elseif ($data->cron == 5) {
+                $cronString = 70;
             } else {
                 $cronString = 100;
             }
