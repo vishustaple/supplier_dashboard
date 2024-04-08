@@ -739,7 +739,7 @@ class Order extends Model
         ->selectRaw(
             'suppliers.supplier_name as supplier_name,
             master_account_detail.account_name as account_name,
-            order_product_details.value as category,
+            GROUP_CONCAT(order_product_details.value SEPARATOR \', \') AS category,
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS spend,
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS current_rolling_spend,
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS previous_rolling_spend',
