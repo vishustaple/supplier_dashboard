@@ -65,7 +65,12 @@
             background: #00000080;
             z-index: 999999;
         }
-
+        #consolidated_supplier_data tbody tr td:nth-child(4) {
+  overflow: hidden;
+  max-height: 80px !important;
+  overflow-y: auto;
+  display: block;
+}
         div#page-loader-wrap {
             text-align: center;
             /* vertical-align: center !important; */
