@@ -555,13 +555,25 @@ class ProcessUploadedFiles extends Command
                                     if (($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
                                         // $gdPerent = Account::where('account_number', $row[$keyGrandParent])->first();
                                         // $perent = Account::where('account_number', $row[$keyParent])->first();
-                                        $customer = Account::where('account_number', $row[$keyCustomer])->first();
+                                        $customer = Account::where('account_number', ltrim($row[$keyCustomer], '0'))->first();
+
                                         if (empty($customer)) {
                                             Account::create([
                                                 'parent_id' => $row[$keyParent],
                                                 'parent_name' => $row[$keyParentName],
-                                                'created_by' => $fileValue->created_by,
-                                                'account_number' => $row[$keyCustomer],
+                                                // 'created_by' => $fileValue->created_by,
+                                                'account_number' => ltrim($row[$keyCustomer], '0'),
+                                                'customer_name' => $row[$keyCustomerName],
+                                                'grandparent_id' => $row[$keyGrandParent],
+                                                'category_supplier' => $fileValue->supplier_id,
+                                                'grandparent_name' => $row[$keyGrandParentName],
+                                            ]);
+                                        } else {
+                                            Account::where('account_number', ltrim($row[$keyCustomer], '0'))->update([
+                                                'parent_id' => $row[$keyParent],
+                                                'parent_name' => $row[$keyParentName],
+                                                // 'created_by' => $fileValue->created_by,
+                                                'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'customer_name' => $row[$keyCustomerName],
                                                 'grandparent_id' => $row[$keyGrandParent],
                                                 'category_supplier' => $fileValue->supplier_id,
