@@ -692,18 +692,26 @@ class Order extends Model
             $startDate = $filter['start_date'];
 
             // Assuming $startDate and $endDate are already calculated for the current quarter or year
-            $prevStartDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($startDate)));
+            $prevStartDate = $endDate;
             $prevEndDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($endDate)));
-            $prevStartDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevStartDate)));
+            $prevStartDate1 = $prevEndDate;
             $prevEndDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevEndDate)));
         } else {
             $startDate = Carbon::now()->format('Y-m-d H:i:s');
             $endDate = date('Y-m-d H:i:s', strtotime('+1 year', strtotime($startDate)));
-            $prevStartDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($startDate)));
+            $prevStartDate = $endDate;
             $prevEndDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($endDate)));
-            $prevStartDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevStartDate)));
+            $prevStartDate1 = $prevEndDate;
             $prevEndDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevEndDate)));
         }
+        
+        // dd (
+        // $startDate,
+        // $endDate,
+        // $prevStartDate,
+        // $prevEndDate,
+        // $prevStartDate1,
+        // $prevEndDate1,);
 
         $query = self::query() // Replace YourModel with the actual model you are using for the data   
         ->selectRaw(
