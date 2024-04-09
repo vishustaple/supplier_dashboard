@@ -12,11 +12,6 @@ class CategorySupplier extends Model
     protected $table = 'suppliers';
 
     protected $fillable = [
-        'email',
-        'phone',
-        'status',
-        'last_name',
-        'first_name',
         'created_by',
         'supplier_name',
     ];
