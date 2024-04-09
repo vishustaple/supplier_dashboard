@@ -687,52 +687,22 @@ class Order extends Model
         ];
 
         /** Year and quarter filter here */
-        if (isset($filter['year']) || !empty($filter['quarter'])) {
-            $fys = ['CALENDAR' => $filter['year'].'-01-01'];
+        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+            $endDate = $filter['end_date'];
+            $startDate = $filter['start_date'];
 
-            foreach ($fys as $key => $start){
-                $nextYear = $filter['year']+1;
-                $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
-                $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
-                $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
-                $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
-                $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
-                $dateArray[$key] = $res;
-            }
-           
-            if ($filter['quarter'] == 'Quarter 1') {
-                $startDate = $dateArray['CALENDAR']["1"];
-                $endDate = $dateArray['CALENDAR']["2"];
-            }
-
-            if ($filter['quarter'] == 'Quarter 2') {
-                $startDate = $dateArray['CALENDAR']["2"];
-                $endDate = $dateArray['CALENDAR']["3"];
-            }
-
-            if ($filter['quarter'] == 'Quarter 3') {
-                $startDate = $dateArray['CALENDAR']["3"];
-                $endDate = $dateArray['CALENDAR']["4"];
-            }
-
-            if ($filter['quarter'] == 'Quarter 4') {
-                $startDate = $dateArray['CALENDAR']["4"];
-                $endDate = $dateArray['CALENDAR']["5"];
-            }
-
-            if ($filter['quarter'] == 'Annual') {
-                $startDate = $dateArray['CALENDAR']["1"];
-                $endDate = $dateArray['CALENDAR']["5"];
-            }
-            
             // Assuming $startDate and $endDate are already calculated for the current quarter or year
             $prevStartDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($startDate)));
             $prevEndDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($endDate)));
+            $prevStartDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevStartDate)));
+            $prevEndDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevEndDate)));
         } else {
             $startDate = Carbon::now()->format('Y-m-d H:i:s');
             $endDate = date('Y-m-d H:i:s', strtotime('+1 year', strtotime($startDate)));
             $prevStartDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($startDate)));
             $prevEndDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($endDate)));
+            $prevStartDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevStartDate)));
+            $prevEndDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevEndDate)));
         }
 
         $query = self::query() // Replace YourModel with the actual model you are using for the data   
@@ -743,7 +713,7 @@ class Order extends Model
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS spend,
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS current_rolling_spend,
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS previous_rolling_spend',
-            [$startDate, $endDate, $startDate, $endDate, $prevStartDate, $prevEndDate]
+            [$startDate, $endDate, $prevStartDate, $prevEndDate, $prevStartDate1, $prevEndDate1]
         );
 
         $query->whereIn('key', ['Category','CATEGORIES','Material Segment','TRANSTYPECODE','CLASS'])
