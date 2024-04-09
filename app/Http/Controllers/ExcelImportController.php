@@ -9,11 +9,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
-use App\Helpers\ArrayHelper;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{CategorySupplier, UploadedFiles, ManageColumns, Order};
+use App\Models\{
+    Order,
+    UploadedFiles,
+    ManageColumns,
+    SupplierDetail,
+    CategorySupplier,
+};
 
 
 class ExcelImportController extends Controller
@@ -296,21 +301,31 @@ class ExcelImportController extends Controller
         }
     }
     public function allSupplier(){
-        $categorySuppliers = CategorySupplier::all();
+        $categorySuppliers = CategorySupplier::select([
+            'suppliers.id as id',
+            'suppliers.supplier_name as supplier_name',
+            'suppliers_detail.first_name as first_name',
+            'suppliers_detail.last_name as last_name',
+            'suppliers_detail.email as email',
+            'suppliers_detail.phone as phone',
+            'suppliers_detail.status as status',
+        ])
+        ->leftJoin('suppliers_detail', function($join) {
+            $join->on('suppliers_detail.supplier', '=', 'suppliers.id')
+                 ->where('suppliers_detail.main', '=', 1);
+        })
+        ->get();
+
+        // dd($categorySuppliers);
+
         $formattedData = [];
         foreach ($categorySuppliers as $suppliers) {
             $formattedData[] = [
-                // $suppliers->id, 
-                $suppliers->supplier_name,
+                '<a class="dots" href="'.route('supplier.show', ['id' => $suppliers->id]).'">'.$suppliers->supplier_name.'</a>',
                 $suppliers->first_name.' '.$suppliers->last_name,
                 $suppliers->email,
                 $suppliers->phone,
-                (($suppliers->status == 1) ? ('Active') : ('In-active')),
-                // '<div class="form-check"><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" '.(($suppliers->status == 1) ? ('checked') : ('')).' onclick="toggleDisableEnable('.$suppliers->id.')">'.(($suppliers->status == 1) ? ('<label class="form-check-label" for="flexCheckDefault">Active</label></div>') : ('<label class="form-check-label" for="flexCheckDefault">In-Active</label></div>')).'',
-
-                '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a><div class="dropdown-menu"><a title="Edit Supplier" class="" id="edit_supplier" data-id="'.$suppliers->id.'" data-first_name="'.$suppliers->first_name.'" data-last_name="'.$suppliers->last_name.'" data-email="'.$suppliers->email.'" data-phone="'.$suppliers->phone.'"
-                 data-status="'.$suppliers->status.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>',
-
+                (($suppliers->status == 1) ? ('Active') : ((isset($suppliers->status)) ? ('In-active') : (''))),
             ];
         }
        
@@ -319,7 +334,6 @@ class ExcelImportController extends Controller
         return view('admin.supplier', compact('data', 'pageTitle'));
     }
     
-
     public function deleteFile(Request $request, $id) {
         if (!isset($id)) {
             $id = $request->id;
@@ -377,6 +391,7 @@ class ExcelImportController extends Controller
         $columns = ManageColumns::where('supplier_id',$request->dataIdValue)->get();
         return response()->json($columns);
     }
+
     public function saveColumns(Request $request){
         foreach ($request->all() as $key => $value) {
             $id = $value['fieldId'];
@@ -401,14 +416,77 @@ class ExcelImportController extends Controller
     public function editSupplierName(Request $request) {
         $validator = Validator::make(
             [
+                'id' => $request->id,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'title' => $request->title,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'first_name' => $request->first_name,
+                'supplier_id' => $request->supplier_id,
+            ],
+            [
+                'id' => 'id',
+                'title' => 'required',
+                'phone' => 'required',
+                'email' => 'required',
+                'status' => 'required',
+                'last_name' => 'required',
+                'first_name' => 'required',
+                'supplier_id' => 'required',
+            ],
+        );
+
+        if( $validator->fails()){  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        if ($request->main == 1) {
+            SupplierDetail::where('main', 1)
+            ->where('supplier', $request->supplier_id)
+            ->update(['main' => 0]);
+
+            $supplierData = SupplierDetail::find($request->id);
+            $supplierData->update([
+                'main' => $request->main,
+                'title' => $request->title,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'supllier' => $request->supplier_id,
+                'first_name' => $request->first_name,
+            ]);
+        } else {
+            $supplierData = SupplierDetail::find($request->id);
+            $supplierData->update([
+                'main' => 0,
+                'phone' => $request->phone,
+                'title' => $request->title,
+                'email' => $request->email,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'supllier' => $request->supplier_id,
+                'first_name' => $request->first_name,
+            ]);
+        }
+
+        return response()->json(['success' => 'Supplier info updated'], 200);
+    }
+
+    public function addSupplierName(Request $request){
+        $validator = Validator::make(
+            [
                 'phone'=> $request->phone,
                 'email'=> $request->email,
+                'title'=> $request->title,
                 'status'=> $request->status,
                 'last_name'=> $request->last_name,
                 'first_name'=> $request->first_name,
                 'supplier_id' => $request->supplier_id,
             ],
             [
+                'title'=>'required',
                 'phone'=>'required',
                 'email'=>'required',
                 'status'=>'required',
@@ -421,17 +499,76 @@ class ExcelImportController extends Controller
         if( $validator->fails()){  
             return response()->json(['error' => $validator->errors()], 200);
         }
-
-        $supplierData = CategorySupplier::find($request->supplier_id); 
         
-        $supplierData->update([
-            'first_name'=> $request->first_name,
-            'last_name'=> $request->last_name,
-            'phone'=> $request->phone,
-            'email'=> $request->email,
-            'status'=> $request->status,
-        ]);
+        if ($request->main == 1) {
+            SupplierDetail::where('main', 1)->where('supplier', $request->supplier_id)
+            ->update(['main' => 0]);
+
+            SupplierDetail::create([
+                'main'=> $request->main,
+                'title' => $request->title,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'supplier' => $request->supplier_id,
+                'first_name' => $request->first_name,
+            ]);
+        } else {
+            SupplierDetail::create([
+                'main' => 0,
+                'title' => $request->title,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'supplier' => $request->supplier_id,
+                'first_name' => $request->first_name,
+            ]);
+        }
+        
+        return response()->json(['success' => 'Supplier info added'], 200);
+    }
+
+    public function addSupplierMain(Request $request) {
+        if ($request->main == 1) {
+            SupplierDetail::where('main', 1)->where('supplier', $request->supplier_id)
+            ->update(['main' => 0]);
+
+            SupplierDetail::where('id', $request->id)->update(['main'=> $request->main]);
+        } else {
+            SupplierDetail::where('id', $request->id)->update(['main' => 0]);
+        }
 
         return response()->json(['success' => 'Supplier info updated'], 200);
+    }
+
+    public function deleteSupplier(Request $request) {
+        $checked = SupplierDetail::select('id')->where('id', $request->id)->where('main', 1)->count();
+        
+        if ($checked > 0) {
+            SupplierDetail::where('id', $request->id)->delete();
+            $id = SupplierDetail::where('supplier', $request->supplier_id)->first();
+            if ($id) {
+                SupplierDetail::where('id', $id->id)->update(['main' => 1]);
+            }
+        } else {
+            SupplierDetail::where('id', $request->id)->delete();
+        }
+
+        return response()->json(['success' => 'Supplier info deleted'], 200);
+    }
+
+    public function showSupplier(Request $request) {
+        $id = $request->id;
+        $pageTitle = getSupplierName($request->id);
+        return view('admin.supplier_detail',compact('id', 'pageTitle'));
+    }
+
+    public function getSupplierDetailWithAjax(Request $request){
+        if ($request->ajax()) {
+            $supplierData = SupplierDetail::getSupplierDetailFilterdData($request->all());
+            return response()->json($supplierData);
+        }
     }
 }

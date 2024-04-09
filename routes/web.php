@@ -34,7 +34,13 @@ Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::get('/supplier', [ExcelImportController::class, 'allSupplier'])->name('supplier');
-        Route::post('/suppliers/editsupplier', [ExcelImportController::class, 'editSupplierName'])->name('supplier.edit');
+        Route::get('/supplier/{id?}', [ExcelImportController::class, 'showSupplier'])->name('supplier.show');
+        Route::post('/suppliers/edit', [ExcelImportController::class, 'editSupplierName'])->name('supplier.edit');
+        Route::post('/suppliers/add', [ExcelImportController::class, 'addSupplierName'])->name('supplier.add');
+        Route::post('/suppliers/delete/supplier/detail', [ExcelImportController::class, 'deleteSupplier'])->name('supplierDetail.delete');
+        
+        Route::post('/suppliers/updatemain', [ExcelImportController::class, 'addSupplierMain'])->name('main.update');
+        Route::post('/supplier/details', [ExcelImportController::class, 'getSupplierDetailWithAjax'])->name('supplier_detail_filter');
         Route::get('/upload-sheet', [ExcelImportController::class, 'index'])->name('upload.sheets');
         Route::post('/import-excel', [ExcelImportController::class, 'import'])->name('import.excel');
         Route::get('/delete-file/{id?}', [ExcelImportController::class, 'deleteFile'])->name('upload.delete');
@@ -75,7 +81,6 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/reports/commission-csv', [ReportController::class, 'downloadSampleCommissionFile'])->name('report.export-commission_report-csv');
         Route::post('/reports/commission-report-filter', [ReportController::class, 'commissionReportFilter'])->name('report.commission_report_filter');
         Route::post('/reports/commissions-report-filter', [ReportController::class, 'getCommissionsWithAjax'])->name('report.commission_report_filter_secound');
-        // Route::get('/downloads/commission/{sales_rep}', [ReportController::class, 'downloadSampleCommissionFile'])->name('commission-file.download');
         Route::post('/report/consolidated/filter', [ReportController::class, 'consolidatedReportFilter'])->name('consolidated-report.filter');
         Route::get('/reports/consolidated/csv', [ReportController::class, 'exportConsolidatedCsv'])->name('consolidated-report.export-csv');        
         /** Report Section End */
