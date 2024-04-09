@@ -11,38 +11,26 @@
                     @csrf
                     <div class="row align-items-end border-bottom pb-3 mb-4">
                         <div class="form-group col-md-5  mb-0">
-                            <label for="selectBox">Select Supplier:</label>
-                            <select id="supplierId" name="supplier_id[]" class="form-control" multiple>
-                                <option value="" selected>--Select--</option>
-                                <option value="all">Select All</option>
-                                @if(isset($categorySuppliers))
-                                    @foreach($categorySuppliers as $supplier)
+                            <div class="form-check">
+                                <input class="form-check-input checkboxs" name="supplier_id[]" type="checkbox" value="all" id="allCheckBox">
+                                <label class="form-check-label" for="defaultCheck1">All Suppliers</label>
+                            </div>
+                            @if(isset($categorySuppliers))
+                                @foreach($categorySuppliers as $supplier)
+                                    <div class="form-check">
                                         @if(!empty($supplier->supplier_name))
-                                            <option value="{{ $supplier->id }}">{{ $supplier->supplier_name }}</option>
+                                            <input class="form-check-input checkboxs" name="supplier_id[]" type="checkbox" value="{{ $supplier->id }}">
+                                            <label class="form-check-label" for="defaultCheck1">{{ $supplier->supplier_name }}</label>
                                         @endif
-                                    @endforeach    
-                                @endif
-                            </select>
+                                    </div>
+                                @endforeach    
+                            @endif
                         </div>
-                        <div class="form-group relative col-md-2 mb-0">  
-                            <label for="enddate">Select Year:</label>
-                            <select class="form-control" name="year" id="year" required>
-                                <option value="">--Select--</option>
-                                @for ($year = 2010; $year <= date('Y'); $year++)
-                                    <option value="{{$year}}">{{$year}}</option>
-                                @endfor
-                            </select>
-                        </div>
-                        <div class="form-group relative col-md-2 mb-0">  
-                            <label for="enddate">Select Quarter:</label>
-                            <select class="form-control" name="quarter" id="quarter" required>
-                                <option value="">--Select--</option>
-                                <option value="Annual">Annual</option>
-                                <option value="Quarter 1">Quarter 1</option>
-                                <option value="Quarter 2">Quarter 2</option>
-                                <option value="Quarter 3">Quarter 3</option>
-                                <option value="Quarter 4">Quarter 4</option>
-                            </select>
+                        <div class="form-group relative col-md-4 mb-0">  
+                            <label for="enddate">Select Date:</label>
+                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                            <input type="hidden" id="start_date" name="start_date" />
+                            <input type="hidden" id="end_date" name="end_date" />  
                         </div>
                         <div class="col-md-3 mt-1 mb-0 text-end">
                             <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
@@ -65,12 +53,14 @@
             background: #00000080;
             z-index: 999999;
         }
+
         #consolidated_supplier_data tbody tr td:nth-child(4) {
-  overflow: hidden;
-  max-height: 80px !important;
-  overflow-y: auto;
-  display: block;
-}
+            overflow: hidden;
+            max-height: 80px !important;
+            overflow-y: auto;
+            display: block;
+        }
+
         div#page-loader-wrap {
             text-align: center;
             /* vertical-align: center !important; */
@@ -99,7 +89,6 @@
                 $('#start_date').val(picker.startDate.format('YYYY-MM-DD')),
                 $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
                 // Perform actions with the selected date range
-                console.log('Selected Date Range:', startDate, 'to', endDate);
             });
 
             // Button click event
@@ -107,6 +96,14 @@
                 event.preventDefault();
                 // Initiate DataTable AJAX request
                 $('#consolidated_supplier_data').DataTable().ajax.reload();
+            });
+
+            $('#allCheckBox').change(function() {
+                if ($(this).is(':checked')) {
+                    $('.checkboxs').not(this).prop('checked', false).prop('disabled', true);
+                } else {
+                    $('.checkboxs').prop('disabled', false);
+                }
             });
 
             // DataTable initialization
@@ -125,9 +122,14 @@
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
                         // Pass date range and supplier ID when making the request
-                        d.year = $('#year').val();
-                        d.quarter = $('#quarter').val();
-                        d.supplier_id = $('#supplierId').val();
+                        d.end_date = $('#end_date').val();
+                        d.start_date = $('#start_date').val();
+                        var checkedValues = [];
+                        $('.checkboxs:checked').each(function() {
+                            checkedValues.push($(this).val());
+                        });
+
+                        d.supplier_id = checkedValues;
                     },
                 },
 
@@ -153,6 +155,14 @@
                 ],
             });
 
+            $(document).on('change', '.checkboxMain', function() {
+                var checkedValues = [];
+                $('.checkboxMain:checked').each(function() {
+                    checkedValues.push($(this).val());
+                });
+                console.log(checkedValues);
+            });
+
             $('#downloadCsvBtn').on('click', function () {
                 // Trigger CSV download
                 downloadCsv();
@@ -162,8 +172,13 @@
                 // You can customize this URL to match your backend route for CSV download
                 var csvUrl = '{{ route('consolidated-report.export-csv') }}', order = consolidateddataTable.order();;
 
+                var checkedValues = [];
+                $('.checkboxs:checked').each(function() {
+                    checkedValues.push($(this).val());
+                });
+
                 // Add query parameters for date range and supplier ID
-                csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier_id=' + $('#supplierId').val();
+                csvUrl += '?start_date=' + $('#start_date').val() + '&end_date=' + $('#end_date').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier_id=' + checkedValues;
 
                 // Open a new window to download the CSV file
                 window.open(csvUrl, '_blank');
