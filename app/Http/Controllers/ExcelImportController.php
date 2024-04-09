@@ -309,6 +309,7 @@ class ExcelImportController extends Controller
             'suppliers_detail.email as email',
             'suppliers_detail.phone as phone',
             'suppliers_detail.status as status',
+            'suppliers_detail.title as title',
         ])
         ->leftJoin('suppliers_detail', function($join) {
             $join->on('suppliers_detail.supplier', '=', 'suppliers.id')
@@ -322,6 +323,7 @@ class ExcelImportController extends Controller
         foreach ($categorySuppliers as $suppliers) {
             $formattedData[] = [
                 '<a class="dots" href="'.route('supplier.show', ['id' => $suppliers->id]).'">'.$suppliers->supplier_name.'</a>',
+                $suppliers->title,
                 $suppliers->first_name.' '.$suppliers->last_name,
                 $suppliers->email,
                 $suppliers->phone,

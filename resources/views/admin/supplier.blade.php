@@ -24,6 +24,7 @@
             "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
                 { title: 'Supplier Name' },
+                { title: 'Title' },
                 { title: 'Name' },
                 { title: 'Email' },
                 { title: 'Phone' },
