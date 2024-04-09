@@ -122,19 +122,21 @@ class UploadedFiles extends Model
              
             if (isset($data->deleted_at) && !empty($data->deleted_at)) {
                 $cronString = 'Deleted';
+                $formatuserdata[$key]['status'] = $cronString;
+            } else {
+                $formatuserdata[$key]['status'] = '<div class="clear"></div>
+                <progress value="'.$cronString.'" max="100" id="progBar">
+                    <span id="downloadProgress">
+                    </span>
+                </progress>
+                <div id="progUpdate">
+                '.$cronString.'% Uploaded
+                </div>';
             }
            
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['file_name'] = '<div class="file_td">'.$data->file_name.'</div>';
-            $formatuserdata[$key]['status'] = $cronString;
-            $formatuserdata[$key]['status'] = '<div class="clear"></div>
-            <progress value="'.$cronString.'" max="100" id="progBar">
-                <span id="downloadProgress">
-                </span>
-            </progress>
-            <div id="progUpdate">
-            '.$cronString.'% Uploaded
-            </div>';
+           
             $formatuserdata[$key]['uploaded_by'] = $data->createdByUser->first_name.' '.$data->createdByUser->last_name;
             $formatuserdata[$key]['date'] = date_format(date_create($data->created_at), 'm/d/Y');
             $formatuserdata[$key]['id'] = (isset($data->delete) && !empty($data->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : ((isset($data->deleted_at) && !empty($data->deleted_at) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$data->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>'));
