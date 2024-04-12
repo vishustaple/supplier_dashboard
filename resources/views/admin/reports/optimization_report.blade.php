@@ -26,7 +26,7 @@
 
                     <div class="col-md-4 mb-0">
                         <button type="submit" class="btn btn-primary">Submit</button>
-                        <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                        <button id="downloadCsvBtn" class="btn-success btn m-1 d-none" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
