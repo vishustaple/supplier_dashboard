@@ -25,7 +25,7 @@ class ReportController extends Controller
             'business_report' => 'Business Report',
             'commission_report' => 'Commission Report',
             'supplier_report' => 'Supplier Rebate Report',
-            'optimization_report' => 'Optimization Report',
+            'optimization_report' => 'Quarter Report',
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
         ];
