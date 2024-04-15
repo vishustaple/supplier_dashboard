@@ -428,7 +428,7 @@ class ExcelImportController extends Controller
                 'supplier_id' => $request->supplier_id,
             ],
             [
-                'id' => 'id',
+                'id' => 'required',
                 'title' => 'required',
                 'phone' => 'required',
                 'email' => 'required',
@@ -471,6 +471,19 @@ class ExcelImportController extends Controller
                 'supllier' => $request->supplier_id,
                 'first_name' => $request->first_name,
             ]);
+
+            $existRecord = SupplierDetail::where('main', 1)
+            ->where('supplier', $request->supplier_id)
+            ->first();
+            if (!$existRecord) {
+                $updateManiRecord = SupplierDetail::where('id', '!=', $request->id)
+                ->where('supplier', $request->supplier_id)
+                ->first();
+
+                SupplierDetail::where('id', $updateManiRecord->id)
+                ->where('supplier', $request->supplier_id)
+                ->update(['main' => 1]);
+            }
         }
 
         return response()->json(['success' => 'Supplier info updated'], 200);
