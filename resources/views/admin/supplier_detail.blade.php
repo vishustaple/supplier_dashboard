@@ -151,9 +151,9 @@
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    d.year = $('#year').val();
-                    d.quarter = $('#quarter').val();
-                    d.supplier = $('#supplier').val();
+                    // d.year = $('#year').val();
+                    // d.quarter = $('#quarter').val();
+                    d.supplier_id = $('#supplier_id').val();
                 },
             },
 
