@@ -43,6 +43,10 @@ class SupplierDetail extends Model
 			});            
 		}
 
+		if (isset($filter['supplier_id']) && !empty($filter['supplier_id'])) {
+			$query->where('supplier', $filter['supplier_id']);
+		}
+		
 		/** Get total records count (without filtering) */
 		if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
 			/** Order by column and direction */
