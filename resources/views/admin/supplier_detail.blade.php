@@ -151,8 +151,6 @@
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    // d.year = $('#year').val();
-                    // d.quarter = $('#quarter').val();
                     d.supplier_id = $('#supplier_id').val();
                 },
             },
@@ -185,86 +183,89 @@
             ],
         });  
 
-       
-            document.getElementById('editSupplierModal').addEventListener('show.bs.modal', function (event) {
-                // Set the value of the input element
-                document.getElementById('phone').value = event.relatedTarget.getAttribute('data-phone');
-                document.getElementById('title').value = event.relatedTarget.getAttribute('data-title');
-                document.getElementById('email').value = event.relatedTarget.getAttribute('data-email');
-                document.getElementById('supplier_detail_id').value = event.relatedTarget.getAttribute('data-id');
-                document.getElementById('last_name').value = event.relatedTarget.getAttribute('data-last_name');
-                document.getElementById('first_name').value = event.relatedTarget.getAttribute('data-first_name');
-                
-                if (event.relatedTarget.getAttribute('data-main') == 1) {
-                    document.getElementById('checkboxs').checked = true;
-                }
+        // $("#myModal").on("hidden.bs.modal", function () {
+        //     // put your default event here
+        // });
 
-                if (event.relatedTarget.getAttribute('data-status') == 1) {
-                    document.getElementById('status').options[0].selected = true;
-                } else {
-                    document.getElementById('status').options[1].selected = true;
-                }
-            });
+        document.getElementById('editSupplierModal').addEventListener('show.bs.modal', function (event) {
+            // Set the value of the input element
+            document.getElementById('phone').value = event.relatedTarget.getAttribute('data-phone');
+            document.getElementById('title').value = event.relatedTarget.getAttribute('data-title');
+            document.getElementById('email').value = event.relatedTarget.getAttribute('data-email');
+            document.getElementById('supplier_detail_id').value = event.relatedTarget.getAttribute('data-id');
+            document.getElementById('last_name').value = event.relatedTarget.getAttribute('data-last_name');
+            document.getElementById('first_name').value = event.relatedTarget.getAttribute('data-first_name');
+            
+            if (event.relatedTarget.getAttribute('data-main') == 1) {
+                document.getElementById('checkboxs').checked = true;
+            }
 
-            $(document).on('click', '.remove', function(){
-                var formData = { supplier_id : "{{ $id }}", id : $(this).data('id') },
-                token = "{{ csrf_token() }}";
-                $.ajax({
-                    type: 'POST',
-                    url: "{{route('supplierDetail.delete')}}",
-                    dataType: 'json',
-                    data: JSON.stringify(formData),                        
-                    headers: {'X-CSRF-TOKEN': token},
-                    contentType: 'application/json',                     
-                    processData: false,
-                    success: function(response) {
-                        if(response.success){
-                            $('#supplier_detail_data').DataTable().ajax.reload();
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        $('#editerrorMessage').text(JSON.parse(xhr.responseText).error);
-                        $('#editerrorMessage').css('display','block');
-                        setTimeout(function () {
-                            $('#editerrorMessage').fadeOut();
-                        }, 5000);
+            if (event.relatedTarget.getAttribute('data-status') == 1) {
+                document.getElementById('status').options[0].selected = true;
+            } else {
+                document.getElementById('status').options[1].selected = true;
+            }
+        });
+
+        $(document).on('click', '.remove', function(){
+            var formData = { supplier_id : "{{ $id }}", id : $(this).data('id') },
+            token = "{{ csrf_token() }}";
+            $.ajax({
+                type: 'POST',
+                url: "{{route('supplierDetail.delete')}}",
+                dataType: 'json',
+                data: JSON.stringify(formData),                        
+                headers: {'X-CSRF-TOKEN': token},
+                contentType: 'application/json',                     
+                processData: false,
+                success: function(response) {
+                    if(response.success){
+                        $('#supplier_detail_data').DataTable().ajax.reload();
                     }
-                });
-            });
-
-            // Assuming there is only one element with the class checkboxMain
-            $(document).on('change', '.checkboxMain', function(){
-                var main = 0;
-                if ($(this).is(":checked")) {
-                    main = 1;   
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    $('#editerrorMessage').text(JSON.parse(xhr.responseText).error);
+                    $('#editerrorMessage').css('display','block');
+                    setTimeout(function () {
+                        $('#editerrorMessage').fadeOut();
+                    }, 5000);
                 }
-
-                var formData = { supplier_id : "{{ $id }}", id : $(this).data('id'), main : main },
-                token = "{{ csrf_token() }}";
-                $.ajax({
-                    type: 'POST',
-                    url: "{{route('main.update')}}",
-                    dataType: 'json',
-                    data: JSON.stringify(formData),                        
-                    headers: {'X-CSRF-TOKEN': token},
-                    contentType: 'application/json',                     
-                    processData: false,
-                    success: function(response) {
-                        if(response.success){
-                            $('#supplier_detail_data').DataTable().ajax.reload();
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        $('#editerrorMessage').text(JSON.parse(xhr.responseText).error);
-                        $('#editerrorMessage').css('display','block');
-                        setTimeout(function () {
-                            $('#editerrorMessage').fadeOut();
-                        }, 5000);
-                    }
-                });
             });
+        });
+
+        // Assuming there is only one element with the class checkboxMain
+        $(document).on('change', '.checkboxMain', function(){
+            var main = 0;
+            if ($(this).is(":checked")) {
+                main = 1;   
+            }
+
+            var formData = { supplier_id : "{{ $id }}", id : $(this).data('id'), main : main },
+            token = "{{ csrf_token() }}";
+            $.ajax({
+                type: 'POST',
+                url: "{{route('main.update')}}",
+                dataType: 'json',
+                data: JSON.stringify(formData),                        
+                headers: {'X-CSRF-TOKEN': token},
+                contentType: 'application/json',                     
+                processData: false,
+                success: function(response) {
+                    if(response.success){
+                        $('#supplier_detail_data').DataTable().ajax.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    $('#editerrorMessage').text(JSON.parse(xhr.responseText).error);
+                    $('#editerrorMessage').css('display','block');
+                    setTimeout(function () {
+                        $('#editerrorMessage').fadeOut();
+                    }, 5000);
+                }
+            });
+        });
 
         $("#edit_supplier_name").on('submit', function (e){
             e.preventDefault();
@@ -295,9 +296,7 @@
                         $('#page-loader').hide();
                         $('#successMessages').html('');
                         $('#editsuccessMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage" ><span aria-hidden="true">&times;</span></button></div>');
-                        $('#closesuccessMessage').on('click', function() {
-                            location.reload();
-                        });
+                        $('#supplier_detail_data').DataTable().ajax.reload();
                     }
                 },
                 error: function(xhr, status, error) {
@@ -340,9 +339,11 @@
                         $('#page-loader').hide();
                         $('#successMessages').html('');
                         $('#addsuccessMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage" ><span aria-hidden="true">&times;</span></button></div>');
-                        $('#closesuccessMessage').on('click', function() {
-                            location.reload();
-                        });
+                        $('#supplier_detail_data').DataTable().ajax.reload();
+                        document.getElementById("add_supplier_name").reset()[0];
+                        // $('#closesuccessMessage').on('click', function() {
+                        //     location.reload();
+                        // });
                     }
                 },
                 error: function(xhr, status, error) {

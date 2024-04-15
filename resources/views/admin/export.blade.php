@@ -267,6 +267,9 @@
         div#errorMessage {
             position: relative;
         }
+        #progBar {
+            width: 100%;
+        }
         /* div#successMessage {
             position: relative;
         } */
