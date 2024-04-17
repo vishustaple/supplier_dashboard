@@ -122,7 +122,7 @@ class ExcelImportController extends Controller
                     }
                     
                     /** Stop loop after reading 31 rows from excel file */
-                    if($key > 13){
+                    if($key > 2){
                         break;
                     }
                 }
@@ -146,11 +146,7 @@ class ExcelImportController extends Controller
                     }
                 }
 
-                if ($request->supplierselect == 2) {
-                    $startIndex = $startIndexValueArray + 1;
-                } else {
-                    $startIndex = $startIndexValueArray;
-                }
+             
 
                 // $chunkSize = 0; // Adjust as needed
                 // $dates = [];
