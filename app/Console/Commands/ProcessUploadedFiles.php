@@ -83,7 +83,7 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['amount'] = '';
                     }
 
-                    if (in_array($value->id, [12, 38, 65, 122, 143, 185])) {
+                    if (in_array($value->id, [12, 38, 65, 122, 143, 185, 262])) {
                         $columnArray[$value->supplier_id]['amount'] = $value->field_name;
                     }
 
@@ -101,12 +101,6 @@ class ProcessUploadedFiles extends Command
 
                     if (in_array($value->supplier_id, [7])) {
                         $columnArray[$value->supplier_id]['invoice_date'] = '';
-                    }
-
-                    if ($value->supplier_id == 1) {
-                        if ($value->id == 13) {
-                            $offCoreSpend = $value->field_name;
-                        }
                     }
 
                     $columnArray1[$value->id] = $value->field_name;
@@ -129,6 +123,7 @@ class ProcessUploadedFiles extends Command
                             $columnArray1['12'] => 'on_core_spend',
                             $columnArray1['13'] => 'off_core_spend',
                             $columnArray1['258'] => 'date',
+                            $columnArray1['262'] => 'total_Spend',
                         ]
                     ];
                 } elseif ($fileValue->supplier_id == 2) {
@@ -623,10 +618,6 @@ class ProcessUploadedFiles extends Command
                                         }
     
                                         if (!empty($columnArray[$fileValue->supplier_id]['amount'])) {
-                                            if ($fileValue->supplier_id == 1) {
-                                                $keyOffCoreAmount = array_search($offCoreSpend, $maxNonEmptyValue);
-                                            }
-    
                                             $keyAmount = array_search($columnArray[$fileValue->supplier_id]['amount'], $maxNonEmptyValue);
                                         }
     
@@ -749,7 +740,7 @@ class ProcessUploadedFiles extends Command
                                                         'data_id' => $fileValue->id,
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => $fileValue->supplier_id,
-                                                        'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? ($row[$keyAmount]) : ((!empty($keyOffCoreAmount) && !empty($row[$keyOffCoreAmount]) && $fileValue->supplier_id) ? ($row[$keyOffCoreAmount]) : ('0.0')),
+                                                        'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? (ltrim($row[$keyAmount], '-')) : ('0.0'),
                                                         'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -760,7 +751,7 @@ class ProcessUploadedFiles extends Command
                                                         'data_id' => $fileValue->id,
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => $fileValue->supplier_id,
-                                                        'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? ($row[$keyAmount]) : ((!empty($keyOffCoreAmount) && !empty($row[$keyOffCoreAmount]) && $fileValue->supplier_id) ? ($row[$keyOffCoreAmount]) : ('0.0')),
+                                                        'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? (ltrim($row[$keyAmount], '-')) : ('0.0'),
                                                         'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
