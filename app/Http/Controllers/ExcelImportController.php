@@ -93,18 +93,18 @@ class ExcelImportController extends Controller
             $reader = new Xlsx(); 
             $spreadSheet = $reader->load($request->file('file'), 2);
             $validationCheck = $arrayDiff = false;
-            $columnValues = DB::table('manage_columns')->select('id', 'supplier_id', 'field_name')->where('supplier_id', $request->supplierselect)->get();
+            // $columnValues = DB::table('manage_columns')->select('id', 'supplier_id', 'field_name')->where('supplier_id', $request->supplierselect)->get();
     
-            /** Here we getting date column name form database */
-            foreach ($columnValues as $key => $value) {
-                if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {
-                    $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
-                }
+            // /** Here we getting date column name form database */
+            // foreach ($columnValues as $key => $value) {
+            //     if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {
+            //         $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
+            //     }
     
-                if (in_array($value->supplier_id, [7])) {
-                    $columnArray[$value->supplier_id]['invoice_date'] = '';
-                }
-            }
+            //     if (in_array($value->supplier_id, [7])) {
+            //         $columnArray[$value->supplier_id]['invoice_date'] = '';
+            //     }
+            // }
                 
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 $maxNonEmptyCount = 0;
