@@ -294,6 +294,8 @@ class Account extends Model
 
         /** Get total records count (without filtering) */
         $query->groupBy('master_account_detail.account_name');
+        $query->groupBy('suppliers.supplier_name');
+
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
@@ -382,6 +384,7 @@ class Account extends Model
        
         /** Get total records count (without filtering) */
         $query->groupBy('master_account_detail.account_name');
+        $query->groupBy('suppliers.supplier_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
