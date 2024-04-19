@@ -8,10 +8,12 @@
                 <div class="col-md-4">
                     <h3 class="mb-0 ">{{ $pageTitle }}</h3>
                 </div>
-                <div class="col-md-1">
-                    <button class="btn btn-primary" id="edit_supplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal">Add</button>
+                <div class="col-md-3 d-flex align-items-center justify-content-end pe-0">   
+                    <a href="{{ route('supplier') }}" class="btn btn-secondary me-2 border-0 bg_yellow"><i class="fas fa-arrow-left me-2"></i>Back</a>
+                    <button class="btn btn-primary" id="edit_supplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal"><i class="fas fa-plus me-2"></i>Add</button>
                 </div>
             </div>
+            <div id="successMessages"></div>
             <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="editSupplierModalLabel" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -28,10 +30,7 @@
                                 <div class="form-group">
                                     <input type="hidden" id="supplier_id"  value = "{{$id}}" name="supplier_id">
                                     <input type="hidden" id="supplier_detail_id" name="id">
-                                    <div class="modal_input_wrap">
-                                        <label>Title</label>
-                                        <input type="text" class="form-control" name="title" id="title" value="">
-                                    </div>
+                                    
                                     <div class="modal_input_wrap">
                                         <label>First Name</label>
                                         <input type="text" class="form-control" name="first_name" id="first_name" value="">
@@ -52,12 +51,25 @@
                                         <input class="form-check-input" type="checkbox" name="main" value="1" id="checkboxs">
                                         <label class="form-check-label" for="checkboxs">Main</label>
                                     </div>
-                                    <div class="modal_input_wrap">
+                                    <div class="row">
+                                    <div class="modal_input_wrap col-md-6">
                                         <label for="" class="form-label">Status</label>
                                         <select class="form-select" name="status" id="status">
                                             <option value="1">Active</option>
                                             <option value="0">In-Active</option>
                                         </select>
+                                    </div>
+                                    <div class="modal_input_wrap col-md-6">
+                                        <label>Department</label>
+                                        <select class="form-select" name="department" id="department">
+                                            <option value="" selected>Select</option>
+                                            @if(isset($departments))
+                                                @foreach($departments as $department)
+                                                    <option value="{{ $department->id }}">{{ $department->department }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -84,10 +96,7 @@
                                 @csrf
                                 <div class="form-group">
                                     <input type="hidden" id="supplier_id"  value = "{{$id}}" name="supplier_id">
-                                    <div class="modal_input_wrap">
-                                        <label>Title</label>
-                                        <input type="text" class="form-control" name="title" id="titles" value="">
-                                    </div>
+                                 
                                     <div class="modal_input_wrap">
                                         <label>First Name</label>
                                         <input type="text" class="form-control" name="first_name" id="first_names" value="">
@@ -108,12 +117,25 @@
                                         <input class="form-check-input" name="main" type="checkbox" value="1" id="mains">
                                         <label class="form-check-label" for="mains">Main</label>
                                     </div>
-                                    <div class="modal_input_wrap">
+                                    <div class="row">
+                                    <div class="modal_input_wrap col-md-6">
                                         <label for="" class="form-label">Status</label>
                                         <select class="form-select" name="status" id="statuss">
                                             <option value="1">Active</option>
                                             <option value="0">In-Active</option>
                                         </select>
+                                    </div>
+                                    <div class="modal_input_wrap col-md-6">
+                                        <label>Department</label>
+                                        <select class="form-select" name="department" id="departments">
+                                            <option value="" selected>Select</option>
+                                            @if(isset($departments))
+                                                @foreach($departments as $department)
+                                                    <option value="{{ $department->id }}">{{ $department->department }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -175,22 +197,18 @@
             columns: [
                 { data: 'main', name: 'main', title: 'Main'},
                 { data: 'name', name: 'name', title: 'Name'},
-                { data: 'title', name: 'title', title: 'Title'},
+                { data: 'department', name: 'department', title: 'Department'},
                 { data: 'email', name: 'email', title: 'Email'},
                 { data: 'phone', name: 'phone', title: 'Phone'},
                 { data: 'status', name: 'status', title: 'Status'},
                 { data: 'id', name: 'id', title: 'Action', 'orderable': false, 'searchable': false},
             ],
-        });  
-
-        // $("#myModal").on("hidden.bs.modal", function () {
-        //     // put your default event here
-        // });
+        });
 
         document.getElementById('editSupplierModal').addEventListener('show.bs.modal', function (event) {
             // Set the value of the input element
             document.getElementById('phone').value = event.relatedTarget.getAttribute('data-phone');
-            document.getElementById('title').value = event.relatedTarget.getAttribute('data-title');
+            document.getElementById('department').value = event.relatedTarget.getAttribute('data-department');
             document.getElementById('email').value = event.relatedTarget.getAttribute('data-email');
             document.getElementById('supplier_detail_id').value = event.relatedTarget.getAttribute('data-id');
             document.getElementById('last_name').value = event.relatedTarget.getAttribute('data-last_name');
@@ -295,7 +313,8 @@
                     if(response.success){
                         $('#page-loader').hide();
                         $('#successMessages').html('');
-                        $('#editsuccessMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage" ><span aria-hidden="true">&times;</span></button></div>');
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage" ><span aria-hidden="true">&times;</span></button></div>');
+                        $('#editSupplierModal').modal('hide');
                         $('#supplier_detail_data').DataTable().ajax.reload();
                     }
                 },
@@ -338,12 +357,10 @@
                     if(response.success){
                         $('#page-loader').hide();
                         $('#successMessages').html('');
-                        $('#addsuccessMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage" ><span aria-hidden="true">&times;</span></button></div>');
+                        $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage" ><span aria-hidden="true">&times;</span></button></div>');
+                        $('#addSupplierModal').modal('hide');
                         $('#supplier_detail_data').DataTable().ajax.reload();
-                        document.getElementById("add_supplier_name").reset()[0];
-                        // $('#closesuccessMessage').on('click', function() {
-                        //     location.reload();
-                        // });
+                        document.getElementById("add_supplier_name").reset();
                     }
                 },
                 error: function(xhr, status, error) {

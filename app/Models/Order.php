@@ -686,6 +686,21 @@ class Order extends Model
             5 => 'previous_rolling_spend',
         ];
 
+        $supplierColumnArray = [
+            1 => 'Office Supplies',
+            2 => 'MRO',
+            3 => 'Office Supplies',
+            4 => 'Office Supplies',
+            5 => 'Office Supplies',
+            6 => 'Office Supplies',
+            7 => 'Office Supplies',
+            8 => 'Car Rental',
+            9 => 'Energy Services',
+            10 => 'MRO',
+            11 => 'Wireless',
+            12 => 'Packaging',
+        ];
+
         /** Year and quarter filter here */
         if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
             $endDate = $filter['end_date'];
@@ -713,38 +728,29 @@ class Order extends Model
         // $prevStartDate1,
         // $prevEndDate1,);
 
+        // GROUP_CONCAT(order_product_details.value SEPARATOR \', \') AS category,
         $query = self::query() // Replace YourModel with the actual model you are using for the data   
         ->selectRaw(
             'suppliers.supplier_name as supplier_name,
+            suppliers.id as supplier_id,
             master_account_detail.account_name as account_name,
-            GROUP_CONCAT(order_product_details.value SEPARATOR \', \') AS category,
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS spend,
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS current_rolling_spend,
             SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS previous_rolling_spend',
             [$startDate, $endDate, $prevStartDate, $prevEndDate, $prevStartDate1, $prevEndDate1]
         );
 
-        $query->whereIn('key', ['Category','CATEGORIES','Material Segment','TRANSTYPECODE','CLASS'])
-        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
+        // $query->whereIn('key', ['Category','CATEGORIES','Material Segment','TRANSTYPECODE','CLASS'])
+        $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+        // ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
 
-        $totalRecords = $query->getQuery()->getCountForPagination();
-
-        /** Search functionality */
-        if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
-            $searchTerm = $filter['search']['value'];
-
-            $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
-                foreach ($orderColumnArray as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
-                }
-            });            
-        }
-       
+        $totalRecords = 0;
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            $totalRecords = $query->getQuery()->getCountForPagination();
             $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
         } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
+            $totalRecords = $query->getQuery()->getCountForPagination();
             $query->whereIn('orders.supplier_id', $filter['supplier_id']);
         } else {
             if ($csv == true) {
@@ -761,12 +767,23 @@ class Order extends Model
             } else {
                 return [
                     'data' => [],
-                    'recordsTotal' => 0,
+                    'recordsTotal' => $totalRecords,
                     'recordsFiltered' => 0,
                 ];
             }
         }
 
+        /** Search functionality */
+        if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
+            $searchTerm = $filter['search']['value'];
+
+            $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
+                foreach ($orderColumnArray as $column) {
+                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                }
+            });            
+        }
+        
         /** Get total records count (without filtering) */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
@@ -789,14 +806,14 @@ class Order extends Model
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] = $value->spend;
-                $finalArray[$key]['category'] = $value->category;
+                $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
                 $finalArray[$key]['current_rolling_spend'] = $value->current_rolling_spend;
                 $finalArray[$key]['previous_rolling_spend'] = $value->previous_rolling_spend;
             } else {
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] = '$'.$value->spend;
-                $finalArray[$key]['category'] = $value->category;
+                $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
                 $finalArray[$key]['current_rolling_spend'] = '$'.$value->current_rolling_spend;
                 $finalArray[$key]['previous_rolling_spend'] = '$'.$value->previous_rolling_spend;
             }
