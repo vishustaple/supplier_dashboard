@@ -55,7 +55,7 @@ class ProcessUploadedFiles extends Command
                 $columnValues = DB::table('manage_columns')->select('id', 'supplier_id', 'field_name')->where('supplier_id', $fileValue->supplier_id)->get();
 
                 foreach ($columnValues as $key => $value) {
-                    if (in_array($value->id, [14, 44, 19, 199])) {
+                    if (in_array($value->id, [14, 44, 199])) {
                         $columnArray[$value->supplier_id]['gd_customer_number'] =  $value->field_name;
                     }
 
@@ -520,7 +520,7 @@ class ProcessUploadedFiles extends Command
                             unset($startIndexValueArray);
 
                             if ($fileValue->supplier_id == 2) {
-                               $graingerCount = $startIndex + 1;
+                               $graingerCount = $startIndex; //+ 1;
                             }
                          
                             foreach ($workSheetArray as $key => $row) {
@@ -557,8 +557,8 @@ class ProcessUploadedFiles extends Command
                                         $customer = Account::where('account_number', $row[$keyCustomer])->first();
 
                                         if (empty($customer)) {
-                                            $customer = Account::where('account_number', ltrim($row[$keyCustomer], '0'))->first();
-                                            if (empty($customer)) {
+                                            $customers = Account::where('account_number', ltrim($row[$keyCustomer], '0'))->first();
+                                            if (empty($customers)) {
                                                 Account::create([
                                                     'parent_id' => $row[$keyParent],
                                                     'parent_name' => $row[$keyParentName],
@@ -595,19 +595,26 @@ class ProcessUploadedFiles extends Command
                                     if (in_array($fileValue->supplier_id, [1, 4, 5, 6])) {
                                         $customer = Account::where('account_number', $row[$keyCustomer])->first();
                                         if (empty($customer)) {
-                                            if (empty($customer)) {
+                                            $customers = Account::where('account_number', ltrim($row[$keyCustomer], '0'))->first();
+                                            if (empty($customers)) {
                                                 Account::create([
-                                                    // 'parent_id' => $row[$keyParent],
-                                                    // 'parent_name' => $row[$keyParentName],
-                                                    'created_by' => $fileValue->created_by,
                                                     'account_number' => $row[$keyCustomer],
                                                     'customer_name' => $row[$keyCustomerName],
-                                                    // 'grandparent_id' => $row[$keyGrandParent],
                                                     'category_supplier' => $fileValue->supplier_id,
-                                                    // 'grandparent_name' => $row[$keyGrandParentName],
+                                                ]);
+                                            } else {
+                                                Account::where('account_number', ltrim($row[$keyCustomer], '0'))->update([
+                                                    'account_number' => $row[$keyCustomer],
+                                                    'customer_name' => $row[$keyCustomerName],
+                                                    'category_supplier' => $fileValue->supplier_id,
                                                 ]);
                                             }
-                                            // Account::create(['category_supplier' => $fileValue->supplier_id, 'account_number' => $row[$keyCustomer], 'alies' => $row[$keyCustomerName], 'parent_id' => null, 'created_by' => $fileValue->created_by]);
+                                        } else {
+                                            Account::where('account_number', $row[$keyCustomer])->update([
+                                                'account_number' => $row[$keyCustomer],
+                                                'customer_name' => $row[$keyCustomerName],
+                                                'category_supplier' => $fileValue->supplier_id,
+                                            ]);
                                         }
                                     }
                                 }
@@ -787,7 +794,8 @@ class ProcessUploadedFiles extends Command
                                                     ];
                                                 }
                                             }
-    
+                                            // dd($excelInsertArray);
+
                                             foreach ($finalInsertArray as &$item) {
                                                 if (!isset($item['order_id']) && empty($item['order_id'])) {
                                                     $item['order_id'] = $orderLastInsertId->id;

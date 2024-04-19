@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('supplier');
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
-            $table->string('title')->nullable();
+            $table->unsignedBigInteger('department_id');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->tinyInteger('main')->default(0)->comment("1 => main");
@@ -25,6 +25,7 @@ return new class extends Migration
 
             /** Foreign key define here */
             $table->foreign('supplier')->references('id')->on('suppliers');
+            $table->foreign('department_id')->references('id')->on('department');
         });
     }
 

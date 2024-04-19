@@ -305,12 +305,13 @@ class ExcelImportController extends Controller
             'suppliers_detail.email as email',
             'suppliers_detail.phone as phone',
             'suppliers_detail.status as status',
-            'suppliers_detail.title as title',
+            'department.department as department',
         ])
         ->leftJoin('suppliers_detail', function($join) {
             $join->on('suppliers_detail.supplier', '=', 'suppliers.id')
                  ->where('suppliers_detail.main', '=', 1);
         })
+        ->leftJoin('department', 'department.id', '=', 'suppliers_detail.department_id')
         ->get();
 
         // dd($categorySuppliers);
@@ -319,7 +320,7 @@ class ExcelImportController extends Controller
         foreach ($categorySuppliers as $suppliers) {
             $formattedData[] = [
                 '<a class="dots" href="'.route('supplier.show', ['id' => $suppliers->id]).'">'.$suppliers->supplier_name.'</a>',
-                $suppliers->title,
+                $suppliers->department,
                 $suppliers->first_name.' '.$suppliers->last_name,
                 $suppliers->email,
                 $suppliers->phone,
@@ -417,20 +418,20 @@ class ExcelImportController extends Controller
                 'id' => $request->id,
                 'phone' => $request->phone,
                 'email' => $request->email,
-                'title' => $request->title,
                 'status' => $request->status,
                 'last_name' => $request->last_name,
+                'department' => $request->department,
                 'first_name' => $request->first_name,
                 'supplier_id' => $request->supplier_id,
             ],
             [
                 'id' => 'required',
-                'title' => 'required',
                 'phone' => 'required',
                 'email' => 'required',
                 'status' => 'required',
                 'last_name' => 'required',
                 'first_name' => 'required',
+                'department' => 'required',
                 'supplier_id' => 'required',
             ],
         );
@@ -447,25 +448,25 @@ class ExcelImportController extends Controller
             $supplierData = SupplierDetail::find($request->id);
             $supplierData->update([
                 'main' => $request->main,
-                'title' => $request->title,
                 'phone' => $request->phone,
                 'email' => $request->email,
                 'status' => $request->status,
                 'last_name' => $request->last_name,
                 'supllier' => $request->supplier_id,
                 'first_name' => $request->first_name,
+                'department_id' => $request->department,
             ]);
         } else {
             $supplierData = SupplierDetail::find($request->id);
             $supplierData->update([
                 'main' => 0,
                 'phone' => $request->phone,
-                'title' => $request->title,
                 'email' => $request->email,
                 'status' => $request->status,
                 'last_name' => $request->last_name,
                 'supllier' => $request->supplier_id,
                 'first_name' => $request->first_name,
+                'department_id' => $request->department,
             ]);
 
             $existRecord = SupplierDetail::where('main', 1)
@@ -490,14 +491,14 @@ class ExcelImportController extends Controller
             [
                 'phone'=> $request->phone,
                 'email'=> $request->email,
-                'title'=> $request->title,
+                'department'=> $request->department,
                 'status'=> $request->status,
                 'last_name'=> $request->last_name,
                 'first_name'=> $request->first_name,
                 'supplier_id' => $request->supplier_id,
             ],
             [
-                'title'=>'required',
+                'department'=>'required',
                 'phone'=>'required',
                 'email'=>'required',
                 'status'=>'required',
@@ -517,24 +518,24 @@ class ExcelImportController extends Controller
 
             SupplierDetail::create([
                 'main'=> $request->main,
-                'title' => $request->title,
                 'phone' => $request->phone,
                 'email' => $request->email,
                 'status' => $request->status,
                 'last_name' => $request->last_name,
                 'supplier' => $request->supplier_id,
                 'first_name' => $request->first_name,
+                'department_id' => $request->department,
             ]);
         } else {
             SupplierDetail::create([
                 'main' => 0,
-                'title' => $request->title,
                 'phone' => $request->phone,
                 'email' => $request->email,
                 'status' => $request->status,
                 'last_name' => $request->last_name,
                 'supplier' => $request->supplier_id,
                 'first_name' => $request->first_name,
+                'department_id' => $request->department,
             ]);
         }
         
@@ -573,7 +574,8 @@ class ExcelImportController extends Controller
     public function showSupplier(Request $request) {
         $id = $request->id;
         $pageTitle = getSupplierName($request->id);
-        return view('admin.supplier_detail',compact('id', 'pageTitle'));
+        $departments = DB::table('department')->get();
+        return view('admin.supplier_detail',compact('id', 'pageTitle', 'departments'));
     }
 
     public function getSupplierDetailWithAjax(Request $request){

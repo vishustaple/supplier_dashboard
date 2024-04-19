@@ -14,13 +14,13 @@ class SupplierDetail extends Model
 
     protected $fillable = [
         'main',
-        'title',
         'email',
         'phone',
         'status',
         'supplier',
         'last_name',
         'first_name',
+        'department_id',
     ];
 
     public static function getSupplierDetailFilterdData($filter = [], $csv = false) {
@@ -28,7 +28,8 @@ class SupplierDetail extends Model
 		$orderColumnArray = ['main', 'name', 'title', 'email', 'phone', 'status'];
 
 		$query = self::query() // Replace YourModel with the actual model you are using for the data   
-		->select(['id', 'main', 'email', 'first_name', 'last_name', 'phone', 'title', 'status', DB::raw("CONCAT(first_name, ' ', last_name) AS name")]);
+		->select(['suppliers_detail.id as id', 'main', 'suppliers_detail.department_id as department_id', 'email', 'first_name', 'last_name', 'phone', 'department.department as department', 'status', DB::raw("CONCAT(first_name, ' ', last_name) AS name")])
+		->leftJoin('department', 'department.id', '=', 'suppliers_detail.department_id');
 
 		$totalRecords = $query->getQuery()->getCountForPagination();
 
@@ -66,10 +67,10 @@ class SupplierDetail extends Model
 			$finalArray[$key]['name'] = $value->name;
 			$finalArray[$key]['email'] = $value->email;
 			$finalArray[$key]['phone'] = $value->phone;
-			$finalArray[$key]['title'] = $value->title;
+			$finalArray[$key]['department'] = $value->department;
 			$finalArray[$key]['status'] = (($value->status == 1) ? ('Active') : ((isset($value->status)) ? ('In-active') : ('')));
 			$finalArray[$key]['main'] = '<div class="form-check"><input data-id="'.$value->id.'" class="form-check-input checkboxMain" type="checkbox" value="1" aria-label="..." '.(($value->main == 1) ? ('checked') : ('')).'></div>';
-			$finalArray[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a><div class="dropdown-menu"><a title="Edit Supplier" class="" id="edit_supplier" data-id="'.$value->id.'" data-first_name="'.$value->first_name.'" data-last_name="'.$value->last_name.'" data-email="'.$value->email.'" data-phone="'.$value->phone.'" data-main="'.$value->main.'" data-title="'.$value->title.'" data-status="'.$value->status.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $value->id .'" class="remove" title="Remove Account"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
+			$finalArray[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a><div class="dropdown-menu"><a title="Edit Supplier" class="" id="edit_supplier" data-id="'.$value->id.'" data-first_name="'.$value->first_name.'" data-last_name="'.$value->last_name.'" data-email="'.$value->email.'" data-phone="'.$value->phone.'" data-main="'.$value->main.'" data-department="'.$value->department_id.'" data-status="'.$value->status.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $value->id .'" class="remove" title="Remove Account"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
 		}
 		// dd($query->toSql(), $query->getBindings());
 		// dd($finalArray);
