@@ -178,10 +178,10 @@ class Order extends Model
         ];
 
         $query = self::query()->selectRaw(
-            "SUM(`orders`.`amount`) AS `amount`, 
+            "SUM(`orders`.`amount`) + SUM(`orders`.`negative_amount`) AS `amount`, 
             `m2`.`account_name` AS `account_name`,
-            ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
-            ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
+            ((SUM(`orders`.`amount`) + SUM(`orders`.`negative_amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
+            ((SUM(`orders`.`amount`) + SUM(`orders`.`negative_amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
             `rebate`.`volume_rebate` AS `volume_rebates`,
             `rebate`.`incentive_rebate` AS `incentive_rebates`,
             `suppliers`.`supplier_name` AS `supplier_name`, 
@@ -231,7 +231,9 @@ class Order extends Model
                 $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
                 $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
                 $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
-                $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
+                // $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
+                $date = Carbon::createFromFormat('Y-m-d', $filter['year'] . '-01-01')->endOfYear();
+                $res["5"] = $date->format('Y-m-d H:i:s');
                 $dateArray[$key] = $res;
             }
            
@@ -260,6 +262,7 @@ class Order extends Model
                 $endDate=  $dateArray['CALENDAR']["5"];
             }
 
+            dd($startDate, $endDate);
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
     

@@ -757,12 +757,13 @@ class ProcessUploadedFiles extends Command
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'customer_number' => $customerNumber[0],
                                                     ]);
-                                                } else {
+                                                } else {                                           
                                                     $orderLastInsertId = Order::create([
                                                         'data_id' => $fileValue->id,
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => $fileValue->supplier_id,
-                                                        'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? (ltrim($row[$keyAmount], '-')) : ('0.0'),
+                                                        'amount' => (isset($keyAmount) && !empty($row[$keyAmount])) ? ((($row[$keyAmount] >= 0)) ? ($row[$keyAmount]) : (($fileValue->supplier_id == 1) ? (ltrim($row[$keyAmount], '-')) : ('0.0'))) : ('0.0'),
+                                                        'negative_amount' => (($row[$keyAmount] >= 0) && ($fileValue->supplier_id != 1)) ? ($row[$keyAmount]) : ('0.0'),
                                                         'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
