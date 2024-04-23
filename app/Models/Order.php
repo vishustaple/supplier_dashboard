@@ -262,7 +262,7 @@ class Order extends Model
                 $endDate=  $dateArray['CALENDAR']["5"];
             }
 
-            dd($startDate, $endDate);
+            // dd($startDate, $endDate);
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
     
