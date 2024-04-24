@@ -877,7 +877,7 @@ class ProcessUploadedFiles extends Command
                     }
                 } catch (\Exception $e) {
                     /** Update the 'cron' field three after processing done */
-                    DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 1]);
+                    // DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 1]);
                     echo "Error loading spreadsheet: " . $e->getMessage();
                 }
             } else {
