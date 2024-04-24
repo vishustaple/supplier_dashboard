@@ -432,9 +432,9 @@ class ProcessUploadedFiles extends Command
                             // print_r($i);
                             // die;
                             
-                            // if ($fileValue->supplier_id == 5 && $i == 1) {
-                            //     continue;
-                            // }
+                            if ($fileValue->supplier_id == 4 && $i == 1) {
+                                continue;
+                            }
                             // if (($sheetCount == 1 && $i == 1 && $fileValue->supplier_id != 5) || ($fileValue->supplier_id == 5 && $i == 0) || ($fileValue->supplier_id == 7 && in_array($i, [0, 1, 3, 4, 5, 6, 7]))) {
                             //     continue;
                             // }
