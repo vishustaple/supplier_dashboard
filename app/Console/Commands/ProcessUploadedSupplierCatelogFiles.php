@@ -125,9 +125,9 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
         ->whereIn('order_product_details.key', ['QUANTITYSHIPPED'])
         ->where('orders.supplier_id', 1)
-        ->where('order_product_details.value', '<', 0)
+        ->where('order_product_details.value', '=', 0)->limit(100)
         ->get();
-
+        dd($query);
         foreach ($query as $key => $value) {
             $id = DB::table('orders')
             ->where('id', $value->id)
