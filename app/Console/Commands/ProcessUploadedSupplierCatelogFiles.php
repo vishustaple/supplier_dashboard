@@ -123,11 +123,11 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         $query = DB::table('orders')
         ->select('orders.amount as amount', 'orders.id as id')
         ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
-        ->whereIn('order_product_details.key', ['QTY Shipped'])
-        ->where('orders.supplier_id', 3)
+        ->whereIn('order_product_details.key', ['QUANTITYSHIPPED'])
+        ->where('orders.supplier_id', 1)
         ->where('order_product_details.value', '<', 0)
         ->get();
-        
+
         foreach ($query as $key => $value) {
             $id = DB::table('orders')
             ->where('id', $value->id)
