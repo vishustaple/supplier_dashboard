@@ -83,7 +83,7 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['amount'] = '';
                     }
 
-                    if (in_array($value->id, [12, 38, 65, 296, 143, 185, 262])) {
+                    if (in_array($value->id, [12, 38, 65, 296, 147, 185, 262])) {
                         $columnArray[$value->supplier_id]['amount'] = $value->field_name;
                     }
 
@@ -432,7 +432,7 @@ class ProcessUploadedFiles extends Command
                             // print_r($i);
                             // die;
                             
-                            if ($fileValue->supplier_id == 4 && $i == 1) {
+                            if ($fileValue->supplier_id == 5 && $i == 1) {
                                 continue;
                             }
                             // if (($sheetCount == 1 && $i == 1 && $fileValue->supplier_id != 5) || ($fileValue->supplier_id == 5 && $i == 0) || ($fileValue->supplier_id == 7 && in_array($i, [0, 1, 3, 4, 5, 6, 7]))) {
@@ -738,7 +738,7 @@ class ProcessUploadedFiles extends Command
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'customer_number' => $customerNumber[0],
                                                     ]);
-                                                } else {                 
+                                                } else {  
                                                     $orderLastInsertId = Order::create([
                                                         'data_id' => $fileValue->id,
                                                         'created_by' => $fileValue->created_by,
