@@ -23,6 +23,7 @@ class Order extends Model
         'created_by',
         'supplier_id',
         'customer_number',
+        'negative_amount',
     ];
 
     public function orderProductDetail() {
