@@ -172,7 +172,7 @@ class Order extends Model
     public static function getSupplierReportFilterdData($filter = [], $csv = false){
         $orderColumnArray = [
             0 => 'suppliers.supplier_name',
-            1 => 'master_account_detail.account_name',
+            1 => 'm2.account_name',
             2 => 'amount',
             3 => 'volume_rebate',
             4 => 'incentive_rebate',
