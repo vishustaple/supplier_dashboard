@@ -3,12 +3,12 @@
 
     use Validator;
     use App\Models\User;
+    use Illuminate\Support\Str;
     use Illuminate\Http\Request;
+    use Illuminate\Console\Command;
+    use Illuminate\Support\Facades\Log;
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Support\Facades\Mail;
-    use Illuminate\Support\Facades\Log;
-    use Illuminate\Console\Command;
-    use Illuminate\Support\Str;
     use Illuminate\Support\Facades\Crypt;
 
     class HomeController extends Controller

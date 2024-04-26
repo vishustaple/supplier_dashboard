@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use Carbon\Carbon;
-use App\Models\{UploadedFiles, CategorySupplier};
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use App\Models\{UploadedFiles, CategorySupplier};
+
 class MailSend extends Command
 {
     /**

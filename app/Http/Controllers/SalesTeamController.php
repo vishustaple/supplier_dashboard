@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Validator;
 use League\Csv\Writer;
 use App\Models\SalesTeam;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\StreamedResponse;

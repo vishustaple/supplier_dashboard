@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Illuminate\Http\Request;
 use League\Csv\Writer;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\{Account, Commission};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 

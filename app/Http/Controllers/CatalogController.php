@@ -6,6 +6,7 @@ use League\Csv\Writer;
 use App\Models\{Catalog};
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class CatalogController extends Controller
 {
     public function index(Request $request, $catalogType, $id=null){
