@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CatalogDetail;
 use App\Models\Order;
+use App\Models\CatalogDetail;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;

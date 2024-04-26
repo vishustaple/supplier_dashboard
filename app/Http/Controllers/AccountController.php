@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Validator;
 use League\Csv\Writer;
-use App\Models\{Account, CategorySupplier};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use App\Models\{Account, CategorySupplier};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 // use App\Rules\AtLeastOneChecked;
 

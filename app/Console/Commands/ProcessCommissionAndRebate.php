@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use DB;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use App\Models\{SalesTeam, Order, CommissionRebate, CommissionRebateDetail, Account};
 
 

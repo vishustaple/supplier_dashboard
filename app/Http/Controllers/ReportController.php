@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-// use PDF;
-// use Dompdf\Dompdf;
-// use Dompdf\Options;
-use Barryvdh\DomPDF\Facade\Pdf;
 use League\Csv\Writer;
+use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Models\{Order, CategorySupplier, Account, SalesTeam, CommissionRebate, CommissionRebateDetailHtml};
 
-use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {

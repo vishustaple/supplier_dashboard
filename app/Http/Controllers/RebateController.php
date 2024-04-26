@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Illuminate\Http\Request;
 use App\Models\{Account, Rebate};
+use Illuminate\Support\Facades\DB;
 
 class RebateController extends Controller
 {
