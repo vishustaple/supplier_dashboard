@@ -192,7 +192,9 @@ class Order extends Model
         ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('rebate', 'm2.account_name', '=', 'rebate.account_name')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
-
+        
+        $query->where('orders.id', '<=', 932806);
+        
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query->where('orders.supplier_id', $filter['supplier']);
         } else {
