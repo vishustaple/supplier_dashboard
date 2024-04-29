@@ -27,7 +27,7 @@
                             @endif
                         </select>
                     </div>
-                    <div class="form-group relative col-md-3 mb-0">  
+                    <!-- <div class="form-group relative col-md-3 mb-0">  
                         <label for="enddate">Select Year:</label>
                         <select class="form-control" name="year" id="year" required>
                             <option value="">--Select--</option>
@@ -46,6 +46,12 @@
                             <option value="Quarter 3">Quarter 3</option>
                             <option value="Quarter 4">Quarter 4</option>
                         </select>
+                    </div> -->
+                    <div class="form-group relative col-md-4 mb-0">  
+                        <label for="enddate">Select Date:</label>
+                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                        <input type="hidden" id="start_date" name="start_date" />
+                        <input type="hidden" id="end_date" name="end_date" />  
                     </div>
                     <div class="form-check relative col-md-2 mb-0">
                         <div class="form-check">
@@ -69,8 +75,8 @@
                     <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_amount"></b></h6>
                     <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
                     <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
-                    <h6 class="d-flex justify-content-between">Year: <b style="color:#000;" id="startDates"></b></h6>
-                    <h6 class="d-flex justify-content-between">Quarter: <b style="color:#000;" id="endDates"></b></h6>
+                    <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
+                    <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
                 </div>
             </div>
             <table id="supplier_report_data" class="data_table_files">
@@ -85,11 +91,25 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
+        $('input[name="dates"]').daterangepicker();
+
+        // Get the default start date and end date after the date range picker is initialized
+        $('#start_date').val($('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'));
+        $('#end_date').val($('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD'));
+
+        // Event handler for when the user applies the date range
+        $('input[name="dates"]').on('apply.daterangepicker', function(ev, picker) {
+            // Access the selected date range
+            $('#start_date').val(picker.startDate.format('YYYY-MM-DD')),
+            $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
+            // Perform actions with the selected date range
+        });
+
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            $('#startDates').text($('#year').val());
-            $('#endDates').text($('#quarter').val());
+            $('#startDates').text($('#start_date').val());
+            $('#endDates').text($('#end_date').val());
             $('.header_bar').attr('style', 'display:flex !important;');
 
             // Initiate DataTable AJAX request
@@ -129,7 +149,7 @@
         var supplierDataTable = $('#supplier_report_data').DataTable({
             oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
             processing: true,
-            serverSide: true,
+            serverSide: true, 
             lengthMenu: [40], // Specify the options you want to show
             lengthChange: false, // Hide the "Show X entries" dropdown
             searching:false, 
@@ -141,9 +161,9 @@
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    d.year = $('#year').val();
-                    d.quarter = $('#quarter').val();
                     d.supplier = $('#supplier').val();
+                    d.end_date = $('#end_date').val();
+                    d.start_date = $('#start_date').val();
                 },
             },
 
@@ -188,7 +208,7 @@
             var csvUrl = '{{ route("report.export-supplier_report-csv") }}', order = supplierDataTable.order();
 
             // Add query parameters for date range and supplier ID
-            csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
+            csvUrl += '?start_date=' + $('#start_date').val() + '&end_date=' + $('#end_date').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');

@@ -224,49 +224,49 @@ class Order extends Model
                 ];
             }
         }
-
+        
         /** Year and quarter filter here */
-        if (isset($filter['year']) || !empty($filter['quarter'])) {
-            $fys = ['CALENDAR' => $filter['year'].'-01-01'];
-            foreach ($fys as $key => $start){
-                $nextYear = $filter['year']+1;
-                $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
-                $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
-                $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
-                $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
-                // $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
-                $date = Carbon::createFromFormat('Y-m-d', $filter['year'] . '-01-01')->endOfYear();
-                $res["5"] = $date->format('Y-m-d H:i:s');
-                $dateArray[$key] = $res;
-            }
+        if (isset($filter['end_date']) && isset($filter['start_date'])) {
+            // $fys = ['CALENDAR' => $filter['year'].'-01-01'];
+            // foreach ($fys as $key => $start){
+            //     $nextYear = $filter['year']+1;
+            //     $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
+            //     $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
+            //     $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
+            //     $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
+            //     // $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
+            //     $date = Carbon::createFromFormat('Y-m-d', $filter['year'] . '-01-01')->endOfYear();
+            //     $res["5"] = $date->format('Y-m-d H:i:s');
+            //     $dateArray[$key] = $res;
+            // }
            
-            if($filter['quarter'] == 'Quarter 1'){
-                $startDate =  $dateArray['CALENDAR']["1"];
-                $endDate =  $dateArray['CALENDAR']["2"];
-            }
+            // if($filter['quarter'] == 'Quarter 1'){
+            //     $startDate =  $dateArray['CALENDAR']["1"];
+            //     $endDate =  $dateArray['CALENDAR']["2"];
+            // }
 
-            if($filter['quarter'] == 'Quarter 2'){
-                $startDate=  $dateArray['CALENDAR']["2"];
-                $endDate=  $dateArray['CALENDAR']["3"];
-            }
+            // if($filter['quarter'] == 'Quarter 2'){
+            //     $startDate=  $dateArray['CALENDAR']["2"];
+            //     $endDate=  $dateArray['CALENDAR']["3"];
+            // }
 
-            if($filter['quarter'] == 'Quarter 3'){
-                $startDate=  $dateArray['CALENDAR']["3"];
-                $endDate=  $dateArray['CALENDAR']["4"];
-            }
+            // if($filter['quarter'] == 'Quarter 3'){
+            //     $startDate=  $dateArray['CALENDAR']["3"];
+            //     $endDate=  $dateArray['CALENDAR']["4"];
+            // }
 
-            if($filter['quarter'] == 'Quarter 4'){
-                $startDate=  $dateArray['CALENDAR']["4"];
-                $endDate=  $dateArray['CALENDAR']["5"];
-            }
+            // if($filter['quarter'] == 'Quarter 4'){
+            //     $startDate=  $dateArray['CALENDAR']["4"];
+            //     $endDate=  $dateArray['CALENDAR']["5"];
+            // }
 
-            if ($filter['quarter'] == 'Annual'){
-                $startDate=  $dateArray['CALENDAR']["1"];
-                $endDate=  $dateArray['CALENDAR']["5"];
-            }
+            // if ($filter['quarter'] == 'Annual'){
+            //     $startDate=  $dateArray['CALENDAR']["1"];
+            //     $endDate=  $dateArray['CALENDAR']["5"];
+            // }
 
             // dd($startDate, $endDate);
-            $query->whereBetween('orders.date', [$startDate, $endDate]);
+            $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
         }
     
         /** Group by with account name */
