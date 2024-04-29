@@ -190,7 +190,11 @@ class Order extends Model
         )
 
         ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
-        ->leftJoin('rebate', 'm2.account_name', '=', 'rebate.account_name')
+        // ->leftJoin('rebate', 'm2.account_name', '=', 'rebate.account_name')
+        ->leftJoin('rebate', function($join) {
+            $join->on('m2.account_name', '=', 'rebate.account_name')
+            ->on('m2.category_supplier', '=', 'rebate.supplier');
+        })
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
         
         // $query->where('orders.id', '<=', 932806);
@@ -285,8 +289,8 @@ class Order extends Model
         }
     
         if ($csv) {
-            $startDates = date_format(date_create(trim($startDate)), 'm-d-Y');
-            $endDates = date_format(date_create(trim($endDate)), 'm-d-Y');
+            $startDates = date_format(date_create(trim($filter['start_date'])), 'm-d-Y');
+            $endDates = date_format(date_create(trim($filter['end_date'])), 'm-d-Y');
 
             /** Defining heading array for csv genration */
             $finalArray['heading'] = [
