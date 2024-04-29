@@ -50,12 +50,17 @@ class RebateController extends Controller
     public function rebateCount(Request $request){
         if ($request->ajax()) {
             $missingRebate = Account::select('r1.id')
-            ->leftJoin('rebate  AS r1', 'master_account_detail.account_name', '=', 'r1.account_name')
+            // ->leftJoin('rebate  AS r1', 'master_account_detail.account_name', '=', 'r1.account_name')
+            ->leftJoin('rebate AS r1', function($join) {
+                $join->on('master_account_detail.account_name', '=', 'r1.account_name')
+                ->on('master_account_detail.category_supplier', '=', 'r1.supplier');
+            })
             ->whereNotNull('master_account_detail.account_name')
             ->where('master_account_detail.account_name', '!=', '')
             ->whereNull('r1.volume_rebate')
             ->whereNull('r1.incentive_rebate')
             ->groupBy('master_account_detail.account_name')
+            ->groupBy('master_account_detail.category_supplier')
             ->getQuery()->getCountForPagination();
             return response()->json(['success' => $missingRebate], 200);
         }
