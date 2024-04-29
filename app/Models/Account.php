@@ -272,7 +272,11 @@ class Account extends Model
         )
 
         ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-        ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+        // ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+        ->leftJoin('rebate', function($join) {
+            $join->on('master_account_detail.account_name', '=', 'rebate.account_name')
+            ->on('master_account_detail.category_supplier', '=', 'rebate.supplier');
+        })
 
         ->whereNotNull('master_account_detail.account_name')
         ->where('master_account_detail.account_name', '!=', '');
@@ -324,9 +328,9 @@ class Account extends Model
             $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
 
             if ($data->supplier_id == 3) {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
             } else {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' disabled value='0'  required/>";
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' disabled value='0'  required/>";
             }
             
             $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
@@ -365,11 +369,16 @@ class Account extends Model
         )
 
         ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-        ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+        // ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+        ->leftJoin('rebate', function($join) {
+            $join->on('master_account_detail.account_name', '=', 'rebate.account_name')
+            ->on('master_account_detail.category_supplier', '=', 'rebate.supplier');
+        })
 
         ->whereNotNull('master_account_detail.account_name')
         ->where('master_account_detail.account_name', '!=', '');
-        $query->whereNotNull('rebate.volume_rebate')->whereNotNull('rebate.incentive_rebate');
+        $query->whereNotNull('rebate.volume_rebate');
+        // dd($query->get()->toArray());
          
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -414,9 +423,9 @@ class Account extends Model
             $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
 
             if ($data->supplier_id == 3) {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
             } else {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='0' required/>";
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='0' required/>";
             }
 
             $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';

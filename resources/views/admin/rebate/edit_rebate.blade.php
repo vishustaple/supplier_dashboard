@@ -84,7 +84,7 @@
         $('#edit_rebate_length').hide();
         $(document).on('click', '.save_rebate', function(){
             var rowData = accountTable.row($(this).closest('tr')).data(),
-            formData = { account_name : $(this).closest('tr').find('.account_name').val(), volume_rebate : $(this).closest('tr').find('.volume_rebate').val(), incentive_rebate : $(this).closest('tr').find('.incentive_rebate').val()},
+            formData = { supplier_id : $(this).closest('tr').find('.supplier_id').val(), account_name : $(this).closest('tr').find('.account_name').val(), volume_rebate : $(this).closest('tr').find('.volume_rebate').val(), incentive_rebate : $(this).closest('tr').find('.incentive_rebate').val()},
             token = "{{ csrf_token() }}";
 
             $.ajax({

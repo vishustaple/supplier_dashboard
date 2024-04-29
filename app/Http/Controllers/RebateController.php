@@ -64,12 +64,13 @@ class RebateController extends Controller
     public function rebateUpdate(Request $request){
         if ($request->ajax()) {
             // dd($request->all());
-            $rebate = Rebate::where('account_name', $request->account_name)->first();
+            $rebate = Rebate::where(['account_name'=> $request->account_name, 'supplier'=> $request->supplier_id])->first();
 
             /** Check if the record exists */
             if($rebate) {
                 /** Update the existing record with validated data */
                 $rebate->update(['account_name' => $request->input('account_name'),
+                'supplier' => $request->input('supplier_id'),
                 'volume_rebate' => $request->input('volume_rebate'),
                 'incentive_rebate' => $request->input('incentive_rebate'),
                 ]);
@@ -78,6 +79,7 @@ class RebateController extends Controller
             } else {
                 /** Create a new record with validated data */
                 $rebate = Rebate::create(['account_name' => $request->input('account_name'),
+                    'supplier' => $request->input('supplier_id'),
                     'volume_rebate' => $request->input('volume_rebate'),
                     'incentive_rebate' => $request->input('incentive_rebate'),
                 ]);
