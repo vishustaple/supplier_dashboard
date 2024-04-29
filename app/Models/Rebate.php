@@ -17,6 +17,7 @@ class Rebate extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'supplier',
         'account_name',
         'volume_rebate',
         'incentive_rebate'
