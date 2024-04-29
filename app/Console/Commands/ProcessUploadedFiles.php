@@ -83,7 +83,7 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['amount'] = '';
                     }
 
-                    if (in_array($value->id, [12, 38, 65, 296, 147, 185, 262])) {
+                    if (in_array($value->id, [34, 65, 296, 145, 185, 262])) {
                         $columnArray[$value->supplier_id]['amount'] = $value->field_name;
                     }
 
