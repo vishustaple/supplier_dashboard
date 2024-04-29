@@ -37,7 +37,7 @@ class ProcessUploadedFiles extends Command
 
         try{
             /** Select those file name where cron is one */
-            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', UploadedFiles::UPLOAD)->whereNull('deleted_by')->first();
+            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 11)->whereNull('deleted_by')->first();
 
             // $monthsDifference = $interval->m;
             // $yearsDifference = $interval->y;
