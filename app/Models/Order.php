@@ -179,10 +179,10 @@ class Order extends Model
         ];
 
         $query = self::query()->selectRaw(
-            "SUM(`orders`.`amount`) + SUM(`orders`.`negative_amount`) AS `amount`, 
+            "SUM(`orders`.`amount`) AS `amount`, 
             `m2`.`account_name` AS `account_name`,
-            ((SUM(`orders`.`amount`) + SUM(`orders`.`negative_amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
-            ((SUM(`orders`.`amount`) + SUM(`orders`.`negative_amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
+            ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
+            ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
             `rebate`.`volume_rebate` AS `volume_rebates`,
             `rebate`.`incentive_rebate` AS `incentive_rebates`,
             `suppliers`.`supplier_name` AS `supplier_name`, 
