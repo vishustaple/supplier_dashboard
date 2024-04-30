@@ -326,11 +326,11 @@ class Account extends Model
             $formatuserdata[$key]['account_name'] = $data->account_name;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
-
+           
             if ($data->supplier_id == 3) {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
             } else {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->account_name."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' disabled value='0'  required/>";
+                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' disabled value='0'  required/>";
             }
             
             $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
