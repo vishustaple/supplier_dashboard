@@ -119,40 +119,38 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         //     });
         // }
 
-        // ini_set('memory_limit', '1024M');
-        // $query = DB::table('orders')
-        // ->select('orders.amount as amount', 'orders.id as id', 'order_product_details.value as table_value')
+        ini_set('memory_limit', '1024M');
+        $query = DB::table('orders')
+        ->select('orders.id as id', 'orders.negative_amount as negative_amount')
         // ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
         // ->whereIn('order_product_details.key', ['Purchase Amount'])
+        ->where('orders.negative_amount', '<', 0)
+        ->where('orders.supplier_id', 4)
+        ->get();
+        dd($query);
+        foreach ($query as $key => $value) {
+            $id = DB::table('orders')
+            ->where('id', $value->id)
+            ->update(['amount' => $value->negative_amount]);
+        }
+
+        // $query = DB::table('orders')
+        // ->select('orders.id as id', 'orders.date as date')
+        // ->whereBetween('orders.date', ['2023-12-01', '2023-12-31'])
         // ->where('orders.supplier_id', 2)
         // ->get();
         
+        // // dd($query);
+
         // foreach ($query as $key => $value) {
-        //     $id = DB::table('orders')
-        //     ->where('id', $value->id)
-        //     ->update([ 
-        //        'amount' => ($value->table_value >= 0) ? ($value->table_value) : ('0.0'),
-        //        'negative_amount' => ($value->table_value < 0) ? ($value->table_value) : ('0.0'),
-        //     ]);
-        // }
-
-        $query = DB::table('orders')
-        ->select('orders.id as id', 'orders.date as date')
-        ->whereBetween('orders.date', ['2023-12-01', '2023-12-31'])
-        ->where('orders.supplier_id', 2)
-        ->get();
-        
-        // dd($query);
-
-        foreach ($query as $key => $value) {
-            /** Delete records from OrderDetails table */
-            DB::table('order_details')->where('order_id', $value->id)->delete();
+        //     /** Delete records from OrderDetails table */
+        //     DB::table('order_details')->where('order_id', $value->id)->delete();
             
-            /** Delete records from ExcelData table */
-            DB::table('order_product_details')->where('order_id', $value->id)->delete();
+        //     /** Delete records from ExcelData table */
+        //     DB::table('order_product_details')->where('order_id', $value->id)->delete();
 
-            /** Delete records from Order table */
-            DB::table('orders')->where('id', $value->id)->delete();
-        }
+        //     /** Delete records from Order table */
+        //     DB::table('orders')->where('id', $value->id)->delete();
+        // }
     }
 }
