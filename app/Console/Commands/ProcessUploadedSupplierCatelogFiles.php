@@ -127,7 +127,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         ->where('orders.negative_amount', '<', 0)
         ->where('orders.supplier_id', 3)
         ->get();
-        dd($query);
+        // dd($query);
         foreach ($query as $key => $value) {
             $id = DB::table('orders')
             ->where('id', $value->id)
