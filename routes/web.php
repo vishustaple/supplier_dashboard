@@ -52,6 +52,7 @@ Route::group(['prefix' => 'admin'], function () {
         /** Account Section Start */
         Route::get('/accounts/p-name', [AccountController::class, 'PName'])->name('ParentName');
         Route::get('/account/{id?}', [AccountController::class, 'allAccount'])->name('account');
+        Route::post('/account/detail', [AccountController::class, 'getAccountsDetailWithAjax'])->name('account.detail');
         Route::post('/addaccount', [AccountController::class, 'addAccount'])->name('account.add');
         Route::get('/accounts/p-number', [AccountController::class, 'PNumber'])->name('ParentNumber');
         Route::get('/accounts/gp-name', [AccountController::class, 'gPName'])->name('grandParentName');
