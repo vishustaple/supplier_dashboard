@@ -114,6 +114,9 @@ class Account extends Model
             $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
+        /** Group by with account name */
+        $query->groupBy('master_account_detail.account_name');
+
         /** Get total records count (without filtering) */
         $totalRecords = $query->count();
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
@@ -190,6 +193,79 @@ class Account extends Model
                 'recordsFiltered' => $totalRecords,
             ];
         }
+    }
+
+    public static function getFilterdAccountsAllData($filter = [], $csv=false){
+        $orderColumnArray = [
+            0 => 'master_account_detail.account_number',
+            1 => "master_account_detail.customer_name",
+            2 => 'master_account_detail.account_name',
+            3 => 'master_account_detail.parent_id',
+            4 => 'master_account_detail.parent_name',
+            5 => 'master_account_detail.category_supplier',
+            6 => 'master_account_detail.record_type',
+            7 => 'master_account_detail.created_at',
+        ];
+
+        $query = self::query() /** Eager load relationships */
+        ->select('master_account_detail.parent_name as parent_name',
+            'master_account_detail.parent_id as parent_id',
+            'master_account_detail.record_type as record_type',
+            DB::raw("DATE_FORMAT(master_account_detail.created_at, '%m/%d/%Y') as date"),
+            'suppliers.supplier_name as supplier_name',
+            'master_account_detail.account_number as customer_number',
+            'master_account_detail.customer_name as customer_name',
+            'master_account_detail.account_name as account_name')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
+
+        
+
+        if (isset($filter['account_name']) && !empty($filter['account_name'])) {
+            /** Group by with account name */
+            $query->where('master_account_detail.account_name', $filter['account_name']);
+        }
+
+        /** Get total records count (without filtering) */
+        $totalRecords = $query->count();
+
+        /** Search functionality */
+        if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
+            $searchTerm = $filter['search']['value'];
+
+            $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
+                foreach ($orderColumnArray as $column) {
+                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                }
+            });
+            
+            $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
+        }
+
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+            /** Order by column and direction */
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
+        }
+
+        /** Get filtered records count */
+        $filteredRecords = $query->getQuery()->getCountForPagination();
+
+        if (isset($filter['start']) && isset($filter['length'])) {
+            /** Get paginated results based on start, length */
+            $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
+        } else {
+            $filteredData = $query->get();
+        }
+        
+        /** Print the SQL query */
+        // dd($query->toSql());    
+
+        return [
+            'data' => $filteredData,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+        ];
     }
 
     public static function getSearchCustomerData($search=''){
