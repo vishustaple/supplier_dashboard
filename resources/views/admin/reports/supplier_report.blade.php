@@ -86,6 +86,33 @@
         
     </div>
 </div>
+<style>
+    div#page-loader {
+        top: 0;
+        left: 0;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: #00000080;
+        z-index: 999999;
+    }
+
+
+    div#page-loader-wrap {
+        text-align: center;
+        /* vertical-align: center !important; */
+        margin-top: 20%;
+    }
+
+    #consolidated_supplier_data{
+        display:block;
+        overflow-x:auto;
+    }
+
+    #consolidated_supplier_data thead tr th {
+        white-space: nowrap;
+    }
+</style>
 <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
