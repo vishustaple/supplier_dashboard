@@ -534,10 +534,10 @@ class ProcessUploadedFiles extends Command
                                     if (($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
                                         // $gdPerent = Account::where('account_number', $row[$keyGrandParent])->first();
                                         // $perent = Account::where('account_number', $row[$keyParent])->first();
-                                        $customer = Account::where('account_number', $row[$keyCustomer])->first();
+                                        $customer = Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->first();
 
                                         if (empty($customer)) {
-                                            $customers = Account::where('account_number', ltrim($row[$keyCustomer], '0'))->first();
+                                            $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
                                                 Account::create([
                                                     'parent_id' => $row[$keyParent],
@@ -549,7 +549,7 @@ class ProcessUploadedFiles extends Command
                                                     'grandparent_name' => $row[$keyGrandParentName],
                                                 ]);
                                             } else {
-                                                Account::where('account_number', ltrim($row[$keyCustomer], '0'))->update([
+                                                Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->update([
                                                     'parent_id' => $row[$keyParent],
                                                     'parent_name' => $row[$keyParentName],
                                                     'account_number' => $row[$keyCustomer],
@@ -560,7 +560,7 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             }
                                         } else {
-                                            Account::where('account_number', $row[$keyCustomer])->update([
+                                            Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->update([
                                                 'parent_id' => $row[$keyParent],
                                                 'parent_name' => $row[$keyParentName],
                                                 'account_number' => $row[$keyCustomer],
@@ -573,9 +573,9 @@ class ProcessUploadedFiles extends Command
                                     }
 
                                     if (in_array($fileValue->supplier_id, [1, 4, 5, 6])) {
-                                        $customer = Account::where('account_number', $row[$keyCustomer])->first();
+                                        $customer = Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->first();
                                         if (empty($customer)) {
-                                            $customers = Account::where('account_number', ltrim($row[$keyCustomer], '0'))->first();
+                                            $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
                                                 Account::create([
                                                     'account_number' => $row[$keyCustomer],
@@ -583,14 +583,14 @@ class ProcessUploadedFiles extends Command
                                                     'category_supplier' => $fileValue->supplier_id,
                                                 ]);
                                             } else {
-                                                Account::where('account_number', ltrim($row[$keyCustomer], '0'))->update([
+                                                Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->update([
                                                     'account_number' => $row[$keyCustomer],
                                                     'customer_name' => $row[$keyCustomerName],
                                                     'category_supplier' => $fileValue->supplier_id,
                                                 ]);
                                             }
                                         } else {
-                                            Account::where('account_number', $row[$keyCustomer])->update([
+                                            Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->update([
                                                 'account_number' => $row[$keyCustomer],
                                                 'customer_name' => $row[$keyCustomerName],
                                                 'category_supplier' => $fileValue->supplier_id,
