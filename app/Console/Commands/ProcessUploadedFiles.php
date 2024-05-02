@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{Account, Order, OrderDetails, UploadedFiles};
+use App\Models\{
+    Order,
+    Account,
+    OrderDetails,
+    UploadedFiles
+};
 
 class ProcessUploadedFiles extends Command
 {
@@ -38,9 +43,6 @@ class ProcessUploadedFiles extends Command
         try{
             /** Select those file name where cron is one */
             $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 11)->whereNull('deleted_by')->first();
-
-            // $monthsDifference = $interval->m;
-            // $yearsDifference = $interval->y;
             
             if ($fileValue !== null) {
                 /** Update cron two means start processing data into excel */
@@ -532,8 +534,6 @@ class ProcessUploadedFiles extends Command
                                     }
 
                                     if (($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
-                                        // $gdPerent = Account::where('account_number', $row[$keyGrandParent])->first();
-                                        // $perent = Account::where('account_number', $row[$keyParent])->first();
                                         $customer = Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->first();
 
                                         if (empty($customer)) {
@@ -644,7 +644,6 @@ class ProcessUploadedFiles extends Command
                                                     } elseif ($fileValue->supplier_id == 4) {   
                                                         if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == 'invoice_date') {
                                                             $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s');
-                                                            // date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
                                                         } else {
                                                             $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
                                                         }
