@@ -192,8 +192,8 @@ class Order extends Model
         ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         // ->leftJoin('rebate', 'm2.account_name', '=', 'rebate.account_name')
         ->leftJoin('rebate', function($join) {
-            $join->on('m2.account_name', '=', 'rebate.account_name')
-            ->on('m2.category_supplier', '=', 'rebate.supplier');
+            $join->on('m2.account_name', '=', 'rebate.account_name');
+            // ->on('m2.category_supplier', '=', 'rebate.supplier');
         })
 
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
@@ -205,9 +205,8 @@ class Order extends Model
             $query->where('orders.supplier_id', $filter['supplier']);
 
             if ($filter['supplier'] == 4) {
-                $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
+                $query->whereIn('order_product_details.value', ['Sunrise']);
             }
-        
         } else {
             if ($csv) {
                 $finalArray['heading'] = [
@@ -271,10 +270,13 @@ class Order extends Model
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
 
+        // dd($query->toSql(), $query->getBindings());
+
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
         
+
         /** Making final array */
         $finalArray=[];
         if (isset($formatuserdata) && !empty($formatuserdata)) {
