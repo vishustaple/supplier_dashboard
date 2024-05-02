@@ -34,11 +34,11 @@
                     <div class="form-check relative col-md-2 mb-0">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="" id="volume_rebate_check" checked>
-                            <label class="form-check-label" for="volume_rebate_check">Volume Rebate</label>
+                            <label class="form-check-label" id="volume_rebate_check_label" for="volume_rebate_check">Volume Rebate</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="" id="incentive_rebate_check" checked>
-                            <label class="form-check-label" for="incentive_rebate_check">Incentive Rebate</label>
+                            <label class="form-check-label" id="incentive_rebate_check_label" for="incentive_rebate_check">Incentive Rebate</label>
                         </div>
                     </div>
                     <div class="col-md-3 mt-2">
@@ -98,6 +98,24 @@
     $(document).ready(function() {
         $('input[name="dates"]').daterangepicker();
 
+        // Assuming your select element has id 'mySelect'
+        $('#supplier').change(function() {
+            // Get the selected value
+            var selectedValue = $(this).val();
+            
+            if (selectedValue == 3) {
+                $('#incentive_rebate_check').show();
+                $('#incentive_rebate_check_label').show();
+                $('#incentive_rebate_check').prop('checked', true);
+            } else {
+                $('#incentive_rebate_check').hide();
+                $('#incentive_rebate_check_label').hide();
+                $('#incentive_rebate_check').prop('checked', false);
+            }
+
+            // // Initiate DataTable AJAX request
+            // $('#supplier_report_data').DataTable().ajax.reload();
+        });
 
         // Button click event
         $('#import_form').on('submit', function () {
@@ -111,13 +129,25 @@
         });
 
         function setPercentage() {
+            var selectedValues = $('#supplier').val();
+        
+            if (selectedValues == 3) {
+                $('#incentive_rebate_check').show();
+                $('#incentive_rebate_check_label').show();
+                $('#incentive_rebate_check').prop('checked', true);
+            } else {
+                $('#incentive_rebate_check').hide();
+                $('#incentive_rebate_check_label').hide();
+                $('#incentive_rebate_check').prop('checked', false);
+            }
+
             var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="total_amount">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
             hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
             hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
             totalAmount = $html.find('.total_amount').val();
 
             $('#total_amount').text('$'+totalAmount);
-            console.log(supplierDataTable.column(3).data()[0]);
+
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
                 $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + hiddenVolumeRebateInputValue : 'N/A'));
