@@ -205,6 +205,7 @@ class Order extends Model
             $query->where('orders.supplier_id', $filter['supplier']);
 
             if ($filter['supplier'] == 4) {
+                $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
                 $query->whereIn('order_product_details.value', ['Sunrise']);
             }
         } else {
