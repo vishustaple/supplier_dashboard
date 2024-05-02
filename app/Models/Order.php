@@ -206,7 +206,7 @@ class Order extends Model
 
             if ($filter['supplier'] == 4) {
                 $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
-                $query->whereIn('order_product_details.value', ['Sunrise']);
+                $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
             }
         } else {
             if ($csv) {
