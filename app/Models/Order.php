@@ -195,12 +195,19 @@ class Order extends Model
             $join->on('m2.account_name', '=', 'rebate.account_name')
             ->on('m2.category_supplier', '=', 'rebate.supplier');
         })
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
-        
+
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+        ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+
         // $query->where('orders.id', '<=', 932806);
 
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query->where('orders.supplier_id', $filter['supplier']);
+
+            if ($filter['supplier'] == 4) {
+                $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
+            }
+        
         } else {
             if ($csv) {
                 $finalArray['heading'] = [
@@ -277,7 +284,9 @@ class Order extends Model
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['amount'] = number_format($value->amount, 2, '.', false);
                     $finalArray[$key]['volume_rebate'] = number_format($value->volume_rebate, 2, '.', false);
-                    $finalArray[$key]['incentive_rebate'] = number_format($value->incentive_rebate, 2, '.', false);
+                    if ($filter['supplier'] == 3) {
+                        $finalArray[$key]['incentive_rebate'] = number_format($value->incentive_rebate, 2, '.', false);
+                    }
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
@@ -292,27 +301,50 @@ class Order extends Model
             $startDates = date_format(date_create(trim($filter['start_date'])), 'm-d-Y');
             $endDates = date_format(date_create(trim($filter['end_date'])), 'm-d-Y');
 
-            /** Defining heading array for csv genration */
-            $finalArray['heading'] = [
-                'Supplier',
-                'Account_name',
-                'Amount',
-                'Volume Rebate',
-                'Incentive Rebate',
-                '',
-                '',
-                '',
-                'Total Amount',
-                $totalAmounts,
-                'Total Volume Rebate',
-                $totalVolumeRebates,
-                'Total Incentive Rebate',
-                $totalIncentiveRebates,
-                'Start Date',
-                $startDates,
-                'End Date',
-                $endDates
-            ];
+            if ($filter['supplier'] == 3) {
+                /** Defining heading array for csv genration */
+                $finalArray['heading'] = [
+                    'Supplier',
+                    'Account_name',
+                    'Amount',
+                    'Volume Rebate',
+                    'Incentive Rebate',
+                    '',
+                    '',
+                    '',
+                    'Total Amount',
+                    $totalAmounts,
+                    'Total Volume Rebate',
+                    $totalVolumeRebates,
+                    'Total Incentive Rebate',
+                    $totalIncentiveRebates,
+                    'Start Date',
+                    $startDates,
+                    'End Date',
+                    $endDates
+                ];
+            } else {
+                /** Defining heading array for csv genration */
+                $finalArray['heading'] = [
+                    'Supplier',
+                    'Account_name',
+                    'Amount',
+                    'Volume Rebate',
+                    '',
+                    '',
+                    '',
+                    'Total Amount',
+                    $totalAmounts,
+                    'Total Volume Rebate',
+                    $totalVolumeRebates,
+                    'Total Incentive Rebate',
+                    $totalIncentiveRebates,
+                    'Start Date',
+                    $startDates,
+                    'End Date',
+                    $endDates
+                ];
+            }
 
             return $finalArray;
         } else {
