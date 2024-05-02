@@ -196,8 +196,10 @@ class Order extends Model
             // ->on('m2.category_supplier', '=', 'rebate.supplier');
         })
 
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-        ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+        if (isset($filter['supplier']) && $filter['supplier'] == 4){
+            $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+        }
 
         // $query->where('orders.id', '<=', 932806);
 
