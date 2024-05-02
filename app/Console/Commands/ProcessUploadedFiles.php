@@ -743,7 +743,7 @@ class ProcessUploadedFiles extends Command
                                                         'data_id' => $fileValue->id,
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => $fileValue->supplier_id,
-                                                        'amount' => (isset($keyAmount) && $row[$keyAmount] >= 0) ? ($row[$keyAmount]) : ('0.0'),
+                                                        'amount' => $row[$keyAmount],
                                                         'negative_amount' => ($row[$keyAmount] < 0) ? ($row[$keyAmount]) : ('0.0'),
                                                         'date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : ($fileValue->start_date),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
