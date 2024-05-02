@@ -27,31 +27,9 @@
                             @endif
                         </select>
                     </div>
-                    <!-- <div class="form-group relative col-md-3 mb-0">  
-                        <label for="enddate">Select Year:</label>
-                        <select class="form-control" name="year" id="year" required>
-                            <option value="">--Select--</option>
-                            @for ($year = 2010; $year <= date('Y'); $year++)
-                                <option value="{{$year}}">{{$year}}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="form-group relative col-md-3 mb-0">  
-                        <label for="enddate">Select Quarter:</label>
-                        <select class="form-control" name="quarter" id="quarter" required>
-                            <option value="">--Select--</option>
-                            <option value="Annual">Annual</option>
-                            <option value="Quarter 1">Quarter 1</option>
-                            <option value="Quarter 2">Quarter 2</option>
-                            <option value="Quarter 3">Quarter 3</option>
-                            <option value="Quarter 4">Quarter 4</option>
-                        </select>
-                    </div> -->
                     <div class="form-group relative col-md-4 mb-0">  
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
-                        <input type="hidden" id="start_date" name="start_date" />
-                        <input type="hidden" id="end_date" name="end_date" />  
                     </div>
                     <div class="form-check relative col-md-2 mb-0">
                         <div class="form-check">
@@ -120,23 +98,12 @@
     $(document).ready(function() {
         $('input[name="dates"]').daterangepicker();
 
-        // Get the default start date and end date after the date range picker is initialized
-        $('#start_date').val($('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'));
-        $('#end_date').val($('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD'));
-
-        // Event handler for when the user applies the date range
-        $('input[name="dates"]').on('apply.daterangepicker', function(ev, picker) {
-            // Access the selected date range
-            $('#start_date').val(picker.startDate.format('YYYY-MM-DD')),
-            $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
-            // Perform actions with the selected date range
-        });
 
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            $('#startDates').text($('#start_date').val());
-            $('#endDates').text($('#end_date').val());
+            $('#startDates').text($('#enddate').data('daterangepicker').startDate.format('MM/DD/YYYY'));
+            $('#endDates').text($('#enddate').data('daterangepicker').endDate.format('MM/DD/YYYY'));
             $('.header_bar').attr('style', 'display:flex !important;');
 
             // Initiate DataTable AJAX request
@@ -189,8 +156,8 @@
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
                     d.supplier = $('#supplier').val();
-                    d.end_date = $('#end_date').val();
-                    d.start_date = $('#start_date').val();
+                    d.end_date = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD');
+                    d.start_date = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD');
                 },
             },
 
@@ -235,7 +202,7 @@
             var csvUrl = '{{ route("report.export-supplier_report-csv") }}', order = supplierDataTable.order();
 
             // Add query parameters for date range and supplier ID
-            csvUrl += '?start_date=' + $('#start_date').val() + '&end_date=' + $('#end_date').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
+            csvUrl += '?start_date=' + $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD') + '&end_date=' + $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD') + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
