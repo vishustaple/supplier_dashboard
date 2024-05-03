@@ -689,7 +689,7 @@ class Order extends Model
             0 => 'suppliers.supplier_name',
             1 => 'master_account_detail.account_name',
             2 => 'spend',
-            3 => 'order_product_details.value',
+            // 3 => '',
             4 => 'current_rolling_spend',
             5 => 'previous_rolling_spend',
         ];
@@ -727,16 +727,7 @@ class Order extends Model
             $prevStartDate1 = $prevEndDate;
             $prevEndDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevEndDate)));
         }
-        
-        // dd (
-        // $startDate,
-        // $endDate,
-        // $prevStartDate,
-        // $prevEndDate,
-        // $prevStartDate1,
-        // $prevEndDate1,);
 
-        // GROUP_CONCAT(order_product_details.value SEPARATOR \', \') AS category,
         $query = self::query() // Replace YourModel with the actual model you are using for the data   
         ->selectRaw(
             'suppliers.supplier_name as supplier_name,
@@ -748,9 +739,7 @@ class Order extends Model
             [$startDate, $endDate, $prevStartDate, $prevEndDate, $prevStartDate1, $prevEndDate1]
         );
 
-        // $query->whereIn('key', ['Category','CATEGORIES','Material Segment','TRANSTYPECODE','CLASS'])
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        // ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
 
         $totalRecords = 0;
@@ -787,7 +776,11 @@ class Order extends Model
 
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
                 foreach ($orderColumnArray as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                    if (in_array($column, ['current_rolling_spend', 'previous_rolling_spend', 'spend'])) {
+                        $q->having('spend', 'LIKE', '%' . $searchTerm . '%');
+                    } else {
+                        $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                    }
                 }
             });            
         }
@@ -820,10 +813,10 @@ class Order extends Model
             } else {
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
-                $finalArray[$key]['spend'] = '$'.$value->spend;
+                $finalArray[$key]['spend'] = '$'.number_format($value->spend, 2);
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
-                $finalArray[$key]['current_rolling_spend'] = '$'.$value->current_rolling_spend;
-                $finalArray[$key]['previous_rolling_spend'] = '$'.$value->previous_rolling_spend;
+                $finalArray[$key]['current_rolling_spend'] = '$'.number_format($value->current_rolling_spend, 2);
+                $finalArray[$key]['previous_rolling_spend'] = '$'.number_format($value->previous_rolling_spend, 2);
             }
         }
         // dd($query->toSql(), $query->getBindings());
