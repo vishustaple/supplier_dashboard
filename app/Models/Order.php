@@ -793,7 +793,7 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        $query->groupBy($orderColumnArray[1]);
+        $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
 
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
