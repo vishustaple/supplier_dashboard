@@ -142,10 +142,10 @@
                 columns: [
                     { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name' },
                     { data: 'account_name', name: 'account_name', title: 'Account Name' },
-                    { data: 'spend', name: 'spend', title: 'Spend', 'orderable': false, 'searchable': false },
+                    { data: 'spend', name: 'spend', title: 'Spend', 'searchable': false },
                     { data: 'category', name: 'category', title: 'Category', 'orderable': false, 'searchable': false },
-                    { data: 'current_rolling_spend', name: 'current_rolling_spend', title: 'Current Rolling Spend', 'orderable': false, 'searchable': false },
-                    { data: 'previous_rolling_spend', name: 'previous_rolling_spend', title: 'Previous Rolling Spend', 'orderable': false, 'searchable': false },
+                    { data: 'current_rolling_spend', name: 'current_rolling_spend', title: 'Current Rolling Spend', 'searchable': false },
+                    { data: 'previous_rolling_spend', name: 'previous_rolling_spend', title: 'Previous Rolling Spend', 'searchable': false },
                 ],
             });
 
