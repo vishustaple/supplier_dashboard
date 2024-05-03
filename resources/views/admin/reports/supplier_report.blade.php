@@ -29,7 +29,7 @@
                     </div>
                     <div class="form-group relative col-md-4 mb-0">  
                         <label for="enddate">Select Date:</label>
-                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " readonly>
                     </div>
                     <div class="form-check relative col-md-2 mb-0">
                         <div class="form-check">
