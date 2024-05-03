@@ -28,7 +28,7 @@
                         </div>
                         <div class="form-group relative col-md-4 mb-0">  
                             <label for="enddate">Select Date:</label>
-                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date "  readonly>
                             <input type="hidden" id="start_date" name="start_date" />
                             <input type="hidden" id="end_date" name="end_date" />  
                         </div>
