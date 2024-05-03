@@ -744,11 +744,11 @@ class Order extends Model
 
         $totalRecords = 0;
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $totalRecords = $query->getQuery()->getCountForPagination();
             $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
-        } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
             $totalRecords = $query->getQuery()->getCountForPagination();
+        } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
             $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+            $totalRecords = $query->getQuery()->getCountForPagination();
         } else {
             if ($csv == true) {
                 $finalArray['heading'] = [
