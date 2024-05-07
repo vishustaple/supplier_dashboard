@@ -23,7 +23,6 @@ class Order extends Model
         'created_by',
         'supplier_id',
         'customer_number',
-        'negative_amount',
     ];
 
     public function orderProductDetail() {
@@ -375,16 +374,26 @@ class Order extends Model
 
         $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))->where('id', $filter['sales_rep'])->first();
 
-        $query = CommissionRebate::query()->selectRaw("`commission`, `volume_rebate`, `spend`, `approved`, `paid`, `id`");
+        // GROUP_CONCAT(CONCAT_WS('_', `id`)) as `id`',
+        $query = CommissionRebate::query()->selectRaw(
+            "GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`,
+            SUM(`commission`) as `commission`,
+            SUM(`volume_rebate`) as `volume_rebate`,
+            SUM(`spend`) as `spend`,
+            `approved`,
+            `paid`"
+        );
+
+        $query->groupBy('quarter');
 
         if (isset($filter['sales_rep']) && !empty($filter['sales_rep'])) {
             $query->where('sales_rep', $filter['sales_rep']);
         } else {
-                return [
-                    'data' => [],
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                ];
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
         }
     
         if (isset($filter['approved']) || !empty($filter['approved'])) {
@@ -401,44 +410,72 @@ class Order extends Model
 
         /** Year and quarter filter here */
         if (isset($filter['year']) || !empty($filter['quarter'])) {
-            $fys = ['CALENDAR' => $filter['year'].'-01-01'];
+            $year = $filter['year'];
 
-            foreach ($fys as $key => $start){
-                $nextYear = $filter['year']+1;
-                $res["1"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-01-01'));
-                $res["2"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-03-31'));
-                $res["3"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-04-01'));
-                $res["4"] = date('Y-m-d H:i:s', strtotime($filter['year'].'-07-31'));
-                $res["5"] = date('Y-m-d H:i:s', strtotime($nextYear.'-01-01'));
-                $dateArray[$key] = $res;
+            $res[1] =[
+                'January',
+                'February',
+                'March',
+            ];
+
+            $res[2] = [
+                'April',
+                'May',
+                'June',
+            ];
+
+            $res[3] = [
+                'July',
+                'August',
+                'September',
+            ];
+
+            $res[4] = [
+                'October',
+                'November',
+                'December',
+            ];
+
+            $monthDates = [];
+
+            for ($month = 1; $month <= 12; $month++) {
+                $start = date('Y-m-01', strtotime("$year-$month-01"));
+                $end = date('Y-m-t', strtotime("$year-$month-01"));
+        
+                $monthDates[] = [
+                    'start_date' => $start,
+                    'end_date' => $end,
+                ];
             }
-           
+
             if($filter['quarter'] == 'Quarter 1'){
-                $startDate =  $dateArray['CALENDAR']["1"];
-                $endDate =  $dateArray['CALENDAR']["2"];
+                $startDate = $monthDates[0]['start_date'];
+                $endDate = $monthDates[2]['end_date'];
             }
 
             if($filter['quarter'] == 'Quarter 2'){
-                $startDate=  $dateArray['CALENDAR']["2"];
-                $endDate=  $dateArray['CALENDAR']["3"];
+                $startDate = $monthDates[3]['start_date'];
+                $endDate = $monthDates[5]['end_date'];
             }
 
             if($filter['quarter'] == 'Quarter 3'){
-                $startDate=  $dateArray['CALENDAR']["3"];
-                $endDate=  $dateArray['CALENDAR']["4"];
+                $startDate = $monthDates[6]['start_date'];
+                $endDate = $monthDates[8]['end_date'];
             }
 
             if($filter['quarter'] == 'Quarter 4'){
-                $startDate=  $dateArray['CALENDAR']["4"];
-                $endDate=  $dateArray['CALENDAR']["5"];
+                $startDate = $monthDates[9]['start_date'];
+                $endDate = $monthDates[11]['end_date'];
             }
 
             if ($filter['quarter'] == 'Annual'){
-                $startDate=  $dateArray['CALENDAR']["1"];
-                $endDate=  $dateArray['CALENDAR']["5"];
+                $startDate = $monthDates[0]['start_date'];
+                $endDate = $monthDates[11]['end_date'];
                 $query->where('spend', '!=', 0);    
             }
-            
+
+            // dd($startDate, $endDate);
+            // $query->whereBetween($startDate, $endDate);
             $query->whereDate('start_date', '>=', $startDate)
             ->whereDate('end_date', '<=', $endDate);
         }
@@ -456,12 +493,10 @@ class Order extends Model
 
         $datas = $query->get();
 
-        // echo"<pre>";
-        // print_r($datas);
-        // die;
         if (isset($datas) && $datas->isNotEmpty()) {
             /** Making final array */
             $finalArray=[];
+            $ids = 1;
             foreach ($datas as $key => $data) {
                 if ($csv) {
                     $finalArray[$key]['approved'] = ($data->approved == 1) ? ('Yes') : ('No');
@@ -472,13 +507,13 @@ class Order extends Model
                     $finalArray[$key]['commissions'] = number_format($data->commission, 2, '.', false);
                 } else {
                     if ($data->approved == 1) {
-                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select approved_'.$data->id.'" '.(($data->paid == 1) ? ('disabled') : ('')).'> 
+                        $finalArray[$key]['approved'] = '<select data-approved_ids="'.$ids.'" data-approved_id="['.$data->ids.']" name="approved" class="form-control approved_input_select approved_'.$ids.'" '.(($data->paid == 1) ? ('disabled') : ('')).'> 
                             <option value="">--Select--</option>
                             <option value="1" selected>Yes</option>
                             <option value="0">NO</option>
                         </select>';
                     } else {
-                        $finalArray[$key]['approved'] = '<select data-approved_id="'.$data->id.'" name="approved" class="form-control approved_input_select approved_'.$data->id.'" > 
+                        $finalArray[$key]['approved'] = '<select data-approved_ids="'.$ids.'" data-approved_id="['.$data->ids.']" name="approved" class="form-control approved_input_select approved_'.$ids.'" > 
                             <option value="" selected>--Select--</option>
                             <option value="1">Yes</option>
                             <option selected value="0">NO</option>
@@ -486,13 +521,13 @@ class Order extends Model
                     }
     
                     if ($data->paid == 1) {
-                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select paid_'.$data->id.'" disabled> 
+                        $finalArray[$key]['paid'] = '<select data-paid_ids="'.$ids.'" data-paid_id="['.$data->ids.']" name="paid" class="form-control paid_input_select paid_'.$ids.'" disabled> 
                             <option value="">--Select--</option>
                             <option value="1" selected>Yes</option>
                             <option value="0">NO</option>
                         </select>';
                     } else {
-                        $finalArray[$key]['paid'] = '<select data-paid_id="'.$data->id.'" name="paid" class="form-control paid_input_select paid_'.$data->id.'" '.(($data->approved == 0) ? ('disabled') : ('')).'> 
+                        $finalArray[$key]['paid'] = '<select data-paid_ids="'.$ids.'" data-paid_id="['.$data->ids.']" name="paid" class="form-control paid_input_select paid_'.$ids.'" '.(($data->approved == 0) ? ('disabled') : ('')).'> 
                             <option value="">--Select--</option>
                             <option value="1">Yes</option>
                             <option value="0" selected>NO</option>
@@ -505,9 +540,10 @@ class Order extends Model
                     // if ($data->approved == 1) {
                         // $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <a id="downloadCsvBtn" class="btn ms-2 btn-primary" href="'.route('commission-file.download', ['sales_rep' => $filter['sales_rep']]).'">Download Report</a></div>';
                     // } else {
-                        $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button data-id="'.$data->id.'" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
+                        $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$data->ids.']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button data-id="['.$data->ids.']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                     // }
                 }
+                $ids++;
             }
             /** Defining returning final array for datatable */
             return [
@@ -552,71 +588,84 @@ class Order extends Model
         )
         ->leftJoin('suppliers', 'suppliers.id', '=', 'commission_rebate_detail.supplier');
     
-        /** Year and quarter filter here */
-        if (!empty($filter['quarter'])) {    
-            if($filter['quarter'] == 'Quarter 1'){
-                $quarter =  [
-                    'January',
-                    'February',
-                    'March',
+         /** Year and quarter filter here */
+         if (isset($filter['year']) || !empty($filter['quarter'])) {
+            $year = $filter['year'];
+
+            $res[1] =[
+                'January',
+                'February',
+                'March',
+            ];
+
+            $res[2] = [
+                'April',
+                'May',
+                'June',
+            ];
+
+            $res[3] = [
+                'July',
+                'August',
+                'September',
+            ];
+
+            $res[4] = [
+                'October',
+                'November',
+                'December',
+            ];
+
+            $monthDates = [];
+
+            for ($month = 1; $month <= 12; $month++) {
+                $start = date('Y-m-01', strtotime("$year-$month-01"));
+                $end = date('Y-m-t', strtotime("$year-$month-01"));
+        
+                $monthDates[] = [
+                    'start_date' => $start,
+                    'end_date' => $end,
                 ];
-                
+            }
+
+            if($filter['quarter'] == 'Quarter 1'){
+                $startDate = $monthDates[0]['start_date'];
+                $endDate = $monthDates[2]['end_date'];
             }
 
             if($filter['quarter'] == 'Quarter 2'){
-                $quarter=  [
-                    'April',
-                    'May',
-                    'June',
-                ];
+                $startDate = $monthDates[3]['start_date'];
+                $endDate = $monthDates[5]['end_date'];
             }
 
             if($filter['quarter'] == 'Quarter 3'){
-                $quarter=   [
-                    'July',
-                    'August',
-                    'September',
-                ];
+                $startDate = $monthDates[6]['start_date'];
+                $endDate = $monthDates[8]['end_date'];
             }
 
             if($filter['quarter'] == 'Quarter 4'){
-                $quarter=  [
-                    'October',
-                    'November',
-                    'December',
-                ];
+                $startDate = $monthDates[9]['start_date'];
+                $endDate = $monthDates[11]['end_date'];
             }
 
             if ($filter['quarter'] == 'Annual'){
-                $quarter = [
-                    'January',
-                    'February',
-                    'March',
-                    'April',
-                    'May',
-                    'June',
-                    'July',
-                    'August',
-                    'September',
-                    'October',
-                    'November',
-                    'December',
-                ];
+                $startDate = $monthDates[0]['start_date'];
+                $endDate = $monthDates[11]['end_date'];
+                $query->where('spend', '!=', 0);    
             }
-            
-            $query->whereIn('commission_rebate_detail.month', $quarter);
 
-            // $query->where('commission_rebate_detail.start_date', '>=', $startDate)
-            // ->where('commission_rebate_detail.end_date', '<=', $endDate);
+            $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
+            ->whereDate('commission_rebate_detail.start_date', '<=', $endDate);
         }
 
-        // /** Filter the data on the bases of commission_rebate_id */
+        /** Filter the data on the bases of commission_rebate_id */
         if (isset($filter['commission_rebate_id']) && !empty($filter['commission_rebate_id'])) {
-            $query->where('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
+            $query->whereIn('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
         }
 
-        if (isset($filter['sales_rep']) && !empty($filter['sales_rep'])) {
-            $query->where('commission_rebate_detail.sales_rep', $filter['sales_rep']);
+        // dd($filter['sales_rep']);
+        if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
+            $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
         }
 
         // dd($query->toSql(), $query->getBindings());
@@ -681,6 +730,83 @@ class Order extends Model
                 'recordsFiltered' => $totalRecords, // Use total records from the query
             ];
         }
+    }
+
+    public static function getAllCommission($filter = []){
+        $query = CommissionRebateDetail::query()->selectRaw(
+            "SUM(`commission_rebate_detail`.`commission`) AS `commissions`"
+        );
+
+        /** Year and quarter filter here */
+        if (isset($filter['year']) || !empty($filter['quarter'])) {
+            $year = $filter['year'];
+
+            $res[1] =[
+                'January',
+                'February',
+                'March',
+            ];
+
+            $res[2] = [
+                'April',
+                'May',
+                'June',
+            ];
+
+            $res[3] = [
+                'July',
+                'August',
+                'September',
+            ];
+
+            $res[4] = [
+                'October',
+                'November',
+                'December',
+            ];
+
+            $monthDates = [];
+
+            for ($month = 1; $month <= 12; $month++) {
+                $start = date('Y-m-01', strtotime("$year-$month-01"));
+                $end = date('Y-m-t', strtotime("$year-$month-01"));
+        
+                $monthDates[] = [
+                    'start_date' => $start,
+                    'end_date' => $end,
+                ];
+            }
+            $startDate = $monthDates[0]['start_date'];
+            if($filter['quarter'] == 'Quarter 1'){
+                $endDate = $monthDates[2]['end_date'];
+            }
+
+            if($filter['quarter'] == 'Quarter 2'){
+                $endDate = $monthDates[5]['end_date'];
+            }
+
+            if($filter['quarter'] == 'Quarter 3'){
+                $endDate = $monthDates[8]['end_date'];
+            }
+
+            if($filter['quarter'] == 'Quarter 4'){
+                $endDate = $monthDates[11]['end_date'];
+            }
+
+            if ($filter['quarter'] == 'Annual'){
+                $endDate = $monthDates[11]['end_date'];
+                $query->where('spend', '!=', 0);    
+            }
+
+            $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
+            ->whereDate('commission_rebate_detail.start_date', '<=', $endDate);
+        }
+
+        if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
+            $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
+        }
+
+        return $query->first()->commissions;
     }
 
     public static function getConsolidatedReportFilterdData($filter = [], $csv = false) {

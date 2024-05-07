@@ -33,7 +33,7 @@
                             @endfor
                         </select>
                     </div>
-                    <div class="form-group relative col-md-3 mb-0">  
+                    <div class="form-group relative col-md-3 pt-2 mb-0">  
                         <label for="enddate">Select Payment:</label>
                         <select class="form-control" name="quarter" id="quarter" required>
                             <option value="">--Select--</option>
@@ -44,7 +44,7 @@
                             <option value="Quarter 4">Quarter 4</option>
                         </select>
                     </div>
-                    <div class="form-group col-md-4 mb-0">
+                    <div class="form-group col-md-4 pt-2 mb-0">
                         <label for="approved">Select Approved:</label>
                         <select id="approved" name="approved" class="form-control"> 
                             <option value="" selected>--Select--</option>
@@ -52,7 +52,7 @@
                             <option value="0">NO</option>
                         </select>
                     </div>
-                    <div class="form-group col-md-4 mb-0">
+                    <div class="form-group col-md-4 pt-2 mb-0">
                         <label for="paid">Select Paid:</label>
                         <select id="paid" name="paid" class="form-control" > 
                             <option value="" selected>--Select--</option>
@@ -60,7 +60,7 @@
                             <option value="0">NO</option>
                         </select>
                     </div>
-                    <div class="col-md-3 mb-0">
+                    <div class="col-md-3 pt-2 mb-0">
                         <button type="submit" class="btn btn-primary m-1">Submit</button>
                     </div>
                     <!-- Button trigger modal -->
@@ -76,8 +76,30 @@
         </div>
 
         <!-- Modal -->
+        <div class="modal fade" id="paidModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="paidModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paidModalLabel">Please add paid date</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="" id="paidDateSave">
+                <div class="modal-body">
+                    <label for="paid_date" class="col-form-label">Paid Date:</label>
+                    <input type="text" class="form-control" id="paid_date" readonly>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" >Save</button>
+                </div>
+            </form>
+            </div>
+        </div>
+        </div>
+
+        <!-- Modal -->
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog" style="max-width:850px">
+            <div class="modal-dialog" style="max-width:1150px">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="staticBackdropLabel">Commission Detail</h5>
@@ -99,8 +121,13 @@
 <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
 <script>
     $(document).ready(function() {
+        $("#paid_date").datepicker();
+
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
@@ -111,11 +138,11 @@
 
         $(document).on('change', '.approved_input_select', function(){
             if ($(this).val() == 1) {
-                if ($('.paid_'+$(this).data('approved_id')+'').val() == 0) {
-                    $('.paid_'+$(this).data('approved_id')+'').prop('disabled', false);
+                if ($('.paid_'+$(this).data('approved_ids')+'').val() == 0) {
+                    $('.paid_'+$(this).data('approved_ids')+'').prop('disabled', false);
                 }
             } else {
-                $('.paid_'+$(this).data('approved_id')+'').prop('disabled', true);
+                $('.paid_'+$(this).data('approved_ids')+'').prop('disabled', true);
             }
 
             var formData = { approved : $(this).val(), id : $(this).data('approved_id') },
@@ -159,12 +186,25 @@
         });
 
         $(document).on('change', '.paid_input_select', function(){
-            if ($(this).val() == 1 && $('.approved_'+$(this).data('paid_id')+'').val() == 1) {
+            if ($(this).val() == 1 && $('.approved_'+$(this).data('paid_ids')+'').val() == 1) {
                 $(this).prop('disabled', true);
-                $('.approved_'+$(this).data('paid_id')+'').prop('disabled', true);
-            }
+                $('.approved_'+$(this).data('paid_ids')+'').prop('disabled', true);
 
-            var formData = { paid : $(this).val(), id : $(this).data('paid_id') },
+                $('#paidModal').modal('show');
+
+                // Execute code when modal is closed
+                $("#paidModal").on('hidden.bs.modal', function () {
+                    // Your code here
+                    console.log('Modal closed');
+                    // You can call a function, perform an AJAX request, or any other action here
+                });
+            }
+        });
+
+        $("#paidDateSave").submit(function(event) {
+            event.preventDefault(); // Prevent default form submission
+            $('#paidModal').modal('hide');
+            var formData = { paid : $('.paid_input_select').val(), id : $('.paid_input_select').data('paid_id') },
             token = "{{ csrf_token() }}";
 
             $.ajax({
@@ -204,6 +244,7 @@
                 }
             });
         });
+
 
         // DataTable initialization
         var supplierDataTable = $('#commission_report_data').DataTable({
@@ -303,6 +344,7 @@
             },
 
             columns: [
+                { data: 'account_name', name: 'account_name', title: 'Business Name'},
                 { data: 'supplier', name: 'supplier', title: 'Supplier'},
                 { data: 'amount', name: 'amount', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},

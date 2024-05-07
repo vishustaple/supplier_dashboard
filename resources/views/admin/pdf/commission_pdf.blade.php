@@ -121,7 +121,7 @@
                 <img src="https://sql.centerpointgroup.com/images/logo-1.webp" alt="">
             </div>
             <div class="middle_block">
-                <span>Q4 2023</span>
+                <span>Q{{ $quarter }} {{ $year }}</span>
             </div>
             <div class="right_block">
                 <span>Amount: $ {{$amount}} </span>
@@ -227,7 +227,7 @@
                 <div class="right_sign">
                     <div class="line_sign">
                         <span style="padding-bottom: 15px; display: block;">X</span>
-                        <img width="200px" height="90px"  src="{{ public_path('/excel_sheets') .'/'. 'images.png'}}" alt="">
+                        <img width="200px" height="90px"  src="{{ public_path('/excel_sheets') .'/'. 'signature.svg'}}" alt="">
                         <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
                         <p style="text-align: center;">Approved by</p>
                     </div>
