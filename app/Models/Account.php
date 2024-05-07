@@ -274,7 +274,7 @@ class Account extends Model
             $query->groupBy('master_account_detail.account_name');
             $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
             $results = $query->get();
-
+            // dd($results);
             if ($results->isNotEmpty()) {
                 foreach ($results as $value) {
                     $finalArray[] = ['id' => $value->account_name, 'text' => $value->account_name];        
