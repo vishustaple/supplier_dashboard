@@ -204,9 +204,11 @@
         $("#paidDateSave").submit(function(event) {
             event.preventDefault(); // Prevent default form submission
             $('#paidModal').modal('hide');
-            var formData = { paid : $('.paid_input_select').val(), id : $('.paid_input_select').data('paid_id') },
+
+            var formData = { paid : $('.paid_input_select').val(), id : $('.paid_input_select').data('paid_id'), paid_date : $('#paid_date').val() },
             token = "{{ csrf_token() }}";
 
+            $(this)[0].reset();
             $.ajax({
                 type: 'POST',
                 url: "{{route('paid.update')}}",

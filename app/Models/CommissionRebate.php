@@ -23,6 +23,7 @@ class CommissionRebate extends Model
         'quarter',
         'end_date',
         'approved',
+        'paid_date',
         'sales_rep',
         'start_date',
         'commission',

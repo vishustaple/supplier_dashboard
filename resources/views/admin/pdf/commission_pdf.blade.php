@@ -227,15 +227,24 @@
                 <div class="right_sign">
                     <div class="line_sign">
                         <span style="padding-bottom: 15px; display: block;">X</span>
-                        <img width="200px" height="90px"  src="{{ public_path('/excel_sheets') .'/'. 'signature.svg'}}" alt="">
+                        <img width="150px" height="50px"  src="{{ public_path('/excel_sheets') .'/'. 'signature.svg'}}" alt="">
                         <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
-                        <p style="text-align: center;">Approved by</p>
+                        <p style="text-align: center;"><b>Approved By</b></p>
                     </div>
                     <div class="line_sign">
+                     
                         <span style="padding-bottom: 15px; display: block;">X</span>
-                        <img width="200px" height="90px" src="{{ public_path('/excel_sheets') .'/'. 'paid.jpg'}}" alt="">
+                        <table style="border: 0px; margin-bottom:10px;padding-bottom :0px;">
+                            <tbody>
+                                <tr>
+                                    <td style="border: 0px;"><img width="150px" height="50px" src="{{ public_path('/excel_sheets') .'/'. 'paid.jpg'}}" alt=""></td>
+                                    <td style="border: 0px;"><p style="font-size: 20px;margin-bottom:0px;">{{ $paid_date }}</p></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    
                         <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
-                        <p style="text-align: center;">Paid on</p>
+                        <p style="text-align: center;"><b>Paid On</b></p>
                     </div>
                 </div>
             </div>

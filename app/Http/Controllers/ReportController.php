@@ -251,14 +251,17 @@ class ReportController extends Controller
         if ($request->ajax()) {
             // $commissionRebate = CommissionRebate::find($request->id); 
 
+            // dd($request->paid_date);
             DB::table('commission_rebate')->whereIn('id', $request->id)
                 ->update([
-                'paid' => $request->paid
+                'paid' => $request->paid,
+                'paid_date' => date('Y-m-d', strtotime($request->paid_date))
             ]);
             
             DB::table('commission_rebate_detail')->whereIn('commission_rebate_id', $request->id)
                 ->update([
-                'paid' => $request->paid
+                'paid' => $request->paid,
+                'paid_date' => date('Y-m-d', strtotime($request->paid_date))
             ]);
 
             // if ($commissionRebate->paid == 1 && $commissionRebate->approved == 1) {
@@ -604,7 +607,8 @@ class ReportController extends Controller
                 $datas1['quarter4'] = number_format($datas1['quarter4'], 2);
             }
             
-            $datas1['anual'] = number_format($allCommission, 2);
+            $datas1['anual'] = number_format($allCommission['commissions'], 2);
+            $datas1['paid_date'] = $allCommission['paid_date'];
             $datas1['month'] = $monthData;
             $datas1['commission_data'] = $datas;
             $datas1['quarter'] = explode(' ', $request->input('quarter'))[1];
