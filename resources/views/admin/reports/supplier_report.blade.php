@@ -15,8 +15,8 @@
             </div>
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
-                <div class="row align-items-end py-3 border-top border-bottom mb-3">
-                    <div class="form-group col-md-4 mb-0">
+                <div class="row align-items-start py-3 border-top border-bottom mb-3">
+                    <div class="form-group col-md-3 mb-0">
                         <label for="supplier">Select Supplier:</label>
                         <select id="supplier" name="supplier" class="form-control" required> 
                             <option value="" selected>--Select--</option>
@@ -27,22 +27,33 @@
                             @endif
                         </select>
                     </div>
-                    <div class="form-group relative col-md-6 mb-0">  
-                        <label for="enddate">Select Date:</label>
-                        <!-- <input class="form-control" id="enddate" name="dates" readonly> -->
-                        <div class="row">
-                            <div class="col-6 d-flex align-items-center">
-                        <label for="enddate" class="pe-2">From:</label>
-                        <input class="form-control" type="text" name="start_date" id="start_date">
-                            </div>
-                            <div class="col-6 d-flex align-items-center">
-                        <label for="enddate" class="pe-2">To:</label>
-                        <input class="form-control" type="text" name="end_date" id="end_date">
-                            </div>
+                    <div class="form-group relative col-md-9 mb-0">  
+                            <label for="enddate">Select Date:</label>
+                            <div class="row">
+                                <div class="col-4 d-flex align-items-center">
+                            <label for="enddate" class="pe-2">From:</label>
+                            <input class="form-control" type="text" name="start_date" id="start_date">
+                                </div>
+                                <div class="col-4 d-flex align-items-center">
+                            <label for="enddate" class="pe-2">To:</label>
+                            <input class="form-control" type="text" name="end_date" id="end_date">
+                                </div>
+                                <div class="form-group relative col-4 mb-0">
+                            <select class="form-select" name="select_dates" id="select_dates">
+                                <option value="0" selected>Select</option>
+                                <option value="1">Last Quarter</option>
+                                <option value="2">Last Year</option>
+                                <option value="3">Last Month</option>
+                                <option value="4">Last 6 Months</option>
+                            </select>
+                            <input type="text" name="date1" value="" id="date1" hidden>
+                            <input type="text" name="date2" value="" id="date2" hidden>
                         </div>
-                        
-                    </div>
-                    <div class="form-check relative col-md-2 mb-0">
+                                
+                            </div>
+                            <div class="row py-3 align-items-center">
+                            
+                        <div class="form-check relative col-8 text-end mb-0">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="" id="volume_rebate_check" checked>
                             <label class="form-check-label" id="volume_rebate_check_label" for="volume_rebate_check">Volume Rebate</label>
@@ -52,10 +63,13 @@
                             <label class="form-check-label" id="incentive_rebate_check_label" for="incentive_rebate_check">Incentive Rebate</label>
                         </div>
                     </div>
-                    <div class="col-md-3 mt-2">
+                    <div class="col-4 mt-2 text-end">
                         <button type="submit" class="btn btn-primary m-1">Submit</button>
                         <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
+</div>
+                    
+                   
                     <!-- Button trigger modal -->
                 </div>
             </form>
@@ -112,6 +126,35 @@
         $('input[name="start_date"]').datepicker();
         $('input[name="end_date"]').datepicker();
 
+        $("#select_dates").on('change', function() {
+            var selectedRange = $(this).val(); // Get the selected range
+            var startDate, endDate;
+
+            // Calculate start and end dates based on the selected range
+            switch(selectedRange) {
+                case '1':
+                    startDate = moment().subtract(3, 'month').startOf('quarter').format('YYYY-MM-DD');
+                    endDate = moment().subtract(1, 'month').endOf('quarter').format('YYYY-MM-DD');
+                    break;
+                case '2':
+                    startDate = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD');
+                    endDate = moment().subtract(1, 'year').endOf('year').format('YYYY-MM-DD');
+                    break;
+                case '3':
+                    startDate = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
+                    endDate = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
+                    break;
+                case '4':
+                    startDate = moment().subtract(7, 'month').startOf('month').format('YYYY-MM-DD');
+                    endDate = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
+                    break;
+                // Add additional cases for other predefined ranges if needed
+            }
+
+            $('#date1').val(startDate);
+            $('#date2').val(endDate);
+        });
+
         // Assuming your select element has id 'mySelect'
         $('#supplier').change(function() {
             // Get the selected value
@@ -134,8 +177,14 @@
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            $('#startDates').text($('#start_date').val());
-            $('#endDates').text($('#end_date').val());
+            if ($("#select_dates").val() == 0) {
+                $('#startDates').text($('#start_date').val());
+                $('#endDates').text($('#end_date').val());
+            } else {
+                $('#startDates').text(moment($('#date1').val()).format('MM/DD/YYYY'));
+                $('#endDates').text(moment($('#date2').val()).format('MM/DD/YYYY'));
+            }
+
             $('.header_bar').attr('style', 'display:flex !important;');
 
             // Initiate DataTable AJAX request
@@ -200,8 +249,14 @@
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
                     d.supplier = $('#supplier').val();
-                    d.end_date = $.datepicker.formatDate('yy-mm-dd', $('#end_date').datepicker('getDate'));
-                    d.start_date = $.datepicker.formatDate('yy-mm-dd', $('#start_date').datepicker('getDate'));
+                    if ($("#select_dates").val() == 0) {
+                        // Pass date range and supplier ID when making the request
+                        d.end_date = $.datepicker.formatDate('yy-mm-dd', $('#end_date').datepicker('getDate'));
+                        d.start_date = $.datepicker.formatDate('yy-mm-dd', $('#start_date').datepicker('getDate'));
+                    } else {
+                        d.start_date = $('#date1').val();
+                        d.end_date =  $('#date2').val();
+                    }
                 },
             },
 
@@ -245,8 +300,16 @@
             // You can customize this URL to match your backend route for CSV download
             var csvUrl = '{{ route("report.export-supplier_report-csv") }}', order = supplierDataTable.order();
 
+            if ($("#select_dates").val() == 0) {
+                var start = $.datepicker.formatDate('yy-mm-dd', $('#start_date').datepicker('getDate')),
+                end = $.datepicker.formatDate('yy-mm-dd', $('#end_date').datepicker('getDate'));
+            } else {
+                var start = $('#date1').val(),
+                end = $('#date2').val();
+            }
+
             // Add query parameters for date range and supplier ID
-            csvUrl += '?start_date=' + $.datepicker.formatDate('yy-mm-dd', $('#start_date').datepicker('getDate')) + '&end_date=' + $.datepicker.formatDate('yy-mm-dd', $('#end_date').datepicker('getDate')) + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
+            csvUrl += '?start_date=' + start + '&end_date=' + end + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');

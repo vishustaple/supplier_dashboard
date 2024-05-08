@@ -10,7 +10,7 @@
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
                     <div class="row align-items-end border-bottom pb-3 mb-4">
-                        <div class="form-group col-md-5  mb-0">
+                        <div class="form-group  check_form_labels col-md-5  mb-0">
                             <div class="form-check">
                                 <input class="form-check-input checkboxs" name="supplier_id[]" type="checkbox" value="all" id="allCheckBox">
                                 <label class="form-check-label" for="defaultCheck1">All Suppliers</label>
@@ -26,16 +26,45 @@
                                 @endforeach    
                             @endif
                         </div>
-                        <div class="form-group relative col-md-4 mb-0">  
+                        <div class="form-group relative col-md-7 mb-0">  
+                            <label for="enddate">Select Date:</label>
+                            <div class="row">
+                                <div class="col-6 align-items-center">
+                            <label for="enddate" class="pe-2">From:</label>
+                            <input class="form-control" type="text" name="start_date" id="start_date">
+                                </div>
+                                <div class="col-6 align-items-center">
+                            <label for="enddate" class="pe-2">To:</label>
+                            <input class="form-control" type="text" name="end_date" id="end_date">
+                                </div>
+                                
+                            </div>
+                            <div class="row pt-3 align-items-center">
+                            <div class="form-group relative col-md-6 col-4 mb-0">
+                            <select class="form-select" name="select_dates" id="select_dates">
+                                <option value="0" selected>Select</option>
+                                <option value="1">Last Quarter</option>
+                                <option value="2">Last Year</option>
+                                <option value="3">Last Month</option>
+                                <option value="4">Last 6 Months</option>
+                            </select>
+                            <input type="text" name="date1" value="" id="date1" hidden>
+                            <input type="text" name="date2" value="" id="date2" hidden>
+                        </div>
+                        <div class="col-md-6 mt-1 mb-0 text-end">
+                            <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
+                            <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                        </div>
+                            </div>
+                        </div>
+                       
+                        <!-- <div class="form-group relative col-md-4 mb-0">  
                             <label for="enddate">Select Date:</label>
                             <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date "  readonly>
                             <input type="hidden" id="start_date" name="start_date" />
                             <input type="hidden" id="end_date" name="end_date" />  
-                        </div>
-                        <div class="col-md-3 mt-1 mb-0 text-end">
-                            <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
-                            <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                        </div>
+                        </div> -->
+                        
                     </div>
                 </form>
                 <table class="data_table_files" id="consolidated_supplier_data">
@@ -54,7 +83,6 @@
             z-index: 999999;
         }
 
-
         div#page-loader-wrap {
             text-align: center;
             /* vertical-align: center !important; */
@@ -69,21 +97,68 @@
         #consolidated_supplier_data thead tr th {
             white-space: nowrap;
         }
+        .form-group.check_form_labels.mb-0 {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.form-group.check_form_labels.mb-0 .form-check {
+    width: 50%;
+    /* font-size: 15px; */
+}
         </style>
     <!-- Include Date Range Picker JavaScript -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
+    <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script> -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script>
         $(document).ready(function() {
-            $('input[name="dates"]').daterangepicker();
-
-            // Event handler for when the user applies the date range
-            $('input[name="dates"]').on('apply.daterangepicker', function(ev, picker) {
-                // Access the selected date range
-                $('#start_date').val(picker.startDate.format('YYYY-MM-DD')),
-                $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
-                // Perform actions with the selected date range
+            $('input[name="start_date"]').datepicker({
+                // dateFormat: 'yy-mm-dd'  // Set default date format
             });
+
+            $('input[name="end_date"]').datepicker({
+                // dateFormat: 'yy-mm-dd'  // Set default date format
+            });
+
+            $("#select_dates").on('change', function() {
+                var selectedRange = $(this).val(); // Get the selected range
+                var startDate, endDate;
+
+                // Calculate start and end dates based on the selected range
+                switch(selectedRange) {
+                    case '1':
+                        startDate = moment().subtract(3, 'month').startOf('quarter').format('YYYY-MM-DD');
+                        endDate = moment().subtract(1, 'month').endOf('quarter').format('YYYY-MM-DD');
+                        break;
+                    case '2':
+                        startDate = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD');
+                        endDate = moment().subtract(1, 'year').endOf('year').format('YYYY-MM-DD');
+                        break;
+                    case '3':
+                        startDate = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
+                        endDate = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
+                        break;
+                    case '4':
+                        startDate = moment().subtract(7, 'month').startOf('month').format('YYYY-MM-DD');
+                        endDate = moment().subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
+                        break;
+                    // Add additional cases for other predefined ranges if needed
+                }
+
+                $('#date1').val(startDate);
+                $('#date2').val(endDate);
+                
+            });
+
+            // // Event handler for when the user applies the date range
+            // $('input[name="dates"]').on('apply.daterangepicker', function(ev, picker) {
+            //     // Access the selected date range
+            //     $('#start_date').val(picker.startDate.format('YYYY-MM-DD')),
+            //     $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
+            //     // Perform actions with the selected date range
+            // });
 
             // Button click event
             $('#import_form').on('submit', function () {
@@ -115,15 +190,20 @@
                     type: 'POST',
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
-                        // Pass date range and supplier ID when making the request
-                        d.end_date = $('#end_date').val();
-                        d.start_date = $('#start_date').val();
                         var checkedValues = [];
                         $('.checkboxs:checked').each(function() {
                             checkedValues.push($(this).val());
                         });
 
                         d.supplier_id = checkedValues;
+                        if ($("#select_dates").val() == 0) {
+                            // Pass date range and supplier ID when making the request
+                            d.end_date = $.datepicker.formatDate('yy-mm-dd', $('#end_date').datepicker('getDate'));
+                            d.start_date = $.datepicker.formatDate('yy-mm-dd', $('#start_date').datepicker('getDate'));
+                        } else {
+                            d.start_date = $('#date1').val();
+                            d.end_date =  $('#date2').val();
+                        }
                     },
                 },
 
@@ -171,8 +251,16 @@
                     checkedValues.push($(this).val());
                 });
 
+                if ($("#select_dates").val() == 0) {
+                    var start = $.datepicker.formatDate('yy-mm-dd', $('#start_date').datepicker('getDate')),
+                    end = $.datepicker.formatDate('yy-mm-dd', $('#end_date').datepicker('getDate'));
+                } else {
+                    var start = $('#date1').val(),
+                    end = $('#date2').val();
+                }
+             
                 // Add query parameters for date range and supplier ID
-                csvUrl += '?start_date=' + $('#start_date').val() + '&end_date=' + $('#end_date').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier_id=' + checkedValues;
+                csvUrl += '?start_date=' + start + '&end_date=' + end + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier_id=' + checkedValues;
 
                 // Open a new window to download the CSV file
                 window.open(csvUrl, '_blank');
