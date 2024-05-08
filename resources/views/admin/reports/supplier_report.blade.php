@@ -27,9 +27,20 @@
                             @endif
                         </select>
                     </div>
-                    <div class="form-group relative col-md-4 mb-0">  
+                    <div class="form-group relative col-md-6 mb-0">  
                         <label for="enddate">Select Date:</label>
-                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " readonly>
+                        <!-- <input class="form-control" id="enddate" name="dates" readonly> -->
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                        <label for="enddate" class="pe-2">From:</label>
+                        <input class="form-control" type="text" name="start_date" id="start_date">
+                            </div>
+                            <div class="col-6 d-flex align-items-center">
+                        <label for="enddate" class="pe-2">To:</label>
+                        <input class="form-control" type="text" name="end_date" id="end_date">
+                            </div>
+                        </div>
+                        
                     </div>
                     <div class="form-check relative col-md-2 mb-0">
                         <div class="form-check">
@@ -93,10 +104,13 @@
 </style>
 <!-- Include Date Range Picker JavaScript -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script> -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script>
     $(document).ready(function() {
-        $('input[name="dates"]').daterangepicker();
+        $('input[name="start_date"]').datepicker();
+        $('input[name="end_date"]').datepicker();
 
         // Assuming your select element has id 'mySelect'
         $('#supplier').change(function() {
@@ -120,8 +134,8 @@
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            $('#startDates').text($('#enddate').data('daterangepicker').startDate.format('MM/DD/YYYY'));
-            $('#endDates').text($('#enddate').data('daterangepicker').endDate.format('MM/DD/YYYY'));
+            $('#startDates').text($('#start_date').val());
+            $('#endDates').text($('#end_date').val());
             $('.header_bar').attr('style', 'display:flex !important;');
 
             // Initiate DataTable AJAX request
@@ -171,7 +185,7 @@
 
         // DataTable initialization
         var supplierDataTable = $('#supplier_report_data').DataTable({
-            oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
+            // oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
             processing: true,
             serverSide: true, 
             lengthMenu: [40], // Specify the options you want to show
@@ -186,8 +200,8 @@
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
                     d.supplier = $('#supplier').val();
-                    d.end_date = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD');
-                    d.start_date = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD');
+                    d.end_date = $.datepicker.formatDate('yy-mm-dd', $('#end_date').datepicker('getDate'));
+                    d.start_date = $.datepicker.formatDate('yy-mm-dd', $('#start_date').datepicker('getDate'));
                 },
             },
 
@@ -232,7 +246,7 @@
             var csvUrl = '{{ route("report.export-supplier_report-csv") }}', order = supplierDataTable.order();
 
             // Add query parameters for date range and supplier ID
-            csvUrl += '?start_date=' + $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD') + '&end_date=' + $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD') + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
+            csvUrl += '?start_date=' + $.datepicker.formatDate('yy-mm-dd', $('#start_date').datepicker('getDate')) + '&end_date=' + $.datepicker.formatDate('yy-mm-dd', $('#end_date').datepicker('getDate')) + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');

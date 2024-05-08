@@ -734,7 +734,8 @@ class Order extends Model
 
     public static function getAllCommission($filter = []){
         $query = CommissionRebateDetail::query()->selectRaw(
-            "SUM(`commission_rebate_detail`.`commission`) AS `commissions`"
+            "SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
+            paid_date"
         );
 
         /** Year and quarter filter here */
@@ -805,8 +806,10 @@ class Order extends Model
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
             $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
         }
-
-        return $query->first()->commissions;
+        $record = $query->first();
+        $finallArray['commissions'] = $record->commissions;
+        $finallArray['paid_date'] = $record->paid_date;
+        return $finallArray;
     }
 
     public static function getConsolidatedReportFilterdData($filter = [], $csv = false) {
