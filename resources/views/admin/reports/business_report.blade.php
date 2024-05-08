@@ -23,6 +23,22 @@
                                 @endif
                             </select>
                         </div>
+                        <div class="form-group relative col-md-3 mb-0">  
+                            <label for="enddate">Product Type:</label>
+                            <select class="form-control" name="year" id="year" required>
+                                <option value="1">Non-Core</option>
+                                <option value="2">Core</option>
+                            </select>
+                        </div>
+                        <div class="form-group relative col-md-3 mb-0">  
+                            <label for="">Select Year: </label>
+                            <select class="form-control" name="year" id="year" required>
+                                <option value="">--Select--</option>
+                                @for ($year = 2018; $year <= date('Y'); $year++)
+                                    <option value="{{$year}}">{{$year}}</option>
+                                @endfor
+                            </select>
+                        </div>
                         <div class="form-group col-md-4 mb-0" id="selectContainer" style="display:none;">                        
                         </div>
                         <!-- <div class="form-group relative col-md-4 mb-0">  
@@ -48,9 +64,17 @@
                             <th>Category</th>
                             <th>Quantity Purchased</th>
                             <th>Total Spend</th>
-                            <th>Last Of Unit Net Price</th>
-                            <th>Web Price</th>
                             <th>Savings Percentage</th>
+                            <th>Unit Price Q1 Price</th>
+                            <th>Unit Price Q2 Price</th>
+                            <th>Unit Price Q3 Price</th>
+                            <th>Unit Price Q4 Price</th>
+                            <th>Web Price</th>
+                            <th>Web Price Q1 Price</th>
+                            <th>Web Price Q2 Price</th>
+                            <th>Web Price Q3 Price</th>
+                            <th>Web Price Q4 Price</th>
+                            <th>Lowest Price</th>
                         </tr>
                     </thead>
                 </table>
@@ -115,7 +139,7 @@
                         // var selectContainer = $('#selectContainer');
                         // selectContainer.append(label); // Append the label before the select element
                         // selectContainer.append(select); // Append the select elemen
-
+                        
                         $('html, body').animate({ scrollTop: 0 }, 'slow');
                     },
                     error: function(xhr, status, error) {
@@ -162,6 +186,7 @@
                         // Pass date range and supplier ID when making the request
                         // d.start_date = $('#start_date').val();
                         // d.end_date = $('#end_date').val();
+                        d.year = $('#year').val();
                         d.account_name = $('#account_name').val();
                     },
                 },
@@ -190,11 +215,18 @@
                     { data: 'category', name: 'category', 'orderable': false, 'searchable': false },
                     { data: 'quantity_purchased', name: 'quantity_purchased', 'orderable': false, 'searchable': false },
                     { data: 'total_spend', name: 'total_spend', 'orderable': false, 'searchable': false },
-                    { data: 'last_of_unit_net_price', name: 'last_of_unit_net_price', 'orderable': false, 'searchable': false },
-                    { data: 'web_price', name: 'web_price', 'orderable': false, 'searchable': false },
-                    { data: 'savings_percentage', name: 'savings_percentage', 'orderable': false, 'searchable': false },
+                    { data: 'unit_price_q1_price1', name: 'unit_price_q1_price1', 'orderable': false, 'searchable': false },
+                    { data: 'unit_price_q2_price1', name: 'unit_price_q2_price1', 'orderable': false, 'searchable': false },
+                    { data: 'unit_price_q3_price1', name: 'unit_price_q3_price1', 'orderable': false, 'searchable': false },
+                    { data: 'unit_price_q4_price1', name: 'unit_price_q4_price1', 'orderable': false, 'searchable': false },
+                    { data: 'web_price_q1_price2', name: 'web_price_q1_price2', 'orderable': false, 'searchable': false },
+                    { data: 'web_price_q2_price2', name: 'web_price_q2_price2', 'orderable': false, 'searchable': false },
+                    { data: 'web_price_q3_price2', name: 'web_price_q3_price2', 'orderable': false, 'searchable': false },
+                    { data: 'web_price_q4_price2', name: 'web_price_q4_price2', 'orderable': false, 'searchable': false },
+                    { data: 'lowest_price', name: 'lowest_price', 'orderable': false, 'searchable': false },
                 ],
             });
+            
             $('#business_data_length').hide();
             $('#business_data tbody').on('click', 'button', function () {
             var tr = $(this).closest('tr');

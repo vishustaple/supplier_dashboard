@@ -36,6 +36,10 @@ class Order extends Model
         ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
         ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id');
 
+        if (isset($filter['year'])) {
+            $query->whereYear('orders.date', $filter['year']);
+        }
+
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
             $query->where('master_account_detail.account_name', $filter['account_name']);
         } else {
