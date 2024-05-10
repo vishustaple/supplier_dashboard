@@ -4,12 +4,12 @@
         @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
         <div id="layoutSidenav_content">
             <div class="container">
-                <div class="m-1 mb-2 d-md-flex border-bottom pb-3 mb-3 align-items-center justify-content-between">
+                <div class="m-1 mb-2 d-md-flex  pb-3 mb-3 align-items-center justify-content-between">
                     <h3 class="mb-0 ">{{ $pageTitle }}</h3>
                 </div>
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
-                    <div class="row align-items-start py-3 border-top border-bottom mb-3">
+                    <div class="row align-items-end py-3 border-top border-bottom mb-3">
                     <div class="form-group col-md-3 mb-0">
                         <label for="supplier">Select Supplier:</label>
                         <select id="supplier_id" name="supplier" class="form-control" required> 
@@ -21,28 +21,21 @@
                             @endif
                         </select>
                     </div>
-                    <div class="row align-items-end border-bottom pb-3 mb-4">
-                        <div class="form-group col-md-3 mb-0">
-                            <label for="selectBox">Select Account Name:</label>
+                   
+                        <div class="form-group col-md-2 mb-0">
+                            <label for="selectBox">Select Account:</label>
                             <select id="account_name" name="account_name" class="form-control"> 
-                                <option value="" selected>--Select--</option>
-                                @if(isset($accountData))
-                                    @foreach($accountData as $account)
-                                        @if(!empty($account->account_name))
-                                            <option value="{{ $account->account_name }}">{{ $account->account_name }}</option>
-                                        @endif
-                                    @endforeach    
-                                @endif
+                                
                             </select>
                         </div>
-                        <div class="form-group relative col-md-3 mb-0">  
+                        <div class="form-group relative col-md-2 mb-0">  
                             <label for="enddate">Product Type:</label>
                             <select class="form-control" name="core" id="core" required>
                                 <option value="1">Non-Core</option>
                                 <option value="2">Core</option>
                             </select>
                         </div>
-                        <div class="form-group relative col-md-3 mb-0">  
+                        <div class="form-group relative col-md-2 mb-0">  
                             <label for="">Select Year: </label>
                             <select class="form-control" name="year" id="year" required>
                                 <option value="">--Select--</option>
@@ -53,13 +46,6 @@
                         </div>
                         <div class="form-group col-md-4 mb-0" id="selectContainer" style="display:none;">                        
                         </div>
-                        <!-- <div class="form-group relative col-md-4 mb-0">  
-                            <label for="enddate">Select Date:</label>
-                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
-                            <input type="hidden" id="start_date" name="start_date" />
-                            <input type="hidden" id="end_date" name="end_date" />  
-                        </div> -->
-                        <!-- disabled -->
                         <div class="col-md-3 mt-1 mb-0 text-end">
                         <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
                         <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
@@ -101,68 +87,74 @@
     <!-- Include Date Range Picker JavaScript -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#account_name').on('change', function(){
-                $.ajax({
-                    type: 'POST',
-                    url: "{{route('get.accountNumber')}}",
-                    dataType: 'json',
-                    data: JSON.stringify({ 'account_name': $(this).val() }),                        
-                    headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
-                    contentType: 'application/json',                     
-                    processData: false,
-                    success: function(response) {
-                        // $('#selectContainer').html('');
-                        // $('#selectContainer').show();
-                        // // Assuming `response` is your array of objects
-                        // var select = $('<select id="account_number" name="account_number" class="form-control">');
-
-                        // $.each(response, function(index, obj) {
-                        //     var option = $('<option>').val(obj.account_number).text(obj.account_number);
-                        //     select.append(option);
-                        // });
-
-                        // // Create a label element
-                        // var label = $('<label for="selectBox">').text('Select Account Number:');
-
-                        // // Assuming `selectContainer` is the container where you want to append the select element
-                        // var selectContainer = $('#selectContainer');
-                        // selectContainer.append(label); // Append the label before the select element
-                        // selectContainer.append(select); // Append the select elemen
-                        
-                        $('html, body').animate({ scrollTop: 0 }, 'slow');
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        console.error(xhr.responseText);
-                    }
-                });
-            });
-
-            $('input[name="dates"]').daterangepicker();
-
-            // Event handler for when the user applies the date range
-            $('input[name="dates"]').on('apply.daterangepicker', function(ev, picker) {
-                // Access the selected date range
-                $('#start_date').val(picker.startDate.format('YYYY-MM-DD')),
-                $('#end_date').val(picker.endDate.format('YYYY-MM-DD'));
-                // Perform actions with the selected date range
-                console.log('Selected Date Range:', startDate, 'to', endDate);
-            });
-        // });
             // Button click event
             $('#import_form').on('submit', function () {
                 event.preventDefault();
-                // Initiate DataTable AJAX request
                 $('#business_data').DataTable().ajax.reload();
             });
 
+            function hideColumns() {
+                if ($('#supplier_id').val() != 3) {
+                    businessdataTable.column('unit_price_q1_price:name').visible(false);
+                    businessdataTable.column('unit_price_q2_price:name').visible(false);
+                    businessdataTable.column('unit_price_q3_price:name').visible(false);
+                    businessdataTable.column('unit_price_q4_price:name').visible(false);
+                    businessdataTable.column('web_price_q1_price:name').visible(false);
+                    businessdataTable.column('web_price_q2_price:name').visible(false);
+                    businessdataTable.column('web_price_q3_price:name').visible(false);
+                    businessdataTable.column('web_price_q4_price:name').visible(false);
+                    businessdataTable.column('lowest_price:name').visible(false);
+                } else {
+                    businessdataTable.column('unit_price_q1_price:name').visible(true);
+                    businessdataTable.column('unit_price_q2_price:name').visible(true);
+                    businessdataTable.column('unit_price_q3_price:name').visible(true);
+                    businessdataTable.column('unit_price_q4_price:name').visible(true);
+                    businessdataTable.column('web_price_q1_price:name').visible(true);
+                    businessdataTable.column('web_price_q2_price:name').visible(true);
+                    businessdataTable.column('web_price_q3_price:name').visible(true);
+                    businessdataTable.column('web_price_q4_price:name').visible(true);
+                    businessdataTable.column('lowest_price:name').visible(true);
+                }
+            }
+
+            $('#supplier_id').on('change', function(){
+                $('#account_name').val('').trigger('change');
+                $('#business_data').DataTable().ajax.reload();
+            });
+
+            function selectCustomer () {
+                $('#account_name').select2({
+                    ajax: {
+                        url: "{{ route('commission.customerSearch') }}",
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            var data = {
+                                q: params.term, // search term
+                                supplier: $('#supplier_id').val() // add your extra parameter here
+                            };
+
+                            return data;
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: data
+                            };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 1
+                });
+            }
+
+            selectCustomer ()
             // DataTable initialization
             var businessdataTable = $('#business_data').DataTable({
-                oLanguage: {
-                    sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
-                },
+                oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
                 processing: true,
                 serverSide: true,
                 lengthMenu: [],
@@ -216,8 +208,12 @@
                     { data: 'web_price_q4_price', name: 'web_price_q4_price', 'orderable': false, 'searchable': false, title: 'Web Q4 Price' },
                     { data: 'lowest_price', name: 'lowest_price', 'orderable': false, 'searchable': false, title: 'Lowest Price' },
                 ],
+
+                fnDrawCallback: function( oSettings ) {
+                    hideColumns();
+                },
             });
-            
+
             $('#business_data_length').hide();
             $('#business_data tbody').on('click', 'button', function () {
             var tr = $(this).closest('tr');
@@ -235,21 +231,20 @@
                 }
         });
         
-            $('#downloadCsvBtn').on('click', function () {
-                // Trigger CSV download
-                downloadCsv();
-            });
-
-            function downloadCsv() {
-                // You can customize this URL to match your backend route for CSV download
-                var csvUrl = '{{ route('report.export-csv') }}';
-
-                // Add query parameters for date range and supplier ID
-                // csvUrl += '?start=' + $('#start_date').val() + '&end=' + $('#end_date').val() + '&supplierId=' + $('#supplierId').val();
-                csvUrl += '?account_name=' + $('#account_name').val();
-                // Open a new window to download the CSV file
-                window.open(csvUrl, '_blank');
-            }
+        $('#downloadCsvBtn').on('click', function () {
+            // Trigger CSV download
+            downloadCsv();
         });
+
+        function downloadCsv() {
+            // You can customize this URL to match your backend route for CSV download
+            var csvUrl = '{{ route('report.export-csv') }}';
+
+            // Add query parameters for date range and supplier ID
+            csvUrl += '?account_name=' + $('#account_name').val() + 'supplier=' + $('#supplier_id').val() + 'year=' + $('#year').val();
+            // Open a new window to download the CSV file
+            window.open(csvUrl, '_blank');
+        }
+    });
     </script>
 @endsection

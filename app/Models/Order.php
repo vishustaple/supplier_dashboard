@@ -32,8 +32,8 @@ class Order extends Model
     public static function getFilterdData($filter = [], $csv=false){
         $query = self::query() // Replace YourModel with the actual model you are using for the data
         ->select('orders.id as id') 
-        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id');
+        ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
+        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number');
 
         if ($filter['supplier'] == 3) {
             $query->whereIn('key', ['Core Flag']);
@@ -76,7 +76,6 @@ class Order extends Model
         } else {
 
         }
-        
 
         if (isset($filter['year'])) {
             $query->whereYear('orders.date', $filter['year']);
@@ -124,104 +123,133 @@ class Order extends Model
             }
         }
 
-        $query1 = self::query()
-        ->select(
-            'orders.amount as total_spend',
-            DB::raw("MAX(CASE 
-                WHEN `key` = 'UOM' THEN `value`
-                WHEN `key` = 'SUB GROUP 1' THEN `value`
-                WHEN `key` = 'Billing Document' THEN `value`
-                WHEN `key` = 'Uo M' THEN `value`
-                WHEN `key` = 'Sell UOM ID' THEN `value` ELSE NULL END
-            ) AS uom"),
-            DB::raw("MAX(CASE 
-                WHEN `key` = 'SKU' THEN `value`
-                WHEN `key` = 'PRODUCT' THEN `value`
-                WHEN `key` = 'Material' THEN `value`
-                WHEN `key` = 'Item Num' THEN `value`
-                WHEN `key` = 'SKU ID' THEN `value` ELSE NULL END
-            ) AS sku"),
-            DB::raw("MAX(CASE 
-                WHEN `key` = 'Product Description' THEN `value`
-                WHEN `key` = 'DESCRIPTION' THEN `value`
-                WHEN `key` = 'Material Description' THEN `value`
-                WHEN `key` = 'Item Name' THEN `value`
-                WHEN `key` = 'Item Description ID' THEN `value` ELSE NULL END
-            ) AS description"),
-            DB::raw("MAX(CASE 
-                WHEN `key` = 'CLASS' THEN `value`
-                WHEN `key` = 'CATEGORIES' THEN `value`
-                WHEN `key` = 'Material Segment' THEN `value`
-                WHEN `key` = 'Category' THEN `value`
-                WHEN `key` = 'Primary Product Hierarchy DESC' THEN `value` ELSE NULL END
-            ) AS category"),
-            DB::raw("MAX(CASE 
-                WHEN `key` = 'QTY Shipped' THEN `value`
-                WHEN `key` = 'QUANTITYSHIPPED' THEN `value`
-                WHEN `key` = 'Billing Qty' THEN `value`
-                WHEN `key` = 'Qty' THEN `value` ELSE NULL END
-            ) AS quantity_purchased"),
-            DB::raw("MAX(CASE 
-                WHEN `key` = 'Unit Net Price' THEN `value` ELSE NULL END
-            ) AS unit_price"),
-            DB::raw("MAX(CASE 
-                WHEN `key` = '(Unit) Web Price' THEN `value` ELSE NULL END
-            ) AS web_price"),
-        )
+        if (!empty($orderIdArray)) {
+            $query1 = self::query()
+            ->select(
+                'orders.amount as total_spend',
+                DB::raw("MAX(CASE 
+                    WHEN `key` = 'UOM' THEN `value`
+                    WHEN `key` = 'SUB GROUP 1' THEN `value`
+                    WHEN `key` = 'Billing Document' THEN `value`
+                    WHEN `key` = 'Uo M' THEN `value`
+                    WHEN `key` = 'Sell UOM ID' THEN `value` ELSE NULL END
+                ) AS uom"),
+                DB::raw("MAX(CASE 
+                    WHEN `key` = 'SKU' THEN `value`
+                    WHEN `key` = 'PRODUCT' THEN `value`
+                    WHEN `key` = 'Material' THEN `value`
+                    WHEN `key` = 'Item Num' THEN `value`
+                    WHEN `key` = 'SKU ID' THEN `value` ELSE NULL END
+                ) AS sku"),
+                DB::raw("MAX(CASE 
+                    WHEN `key` = 'Product Description' THEN `value`
+                    WHEN `key` = 'DESCRIPTION' THEN `value`
+                    WHEN `key` = 'Material Description' THEN `value`
+                    WHEN `key` = 'Item Name' THEN `value`
+                    WHEN `key` = 'Item Description ID' THEN `value` ELSE NULL END
+                ) AS description"),
+                DB::raw("MAX(CASE 
+                    WHEN `key` = 'CLASS' THEN `value`
+                    WHEN `key` = 'CATEGORIES' THEN `value`
+                    WHEN `key` = 'Material Segment' THEN `value`
+                    WHEN `key` = 'Category' THEN `value`
+                    WHEN `key` = 'Primary Product Hierarchy DESC' THEN `value` ELSE NULL END
+                ) AS category"),
+                DB::raw("MAX(CASE 
+                    WHEN `key` = 'QTY Shipped' THEN `value`
+                    WHEN `key` = 'QUANTITYSHIPPED' THEN `value`
+                    WHEN `key` = 'Billing Qty' THEN `value`
+                    WHEN `key` = 'Qty' THEN `value` ELSE NULL END
+                ) AS quantity_purchased"),
+                DB::raw("MAX(CASE 
+                    WHEN `key` = 'Unit Net Price' THEN `value` ELSE NULL END
+                ) AS unit_price"),
+                DB::raw("MAX(CASE 
+                    WHEN `key` = '(Unit) Web Price' THEN `value` ELSE NULL END
+                ) AS web_price"),
+            )
 
-        ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
-        ->whereIn('orders.id', $orderIdArray)
-        ->groupBy('order_product_details.order_id')
-        ->orderBy('orders.amount', 'desc');
+            ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
+            ->whereIn('orders.id', $orderIdArray)
+            ->groupBy('order_product_details.order_id')
+            ->orderBy('orders.amount', 'desc');
 
-        $queryData = $query1->get();
-        // dd($queryData);
-        $newFinalArray = [];
-        foreach ($queryData as $key => $value) {
-            $newFinalArray[] = [
-                'sku' => $value->sku,
-                'description' => $value->description,
-                'uom' => $value->uom,
-                'category' => $value->category,
-                'quantity_purchased' => $value->quantity_purchased,
-                'total_spend' => (($csv) ? ($value->total_spend) : ('$'.number_format($value->total_spend, 2))),
-                'unit_price_q1_price' => (($csv) ? ($value->unit_price) : ('$'.number_format($value->unit_price, 2))),
-                'unit_price_q2_price' => $value->unit_price_q2_price,
-                'unit_price_q3_price' => $value->unit_price_q3_price,
-                'unit_price_q4_price' => $value->unit_price_q4_price,
-                'web_price_q1_price' => (($csv) ? ($value->web_price) : ('$'.number_format($value->web_price, 2))),
-                'web_price_q2_price' => $value->web_price_q2_price,
-                'web_price_q3_price' => $value->web_price_q3_price,
-                'web_price_q4_price' => $value->web_price_q4_price,
-                'lowest_price' => $value->lowest_price,
-            ];
-        }
+            $queryData = $query1->get();
+            // dd($queryData);
+            $newFinalArray = [];
+            foreach ($queryData as $key => $value) {
+                $newFinalArray[] = [
+                    'sku' => $value->sku,
+                    'description' => $value->description,
+                    'uom' => $value->uom,
+                    'category' => $value->category,
+                    'quantity_purchased' => $value->quantity_purchased,
+                    'total_spend' => (($csv) ? ($value->total_spend) : ('$'.number_format($value->total_spend, 2))),
+                    'unit_price_q1_price' => (($csv) ? ($value->unit_price) : ('$'.number_format($value->unit_price, 2))),
+                    'unit_price_q2_price' => $value->unit_price_q2_price,
+                    'unit_price_q3_price' => $value->unit_price_q3_price,
+                    'unit_price_q4_price' => $value->unit_price_q4_price,
+                    'web_price_q1_price' => (($csv) ? ($value->web_price) : ('$'.number_format($value->web_price, 2))),
+                    'web_price_q2_price' => $value->web_price_q2_price,
+                    'web_price_q3_price' => $value->web_price_q3_price,
+                    'web_price_q4_price' => $value->web_price_q4_price,
+                    'lowest_price' => $value->lowest_price,
+                ];
+            }
 
-        if ($csv == true) {
-            $newFinalArray['heading'] = [
-                'Sku',
-                'Description',
-                'Uom',
-                'Category',
-                'Quantity Purchased',
-                'Total Spend',
-                'Unit Q1 Price',
-                'Unit Q2 Price',
-                'Unit Q3 Price',
-                'Unit Q4 Price',
-                'Web Q1 Price',
-                'Web Q2 Price',
-                'Web Q3 Price',
-                'Web Q4 Price',
-                'Lowest Price',
-            ];
-            return $newFinalArray;
+            if ($csv == true) {
+                $newFinalArray['heading'] = [
+                    'Sku',
+                    'Description',
+                    'Uom',
+                    'Category',
+                    'Quantity Purchased',
+                    'Total Spend',
+                    'Unit Q1 Price',
+                    'Unit Q2 Price',
+                    'Unit Q3 Price',
+                    'Unit Q4 Price',
+                    'Web Q1 Price',
+                    'Web Q2 Price',
+                    'Web Q3 Price',
+                    'Web Q4 Price',
+                    'Lowest Price',
+                ];
+                return $newFinalArray;
+            } else {
+                return [
+                    'data' => $newFinalArray,
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                ];
+            }
         } else {
-            return [
-                'data' => $newFinalArray,
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
+            if ($csv == true) {
+                $finalArray['heading'] = [
+                    'Sku',
+                    'Description',
+                    'Uom',
+                    'Category',
+                    'Quantity Purchased',
+                    'Total Spend',
+                    'Unit Q1 Price',
+                    'Unit Q2 Price',
+                    'Unit Q3 Price',
+                    'Unit Q4 Price',
+                    'Web Q1 Price',
+                    'Web Q2 Price',
+                    'Web Q3 Price',
+                    'Web Q4 Price',
+                    'Lowest Price',
+                ];
+                return $finalArray;
+            } else {
+                return [
+                    'data' => [],
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                ];
+            }
         }
     }
 

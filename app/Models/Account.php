@@ -266,10 +266,15 @@ class Account extends Model
         ];
     }
 
-    public static function getSearchCustomerData($search=''){
+    public static function getSearchCustomerData($search='', $supplier=''){
         if (!empty($search)) {
             $query = self::query()->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
             $query->groupBy('master_account_detail.account_name');
+
+            if (isset($supplier) && !empty($supplier)) {
+                $query->where('master_account_detail.category_supplier', $supplier);
+            }
+
             $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
             $results = $query->get();
             // dd($results);
