@@ -36,52 +36,41 @@ class Order extends Model
         ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id');
 
         if ($filter['supplier'] == 3) {
-            $query->whereIn('key', [
-                'Core Flag',
-            ]);
-            if (isset($filter['core'])) {
-                if ($filter['core'] == 1) {
-                    $query->whereIn('value', ['N', 'U']);
-                } else {
-                    
-                    $query->whereIn('value', ['Y']);
-                }
+            $query->whereIn('key', ['Core Flag']);
+
+            if ($filter['core'] == 1) {
+                $query->whereIn('value', ['N', 'U']);
+            } else {
+                $query->whereIn('value', ['Y']);
             }
         } else if ($filter['supplier'] == 4) {
-            if (isset($filter['core'])) {
-                $query->whereIn('key', [
-                    'On Contract? ID',
-                ]);
-                if ($filter['core'] == 1) {
-                    $query->whereIn('value', ['N']);
-                } else {
-                    $query->whereIn('value', ['Y']);
-                }
+            $query->whereIn('key', ['On Contract? ID']);
+
+            if ($filter['core'] == 1) {
+                $query->whereIn('value', ['N']);
+            } else {
+                $query->whereIn('value', ['Y']);
             }
         } else if ($filter['supplier'] == 5) {
-            $query->whereIn('key', [
-                'Price Method',
-            ]);
+            $query->whereIn('key', ['Price Method']);
+
             if ($filter['core'] == 2) {
                 $query->orWhere('value', 'LIKE', 'PPL%')->orWhere('value', 'LIKE', 'CTL%');
+            } else {
+                $query->orWhere('value', 'NOT LIKE', 'PPL%')->orWhere('value', 'NOT LIKE', 'CTL%');
             } 
         } else if ($filter['supplier'] == 2) {
-            $query->whereIn('key', [
-                'Active Price Point',
-            ]);
+            $query->whereIn('key', ['Active Price Point']);
+
             if ($filter['core'] == 2) {
                 $query->whereIn('value', ['CSP']);
             }
         } else if ($filter['supplier'] == 1) {
             if ($filter['core'] == 1) {
-                $query->whereIn('key', [
-                    'OFF-CORE SPEND',
-                ]);
+                $query->whereIn('key', ['OFF-CORE SPEND']);
                 $query->whereNotNull('value');
             } else {
-                $query->whereIn('key', [
-                    'ON-CORE SPEND',
-                ]);
+                $query->whereIn('key', ['ON-CORE SPEND']);
                 $query->whereNotNull('value');
             }
         } else {
@@ -126,8 +115,9 @@ class Order extends Model
 
         $query->groupBy('order_product_details.order_id');
         $query->orderBy('orders.amount', 'desc')->limit(100);
-        
+        //  dd($query->toSql(), $query->getBindings());
         $orderIdArray = [];
+        // dd($orderIdArray);
         if ($query->get()) {
             foreach ($query->get() as $key => $value) {
                 $orderIdArray[] = $value->id;
