@@ -9,8 +9,20 @@
                 </div>
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
+                    <div class="row align-items-start py-3 border-top border-bottom mb-3">
+                    <div class="form-group col-md-3 mb-0">
+                        <label for="supplier">Select Supplier:</label>
+                        <select id="supplier_id" name="supplier" class="form-control" required> 
+                            <option value="" selected>--Select--</option>
+                            @if(isset($categorySuppliers))
+                                @foreach($categorySuppliers as $categorySupplier)
+                                    <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
                     <div class="row align-items-end border-bottom pb-3 mb-4">
-                        <div class="form-group col-md-4 mb-0">
+                        <div class="form-group col-md-3 mb-0">
                             <label for="selectBox">Select Account Name:</label>
                             <select id="account_name" name="account_name" class="form-control"> 
                                 <option value="" selected>--Select--</option>
@@ -25,7 +37,7 @@
                         </div>
                         <div class="form-group relative col-md-3 mb-0">  
                             <label for="enddate">Product Type:</label>
-                            <select class="form-control" name="year" id="year" required>
+                            <select class="form-control" name="core" id="core" required>
                                 <option value="1">Non-Core</option>
                                 <option value="2">Core</option>
                             </select>
@@ -56,27 +68,6 @@
                     </div>
                 </form>
                 <table class="data_table_files" id="business_data">
-                    <thead>
-                        <tr>
-                            <th>Sku</th>
-                            <th>Description</th>
-                            <th>UOM</th>
-                            <th>Category</th>
-                            <th>Quantity Purchased</th>
-                            <th>Total Spend</th>
-                            <th>Savings Percentage</th>
-                            <th>Unit Price Q1 Price</th>
-                            <th>Unit Price Q2 Price</th>
-                            <th>Unit Price Q3 Price</th>
-                            <th>Unit Price Q4 Price</th>
-                            <th>Web Price</th>
-                            <th>Web Price Q1 Price</th>
-                            <th>Web Price Q2 Price</th>
-                            <th>Web Price Q3 Price</th>
-                            <th>Web Price Q4 Price</th>
-                            <th>Lowest Price</th>
-                        </tr>
-                    </thead>
                 </table>
             </div>
         </div>
@@ -184,9 +175,9 @@
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
                         // Pass date range and supplier ID when making the request
-                        // d.start_date = $('#start_date').val();
-                        // d.end_date = $('#end_date').val();
                         d.year = $('#year').val();
+                        d.core = $('#core').val();
+                        d.supplier = $('#supplier_id').val();
                         d.account_name = $('#account_name').val();
                     },
                 },
@@ -207,23 +198,23 @@
                         $('#business_data_paginate').hide();
                     }
                 },
-
+               
                 columns: [
-                    { data: 'sku', name: 'sku', 'orderable': false, 'searchable': false },
-                    { data: 'description', name: 'description', 'orderable': false, 'searchable': false },
-                    { data: 'uom', name: 'uom', 'orderable': false, 'searchable': false },
-                    { data: 'category', name: 'category', 'orderable': false, 'searchable': false },
-                    { data: 'quantity_purchased', name: 'quantity_purchased', 'orderable': false, 'searchable': false },
-                    { data: 'total_spend', name: 'total_spend', 'orderable': false, 'searchable': false },
-                    { data: 'unit_price_q1_price1', name: 'unit_price_q1_price1', 'orderable': false, 'searchable': false },
-                    { data: 'unit_price_q2_price1', name: 'unit_price_q2_price1', 'orderable': false, 'searchable': false },
-                    { data: 'unit_price_q3_price1', name: 'unit_price_q3_price1', 'orderable': false, 'searchable': false },
-                    { data: 'unit_price_q4_price1', name: 'unit_price_q4_price1', 'orderable': false, 'searchable': false },
-                    { data: 'web_price_q1_price2', name: 'web_price_q1_price2', 'orderable': false, 'searchable': false },
-                    { data: 'web_price_q2_price2', name: 'web_price_q2_price2', 'orderable': false, 'searchable': false },
-                    { data: 'web_price_q3_price2', name: 'web_price_q3_price2', 'orderable': false, 'searchable': false },
-                    { data: 'web_price_q4_price2', name: 'web_price_q4_price2', 'orderable': false, 'searchable': false },
-                    { data: 'lowest_price', name: 'lowest_price', 'orderable': false, 'searchable': false },
+                    { data: 'sku', name: 'sku', 'orderable': false, 'searchable': false, title: 'Sku' },
+                    { data: 'description', name: 'description', 'orderable': false, 'searchable': false, title: 'Description' },
+                    { data: 'uom', name: 'uom', 'orderable': false, 'searchable': false, title: 'UOM' },
+                    { data: 'category', name: 'category', 'orderable': false, 'searchable': false, title: 'Category' },
+                    { data: 'quantity_purchased', name: 'quantity_purchased', 'orderable': false, 'searchable': false, title: 'Quantity Purchased' },
+                    { data: 'total_spend', name: 'total_spend', 'orderable': false, 'searchable': false, title: 'Total Spend' },
+                    { data: 'unit_price_q1_price', name: 'unit_price_q1_price', 'orderable': false, 'searchable': false, title: 'Unit Q1 Price' },
+                    { data: 'unit_price_q2_price', name: 'unit_price_q2_price', 'orderable': false, 'searchable': false, title: 'Unit Q2 Price' },
+                    { data: 'unit_price_q3_price', name: 'unit_price_q3_price', 'orderable': false, 'searchable': false, title: 'Unit Q3 Price' },
+                    { data: 'unit_price_q4_price', name: 'unit_price_q4_price', 'orderable': false, 'searchable': false, title: 'Unit Q4 Price' },
+                    { data: 'web_price_q1_price', name: 'web_price_q1_price', 'orderable': false, 'searchable': false, title: 'Web Q1 Price' },
+                    { data: 'web_price_q2_price', name: 'web_price_q2_price', 'orderable': false, 'searchable': false, title: 'Web Q2 Price' },
+                    { data: 'web_price_q3_price', name: 'web_price_q3_price', 'orderable': false, 'searchable': false, title: 'Web Q3 Price' },
+                    { data: 'web_price_q4_price', name: 'web_price_q4_price', 'orderable': false, 'searchable': false, title: 'Web Q4 Price' },
+                    { data: 'lowest_price', name: 'lowest_price', 'orderable': false, 'searchable': false, title: 'Lowest Price' },
                 ],
             });
             
