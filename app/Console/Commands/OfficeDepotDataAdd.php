@@ -161,6 +161,7 @@ class OfficeDepotDataAdd extends Command
                             'supplier' => 3,
                             'account_name' => $accounts->account_name,
                             'description' => $value->description,
+                            'product_type' => $filter['core'],
                             'uom' => $value->uom,
                             'category' => '',
                             'quantity_purchased' => $value->quantity_purchased,
