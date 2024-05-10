@@ -41,7 +41,7 @@ class ReportController extends Controller
         }
 
         if ($reportType == 'business_report') {
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'accountData' => Account::select('account_name')->groupBy('account_name')->get()]);
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'accountData' => Account::select('account_name')->groupBy('account_name')->get(), 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->whereIn('id', [1,2,3,4,5])->get()]);
         } elseif ($reportType == 'commission_report') {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'sales_rep' => SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'), 'commission.sales_rep as id')->leftJoin('commission', 'commission.sales_rep', '=', 'sales_team.id')->groupBy('commission.sales_rep')->get()]);
         } elseif ($reportType == 'consolidated_report') {
