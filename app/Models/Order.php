@@ -117,7 +117,7 @@ class Order extends Model
         $query->orderBy('orders.amount', 'desc')->limit(100);
         //  dd($query->toSql(), $query->getBindings());
         $orderIdArray = [];
-        // dd($orderIdArray);
+        dd($orderIdArray);
         if ($query->get()) {
             foreach ($query->get() as $key => $value) {
                 $orderIdArray[] = $value->id;
