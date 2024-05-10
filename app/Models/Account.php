@@ -115,10 +115,10 @@ class Account extends Model
         }
 
         /** Group by with account name */
-        $query->groupBy('master_account_detail.account_name');
+        $query->groupBy('master_account_detail.account_name', 'master_account_detail.category_supplier');
 
         /** Get total records count (without filtering) */
-        $totalRecords = $query->count();
+        $totalRecords = $query->getQuery()->getCountForPagination();
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -218,15 +218,13 @@ class Account extends Model
             'master_account_detail.account_name as account_name')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
 
-        
-
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
             /** Group by with account name */
             $query->where('master_account_detail.account_name', $filter['account_name']);
         }
 
         /** Get total records count (without filtering) */
-        $totalRecords = $query->count();
+        $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
