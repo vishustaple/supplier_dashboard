@@ -36,13 +36,13 @@ class Order extends Model
         ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number');
 
         if ($filter['supplier'] == 3) {
-            $query->whereIn('key', ['Core Flag']);
+            // $query->whereIn('key', ['Core Flag']);
 
-            if ($filter['core'] == 1) {
-                $query->whereIn('value', ['N', 'U']);
-            } else {
-                $query->whereIn('value', ['Y']);
-            }
+            // if ($filter['core'] == 1) {
+            //     $query->whereIn('value', ['N', 'U']);
+            // } else {
+            //     $query->whereIn('value', ['Y']);
+            // }
         } else if ($filter['supplier'] == 4) {
             $query->whereIn('key', ['On Contract? ID']);
 
@@ -116,7 +116,7 @@ class Order extends Model
         $query->orderBy('orders.amount', 'desc')->limit(100);
         //  dd($query->toSql(), $query->getBindings());
         $orderIdArray = [];
-        dd($orderIdArray);
+        // dd($orderIdArray);
         if ($query->get()) {
             foreach ($query->get() as $key => $value) {
                 $orderIdArray[] = $value->id;
@@ -126,7 +126,7 @@ class Order extends Model
         if (!empty($orderIdArray)) {
             $query1 = self::query()
             ->select(
-                'orders.amount as total_spend',
+                'orders.amount',
                 DB::raw("MAX(CASE 
                     WHEN `key` = 'UOM' THEN `value`
                     WHEN `key` = 'SUB GROUP 1' THEN `value`
@@ -162,6 +162,12 @@ class Order extends Model
                     WHEN `key` = 'Qty' THEN `value` ELSE NULL END
                 ) AS quantity_purchased"),
                 DB::raw("MAX(CASE 
+                    WHEN `key` = 'Purchase Amount' THEN `value`
+                    WHEN `key` = 'Ext Price' THEN `value`
+                    WHEN `key` = 'Adj Gross Sales' THEN `value`
+                    WHEN `key` = 'Total Spend' THEN `value` ELSE NULL END
+                ) AS total_spend"),
+                DB::raw("MAX(CASE 
                     WHEN `key` = 'Unit Net Price' THEN `value` ELSE NULL END
                 ) AS unit_price"),
                 DB::raw("MAX(CASE 
@@ -171,6 +177,7 @@ class Order extends Model
 
             ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
             ->whereIn('orders.id', $orderIdArray)
+            ->where('orders.amount', '>=', '0')
             ->groupBy('order_product_details.order_id')
             ->orderBy('orders.amount', 'desc');
 
