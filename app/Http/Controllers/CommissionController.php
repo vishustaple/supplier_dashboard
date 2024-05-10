@@ -35,7 +35,7 @@ class CommissionController extends Controller
 
     public function commissionAjaxCustomerSearch(Request $request){
         if ($request->ajax()) {
-            $formatuserdata = Account::getSearchCustomerData($request->input('q'));
+            $formatuserdata = Account::getSearchCustomerData($request->input('q'), $request->input('supplier'));
             return response()->json($formatuserdata);
         }
     }
