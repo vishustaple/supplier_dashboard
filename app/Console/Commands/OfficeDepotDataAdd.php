@@ -159,6 +159,7 @@ class OfficeDepotDataAdd extends Command
                         $dataPrice = $query->first();
                         $newFinalArray[] = [
                             'supplier' => 3,
+                            'sku' => $value->sku,
                             'account_name' => $accounts->account_name,
                             'description' => $value->description,
                             'product_type' => $filter['core'],
@@ -166,7 +167,7 @@ class OfficeDepotDataAdd extends Command
                             'category' => '',
                             'quantity_purchased' => $value->quantity_purchased,
                             'total_spend' => $value->total_spend,
-                            'unit_price_q1_price' => $value->unit_price_q1_price,
+                            'unit_price_q1_price' => $dataPrice->unit_price_q1_price,
                             'unit_price_q2_price' => $dataPrice->unit_price_q2_price,
                             'unit_price_q3_price' => $dataPrice->unit_price_q3_price,
                             'unit_price_q4_price' => $dataPrice->unit_price_q4_price,
