@@ -179,7 +179,7 @@ class OfficeDepotDataAdd extends Command
                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                         ];
                         DB::table('od_report')->insert($newFinalArray);
-                        print_r($newFinalArray);
+                        // print_r($newFinalArray);
                     }
                 }
             }
