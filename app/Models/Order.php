@@ -194,9 +194,9 @@ class Order extends Model
                 }
     
                 if ($filter['core'] == 2) {
-                    $query->where('on_core_spend', '!=', 0);
+                    $query->where('on_core_spend', '>', 0);
                 } else {
-                    $query->where('off_core_spend', '!=', 0);
+                    $query->where('off_core_spend', '>', 0);
                 }
 
                 $query->orderBy('total_spend', 'desc')->limit(100);
