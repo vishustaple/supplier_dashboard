@@ -64,7 +64,6 @@ class ReportController extends Controller
         $filter['year'] = $request->input('year');
         $filter['supplier'] = $request->input('supplier');
         $filter['account_name'] = $request->input('account_name');
-        // dd($filter);
         $csv = true;
 
         /** Fetch data using the parameters and transform it into CSV format */
@@ -82,9 +81,6 @@ class ReportController extends Controller
 
         /** Add column headings */
         $csvWriter->insertOne($heading);
-
-        /** Add column headings */
-        // $csvWriter->insertOne(['Id', 'Customer Number', 'Customer Name', 'Supplier Name', 'Amount', 'Date']);
 
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);
@@ -204,9 +200,6 @@ class ReportController extends Controller
 
         /** Add column headings */
         $csvWriter->insertOne($heading);
-
-        /** Add column headings */
-        // $csvWriter->insertOne(['Id', 'Customer Number', 'Customer Name', 'Supplier Name', 'Amount', 'Date']);
 
         /** Insert the data into the CSV */
         $csvWriter->insertAll($data);

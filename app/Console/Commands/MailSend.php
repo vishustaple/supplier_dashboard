@@ -68,7 +68,6 @@ class MailSend extends Command
                 }
             }
 
-
             if($id == 1 || $id == 2 || $id == 3|| $id == 4){
                 if($id == 4){
                     $currentDay = Carbon::now()->day;
@@ -116,7 +115,6 @@ class MailSend extends Command
                             }
                         }
                     }
-
                 }
 
                 /** Get the current month start date */
