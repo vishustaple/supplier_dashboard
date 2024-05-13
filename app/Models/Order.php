@@ -30,59 +30,41 @@ class Order extends Model
     }
 
     public static function getFilterdData($filter = [], $csv=false){
-        $query = self::query() // Replace YourModel with the actual model you are using for the data
-        ->select('orders.id as id') 
-        ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
-        ->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number');
+        // dd($filter);
+        $year = $filter['year'];
+        $res[1] =['January', 'February', 'March'];
+        $res[2] = ['April', 'May', 'June'];
+        $res[3] = ['July', 'August', 'September'];
+        $res[4] = ['October', 'November', 'December'];
 
-        if ($filter['supplier'] == 3) {
-            // $query->whereIn('key', ['Core Flag']);
-
-            // if ($filter['core'] == 1) {
-            //     $query->whereIn('value', ['N', 'U']);
-            // } else {
-            //     $query->whereIn('value', ['Y']);
-            // }
-        } else if ($filter['supplier'] == 4) {
-            $query->whereIn('key', ['On Contract? ID']);
-
-            if ($filter['core'] == 1) {
-                $query->whereIn('value', ['N']);
-            } else {
-                $query->whereIn('value', ['Y']);
-            }
-        } else if ($filter['supplier'] == 5) {
-            $query->whereIn('key', ['Price Method']);
-
-            if ($filter['core'] == 2) {
-                $query->orWhere('value', 'LIKE', 'PPL%')->orWhere('value', 'LIKE', 'CTL%');
-            } else {
-                $query->orWhere('value', 'NOT LIKE', 'PPL%')->orWhere('value', 'NOT LIKE', 'CTL%');
-            } 
-        } else if ($filter['supplier'] == 2) {
-            $query->whereIn('key', ['Active Price Point']);
-
-            if ($filter['core'] == 2) {
-                $query->whereIn('value', ['CSP']);
-            }
-        } else if ($filter['supplier'] == 1) {
-            if ($filter['core'] == 1) {
-                $query->whereIn('key', ['OFF-CORE SPEND']);
-                $query->whereNotNull('value');
-            } else {
-                $query->whereIn('key', ['ON-CORE SPEND']);
-                $query->whereNotNull('value');
-            }
-        } else {
-
+        $monthDates = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $start = date('Y-m-01', strtotime("$year-$month-01"));
+            $end = date('Y-m-t', strtotime("$year-$month-01"));
+    
+            $monthDates[] = [
+                'start_date' => $start,
+                'end_date' => $end,
+            ];
         }
 
-        if (isset($filter['year'])) {
-            $query->whereYear('orders.date', $filter['year']);
-        }
+        $startDate1 = $monthDates[0]['start_date'];
+        $endDate1 = $monthDates[2]['end_date'];
+        
+        $startDate2 = $monthDates[3]['start_date'];
+        $endDate2 = $monthDates[5]['end_date'];
+        
+        $startDate3 = $monthDates[6]['start_date'];
+        $endDate3 = $monthDates[8]['end_date'];
+        
+        $startDate4 = $monthDates[9]['start_date'];
+        $endDate4 = $monthDates[11]['end_date'];
+
+        $query = DB::table('master_account_detail')->select('master_account_detail.account_number as account_number');
+        $query->where('master_account_detail.category_supplier', $filter['supplier']);
 
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
-            $query->where('master_account_detail.account_name', $filter['account_name']);
+            $query->where('account_name', $filter['account_name']);
         } else {
             if ($csv == true) {
                 $finalArray['heading'] = [
@@ -112,99 +94,160 @@ class Order extends Model
             }
         }
 
-        $query->groupBy('order_product_details.order_id');
-        $query->orderBy('orders.amount', 'desc')->limit(100);
-        //  dd($query->toSql(), $query->getBindings());
-        $orderIdArray = [];
-        // dd($orderIdArray);
-        if ($query->get()) {
-            foreach ($query->get() as $key => $value) {
-                $orderIdArray[] = $value->id;
-            }
+        $accountNumber = [];
+        foreach ($query->get() as $key => $value) {
+            $accountNumber[] = $value->account_number;
         }
 
-        if (!empty($orderIdArray)) {
-            $query1 = self::query()
-            ->select(
-                'orders.amount',
-                DB::raw("MAX(CASE 
-                    WHEN `key` = 'UOM' THEN `value`
-                    WHEN `key` = 'SUB GROUP 1' THEN `value`
-                    WHEN `key` = 'Billing Document' THEN `value`
-                    WHEN `key` = 'Uo M' THEN `value`
-                    WHEN `key` = 'Sell UOM ID' THEN `value` ELSE NULL END
-                ) AS uom"),
-                DB::raw("MAX(CASE 
-                    WHEN `key` = 'SKU' THEN `value`
-                    WHEN `key` = 'PRODUCT' THEN `value`
-                    WHEN `key` = 'Material' THEN `value`
-                    WHEN `key` = 'Item Num' THEN `value`
-                    WHEN `key` = 'SKU ID' THEN `value` ELSE NULL END
-                ) AS sku"),
-                DB::raw("MAX(CASE 
-                    WHEN `key` = 'Product Description' THEN `value`
-                    WHEN `key` = 'DESCRIPTION' THEN `value`
-                    WHEN `key` = 'Material Description' THEN `value`
-                    WHEN `key` = 'Item Name' THEN `value`
-                    WHEN `key` = 'Item Description ID' THEN `value` ELSE NULL END
-                ) AS description"),
-                DB::raw("MAX(CASE 
-                    WHEN `key` = 'CLASS' THEN `value`
-                    WHEN `key` = 'CATEGORIES' THEN `value`
-                    WHEN `key` = 'Material Segment' THEN `value`
-                    WHEN `key` = 'Category' THEN `value`
-                    WHEN `key` = 'Primary Product Hierarchy DESC' THEN `value` ELSE NULL END
-                ) AS category"),
-                DB::raw("MAX(CASE 
-                    WHEN `key` = 'QTY Shipped' THEN `value`
-                    WHEN `key` = 'QUANTITYSHIPPED' THEN `value`
-                    WHEN `key` = 'Billing Qty' THEN `value`
-                    WHEN `key` = 'Qty' THEN `value` ELSE NULL END
-                ) AS quantity_purchased"),
-                DB::raw("MAX(CASE 
-                    WHEN `key` = 'Purchase Amount' THEN `value`
-                    WHEN `key` = 'Ext Price' THEN `value`
-                    WHEN `key` = 'Adj Gross Sales' THEN `value`
-                    WHEN `key` = 'Total Spend' THEN `value` ELSE NULL END
-                ) AS total_spend"),
-                DB::raw("MAX(CASE 
-                    WHEN `key` = 'Unit Net Price' THEN `value` ELSE NULL END
-                ) AS unit_price"),
-                DB::raw("MAX(CASE 
-                    WHEN `key` = '(Unit) Web Price' THEN `value` ELSE NULL END
-                ) AS web_price"),
+        if ($filter['supplier'] == 3) {
+            $query = DB::table('office_depot_order')
+            ->selectRaw(
+                'sku, uom, SUM(qty_shipped) as quantity_purchased, product_description as description, SUM(total_spend) as total_spend,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q1_price,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q2_price,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q3_price,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q4_price,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q1_price,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q2_price,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q3_price,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q4_price,
+                MIN(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`total_spend` ELSE 0 END) AS lowest_price',
+                [$startDate1,$endDate1,$startDate2,$endDate2,$startDate3,$endDate3,$startDate4,$endDate4,$startDate1,$endDate1,$startDate2,$endDate2,$startDate3,$endDate3,$startDate4,$endDate4,$startDate1,$endDate4]
             )
+            ->groupBy('sku');
+            $query->whereIn('customer_id', $accountNumber);
 
-            ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
-            ->whereIn('orders.id', $orderIdArray)
-            ->where('orders.amount', '>=', '0')
-            ->groupBy('order_product_details.order_id')
-            ->orderBy('orders.amount', 'desc');
+            if (isset($filter['year'])) {
+                $query->whereYear('shipped_date', $filter['year']);
+            }
 
-            $queryData = $query1->get();
-            // dd($queryData);
-            $newFinalArray = [];
-            foreach ($queryData as $key => $value) {
+            if ($filter['core'] == 1) {
+                $query->whereIn('core_flag', ['N']);
+            } else {
+                $query->whereIn('core_flag', ['Y']);
+            }
+
+            $query->orderBy('total_spend', 'desc')->limit(100);
+            $queryData = $query->get();
+        } else if ($filter['supplier'] == 4) {
+            $query = DB::table('staples_order')
+            ->selectRaw('sku_id AS sku, sell_uom_id AS uom, SUM(qty) AS quantity_purchased, item_description_id AS description, primary_product_hierarchy_desc AS category, SUM(adj_gross_sales) as total_spend')
+            ->groupBy('sku_id');
+            $query->whereIn('master_customer_number_id', $accountNumber);
+
+            if (isset($filter['year'])) {
+                $query->whereYear('shipped_date_id', $filter['year']);
+            }
+
+            if ($filter['core'] == 1) {
+                $query->whereNotIn('on_contract_id', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
+            } else {
+                $query->whereIn('on_contract_id', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
+            }
+
+            $query->orderBy('total_spend', 'desc')->limit(100);
+            $queryData = $query->get();
+            } else if ($filter['supplier'] == 5) {
+                $query = DB::table('wb_mason_order')
+                ->selectRaw('category_umbrella AS category, uom, SUM(qty) AS quantity_purchased, item_num AS sku, item_name AS description, SUM(ext_price) as total_spend')
+                ->groupBy('item_num');
+                $query->whereIn('customer_num', $accountNumber);
+    
+                if (isset($filter['year'])) {
+                    $query->whereYear('invoice_date', $filter['year']);
+                }
+    
+                if ($filter['core'] == 2) {
+                    $query->orWhere('price_method', 'LIKE', 'PPL%')->orWhere('price_method', 'LIKE', 'CTL%');
+                } else {
+                    $query->orWhere('price_method', 'NOT LIKE', 'PPL%')->orWhere('price_method', 'NOT LIKE', 'CTL%');
+                } 
+
+                $query->orderBy('total_spend', 'desc')->limit(100);
+                $queryData = $query->get();
+            } else if ($filter['supplier'] == 2) {
+                $query = DB::table('grainger_order')
+                ->selectRaw('material  AS sku, material_description AS description, material_segment AS category, SUM(billing_qty) AS quantity_purchased, SUM(purchase_amount) as total_spend')
+                ->groupBy('material');
+                $query->whereIn('account_number', $accountNumber);
+    
+                if (isset($filter['year'])) {
+                    $query->whereYear('bill_date', $filter['year']);
+                }
+    
+                if ($filter['core'] == 2) {
+                    $query->whereIn('active_price_point', ['CSP']);
+                } else {
+                    $query->whereNotIn('active_price_point', ['CSP']);
+                }
+
+                $query->orderBy('total_spend', 'desc')->limit(100);
+                $queryData = $query->get();
+            } else if ($filter['supplier'] == 1) {
+                $query = DB::table('g_and_t_laboratories_charles_river_order')
+                ->selectRaw('product  AS sku, description AS description, categories AS category, SUM(quantity_shipped) AS quantity_purchased, SUM(total_spend) as total_spend')
+                ->groupBy('product');
+                $query->whereIn('sold_to_account', $accountNumber);
+    
+                if (isset($filter['year'])) {
+                    $query->whereYear('date', $filter['year']);
+                }
+    
+                if ($filter['core'] == 2) {
+                    $query->where('on_core_spend', '!=', 0);
+                } else {
+                    $query->where('off_core_spend', '!=', 0);
+                }
+
+                $query->orderBy('total_spend', 'desc')->limit(100);
+                $queryData = $query->get();
+            } else {
+
+            }
+
+        $newFinalArray = [];
+        foreach ($queryData as $key => $value) {
+            if ($filter['supplier'] != 3) {
+                $newFinalArray[] = [
+                    'sku' => ((isset($value->sku)) ? ($value->sku) : ('')),
+                    'description' => ((isset($value->description)) ? ($value->description) : ('')),
+                    'uom' => ((isset($value->uom) && !in_array($filter['supplier'], [2])) ? ($value->uom) : ('')),
+                    'category' => ((isset($value->category)) ? ($value->category) : ('')),
+                    'quantity_purchased' => ((isset($value->quantity_purchased)) ? ($value->quantity_purchased) : ('')),
+                    'total_spend' => (($csv) ? ($value->total_spend) : ('$'.number_format($value->total_spend, 2))),
+                    'unit_price_q1_price' => '',
+                    'unit_price_q2_price' => '',
+                    'unit_price_q3_price' => '',
+                    'unit_price_q4_price' => '',
+                    'web_price_q1_price' => '',
+                    'web_price_q2_price' => '',
+                    'web_price_q3_price' => '',
+                    'web_price_q4_price' => '',
+                    'lowest_price' => '',
+                ];
+            } else {
                 $newFinalArray[] = [
                     'sku' => $value->sku,
                     'description' => $value->description,
                     'uom' => $value->uom,
-                    'category' => $value->category,
+                    'category' => '',
                     'quantity_purchased' => $value->quantity_purchased,
                     'total_spend' => (($csv) ? ($value->total_spend) : ('$'.number_format($value->total_spend, 2))),
-                    'unit_price_q1_price' => (($csv) ? ($value->unit_price) : ('$'.number_format($value->unit_price, 2))),
-                    'unit_price_q2_price' => $value->unit_price_q2_price,
-                    'unit_price_q3_price' => $value->unit_price_q3_price,
-                    'unit_price_q4_price' => $value->unit_price_q4_price,
-                    'web_price_q1_price' => (($csv) ? ($value->web_price) : ('$'.number_format($value->web_price, 2))),
-                    'web_price_q2_price' => $value->web_price_q2_price,
-                    'web_price_q3_price' => $value->web_price_q3_price,
-                    'web_price_q4_price' => $value->web_price_q4_price,
-                    'lowest_price' => $value->lowest_price,
+                    'unit_price_q1_price' => (($csv) ? ($value->unit_price_q1_price) : ('$'.number_format($value->unit_price_q1_price, 2))),
+                    'unit_price_q2_price' =>  (($csv) ? ($value->unit_price_q2_price) : ('$'.number_format($value->unit_price_q2_price, 2))),
+                    'unit_price_q3_price' =>  (($csv) ? ($value->unit_price_q3_price) : ('$'.number_format($value->unit_price_q3_price, 2))),
+                    'unit_price_q4_price' =>  (($csv) ? ($value->unit_price_q4_price) : ('$'.number_format($value->unit_price_q4_price, 2))),
+                    'web_price_q1_price' => (($csv) ? ($value->web_price_q1_price) : ('$'.number_format($value->web_price_q1_price, 2))),
+                    'web_price_q2_price' => (($csv) ? ($value->web_price_q2_price) : ('$'.number_format($value->web_price_q2_price, 2))),
+                    'web_price_q3_price' => (($csv) ? ($value->web_price_q3_price) : ('$'.number_format($value->web_price_q3_price, 2))),
+                    'web_price_q4_price' => (($csv) ? ($value->web_price_q4_price) : ('$'.number_format($value->web_price_q4_price, 2))),
+                    'lowest_price' => (($csv) ? ($value->lowest_price) : ('$'.number_format($value->lowest_price, 2))),
                 ];
             }
+        }
 
-            if ($csv == true) {
+        if ($csv == true) {
+            if ($filter['supplier'] == 3) {
                 $newFinalArray['heading'] = [
                     'Sku',
                     'Description',
@@ -222,41 +265,23 @@ class Order extends Model
                     'Web Q4 Price',
                     'Lowest Price',
                 ];
-                return $newFinalArray;
             } else {
-                return [
-                    'data' => $newFinalArray,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                ];
-            }
-        } else {
-            if ($csv == true) {
-                $finalArray['heading'] = [
+                $newFinalArray['heading'] = [
                     'Sku',
                     'Description',
                     'Uom',
                     'Category',
                     'Quantity Purchased',
                     'Total Spend',
-                    'Unit Q1 Price',
-                    'Unit Q2 Price',
-                    'Unit Q3 Price',
-                    'Unit Q4 Price',
-                    'Web Q1 Price',
-                    'Web Q2 Price',
-                    'Web Q3 Price',
-                    'Web Q4 Price',
-                    'Lowest Price',
-                ];
-                return $finalArray;
-            } else {
-                return [
-                    'data' => [],
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
                 ];
             }
+            return $newFinalArray;
+        } else {
+            return [
+                'data' => $newFinalArray,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
         }
     }
 
