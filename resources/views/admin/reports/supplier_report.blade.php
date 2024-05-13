@@ -133,8 +133,8 @@
             // Calculate start and end dates based on the selected range
             switch(selectedRange) {
                 case '1':
-                    startDate = moment().subtract(3, 'month').startOf('quarter').format('YYYY-MM-DD');
-                    endDate = moment().subtract(1, 'month').endOf('quarter').format('YYYY-MM-DD');
+                    startDate = moment().clone().subtract(3, 'months').startOf('quarter');
+                    endDate = startDate.clone().endOf('quarter');
                     break;
                 case '2':
                     startDate = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD');
