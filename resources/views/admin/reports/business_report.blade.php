@@ -10,7 +10,7 @@
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
                     <div class="row align-items-end py-3 border-top border-bottom mb-3">
-                    <div class="form-group col-md-3 mb-0">
+                    <div class="form-group col-md-2 mb-0">
                         <label for="supplier">Select Supplier:</label>
                         <select id="supplier_id" name="supplier" class="form-control" required> 
                             <option value="" selected>--Select--</option>
@@ -22,7 +22,7 @@
                         </select>
                     </div>
                    
-                        <div class="form-group col-md-2 mb-0">
+                        <div class="form-group col-md-3 mb-0">
                             <label for="selectBox">Select Account:</label>
                             <select id="account_name" name="account_name" class="form-control"> 
                                 
@@ -83,6 +83,10 @@
         #business_data thead tr th {
             white-space: nowrap;
         }
+        .select2-container .select2-selection--single{
+            height: 38px !important;
+            padding-top: 5px;
+        }
         </style>
     <!-- Include Date Range Picker JavaScript -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
@@ -99,6 +103,7 @@
 
             function hideColumns() {
                 if ($('#supplier_id').val() != 3) {
+                    businessdataTable.column('category:name').visible(false);
                     businessdataTable.column('unit_price_q1_price:name').visible(false);
                     businessdataTable.column('unit_price_q2_price:name').visible(false);
                     businessdataTable.column('unit_price_q3_price:name').visible(false);
@@ -109,6 +114,7 @@
                     businessdataTable.column('web_price_q4_price:name').visible(false);
                     businessdataTable.column('lowest_price:name').visible(false);
                 } else {
+                    businessdataTable.column('category:name').visible(true);
                     businessdataTable.column('unit_price_q1_price:name').visible(true);
                     businessdataTable.column('unit_price_q2_price:name').visible(true);
                     businessdataTable.column('unit_price_q3_price:name').visible(true);
@@ -118,6 +124,12 @@
                     businessdataTable.column('web_price_q3_price:name').visible(true);
                     businessdataTable.column('web_price_q4_price:name').visible(true);
                     businessdataTable.column('lowest_price:name').visible(true);
+                }
+
+                if ($('#supplier_id').val() == 1 || $('#supplier_id').val() == 2) {
+                    businessdataTable.column('uom:name').visible(false);
+                } else {
+                    businessdataTable.column('uom:name').visible(true);
                 }
             }
 
@@ -241,7 +253,11 @@
             var csvUrl = '{{ route('report.export-csv') }}';
 
             // Add query parameters for date range and supplier ID
-            csvUrl += '?account_name=' + $('#account_name').val() + 'supplier=' + $('#supplier_id').val() + 'year=' + $('#year').val();
+            csvUrl += '?account_name=' + encodeURIComponent($('#account_name').val()) +
+            '&supplier=' + encodeURIComponent($('#supplier_id').val()) +
+            '&year=' + encodeURIComponent($('#year').val()) +
+            '&core=' + encodeURIComponent($('#core').val());
+
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
         }
