@@ -10,18 +10,18 @@
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
                     <div class="row align-items-end py-3 border-top border-bottom mb-3">
-                    <div class="form-group col-md-2 mb-0">
-                        <label for="supplier">Select Supplier:</label>
-                        <select id="supplier_id" name="supplier" class="form-control" required> 
-                            <option value="" selected>--Select--</option>
-                            @if(isset($categorySuppliers))
-                                @foreach($categorySuppliers as $categorySupplier)
-                                    <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                    </div>
-                   
+                        <div class="form-group col-md-2 mb-0">
+                            <label for="supplier">Select Supplier:</label>
+                            <select id="supplier_id" name="supplier" class="form-control" required> 
+                                <option value="" selected>--Select--</option>
+                                @if(isset($categorySuppliers))
+                                    @foreach($categorySuppliers as $categorySupplier)
+                                        <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    
                         <div class="form-group col-md-3 mb-0">
                             <label for="selectBox">Select Account:</label>
                             <select id="account_name" name="account_name" class="form-control"> 
@@ -47,14 +47,12 @@
                         <div class="form-group col-md-4 mb-0" id="selectContainer" style="display:none;">                        
                         </div>
                         <div class="col-md-3 mt-1 mb-0 text-end">
-                        <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
-                        <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                            <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
+                            <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                         </div>
-                        <!-- Button trigger modal -->
                     </div>
                 </form>
-                <table class="data_table_files" id="business_data">
-                </table>
+                <table class="data_table_files" id="business_data"></table>
             </div>
         </div>
     </div>
@@ -87,7 +85,7 @@
             height: 38px !important;
             padding-top: 5px;
         }
-        </style>
+    </style>
     <!-- Include Date Range Picker JavaScript -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
@@ -103,7 +101,7 @@
 
             function hideColumns() {
                 if ($('#supplier_id').val() != 3) {
-                    businessdataTable.column('category:name').visible(false);
+                    businessdataTable.column('category:name').visible(true);
                     businessdataTable.column('unit_price_q1_price:name').visible(false);
                     businessdataTable.column('unit_price_q2_price:name').visible(false);
                     businessdataTable.column('unit_price_q3_price:name').visible(false);
@@ -114,7 +112,7 @@
                     businessdataTable.column('web_price_q4_price:name').visible(false);
                     businessdataTable.column('lowest_price:name').visible(false);
                 } else {
-                    businessdataTable.column('category:name').visible(true);
+                    businessdataTable.column('category:name').visible(false);
                     businessdataTable.column('unit_price_q1_price:name').visible(true);
                     businessdataTable.column('unit_price_q2_price:name').visible(true);
                     businessdataTable.column('unit_price_q3_price:name').visible(true);

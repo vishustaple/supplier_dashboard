@@ -114,13 +114,8 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script>
         $(document).ready(function() {
-            $('input[name="start_date"]').datepicker({
-                // dateFormat: 'yy-mm-dd'  // Set default date format
-            });
-
-            $('input[name="end_date"]').datepicker({
-                // dateFormat: 'yy-mm-dd'  // Set default date format
-            });
+            $('input[name="start_date"]').datepicker();
+            $('input[name="end_date"]').datepicker();
 
             $("#select_dates").on('change', function() {
                 var selectedRange = $(this).val(); // Get the selected range
@@ -129,8 +124,8 @@
                 // Calculate start and end dates based on the selected range
                 switch(selectedRange) {
                     case '1':
-                        startDate = moment().subtract(3, 'month').startOf('quarter').format('YYYY-MM-DD');
-                        endDate = moment().subtract(1, 'month').endOf('quarter').format('YYYY-MM-DD');
+                        startDate = moment().clone().subtract(3, 'months').startOf('quarter');
+                        endDate = startDate.clone().endOf('quarter');
                         break;
                     case '2':
                         startDate = moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD');
