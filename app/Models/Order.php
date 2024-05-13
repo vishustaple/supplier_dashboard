@@ -30,7 +30,6 @@ class Order extends Model
     }
 
     public static function getFilterdData($filter = [], $csv=false){
-        // dd($filter);
         $year = $filter['year'];
         $res[1] =['January', 'February', 'March'];
         $res[2] = ['April', 'May', 'June'];
