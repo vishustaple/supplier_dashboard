@@ -139,9 +139,9 @@ class Order extends Model
             }
 
             if ($filter['core'] == 1) {
-                $query->whereNotIn('on_contract_id', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
+                $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
             } else {
-                $query->whereIn('on_contract_id', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
+                $query->whereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
