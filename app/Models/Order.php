@@ -934,9 +934,6 @@ class Order extends Model
             0 => 'suppliers.supplier_name',
             1 => 'master_account_detail.account_name',
             2 => 'spend',
-            // 3 => '',
-            4 => 'current_rolling_spend',
-            5 => 'previous_rolling_spend',
         ];
 
         $supplierColumnArray = [
@@ -954,40 +951,49 @@ class Order extends Model
             12 => 'Packaging',
         ];
 
-        /** Year and quarter filter here */
-        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
-            $endDate = $filter['end_date'];
-            $startDate = $filter['start_date'];
-
-            // Assuming $startDate and $endDate are already calculated for the current quarter or year
-            $prevStartDate = $endDate;
-            $prevEndDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($endDate)));
-            $prevStartDate1 = $prevEndDate;
-            $prevEndDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevEndDate)));
-        } else {
-            $startDate = Carbon::now()->format('Y-m-d H:i:s');
-            $endDate = date('Y-m-d H:i:s', strtotime('+1 year', strtotime($startDate)));
-            $prevStartDate = $endDate;
-            $prevEndDate = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($endDate)));
-            $prevStartDate1 = $prevEndDate;
-            $prevEndDate1 = date('Y-m-d H:i:s', strtotime('-1 year', strtotime($prevEndDate)));
-        }
-
         $query = self::query() // Replace YourModel with the actual model you are using for the data   
         ->selectRaw(
             'suppliers.supplier_name as supplier_name,
             suppliers.id as supplier_id,
             master_account_detail.account_name as account_name,
-            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS spend,
-            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS current_rolling_spend,
-            SUM(CASE WHEN `orders`.`date` BETWEEN ? AND ? THEN `orders`.`amount` ELSE 0 END) AS previous_rolling_spend',
-            [$startDate, $endDate, $prevStartDate, $prevEndDate, $prevStartDate1, $prevEndDate1]
+            SUM(`orders`.`amount`) as spend'
         );
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
 
+        /** Year and quarter filter here */
+        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+            $endDate = $filter['end_date'];
+            $startDate = $filter['start_date'];
+
+            $query->whereBetween('orders.date', [$startDate, $endDate]);
+        }
+
         $totalRecords = 0;
+        if (isset($filter['account_name']) && !empty($filter['account_name'])) {
+            $query->where('master_account_detail.account_name', $filter['account_name']);
+        } else {
+            if ($csv == true) {
+                $finalArray['heading'] = [
+                    'Supplier Name',
+                    'Account Name',
+                    'Spend',
+                    'Category',
+                ];
+
+                return $finalArray;
+            } else {
+                return [
+                    'data' => [],
+                    'recordsTotal' => $totalRecords,
+                    'recordsFiltered' => 0,
+                ];
+            }
+        }
+
+        $query->groupBy('orders.supplier_id', 'master_account_detail.account_name');
+
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
             $totalRecords = $query->getQuery()->getCountForPagination();
             $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
@@ -1001,8 +1007,6 @@ class Order extends Model
                     'Account Name',
                     'Spend',
                     'Category',
-                    'Current Rolling Spend',
-                    'Previous Rolling Spend',
                 ];
 
                 return $finalArray;
@@ -1021,7 +1025,7 @@ class Order extends Model
 
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
                 foreach ($orderColumnArray as $column) {
-                    if (in_array($column, ['current_rolling_spend', 'previous_rolling_spend', 'spend'])) {
+                    if (in_array($column, ['spend'])) {
                         $q->having('spend', 'LIKE', '%' . $searchTerm . '%');
                     } else {
                         $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
@@ -1053,15 +1057,11 @@ class Order extends Model
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] = $value->spend;
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
-                $finalArray[$key]['current_rolling_spend'] = $value->current_rolling_spend;
-                $finalArray[$key]['previous_rolling_spend'] = $value->previous_rolling_spend;
             } else {
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] = '$'.number_format($value->spend, 2);
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
-                $finalArray[$key]['current_rolling_spend'] = '$'.number_format($value->current_rolling_spend, 2);
-                $finalArray[$key]['previous_rolling_spend'] = '$'.number_format($value->previous_rolling_spend, 2);
             }
         }
         // dd($query->toSql(), $query->getBindings());
@@ -1073,8 +1073,6 @@ class Order extends Model
                 'Account Name',
                 'Spend',
                 'Category',
-                'Current Rolling Spend',
-                'Previous Rolling Spend',
             ];
             return $finalArray;
         } else {
