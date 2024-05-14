@@ -58,7 +58,7 @@ class ExcelImportController extends Controller
             ];
             $i++;
         }
-
+        dd($formattedData);
         $pageTitle = "Upload Sheets";
         $data=json_encode($formattedData);
  
