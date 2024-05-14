@@ -6,6 +6,7 @@
     use Illuminate\Support\Str;
     use Illuminate\Http\Request;
     use Illuminate\Console\Command;
+    use Illuminate\Support\Facades\DB;
     use Illuminate\Support\Facades\Log;
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Support\Facades\Mail;
@@ -244,9 +245,9 @@
 
         public function UserRemove(Request $request)
         {
-            
-                $data = User::where('id',$request->id)->delete();
-                return response()->json(['success' => true]);
+            // $data = User::where('id',$request->id)->delete();
+            DB::table('users')->where('id', $request->id)->delete();
+            return response()->json(['success' => true]);
         }
 
         public function createPassword(Request $request){
