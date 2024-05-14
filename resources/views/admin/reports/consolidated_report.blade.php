@@ -30,50 +30,41 @@
                             <label for="enddate">Select Date:</label>
                             <div class="row">
                                 <div class="col-6 align-items-center">
-                            <label for="enddate" class="pe-2">From:</label>
-                            <input class="form-control" type="text" name="start_date" id="start_date">
+                                    <label for="enddate" class="pe-2">From:</label>
+                                    <input class="form-control" type="text" name="start_date" id="start_date">
                                 </div>
                                 <div class="col-6 align-items-center">
-                            <label for="enddate" class="pe-2">To:</label>
-                            <input class="form-control" type="text" name="end_date" id="end_date">
-                                </div>
-                                
+                                    <label for="enddate" class="pe-2">To:</label>
+                                    <input class="form-control" type="text" name="end_date" id="end_date">
+                                </div>  
                             </div>
                             <div class="row pt-3 align-items-center">
-                            <div class="form-group relative col-md-6 col-4 mb-0">
-                            <label>Select Quarter</label>
-                                <select class="form-select" name="select_dates" id="select_dates">
-                                    <option value="0" selected>Select</option>
-                                    <option value="1">Last Quarter</option>
-                                    <option value="2">Last Year</option>
-                                    <option value="3">Last Month</option>
-                                    <option value="4">Last 6 Months</option>
-                                </select>
-                                <input type="text" name="date1" value="" id="date1" hidden>
-                                <input type="text" name="date2" value="" id="date2" hidden>
+                                <div class="form-group relative col-md-6 col-4 mb-0">
+                                    <label>Select Quarter</label>
+                                    <select class="form-select" name="select_dates" id="select_dates">
+                                        <option value="0" selected>Select</option>
+                                        <option value="1">Last Quarter</option>
+                                        <option value="2">Last Year</option>
+                                        <option value="3">Last Month</option>
+                                        <option value="4">Last 6 Months</option>
+                                    </select>
+                                    <input type="text" name="date1" value="" id="date1" hidden>
+                                    <input type="text" name="date2" value="" id="date2" hidden>
+                                </div>
+                                <div class="form-group col-md-6 mb-0">
+                                    <label for="selectBox">Select Account:</label>
+                                    <select id="account_name" name="account_name" class="form-control"></select>
+                                </div>
+                                <div class="col-md-6 mt-1 mb-0 ms-auto text-end">
+                                    <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
+                                    <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+                                    <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-2 fa-file-pdf"></i>PDF</button>
+                                </div>
                             </div>
-                            <div class="form-group col-md-6 mb-0">
-                                <label for="selectBox">Select Account:</label>
-                                <select id="account_name" name="account_name" class="form-control"></select>
-                            </div>
-                        <div class="col-md-6 mt-1 mb-0 ms-auto text-end">
-                            <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
-                            <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                         </div>
-                            </div>
-                        </div>
-                       
-                        <!-- <div class="form-group relative col-md-4 mb-0">  
-                            <label for="enddate">Select Date:</label>
-                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date "  readonly>
-                            <input type="hidden" id="start_date" name="start_date" />
-                            <input type="hidden" id="end_date" name="end_date" />  
-                        </div> -->
-                        
                     </div>
                 </form>
-                <table class="data_table_files" id="consolidated_supplier_data">
-                </table>
+                <table class="data_table_files" id="consolidated_supplier_data"></table>
             </div>
         </div>
     </div>
@@ -126,6 +117,18 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            $('#select_dates').on('change', function(){
+                var selectValue = $(this).val();
+
+                if (selectValue == 0) {
+                    $('#start_date').prop('disabled', false);
+                    $('#end_date').prop('disabled', false);
+                } else {
+                    $('#start_date').prop('disabled', true);
+                    $('#end_date').prop('disabled', true);
+                }
+            });
+
             $('.checkboxs').click(function(){
                 var anyChecked = false;
         

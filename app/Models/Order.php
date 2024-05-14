@@ -973,23 +973,6 @@ class Order extends Model
         $totalRecords = 0;
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
             $query->where('master_account_detail.account_name', $filter['account_name']);
-        } else {
-            if ($csv == true) {
-                $finalArray['heading'] = [
-                    'Supplier Name',
-                    'Account Name',
-                    'Spend',
-                    'Category',
-                ];
-
-                return $finalArray;
-            } else {
-                return [
-                    'data' => [],
-                    'recordsTotal' => $totalRecords,
-                    'recordsFiltered' => 0,
-                ];
-            }
         }
 
         $query->groupBy('orders.supplier_id', 'master_account_detail.account_name');
