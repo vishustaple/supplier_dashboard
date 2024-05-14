@@ -25,8 +25,9 @@ class ExcelImportController extends Controller
 {
     public function index(){
         $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
-
-        $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
+        $uploadData = UploadedFiles::query()->selectRaw("`uploaded_files`.*, CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name")
+        ->leftJoin('users', 'uploaded_files.created_by', '=', 'users.id')
+        ->get();
         // echo"<pre>";
         // print_r($uploadData);
         // die;
@@ -47,21 +48,11 @@ class ExcelImportController extends Controller
                 $cronString = 'Deleted';
             }
             
-            $userName = '';
-            if ($item->createdByUser) {
-                if (isset($item->createdByUser->first_name)) {
-                    $userName .= $item->createdByUser->first_name;
-                }
-                if (isset($item->createdByUser->last_name)) {
-                    $userName .= ' ' . $item->createdByUser->last_name;
-                }
-            }
-
             $formattedData[] = [
                 getSupplierName($item->supplier_id),
                 '<div class="file_td">'.$item->file_name.'</div>',
                 $cronString,
-                $userName,
+                $item->user_name,
                 $item->created_at->format('m/d/Y'),
                 (isset($item->delete) && !empty($item->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : ((isset($item->deleted_at) && !empty($item->deleted_at) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$item->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>')),
             ];
