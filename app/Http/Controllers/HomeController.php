@@ -245,13 +245,13 @@
 
         public function UserRemove(Request $request)
         {
-            // Disable foreign key checks
+            /** Disable foreign key checks */
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
             // $data = User::where('id',$request->id)->delete();
             DB::table('users')->where('id', $request->id)->delete();
             
-            // Re-enable foreign key checks
+            /** Re-enable foreign key checks */
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
             return response()->json(['success' => true]);
         }
