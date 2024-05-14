@@ -49,7 +49,6 @@ class UploadedFiles extends Model
     }
 
     public static function getFilterdExcelData($filter = []){
-
         $orderColumnArray = [
             0 => 'uploaded_files.supplier_id',
             1 => 'uploaded_files.file_name',
@@ -59,19 +58,21 @@ class UploadedFiles extends Model
             5 => 'uploaded_files.id',
         ];
          
-        $query = self::query() /** Eager load relationships */
-        ->withTrashed()->select('uploaded_files.file_name as file_name',
-         'uploaded_files.created_by as created_by',
-         'uploaded_files.cron as cron',
-         'uploaded_files.id as id',
-         'uploaded_files.created_at as created_at',
-         'uploaded_files.deleted_at as deleted_at',
-         'suppliers.supplier_name as supplier_name')
+        $query = self::query()->selectRaw(
+            "`uploaded_files`.`file_name` as file_name,
+            `uploaded_files`.`created_by` as created_by,
+            `uploaded_files`.`cron` as cron,
+            `uploaded_files`.`id` as id,
+            `uploaded_files`.`created_at` as created_at,
+            `uploaded_files`.`deleted_at` as deleted_at,
+            `suppliers`.`supplier_name` as supplier_name,
+            CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name"
+        )
+        ->leftJoin('users', 'uploaded_files.created_by', '=', 'users.id')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id');
        
-       
-         /** Search functionality */
-         if(isset($filter['search']['value']) && !empty($filter['search']['value'])) {
+        /** Search functionality */
+        if(isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
 
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
@@ -85,14 +86,6 @@ class UploadedFiles extends Model
 
         /** Get total records count (without filtering) */
         $totalRecords = $query->count();
-        // dd($totalRecords);
-      
-        // if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-        //     /** Order by column and direction */
-        //     $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
-        // } else {
-            // $query->orderBy('uploaded_files.id', 'desc');
-        // }
 
         $query->orderBy('uploaded_files.id', 'desc');
         if (isset($filter['start']) && isset($filter['length'])) {
@@ -133,17 +126,15 @@ class UploadedFiles extends Model
            
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['file_name'] = '<div class="file_td">'.$data->file_name.'</div>';
-            $formatuserdata[$key]['uploaded_by'] = $data->createdByUser->first_name.' '.$data->createdByUser->last_name;
+            $formatuserdata[$key]['uploaded_by'] = $data->user_name;
             $formatuserdata[$key]['date'] = date_format(date_create($data->created_at), 'm/d/Y');
             $formatuserdata[$key]['id'] = (isset($data->delete) && !empty($data->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : (((isset($data->deleted_at) && !empty($data->deleted_at) || $data->cron == 10) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$data->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>'));
         }
-// dd($formatuserdata);
+
         return [
             'data' => $formatuserdata,
             'recordsTotal' => $totalRecords,
             'recordsFiltered' => $totalRecords,
         ];
-
     }
-
 }
