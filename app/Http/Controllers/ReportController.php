@@ -628,6 +628,7 @@ class ReportController extends Controller
         $filter['order'][0]['dir'] = $request->input('order');
         $filter['end_date'] = $request->input('end_date');
         $filter['start_date'] = $request->input('start_date');
+        $filter['account_name'] = $request->input('account_name');
         $filter['supplier_id'] = explode(",", $request->input('supplier_id'));        
         
         /** Fetch data using the parameters and transform it into CSV format */

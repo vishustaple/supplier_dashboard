@@ -266,13 +266,27 @@ class Account extends Model
         ];
     }
 
-    public static function getSearchCustomerData($search='', $supplier=''){
+    public static function getSearchCustomerData($search='', $supplier='', $supplierArray=[], $check=false){
         if (!empty($search)) {
             $query = self::query()->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
             $query->groupBy('master_account_detail.account_name');
 
-            if (isset($supplier) && !empty($supplier)) {
-                $query->where('master_account_detail.category_supplier', $supplier);
+            if ($check == true) {
+                if (!empty($supplier)) {
+                    $query->where('master_account_detail.category_supplier', $supplier);
+                } else if (!empty($supplierArray)) {
+                    if ($supplierArray[0] == 'all') {
+                        $query->whereIn('master_account_detail.category_supplier', [1, 2, 3, 4, 5, 6, 7]);
+                    } else {
+                        $query->whereIn('master_account_detail.category_supplier', $supplierArray);
+                    }
+                } else {
+                    return [];
+                }
+            } else {
+                if (isset($supplier) && !empty($supplier)) {
+                    $query->where('master_account_detail.category_supplier', $supplier);
+                }
             }
 
             $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');

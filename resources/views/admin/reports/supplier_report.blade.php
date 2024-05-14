@@ -123,8 +123,17 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script>
     $(document).ready(function() {
-        $('input[name="start_date"]').datepicker();
-        $('input[name="end_date"]').datepicker();
+        $('input[name="start_date"]').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-7:+0",
+        });
+
+        $('input[name="end_date"]').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-7:+0",
+        });
 
         $("#select_dates").on('change', function() {
             var selectedRange = $(this).val(); // Get the selected range

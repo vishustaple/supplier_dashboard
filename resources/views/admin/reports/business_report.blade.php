@@ -24,9 +24,7 @@
                     
                         <div class="form-group col-md-3 mb-0">
                             <label for="selectBox">Select Account:</label>
-                            <select id="account_name" name="account_name" class="form-control"> 
-                                
-                            </select>
+                            <select id="account_name" name="account_name" class="form-control"></select>
                         </div>
                         <div class="form-group relative col-md-2 mb-0">  
                             <label for="enddate">Product Type:</label>
@@ -145,6 +143,7 @@
                         data: function(params) {
                             var data = {
                                 q: params.term, // search term
+                                supplier_check: true,
                                 supplier: $('#supplier_id').val() // add your extra parameter here
                             };
 
