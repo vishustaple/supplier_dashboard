@@ -49,8 +49,12 @@ class ExcelImportController extends Controller
             
             $userName = '';
             if ($item->createdByUser) {
-                $userName = $item->createdByUser->first_name ?? '';
-                $userName .= ' ' . ($item->createdByUser->last_name ?? '');
+                if (isset($item->createdByUser->first_name)) {
+                    $userName .= $item->createdByUser->first_name;
+                }
+                if (isset($item->createdByUser->last_name)) {
+                    $userName .= ' ' . $item->createdByUser->last_name;
+                }
             }
 
             $formattedData[] = [
