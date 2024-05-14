@@ -126,7 +126,7 @@ class MailSend extends Command
                     ->first();
 
                     if(!isset($data)){
-                        $this->info('no issue  ' . $id);
+                        $this->info('no issue ' . $id);
 
                         $supplierName = CategorySupplier::where('id',$id)->value('supplier_name');
                         $email = 'vishustaple.in@gmail.com';
