@@ -10,22 +10,11 @@
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
                     <div class="row align-items-end py-3 border-top border-bottom mb-3">
-                        <div class="form-group col-md-2 mb-0">
-                            <label for="supplier">Select Supplier:</label>
-                            <select id="supplier_id" name="supplier" class="form-control" required> 
-                                <option value="" selected>--Select--</option>
-                                @if(isset($categorySuppliers))
-                                    @foreach($categorySuppliers as $categorySupplier)
-                                        <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                    
                         <div class="form-group col-md-3 mb-0">
                             <label for="selectBox">Select Account:</label>
-                            <select id="account_name" name="account_name" class="form-control"></select>
+                            <select id="account_name" name="account_name" class="form-control" required></select>
                         </div>
+                        <div class="form-group col-md-2 mb-0" id="dynamicFormContainer"></div>
                         <div class="form-group relative col-md-2 mb-0">  
                             <label for="enddate">Product Type:</label>
                             <select class="form-control" name="core" id="core" required>
@@ -79,9 +68,30 @@
         #business_data thead tr th {
             white-space: nowrap;
         }
+
         .select2-container .select2-selection--single{
             height: 38px !important;
             padding-top: 5px;
+        }
+
+        div#business_data_wrapper table thead tr th{
+            padding: 10px;
+        }
+
+        div#business_data_wrapper table thead tr th:nth-child(6) {
+            width: 70px !important;
+            min-width: 70px;
+            max-width: 70px;
+            white-space: break-spaces;
+            padding: 0px;
+        }
+
+        div#business_data_wrapper table thead tr th:nth-child(5) {
+            width: 90px !important;
+            min-width: 90px;
+            max-width: 90px;
+            white-space: break-spaces;
+            padding: 0px;
         }
     </style>
     <!-- Include Date Range Picker JavaScript -->
@@ -91,6 +101,15 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Change event handler for checkboxes
+            $(document).on('change', '.checkboxs', function(){
+                var selectedValues = [];
+                $('input[name="supplier_id[]"]:checked').each(function(){
+                    selectedValues.push($(this).val());
+                });
+                // Perform AJAX request here
+            });
+
             // Button click event
             $('#import_form').on('submit', function () {
                 event.preventDefault();
@@ -98,8 +117,22 @@
             });
 
             function hideColumns() {
-                if ($('#supplier_id').val() != 3) {
-                    businessdataTable.column('category:name').visible(true);
+                var anyChecked3 = false;
+                 // Loop through each checkbox with class "myCheckbox"
+                 $('.checkboxs').each(function(){
+                    // Check if the current checkbox is checked
+                    if ($(this).is(':checked')) {
+                        if ($(this).val() == 3) {
+                            anyChecked3 = true;
+                        }
+
+                        // Exit the loop if any checkbox is checked
+                        return false;
+                    }
+                });
+
+                if (!anyChecked3) {
+                    // businessdataTable.column('category:name').visible(true);
                     businessdataTable.column('unit_price_q1_price:name').visible(false);
                     businessdataTable.column('unit_price_q2_price:name').visible(false);
                     businessdataTable.column('unit_price_q3_price:name').visible(false);
@@ -110,7 +143,7 @@
                     businessdataTable.column('web_price_q4_price:name').visible(false);
                     businessdataTable.column('lowest_price:name').visible(false);
                 } else {
-                    businessdataTable.column('category:name').visible(false);
+                    // businessdataTable.column('category:name').visible(false);
                     businessdataTable.column('unit_price_q1_price:name').visible(true);
                     businessdataTable.column('unit_price_q2_price:name').visible(true);
                     businessdataTable.column('unit_price_q3_price:name').visible(true);
@@ -120,12 +153,6 @@
                     businessdataTable.column('web_price_q3_price:name').visible(true);
                     businessdataTable.column('web_price_q4_price:name').visible(true);
                     businessdataTable.column('lowest_price:name').visible(true);
-                }
-
-                if ($('#supplier_id').val() == 1 || $('#supplier_id').val() == 2) {
-                    businessdataTable.column('uom:name').visible(false);
-                } else {
-                    businessdataTable.column('uom:name').visible(true);
                 }
             }
 
@@ -141,10 +168,13 @@
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {
+                            var checkedValues = [];
+                            $('.checkboxs:checked').each(function() {
+                                checkedValues.push($(this).val());
+                            });
+                            
                             var data = {
                                 q: params.term, // search term
-                                supplier_check: true,
-                                supplier: $('#supplier_id').val() // add your extra parameter here
                             };
 
                             return data;
@@ -157,10 +187,41 @@
                         cache: true
                     },
                     minimumInputLength: 1
+                }).on('select2:select', function (e) {
+                    var accountName = e.params.data.id;
+                    // Perform AJAX request to get supplier data
+                    $.ajax({
+                        url: "{{ route('commission.supplierSearch') }}",
+                        method: 'GET',
+                        data: { account_name: accountName , check: true},
+                        success: function(response){
+                            // Assuming response is an array of objects with id and name properties
+                            $('#dynamicFormContainer').html(' ');
+                            response.forEach(function(suppliers){
+                                var checkboxDiv = $('<div class="form-check">' +
+                                                        '<input class="form-check-input checkboxs" name="supplier_id[]" type="checkbox" value="' + suppliers.id + '" required>' +
+                                                        '<label class="form-check-label" for="defaultCheck1">' + suppliers.supplier + '</label>' +
+                                                    '</div>');
+                                $('#dynamicFormContainer').append(checkboxDiv);
+                            });
+                        },
+                        error: function(xhr, status, error){
+                            console.error('Error fetching supplier data:', error);
+                        }
+                    });
                 });
             }
 
             selectCustomer ()
+
+            $('#allCheckBox').change(function() {
+                if ($(this).is(':checked')) {
+                    $('.checkboxs').not(this).prop('checked', false).prop('disabled', true);
+                } else {
+                    $('.checkboxs').prop('disabled', false);
+                }
+            });
+            
             // DataTable initialization
             var businessdataTable = $('#business_data').DataTable({
                 oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
@@ -175,10 +236,15 @@
                     type: 'POST',
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
+                        var checkedValues = [];
+                        $('.checkboxs:checked').each(function() {
+                            checkedValues.push($(this).val());
+                        });
+
                         // Pass date range and supplier ID when making the request
                         d.year = $('#year').val();
                         d.core = $('#core').val();
-                        d.supplier = $('#supplier_id').val();
+                        d.supplier = checkedValues;
                         d.account_name = $('#account_name').val();
                     },
                 },
@@ -249,6 +315,15 @@
             // You can customize this URL to match your backend route for CSV download
             var csvUrl = '{{ route('report.export-csv') }}';
 
+            var checkedValues = [];
+            $('.checkboxs:checked').each(function() {
+                checkedValues.push($(this).val());
+            });
+
+            d.year = $('#year').val();
+                        d.core = $('#core').val();
+                        d.supplier = checkedValues;
+                        d.account_name = $('#account_name').val();
             // Add query parameters for date range and supplier ID
             csvUrl += '?account_name=' + encodeURIComponent($('#account_name').val()) +
             '&supplier=' + encodeURIComponent($('#supplier_id').val()) +
