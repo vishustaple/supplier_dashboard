@@ -319,13 +319,9 @@
                 checkedValues.push($(this).val());
             });
 
-            d.year = $('#year').val();
-                        d.core = $('#core').val();
-                        d.supplier = checkedValues;
-                        d.account_name = $('#account_name').val();
             // Add query parameters for date range and supplier ID
             csvUrl += '?account_name=' + encodeURIComponent($('#account_name').val()) +
-            '&supplier=' + encodeURIComponent($('#supplier_id').val()) +
+            '&supplier=' + encodeURIComponent(checkedValues) +
             '&year=' + encodeURIComponent($('#year').val()) +
             '&core=' + encodeURIComponent($('#core').val());
 
