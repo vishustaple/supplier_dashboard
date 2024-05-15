@@ -62,7 +62,7 @@ class ReportController extends Controller
         /** Retrieve data based on the provided parameters */
         $filter['core'] = $request->input('core');
         $filter['year'] = $request->input('year');
-        $filter['supplier'] = $request->input('supplier');
+        $filter['supplier'] = explode(",", $request->input('supplier'));
         $filter['account_name'] = $request->input('account_name');
         $csv = true;
 
