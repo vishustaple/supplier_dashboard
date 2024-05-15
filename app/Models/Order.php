@@ -328,7 +328,6 @@ class Order extends Model
         }
 
         if ($csv == true) {
-            if ($filter['supplier'] == 3) {
                 $newFinalArray['heading'] = [
                     'Sku',
                     'Description',
@@ -346,16 +345,6 @@ class Order extends Model
                     'Web Q4 Price',
                     'Lowest Price',
                 ];
-            } else {
-                $newFinalArray['heading'] = [
-                    'Sku',
-                    'Description',
-                    'Uom',
-                    'Category',
-                    'Quantity Purchased',
-                    'Total Spend',
-                ];
-            }
             return $newFinalArray;
         } else {
             return [
