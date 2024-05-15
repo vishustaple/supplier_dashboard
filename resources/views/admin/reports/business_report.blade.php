@@ -127,7 +127,6 @@
                         }
 
                         // Exit the loop if any checkbox is checked
-                        return false;
                     }
                 });
 
