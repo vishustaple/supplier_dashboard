@@ -199,7 +199,7 @@
                             $('#dynamicFormContainer').html(' ');
                             response.forEach(function(suppliers){
                                 var checkboxDiv = $('<div class="form-check">' +
-                                                        '<input class="form-check-input checkboxs" name="supplier_id[]" type="checkbox" value="' + suppliers.id + '" required>' +
+                                                        '<input class="form-check-input checkboxs" name="supplier_id[]" type="checkbox" value="' + suppliers.id + '" >' +
                                                         '<label class="form-check-label" for="defaultCheck1">' + suppliers.supplier + '</label>' +
                                                     '</div>');
                                 $('#dynamicFormContainer').append(checkboxDiv);
