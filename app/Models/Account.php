@@ -308,10 +308,24 @@ class Account extends Model
             $query = self::query()->select('suppliers.supplier_name as supplier_name', 'master_account_detail.category_supplier as id')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
             ->where('master_account_detail.account_name', $search['account_name']);
-            $results = $query->first();
 
+            if ($search['check'] == true) {
+                $query->whereIn('master_account_detail.category_supplier', [1, 2, 3, 4, 5]);
+                $query->groupBy('master_account_detail.category_supplier');
+                $results = $query->get();
+            } else {
+                $results = $query->first();
+            }
+
+            $finalArray = [];
             if ($results !== null) {
-                $finalArray[] = ['supplier' => $results->supplier_name, 'id' => $results->id];
+                if ($search['check'] == true) {
+                    foreach ($results as $value) {
+                        $finalArray[] = ['supplier' => $value->supplier_name, 'id' => $value->id];
+                    }
+                } else {
+                    $finalArray[] = ['supplier' => $results->supplier_name, 'id' => $results->id];
+                }
                 return $finalArray;
             }
             return [];

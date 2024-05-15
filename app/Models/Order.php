@@ -59,8 +59,38 @@ class Order extends Model
         $startDate4 = $monthDates[9]['start_date'];
         $endDate4 = $monthDates[11]['end_date'];
 
-        $query = DB::table('master_account_detail')->select('master_account_detail.account_number as account_number');
-        $query->where('master_account_detail.category_supplier', $filter['supplier']);
+        $query = DB::table('master_account_detail')->select('master_account_detail.account_number as account_number', 'master_account_detail.category_supplier as supplier');
+
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->whereIn('master_account_detail.category_supplier', $filter['supplier']);
+        } else {
+            if ($csv == true) {
+                $finalArray['heading'] = [
+                    'Sku',
+                    'Description',
+                    'Uom',
+                    'Category',
+                    'Quantity Purchased',
+                    'Total Spend',
+                    'Unit Q1 Price',
+                    'Unit Q2 Price',
+                    'Unit Q3 Price',
+                    'Unit Q4 Price',
+                    'Web Q1 Price',
+                    'Web Q2 Price',
+                    'Web Q3 Price',
+                    'Web Q4 Price',
+                    'Lowest Price',
+                ];
+                return $finalArray;
+            } else {
+                return [
+                    'data' => [],
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                ];
+            }
+        }
 
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
             $query->where('account_name', $filter['account_name']);
@@ -93,12 +123,12 @@ class Order extends Model
             }
         }
 
-        $accountNumber = [];
-        foreach ($query->get() as $key => $value) {
+        $accountNumber = $supplier = [];
+        foreach ($query->get() as $value) {
             $accountNumber[] = $value->account_number;
         }
 
-        if ($filter['supplier'] == 3) {
+        if (in_array(3, $filter['supplier'])) {
             $query = DB::table('office_depot_order')
             ->selectRaw(
                 'sku, uom, SUM(qty_shipped) as quantity_purchased, product_description as description, SUM(total_spend) as total_spend,
@@ -109,9 +139,8 @@ class Order extends Model
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q1_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q2_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q3_price,
-                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q4_price,
-                MIN(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`total_spend` ELSE 0 END) AS lowest_price',
-                [$startDate1,$endDate1,$startDate2,$endDate2,$startDate3,$endDate3,$startDate4,$endDate4,$startDate1,$endDate1,$startDate2,$endDate2,$startDate3,$endDate3,$startDate4,$endDate4,$startDate1,$endDate4]
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q4_price',
+                [$startDate1,$endDate1,$startDate2,$endDate2,$startDate3,$endDate3,$startDate4,$endDate4,$startDate1,$endDate1,$startDate2,$endDate2,$startDate3,$endDate3,$startDate4,$endDate4]
             )
             ->groupBy('sku');
             $query->whereIn('customer_id', $accountNumber);
@@ -127,8 +156,12 @@ class Order extends Model
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
-            $queryData = $query->get();
-        } else if ($filter['supplier'] == 4) {
+            $queryData1 = $query->get()->toArray();
+        } else {
+            $queryData1 = [];
+        }
+
+        if (in_array(4, $filter['supplier'])) {
             $query = DB::table('staples_order')
             ->selectRaw('sku_id AS sku, sell_uom_id AS uom, SUM(qty) AS quantity_purchased, item_description_id AS description, primary_product_hierarchy_desc AS category, SUM(adj_gross_sales) as total_spend')
             ->groupBy('sku_id');
@@ -145,68 +178,117 @@ class Order extends Model
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
-            $queryData = $query->get();
-            } else if ($filter['supplier'] == 5) {
-                $query = DB::table('wb_mason_order')
-                ->selectRaw('category_umbrella AS category, uom, SUM(qty) AS quantity_purchased, item_num AS sku, item_name AS description, SUM(ext_price) as total_spend')
-                ->groupBy('item_num');
-                $query->whereIn('customer_num', $accountNumber);
-    
-                if (isset($filter['year'])) {
-                    $query->whereYear('invoice_date', $filter['year']);
-                }
-    
-                if ($filter['core'] == 2) {
-                    $query->orWhere('price_method', 'LIKE', 'PPL%')->orWhere('price_method', 'LIKE', 'CTL%');
-                } else {
-                    $query->orWhere('price_method', 'NOT LIKE', 'PPL%')->orWhere('price_method', 'NOT LIKE', 'CTL%');
-                } 
+            $queryData2 = $query->get()->toArray();
+        } else {
+            $queryData2 = [];
+        }
 
-                $query->orderBy('total_spend', 'desc')->limit(100);
-                $queryData = $query->get();
-            } else if ($filter['supplier'] == 2) {
-                $query = DB::table('grainger_order')
-                ->selectRaw('material  AS sku, material_description AS description, material_segment AS category, SUM(billing_qty) AS quantity_purchased, SUM(purchase_amount) as total_spend')
-                ->groupBy('material');
-                $query->whereIn('account_number', $accountNumber);
-    
-                if (isset($filter['year'])) {
-                    $query->whereYear('bill_date', $filter['year']);
-                }
-    
-                if ($filter['core'] == 2) {
-                    $query->whereIn('active_price_point', ['CSP']);
-                } else {
-                    $query->whereNotIn('active_price_point', ['CSP']);
-                }
+        if (in_array(5, $filter['supplier'])) {
+            $query = DB::table('wb_mason_order')
+            ->selectRaw('category_umbrella AS category, uom, SUM(qty) AS quantity_purchased, item_num AS sku, item_name AS description, SUM(ext_price) as total_spend')
+            ->groupBy('item_num');
+            $query->whereIn('customer_num', $accountNumber);
 
-                $query->orderBy('total_spend', 'desc')->limit(100);
-                $queryData = $query->get();
-            } else if ($filter['supplier'] == 1) {
-                $query = DB::table('g_and_t_laboratories_charles_river_order')
-                ->selectRaw('product  AS sku, description AS description, categories AS category, SUM(quantity_shipped) AS quantity_purchased, SUM(total_spend) as total_spend')
-                ->groupBy('product');
-                $query->whereIn('sold_to_account', $accountNumber);
-    
-                if (isset($filter['year'])) {
-                    $query->whereYear('date', $filter['year']);
-                }
-    
-                if ($filter['core'] == 2) {
-                    $query->where('on_core_spend', '>', 0);
-                } else {
-                    $query->where('off_core_spend', '>', 0);
-                }
-
-                $query->orderBy('total_spend', 'desc')->limit(100);
-                $queryData = $query->get();
-            } else {
-
+            if (isset($filter['year'])) {
+                $query->whereYear('invoice_date', $filter['year']);
             }
 
+            if ($filter['core'] == 2) {
+                $query->orWhere('price_method', 'LIKE', 'PPL%')->orWhere('price_method', 'LIKE', 'CTL%');
+            } else {
+                $query->orWhere('price_method', 'NOT LIKE', 'PPL%')->orWhere('price_method', 'NOT LIKE', 'CTL%');
+            } 
+
+            $query->orderBy('total_spend', 'desc')->limit(100);
+            $queryData3 = $query->get()->toArray();
+        } else {
+            $queryData3 = [];
+        }
+
+        if (in_array(2, $filter['supplier'])) {
+            $query = DB::table('grainger_order')
+            ->selectRaw('material  AS sku, material_description AS description, material_segment AS category, SUM(billing_qty) AS quantity_purchased, SUM(purchase_amount) as total_spend')
+            ->groupBy('material');
+            $query->whereIn('account_number', $accountNumber);
+
+            if (isset($filter['year'])) {
+                $query->whereYear('bill_date', $filter['year']);
+            }
+
+            if ($filter['core'] == 2) {
+                $query->whereIn('active_price_point', ['CSP']);
+            } else {
+                $query->whereNotIn('active_price_point', ['CSP']);
+            }
+
+            $query->orderBy('total_spend', 'desc')->limit(100);
+            $queryData4 = $query->get()->toArray();
+        } else {
+            $queryData4 = [];
+        }
+
+        if (in_array(1, $filter['supplier'])) {
+            $query = DB::table('g_and_t_laboratories_charles_river_order')
+            ->selectRaw('product  AS sku, description AS description, categories AS category, SUM(quantity_shipped) AS quantity_purchased, SUM(total_spend) as total_spend')
+            ->groupBy('product');
+            $query->whereIn('sold_to_account', $accountNumber);
+
+            if (isset($filter['year'])) {
+                $query->whereYear('date', $filter['year']);
+            }
+            
+            if ($filter['core'] == 2) {
+                $query->where('on_core_spend', '>', 0);
+            } else {
+                $query->where('off_core_spend', '>', 0);
+            }
+
+            $query->orderBy('total_spend', 'desc')->limit(100);
+            $queryData5 = $query->get()->toArray();
+        } else {
+            $queryData5 = [];
+        }
+
+        $queryData = array_merge($queryData1, $queryData2, $queryData3, $queryData4, $queryData5);
+
+        /** Function to sort the array based on "total_spend" */
+        usort($queryData, function($a, $b) {
+            return $b->total_spend - $a->total_spend; /** Sort in descending order */
+        });
+
+        /** Select the top 100 elements */
+        $queryData = array_slice($queryData, 0, 100);
+
         $newFinalArray = [];
-        foreach ($queryData as $key => $value) {
-            if ($filter['supplier'] != 3) {
+        foreach ($queryData as $value) {
+            if (isset($value->unit_price_q1_price)) {
+                $prices = [
+                    $value->unit_price_q1_price,
+                    $value->unit_price_q2_price,
+                    $value->unit_price_q3_price,
+                    $value->unit_price_q4_price,
+                    $value->web_price_q1_price,
+                    $value->web_price_q2_price,
+                    $value->web_price_q3_price,
+                    $value->web_price_q4_price,
+                ];
+                
+                /** Remove zero values */
+                $prices = array_filter($prices, function($price) {
+                    return $price > 0;
+                });
+                
+                if ($prices) {
+                    /** Find the lowest non-zero price */
+                    $lowestPrice = min($prices);
+                } else {
+                    $lowestPrice = 0;
+                }
+            } else {
+                $lowestPrice = 0;
+            }
+        
+            if (!in_array(3, $filter['supplier'])) {
                 $newFinalArray[] = [
                     'sku' => ((isset($value->sku)) ? ($value->sku) : ('')),
                     'description' => ((isset($value->description)) ? ($value->description) : ('')),
@@ -226,21 +308,21 @@ class Order extends Model
                 ];
             } else {
                 $newFinalArray[] = [
-                    'sku' => $value->sku,
-                    'description' => $value->description,
-                    'uom' => $value->uom,
-                    'category' => '',
-                    'quantity_purchased' => $value->quantity_purchased,
+                    'sku' => ((isset($value->sku)) ? ($value->sku) : ('')),
+                    'description' => ((isset($value->description)) ? ($value->description) : ('')),
+                    'uom' => ((isset($value->uom) && !in_array($filter['supplier'], [2])) ? ($value->uom) : ('')),
+                    'category' => ((isset($value->category)) ? ($value->category) : ('')),
+                    'quantity_purchased' => ((isset($value->quantity_purchased)) ? ($value->quantity_purchased) : ('')),
                     'total_spend' => (($csv) ? ($value->total_spend) : ('$'.number_format($value->total_spend, 2))),
-                    'unit_price_q1_price' => (($csv) ? ($value->unit_price_q1_price) : ('$'.number_format($value->unit_price_q1_price, 2))),
-                    'unit_price_q2_price' =>  (($csv) ? ($value->unit_price_q2_price) : ('$'.number_format($value->unit_price_q2_price, 2))),
-                    'unit_price_q3_price' =>  (($csv) ? ($value->unit_price_q3_price) : ('$'.number_format($value->unit_price_q3_price, 2))),
-                    'unit_price_q4_price' =>  (($csv) ? ($value->unit_price_q4_price) : ('$'.number_format($value->unit_price_q4_price, 2))),
-                    'web_price_q1_price' => (($csv) ? ($value->web_price_q1_price) : ('$'.number_format($value->web_price_q1_price, 2))),
-                    'web_price_q2_price' => (($csv) ? ($value->web_price_q2_price) : ('$'.number_format($value->web_price_q2_price, 2))),
-                    'web_price_q3_price' => (($csv) ? ($value->web_price_q3_price) : ('$'.number_format($value->web_price_q3_price, 2))),
-                    'web_price_q4_price' => (($csv) ? ($value->web_price_q4_price) : ('$'.number_format($value->web_price_q4_price, 2))),
-                    'lowest_price' => (($csv) ? ($value->lowest_price) : ('$'.number_format($value->lowest_price, 2))),
+                    'unit_price_q1_price' => (($csv) ? (((isset($value->unit_price_q1_price)) ? ($value->unit_price_q1_price) : ('0'))) : ('$'.number_format(((isset($value->unit_price_q1_price)) ? ($value->unit_price_q1_price) : (0)), 2))),
+                    'unit_price_q2_price' =>  (($csv) ? (((isset($value->unit_price_q2_price)) ? ($value->unit_price_q2_price) : ('0'))) : ('$'.number_format(((isset($value->unit_price_q2_price)) ? ($value->unit_price_q2_price) : (0)), 2))),
+                    'unit_price_q3_price' =>  (($csv) ? (((isset($value->unit_price_q3_price)) ? ($value->unit_price_q3_price) : ('0'))) : ('$'.number_format(((isset($value->unit_price_q3_price)) ? ($value->unit_price_q3_price) : (0)), 2))),
+                    'unit_price_q4_price' =>  (($csv) ? (((isset($value->unit_price_q4_price)) ? ($value->unit_price_q4_price) : ('0'))) : ('$'.number_format(((isset($value->unit_price_q4_price)) ? ($value->unit_price_q4_price) : (0)), 2))),
+                    'web_price_q1_price' => (($csv) ? (((isset($value->web_price_q1_price)) ? ($value->web_price_q1_price) : ('0'))) : ('$'.number_format(((isset($value->web_price_q1_price)) ? ($value->web_price_q1_price) : (0)), 2))),
+                    'web_price_q2_price' => (($csv) ? (((isset($value->web_price_q2_price)) ? ($value->web_price_q2_price) : ('0'))) : ('$'.number_format(((isset($value->web_price_q2_price)) ? ($value->web_price_q2_price) : (0)), 2))),
+                    'web_price_q3_price' => (($csv) ? (((isset($value->web_price_q3_price)) ? ($value->web_price_q3_price) : ('0'))) : ('$'.number_format(((isset($value->web_price_q3_price)) ? ($value->web_price_q3_price) : (0)), 2))),
+                    'web_price_q4_price' => (($csv) ? (((isset($value->web_price_q4_price)) ? ($value->web_price_q4_price) : ('0'))) : ('$'.number_format(((isset($value->web_price_q4_price)) ? ($value->web_price_q4_price) : (0)), 2))),
+                    'lowest_price' => (($csv) ? ($lowestPrice) : ('$'.number_format($lowestPrice, 2))),
                 ];
             }
         }
