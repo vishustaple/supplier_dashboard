@@ -40,7 +40,7 @@
                             </div>
                             <div class="row pt-3 align-items-center">
                                 <div class="form-group relative col-md-6 col-4 mb-0">
-                                    <label>Select Quarter</label>
+                                    <label>Select Range:</label>
                                     <select class="form-select" name="select_dates" id="select_dates">
                                         <option value="0" selected>Select</option>
                                         <option value="1">Last Quarter</option>
@@ -253,6 +253,7 @@
                 processing: true,
                 serverSide: true,
                 lengthMenu: [40],
+                searching: false,
                 paging: true,
                 pageLength: 40,
                 ajax: {
@@ -296,8 +297,25 @@
                     { data: 'spend', name: 'spend', title: 'Spend', 'searchable': false },
                     { data: 'category', name: 'category', title: 'Category', 'orderable': false, 'searchable': false },
                 ],
+                
             });
 
+            $('#consolidated_supplier_data_length').hide();
+            $('#consolidated_supplier_data tbody').on('click', 'button', function () {
+                var tr = $(this).closest('tr');
+                var row = businessdataTable.row(tr);
+
+                if ( row.child.isShown() ) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    // Open this row
+                    row.child( format(row.data()) ).show();
+                    tr.addClass('shown');
+                }
+            });
+            
             $(document).on('change', '.checkboxMain', function() {
                 var checkedValues = [];
                 $('.checkboxMain:checked').each(function() {
