@@ -184,6 +184,7 @@ class Order extends Model
 
             $query->orderBy('total_spend', 'desc')->limit(100);
             $queryData2 = $query->get()->toArray();
+            dd($query->toSql(), $query->getBindings());
         } else {
             $queryData2 = [];
         }
