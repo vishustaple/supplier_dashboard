@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use App\Models\{
@@ -395,8 +396,17 @@ class ProcessUploadedFiles extends Command
                         $weeklyCheck = true;
                        
                         unset($spreadSheet, $reader);
-                        // print_r($fileValue->created_by);die;
-                        $reader = new Xlsx(); /** Creating object of php excel library class */ 
+
+                        $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
+
+
+                        if ($inputFileType === 'Xlsx') {
+                            $reader = new Xlsx();
+                        } elseif ($inputFileType === 'Xls') {
+                            $reader = new Xls();
+                        } else {
+                            // throw new Exception('Unsupported file type: ' . $inputFileType);
+                        }
 
                         /** Loading excel file using path and name of file from table "uploaded_file" */
                         $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
@@ -502,7 +512,7 @@ class ProcessUploadedFiles extends Command
                             unset($startIndexValueArray);
 
                             if ($fileValue->supplier_id == 2) {
-                               $graingerCount = $startIndex; //+ 1;
+                               $graingerCount = $startIndex; + 1;
                             }
                          
                             foreach ($workSheetArray as $key => $row) {

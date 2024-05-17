@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use App\Models\{
@@ -81,7 +82,7 @@ class ExcelImportController extends Controller
         /** Validate the uploaded file */
         $validator = Validator::make(
             ['supplierselect' => $request->supplierselect, 'file' => $request->file('file')],
-            ['supplierselect' => 'required', 'file' => 'required|file|mimes:xlsx,xls'],
+            ['supplierselect' => 'required', 'file' => 'required'],
             ['supplierselect.required' => 'Please select a supplier. It is a required field.']
         );
 
@@ -91,21 +92,17 @@ class ExcelImportController extends Controller
         }
         
         try{
-            $reader = new Xlsx(); 
+            $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('file'));
+            if ($inputFileType === 'Xlsx') {
+                $reader = new Xlsx();
+            } elseif ($inputFileType === 'Xls') {
+                $reader = new Xls();
+            } else {
+                // throw new Exception('Unsupported file type: ' . $inputFileType);
+            }
+            // $reader = new Xlsx(); 
             $spreadSheet = $reader->load($request->file('file'), 2);
             $validationCheck = $arrayDiff = false;
-            // $columnValues = DB::table('manage_columns')->select('id', 'supplier_id', 'field_name')->where('supplier_id', $request->supplierselect)->get();
-    
-            // /** Here we getting date column name form database */
-            // foreach ($columnValues as $key => $value) {
-            //     if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {
-            //         $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
-            //     }
-    
-            //     if (in_array($value->supplier_id, [7])) {
-            //         $columnArray[$value->supplier_id]['invoice_date'] = '';
-            //     }
-            // }
                 
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 $maxNonEmptyCount = 0;
@@ -147,74 +144,6 @@ class ExcelImportController extends Controller
                     }
                 }
 
-             
-
-                // $chunkSize = 0; // Adjust as needed
-                // $dates = [];
-
-                // if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
-                //     $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
-                // }
-
-                // if (!empty($keyInvoiceDate)) {
-                //     foreach ($spreadSheets->toArray() as $key => $row) {
-                //         if($key > $startIndex){
-                //             /** Here we create dates array which are into the sheet. */
-                //             if (!empty($row[$keyInvoiceDate])) {
-                //                 if ($request->supplierselect == 4) {
-                //                     $date = explode("-", $row[$keyInvoiceDate]);
-                //                     if(count($date) <= 2){
-                //                         $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
-                //                     } else {
-                //                         $dates[] = date_format(date_create($row[$keyInvoiceDate]), 'Y-m-d');
-                //                     }
-                //                 } else {
-                //                     $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
-                //                 }
-
-                //                 /** After getting 1000 array chunk. We will apply query into this chunk. 
-                //                  * And check if data exist then show user and error you have uploaded same file already.
-                //                  */
-                //                 if ($chunkSize == 1000) {
-                //                     $fileExist = Order::where(function ($query) use ($dates) {
-                //                         foreach ($dates as $startDate) {
-                //                             if (!empty($startDate)) {
-                //                                 $query->orWhere('date', '=', $startDate);
-                //                             }
-                //                         }
-                //                     })->where('supplier_id', $request->supplierselect);
-                                    
-                //                     $chunkSize = 0;
-
-                //                     if ($fileExist->count() > 0) {
-                //                         return response()->json(['error' => "You have already uploaded this file."], 200);
-                //                     }
-                                
-                //                 }
-                //             } else {
-                //                 $dates = [];
-                //             }
-            
-                //             $chunkSize++;
-                //         }
-                //     }
-
-                //     /** Here we check those dates which are not come into previous if condition */
-                //     if (!empty($dates)) {
-                //         $fileExist = Order::where(function ($query) use ($dates) {
-                //             foreach ($dates as $startDate) {
-                //                 if (!empty($startDate)) {
-                //                     $query->orWhere('date', '=', $startDate);
-                //                 }
-                //             }
-                //         })->where('supplier_id', $request->supplierselect);
-                
-                //         if ($fileExist->count() > 0) {
-                //             return response()->json(['error' => "You have already uploaded this file."], 200);
-                //         }
-                //     }
-                // }
-                
                 /** Here we check all required columns of uploaded file match with particuler supplier file columns
                  * If not match all required columns of uploaded file not match with particuler supplier file columns.
                  * Then set $validationCheck true.
@@ -230,6 +159,7 @@ class ExcelImportController extends Controller
                 }
             }
         } catch (\Exception $e) {
+            // dd($e->getMessage());
             return redirect()->back()->with('error', $e->getMessage());
         }
 

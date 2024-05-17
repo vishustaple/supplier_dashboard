@@ -406,15 +406,12 @@
                         // $("form")[0].reset();
                         
                         var dataTable = $('#example').DataTable();
-                            if (dataTable) {
-                            // Reload DataTable only if it exists
-                            dataTable.ajax.reload();
-                            } else {
-                            console.error('DataTable instance is not available or properly initialized.');
-                            }
-
-   
-
+                        if (dataTable) {
+                        // Reload DataTable only if it exists
+                        dataTable.ajax.reload();
+                        } else {
+                        console.error('DataTable instance is not available or properly initialized.');
+                        }
                     }
                     // Handle success response
                     // console.log(response);
