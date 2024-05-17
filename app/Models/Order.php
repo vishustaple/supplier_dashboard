@@ -172,12 +172,12 @@ class Order extends Model
             }
 
             if ($filter['core'] == 1) {
-                $query->orWhereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
+                $query->orWhereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions', 'Sunrise']);
                 $query->orWhereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
                 $query->where('on_contract_id', '=', 'N');
             } else {
-                $query->orWhereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
-                $query->orWhereIn('transaction_source_system_desc', ['Sunrise']);
+                $query->orWhereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions', 'Sunrise']);
+                // $query->orWhereIn('transaction_source_system_desc', ['Sunrise']);
                 $query->orWhere('on_contract_id', '=', 'Y');
                 $query->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
             }
