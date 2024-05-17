@@ -4,7 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Console\Commands\{ProcessUploadedFiles, MailSend, DeleteUploadedFilesData};
+use App\Console\Commands\{ProcessUploadedFiles, MailSend, DeleteUploadedFilesData, validateUploadedFile};
 
 class Kernel extends ConsoleKernel
 {
@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command(MailSend::class)->everyMinute();
-        // $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes();
+        $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes();
+        $schedule->command(validateUploadedFile::class)->everyFourMinutes();
         // $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes();   
     }
 
