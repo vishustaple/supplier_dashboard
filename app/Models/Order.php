@@ -204,11 +204,9 @@ class Order extends Model
             }
 
             if ($filter['core'] == 1) {
-                $query->where(function($query) {
-                    $query->orWhereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
-                        ->orWhere('on_contract_id', 'N')
-                        ->orWhereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
-                });
+                    $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
+                        ->where('on_contract_id', 'N')
+                        ->whereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
             } else {
                 $query->where(function($query) {
                     $query->whereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
