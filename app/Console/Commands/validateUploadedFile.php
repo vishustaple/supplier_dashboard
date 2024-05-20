@@ -129,7 +129,7 @@ class validateUploadedFile extends Command
                                     $fileExist = Order::where(function ($query) use ($dates) {
                                         foreach ($dates as $startDate) {
                                             if (!empty($startDate)) {
-                                                $query->orWhere('date', '>=', $startDate);
+                                                $query->orWhere('date', '=', $startDate);
                                             }
                                         }
                                     })->where('supplier_id', $fileValue->supplier_id);
@@ -157,7 +157,7 @@ class validateUploadedFile extends Command
                         $fileExist = Order::where(function ($query) use ($dates) {
                             foreach ($dates as $startDate) {
                                 if (!empty($startDate)) {
-                                    $query->orWhere('date', '>=', $startDate);
+                                    $query->orWhere('date', '=', $startDate);
                                 }
                             }
                         })->where('supplier_id', $fileValue->supplier_id);
