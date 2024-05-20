@@ -13,9 +13,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command(MailSend::class)->everyMinute();
-        $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes();
-        $schedule->command(validateUploadedFile::class)->everyFourMinutes();
+        // $schedule->command(MailSend::class)->everyMinute();
+        // $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes();
+        // $schedule->command(validateUploadedFile::class)->everyFourMinutes();
         // $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes();   
     }
 
