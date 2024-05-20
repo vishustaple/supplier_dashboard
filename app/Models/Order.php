@@ -208,11 +208,11 @@ class Order extends Model
                         ->where('on_contract_id', 'N')
                         ->whereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
             } else {
-                // $query->where(function($query) {
-                    $query->whereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
-                        ->where('on_contract_id', 'Y')
-                        ->whereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
-                // });
+                $query->where(function($query) {
+                    $query->orWhereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
+                        ->orWhere('on_contract_id', 'Y')
+                        ->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
+                });
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
