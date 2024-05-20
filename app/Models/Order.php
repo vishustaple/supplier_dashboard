@@ -123,7 +123,7 @@ class Order extends Model
             }
         }
 
-        $accountNumber = $supplier = [];
+        $accountNumber = [];
         foreach ($query->get() as $value) {
             $accountNumber[] = $value->account_number;
         }
@@ -131,7 +131,11 @@ class Order extends Model
         if (in_array(3, $filter['supplier'])) {
             $query = DB::table('office_depot_order')
             ->selectRaw(
-                'sku, uom, SUM(qty_shipped) as quantity_purchased, product_description as description, SUM(total_spend) as total_spend,
+                'sku,
+                uom,
+                SUM(qty_shipped) as quantity_purchased,
+                product_description as description,
+                SUM(total_spend) as total_spend,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q1_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q2_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q3_price,
@@ -140,7 +144,24 @@ class Order extends Model
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q2_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q3_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q4_price',
-                [$startDate1,$endDate1,$startDate2,$endDate2,$startDate3,$endDate3,$startDate4,$endDate4,$startDate1,$endDate1,$startDate2,$endDate2,$startDate3,$endDate3,$startDate4,$endDate4]
+                [
+                    $startDate1,
+                    $endDate1,
+                    $startDate2,
+                    $endDate2,
+                    $startDate3,
+                    $endDate3,
+                    $startDate4,
+                    $endDate4,
+                    $startDate1,
+                    $endDate1,
+                    $startDate2,
+                    $endDate2,
+                    $startDate3,
+                    $endDate3,
+                    $startDate4,
+                    $endDate4
+                ]
             )
             ->groupBy('sku');
             $query->whereIn('customer_id', $accountNumber);
@@ -148,12 +169,13 @@ class Order extends Model
             if (isset($filter['year'])) {
                 $query->whereYear('shipped_date', $filter['year']);
             }
-
+            
             if ($filter['core'] == 1) {
-                $query->whereIn('core_flag', ['N']);
+                $query->where('core_flag', 'N');
+                $query->whereNot('dept', 'Product Assembly');
             } else {
                 $query->where(function($query) {
-                    $query->orWhereIn('core_flag', ['Y'])
+                    $query->orWhere('core_flag', 'Y')
                         ->orWhere('dept', 'Product Assembly');
                 });
             }
@@ -166,7 +188,14 @@ class Order extends Model
 
         if (in_array(4, $filter['supplier'])) {
             $query = DB::table('staples_order')
-            ->selectRaw('sku_id AS sku, sell_uom_id AS uom, SUM(qty) AS quantity_purchased, item_description_id AS description, primary_product_hierarchy_desc AS category, SUM(adj_gross_sales) as total_spend')
+            ->selectRaw(
+                'sku_id AS sku,
+                sell_uom_id AS uom,
+                SUM(qty) AS quantity_purchased,
+                item_description_id AS description,
+                primary_product_hierarchy_desc AS category,
+                SUM(adj_gross_sales) as total_spend'
+            )
             ->groupBy('sku_id');
             $query->whereIn('master_customer_number_id', $accountNumber);
 
@@ -177,14 +206,14 @@ class Order extends Model
             if ($filter['core'] == 1) {
                 $query->where(function($query) {
                     $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
-                          ->orWhere('on_contract_id', 'N')
-                          ->orWhereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
+                        ->orWhere('on_contract_id', 'N')
+                        ->orWhereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
                 });
             } else {
                 $query->where(function($query) {
                     $query->whereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
-                          ->orWhere('on_contract_id', 'Y')
-                          ->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
+                        ->orWhere('on_contract_id', 'Y')
+                        ->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
                 });
             }
 
@@ -197,7 +226,14 @@ class Order extends Model
 
         if (in_array(5, $filter['supplier'])) {
             $query = DB::table('wb_mason_order')
-            ->selectRaw('category_umbrella AS category, uom, SUM(qty) AS quantity_purchased, item_num AS sku, item_name AS description, SUM(ext_price) as total_spend')
+            ->selectRaw(
+                'category_umbrella AS category,
+                uom,
+                SUM(qty) AS quantity_purchased,
+                item_num AS sku,
+                item_name AS description,
+                SUM(ext_price) as total_spend'
+            )
             ->groupBy('item_num');
             $query->whereIn('customer_num', $accountNumber);
 
@@ -206,15 +242,11 @@ class Order extends Model
             }
 
             if ($filter['core'] == 2) {
-                // $query->where(function($query) {
-                    $query->orWhere('price_method', 'LIKE', 'PPL%');
-                    $query->orWhere('price_method', 'LIKE', 'CTL%');
-                // });
+                $query->where('price_method', 'LIKE', 'PPL%');
+                $query->where('price_method', 'LIKE', 'CTL%');
             } else {
-                // $query->where(function($query) {
-                    $query->where('price_method', 'NOT LIKE', 'PPL%');
-                    $query->where('price_method', 'NOT LIKE', 'CTL%');
-                // });
+                $query->where('price_method', 'NOT LIKE', 'PPL%');
+                $query->where('price_method', 'NOT LIKE', 'CTL%');
             } 
 
             $query->orderBy('total_spend', 'desc')->limit(100);
@@ -225,7 +257,13 @@ class Order extends Model
 
         if (in_array(2, $filter['supplier'])) {
             $query = DB::table('grainger_order')
-            ->selectRaw('material  AS sku, material_description AS description, material_segment AS category, SUM(billing_qty) AS quantity_purchased, SUM(purchase_amount) as total_spend')
+            ->selectRaw(
+                'material  AS sku,
+                material_description AS description,
+                material_segment AS category,
+                SUM(billing_qty) AS quantity_purchased,
+                SUM(purchase_amount) as total_spend'
+            )
             ->groupBy('material');
             $query->whereIn('account_number', $accountNumber);
 
@@ -234,9 +272,9 @@ class Order extends Model
             }
 
             if ($filter['core'] == 2) {
-                $query->whereIn('active_price_point', ['CSP']);
+                $query->where('active_price_point', 'CSP');
             } else {
-                $query->whereNotIn('active_price_point', ['CSP']);
+                $query->whereNot('active_price_point', 'CSP');
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
@@ -247,7 +285,13 @@ class Order extends Model
 
         if (in_array(1, $filter['supplier'])) {
             $query = DB::table('g_and_t_laboratories_charles_river_order')
-            ->selectRaw('product  AS sku, description AS description, categories AS category, SUM(quantity_shipped) AS quantity_purchased, SUM(total_spend) as total_spend')
+            ->selectRaw(
+                'product  AS sku,
+                description AS description,
+                categories AS category,
+                SUM(quantity_shipped) AS quantity_purchased,
+                SUM(total_spend) as total_spend'
+            )
             ->groupBy('product');
             $query->whereIn('sold_to_account', $accountNumber);
 
@@ -261,7 +305,9 @@ class Order extends Model
                 $query->where('off_core_spend', '>', 0);
             }
 
-            $query->orderBy('total_spend', 'desc')->limit(100);
+            $query->orderBy('total_spend', 'desc')
+            ->limit(100);
+
             $queryData5 = $query->get()->toArray();
         } else {
             $queryData5 = [];
