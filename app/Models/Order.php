@@ -205,7 +205,7 @@ class Order extends Model
 
             if ($filter['core'] == 1) {
                 $query->where(function($query) {
-                    $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
+                    $query->orWhereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
                         ->orWhere('on_contract_id', 'N')
                         ->orWhereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
                 });
