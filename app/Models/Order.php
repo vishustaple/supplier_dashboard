@@ -242,11 +242,15 @@ class Order extends Model
             }
 
             if ($filter['core'] == 2) {
-                $query->where('price_method', 'LIKE', 'PPL%');
-                $query->where('price_method', 'LIKE', 'CTL%');
+                $query->where(function($query) {
+                    $query->orWhere('price_method', 'LIKE', 'PPL%')
+                        ->orWhere('price_method', 'LIKE', 'CTL%');
+                });
             } else {
-                $query->where('price_method', 'NOT LIKE', 'PPL%');
-                $query->where('price_method', 'NOT LIKE', 'CTL%');
+                $query->where(function($query) {
+                    $query->orWhere('price_method', 'NOT LIKE', 'PPL%')
+                        ->orWhere('price_method', 'NOT LIKE', 'CTL%');
+                });
             } 
 
             $query->orderBy('total_spend', 'desc')->limit(100);
