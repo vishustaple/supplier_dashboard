@@ -137,10 +137,7 @@ class validateUploadedFile extends Command
                                     $chunkSize = 0;
 
                                     if ($fileExist->count() > 0) {
-                                        dd($fileExist->count());
-                                        if (!empty($startDate)) {
-                                            dd($startDate);
-                                        }
+                                        dd($fileExist->count(), $dates);
                                         /** Update cron two means start processing data into excel */
                                         DB::table('uploaded_files')->where('id', $fileValue->id)
                                         ->update([
@@ -167,10 +164,7 @@ class validateUploadedFile extends Command
                         })->where('supplier_id', $fileValue->supplier_id);
                 
                         if ($fileExist->count() > 0) {
-                            dd($fileExist->count());
-                            if (!empty($startDate)) {
-                                dd($startDate);
-                            }
+                            dd($fileExist->count(), $dates);
                             /** Update cron two means start processing data into excel */
                             DB::table('uploaded_files')->where('id', $fileValue->id)
                             ->update([
