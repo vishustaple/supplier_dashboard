@@ -152,7 +152,10 @@ class Order extends Model
             if ($filter['core'] == 1) {
                 $query->whereIn('core_flag', ['N']);
             } else {
-                $query->whereIn('core_flag', ['Y']);
+                $query->where(function($query) {
+                    $query->orWhereIn('core_flag', ['Y'])
+                        ->orWhere('dept', 'Product Assembly');
+                });
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
@@ -172,10 +175,6 @@ class Order extends Model
             }
 
             if ($filter['core'] == 1) {
-                // $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
-                // $query->whereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
-                // $query->where('on_contract_id', '=', 'N');
-
                 $query->where(function($query) {
                     $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
                           ->orWhere('on_contract_id', 'N')
@@ -187,10 +186,6 @@ class Order extends Model
                           ->orWhere('on_contract_id', 'Y')
                           ->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
                 });
-                // $query->orWhereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
-                // // $query->orWhereIn('transaction_source_system_desc', ['Sunrise']);
-                // $query->orWhere('on_contract_id', '=', 'Y');
-                // $query->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
@@ -211,9 +206,15 @@ class Order extends Model
             }
 
             if ($filter['core'] == 2) {
-                $query->orWhere('price_method', 'LIKE', 'PPL%')->orWhere('price_method', 'LIKE', 'CTL%');
+                $query->where(function($query) {
+                    $query->orWhere('price_method', 'LIKE', 'PPL%')
+                        ->orWhere('price_method', 'LIKE', 'CTL%');
+                });
             } else {
-                $query->orWhere('price_method', 'NOT LIKE', 'PPL%')->orWhere('price_method', 'NOT LIKE', 'CTL%');
+                $query->where(function($query) {
+                    $query->orWhere('price_method', 'NOT LIKE', 'PPL%')
+                        ->orWhere('price_method', 'NOT LIKE', 'CTL%');
+                });
             } 
 
             $query->orderBy('total_spend', 'desc')->limit(100);
@@ -253,7 +254,7 @@ class Order extends Model
             if (isset($filter['year'])) {
                 $query->whereYear('date', $filter['year']);
             }
-            
+
             if ($filter['core'] == 2) {
                 $query->where('on_core_spend', '>', 0);
             } else {
