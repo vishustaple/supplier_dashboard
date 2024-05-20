@@ -172,19 +172,30 @@ class Order extends Model
             }
 
             if ($filter['core'] == 1) {
-                $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
-                $query->whereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
-                $query->where('on_contract_id', '=', 'N');
+                // $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
+                // $query->whereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
+                // $query->where('on_contract_id', '=', 'N');
+
+                $query->where(function($query) {
+                    $query->whereNotIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
+                          ->orWhere('on_contract_id', 'N')
+                          ->orWhereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
+                });
             } else {
-                $query->orWhereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
-                // $query->orWhereIn('transaction_source_system_desc', ['Sunrise']);
-                $query->orWhere('on_contract_id', '=', 'Y');
-                $query->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
+                $query->where(function($query) {
+                    $query->whereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
+                          ->orWhere('on_contract_id', 'Y')
+                          ->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
+                });
+                // $query->orWhereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions']);
+                // // $query->orWhereIn('transaction_source_system_desc', ['Sunrise']);
+                // $query->orWhere('on_contract_id', '=', 'Y');
+                // $query->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo']);
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
             $queryData2 = $query->get()->toArray();
-            dd($query->toSql(), $query->getBindings());
+            // dd($query->toSql(), $query->getBindings());
         } else {
             $queryData2 = [];
         }
