@@ -786,13 +786,13 @@ class Order extends Model
         // dd($filter);
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
-            0 => 'account_name',
+            0 => 'commission_rebate_detail.account_name',
             1 => 'suppliers.supplier_name',
-            2 => 'amount',
-            3 => 'volume_rebate',
-            4 => 'commissions',
-            5 => 'start_date',
-            6 => 'end_date',
+            2 => 'commission_rebate_detail.spend',
+            3 => 'commission_rebate_detail.volume_rebate',
+            4 => 'commission_rebate_detail.commission',
+            5 => 'commission_rebate_detail.start_date',
+            6 => 'commission_rebate_detail.end_date',
         ];
 
         $query = CommissionRebateDetail::query()->selectRaw(
@@ -881,7 +881,11 @@ class Order extends Model
         /** Get total records count (without filtering) */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             /** Order by column and direction */
-            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+            if (in_array($filter['order'][0]['column'], [2, 3, 4])) {
+                $query->orderBy(DB::raw('CAST('.$orderColumnArray[$filter['order'][0]['column']].' AS DECIMAL(10, 2))'), $filter['order'][0]['dir']);
+            } else {
+                $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+            }
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
