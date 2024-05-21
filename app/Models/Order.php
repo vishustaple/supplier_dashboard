@@ -814,7 +814,7 @@ class Order extends Model
     }
 
     public static function getCommissionReportFilterdDataSecond($filter = [], $csv = false){
-        dd($filter);
+        // dd($filter);
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
             0 => 'suppliers.supplier_name',
