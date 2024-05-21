@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,16 +34,12 @@ class Order extends Model
         $res[2] = ['April', 'May', 'June'];
         $res[3] = ['July', 'August', 'September'];
         $res[4] = ['October', 'November', 'December'];
-
         $monthDates = [];
+
         for ($month = 1; $month <= 12; $month++) {
             $start = date('Y-m-01', strtotime("$year-$month-01"));
             $end = date('Y-m-t', strtotime("$year-$month-01"));
-    
-            $monthDates[] = [
-                'start_date' => $start,
-                'end_date' => $end,
-            ];
+            $monthDates[] = ['start_date' => $start, 'end_date' => $end];
         }
 
         $startDate1 = $monthDates[0]['start_date'];
@@ -627,7 +622,6 @@ class Order extends Model
 
         $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))->where('id', $filter['sales_rep'])->first();
 
-        // GROUP_CONCAT(CONCAT_WS('_', `id`)) as `id`',
         $query = CommissionRebate::query()->selectRaw(
             "GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`,
             SUM(`commission`) as `commission`,
@@ -664,41 +658,16 @@ class Order extends Model
         /** Year and quarter filter here */
         if (isset($filter['year']) || !empty($filter['quarter'])) {
             $year = $filter['year'];
-
-            $res[1] =[
-                'January',
-                'February',
-                'March',
-            ];
-
-            $res[2] = [
-                'April',
-                'May',
-                'June',
-            ];
-
-            $res[3] = [
-                'July',
-                'August',
-                'September',
-            ];
-
-            $res[4] = [
-                'October',
-                'November',
-                'December',
-            ];
-
+            $res[1] =['January', 'February', 'March'];
+            $res[2] = ['April', 'May', 'June'];
+            $res[3] = ['July', 'August', 'September'];
+            $res[4] = ['October', 'November', 'December'];
             $monthDates = [];
 
             for ($month = 1; $month <= 12; $month++) {
                 $start = date('Y-m-01', strtotime("$year-$month-01"));
                 $end = date('Y-m-t', strtotime("$year-$month-01"));
-        
-                $monthDates[] = [
-                    'start_date' => $start,
-                    'end_date' => $end,
-                ];
+                $monthDates[] = ['start_date' => $start, 'end_date' => $end];
             }
 
             if($filter['quarter'] == 'Quarter 1'){
@@ -730,7 +699,7 @@ class Order extends Model
             // dd($startDate, $endDate);
             // $query->whereBetween($startDate, $endDate);
             $query->whereDate('start_date', '>=', $startDate)
-            ->whereDate('end_date', '<=', $endDate);
+                ->whereDate('end_date', '<=', $endDate);
         }
 
         // dd($query->toSql(), $query->getBindings());
@@ -845,30 +814,10 @@ class Order extends Model
          /** Year and quarter filter here */
          if (isset($filter['year']) || !empty($filter['quarter'])) {
             $year = $filter['year'];
-
-            $res[1] =[
-                'January',
-                'February',
-                'March',
-            ];
-
-            $res[2] = [
-                'April',
-                'May',
-                'June',
-            ];
-
-            $res[3] = [
-                'July',
-                'August',
-                'September',
-            ];
-
-            $res[4] = [
-                'October',
-                'November',
-                'December',
-            ];
+            $res[1] =['January', 'February', 'March'];
+            $res[2] = ['April', 'May', 'June'];
+            $res[3] = ['July', 'August', 'September'];
+            $res[4] = ['October', 'November', 'December'];
 
             $monthDates = [];
 
@@ -876,10 +825,7 @@ class Order extends Model
                 $start = date('Y-m-01', strtotime("$year-$month-01"));
                 $end = date('Y-m-t', strtotime("$year-$month-01"));
         
-                $monthDates[] = [
-                    'start_date' => $start,
-                    'end_date' => $end,
-                ];
+                $monthDates[] = ['start_date' => $start, 'end_date' => $end];
             }
 
             if($filter['quarter'] == 'Quarter 1'){
@@ -914,6 +860,10 @@ class Order extends Model
 
         /** Filter the data on the bases of commission_rebate_id */
         if (isset($filter['commission_rebate_id']) && !empty($filter['commission_rebate_id'])) {
+            if (is_string($filter['commission_rebate_id'])) {
+                $filter['commission_rebate_id'] = explode(',', $filter['commission_rebate_id']);
+            }
+
             $query->whereIn('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
         }
 
@@ -995,43 +945,20 @@ class Order extends Model
         /** Year and quarter filter here */
         if (isset($filter['year']) || !empty($filter['quarter'])) {
             $year = $filter['year'];
-
-            $res[1] =[
-                'January',
-                'February',
-                'March',
-            ];
-
-            $res[2] = [
-                'April',
-                'May',
-                'June',
-            ];
-
-            $res[3] = [
-                'July',
-                'August',
-                'September',
-            ];
-
-            $res[4] = [
-                'October',
-                'November',
-                'December',
-            ];
-
+            $res[1] =['January', 'February', 'March'];
+            $res[2] = ['April', 'May', 'June'];
+            $res[3] = ['July', 'August', 'September'];
+            $res[4] = ['October', 'November', 'December'];
             $monthDates = [];
 
             for ($month = 1; $month <= 12; $month++) {
                 $start = date('Y-m-01', strtotime("$year-$month-01"));
                 $end = date('Y-m-t', strtotime("$year-$month-01"));
-        
-                $monthDates[] = [
-                    'start_date' => $start,
-                    'end_date' => $end,
-                ];
+                $monthDates[] = ['start_date' => $start, 'end_date' => $end];
             }
+
             $startDate = $monthDates[0]['start_date'];
+
             if($filter['quarter'] == 'Quarter 1'){
                 $endDate = $monthDates[2]['end_date'];
             }
@@ -1054,7 +981,7 @@ class Order extends Model
             }
 
             $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
-            ->whereDate('commission_rebate_detail.start_date', '<=', $endDate);
+                ->whereDate('commission_rebate_detail.start_date', '<=', $endDate);
         }
 
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
@@ -1089,7 +1016,7 @@ class Order extends Model
             12 => 'Packaging',
         ];
 
-        $query = self::query() // Replace YourModel with the actual model you are using for the data   
+        $query = self::query() /** Replace YourModel with the actual model you are using for the data */
         ->selectRaw(
             'suppliers.supplier_name as supplier_name,
             suppliers.id as supplier_id,
@@ -1197,7 +1124,7 @@ class Order extends Model
             ];
             return $finalArray;
         } else {
-            // Return the result along with total and filtered counts
+            /** Return the result along with total and filtered counts */
             return [
                 'data' => $finalArray,
                 'recordsTotal' => $totalRecords,
