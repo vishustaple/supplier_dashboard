@@ -786,12 +786,13 @@ class Order extends Model
         // dd($filter);
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
-            0 => 'suppliers.supplier_name',
-            1 => 'amount',
-            2 => 'volume_rebate',
-            3 => 'commissions',
-            4 => 'start_date',
-            5 => 'end_date',
+            0 => 'account_name',
+            1 => 'suppliers.supplier_name',
+            2 => 'amount',
+            3 => 'volume_rebate',
+            4 => 'commissions',
+            5 => 'start_date',
+            6 => 'end_date',
         ];
 
         $query = CommissionRebateDetail::query()->selectRaw(
