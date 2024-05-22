@@ -620,7 +620,9 @@ class Order extends Model
             6 => 'end_date',
         ];
 
-        $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))->where('id', $filter['sales_rep'])->first();
+        $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))
+        ->where('id', $filter['sales_rep'])
+        ->first();
 
         $query = CommissionRebate::query()->selectRaw(
             "GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`,
@@ -636,11 +638,7 @@ class Order extends Model
         if (isset($filter['sales_rep']) && !empty($filter['sales_rep'])) {
             $query->where('sales_rep', $filter['sales_rep']);
         } else {
-            return [
-                'data' => [],
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
+            return ['data' => [], 'recordsTotal' => 0, 'recordsFiltered' => 0];
         }
     
         if (isset($filter['approved']) || !empty($filter['approved'])) {
@@ -715,14 +713,14 @@ class Order extends Model
 
         $datas = $query->get();
         // dd($datas);
-        $totals = [];
+        $annual = [];
         if (isset($datas) && $datas->isNotEmpty()) {
             if ($filter['quarter'] == 'Annual') {
                 $annual["commission"] = 0;
                 $annual["volume_rebate"] = 0;
                 $annual["spend"] = 0;
-                $annual["approved"] = 0;
-                $annual["paid"] = 0;
+                $annual["approved"] = 1;
+                $annual["paid"] = 1;
                 foreach ($datas as $key => $data) {
                     if (!isset($annual["ids"])) {
                         $annual["ids"] = $data->ids;
@@ -733,11 +731,12 @@ class Order extends Model
                     $annual["commission"] += $data->commission;
                     $annual["volume_rebate"] += $data->volume_rebate;
                     $annual["spend"] += $data->spend;
-                    $annual["approved"] *= $data->approved;
                     $annual["paid"] *= $data->paid;
+                    $annual["approved"] *= $data->approved;
                 }
             }
 
+            // dd($annual);
             /** Making final array */
             $finalArray=[];
             $ids = 1;
@@ -786,29 +785,21 @@ class Order extends Model
                 $ids++;
             }
                 
-            if ($filter['quarter'] == 'Annual') {
+            if ($filter['quarter'] == 'Annual' && !$csv) {
+                $finalArray = [];
                 $finalArrays['approved'] = (($annual["approved"] == 0) ? ('No') : ('Yes'));
                 $finalArrays['paid'] = (($annual["paid"] == 0) ? ('No') : ('Yes'));
                 $finalArrays['sales_rep'] = $salesRep->sales_rep;
                 $finalArrays['amount'] = '$'.number_format($annual["spend"], 2);
                 $finalArrays['volume_rebate'] = '$'.number_format($annual["volume_rebate"], 2);
                 $finalArrays['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$annual["ids"].']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($annual["commission"], 2).'</button> <button data-id="['.$annual["ids"].']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
-
                 $finalArray[] = $finalArrays;
             }
-            // dd($finalArray);
+
             /** Defining returning final array for datatable */
-            return [
-                'data' => $finalArray,
-                'recordsTotal' => $totalRecords, // Use count of formatted data for total records
-                'recordsFiltered' => $totalRecords, // Use total records from the query
-            ];
+            return ['data' => $finalArray, 'recordsTotal' => $totalRecords, 'recordsFiltered' => $totalRecords];
         } else {
-            return [
-                'data' => [],
-                'recordsTotal' => 0, // Use count of formatted data for total records
-                'recordsFiltered' => 0, // Use total records from the query
-            ];
+            return ['data' => [], 'recordsTotal' => 0, 'recordsFiltered' => 0];
         }
     }
 
