@@ -714,8 +714,30 @@ class Order extends Model
         }
 
         $datas = $query->get();
-
+        // dd($datas);
+        $totals = [];
         if (isset($datas) && $datas->isNotEmpty()) {
+            if ($filter['quarter'] == 'Annual') {
+                $annual["commission"] = 0;
+                $annual["volume_rebate"] = 0;
+                $annual["spend"] = 0;
+                $annual["approved"] = 0;
+                $annual["paid"] = 0;
+                foreach ($datas as $key => $data) {
+                    if (!isset($annual["ids"])) {
+                        $annual["ids"] = $data->ids;
+                    } else {
+                        $annual["ids"] .= ($annual["ids"] === "" ? "" : ",") . $data->ids;
+                    }
+                    
+                    $annual["commission"] += $data->commission;
+                    $annual["volume_rebate"] += $data->volume_rebate;
+                    $annual["spend"] += $data->spend;
+                    $annual["approved"] *= $data->approved;
+                    $annual["paid"] *= $data->paid;
+                }
+            }
+
             /** Making final array */
             $finalArray=[];
             $ids = 1;
@@ -759,14 +781,22 @@ class Order extends Model
                     $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
                     $finalArray[$key]['amount'] = '$'.number_format($data->spend, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
-                    // if ($data->approved == 1) {
-                        // $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <a id="downloadCsvBtn" class="btn ms-2 btn-primary" href="'.route('commission-file.download', ['sales_rep' => $filter['sales_rep']]).'">Download Report</a></div>';
-                    // } else {
-                        $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$data->ids.']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button data-id="['.$data->ids.']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
-                    // }
+                    $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$data->ids.']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button data-id="['.$data->ids.']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                 }
                 $ids++;
             }
+                
+            if ($filter['quarter'] == 'Annual') {
+                $finalArrays['approved'] = (($annual["approved"] == 0) ? ('No') : ('Yes'));
+                $finalArrays['paid'] = (($annual["paid"] == 0) ? ('No') : ('Yes'));
+                $finalArrays['sales_rep'] = $salesRep->sales_rep;
+                $finalArrays['amount'] = '$'.number_format($annual["spend"], 2);
+                $finalArrays['volume_rebate'] = '$'.number_format($annual["volume_rebate"], 2);
+                $finalArrays['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$annual["ids"].']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($annual["commission"], 2).'</button> <button data-id="['.$annual["ids"].']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
+
+                $finalArray[] = $finalArrays;
+            }
+            // dd($finalArray);
             /** Defining returning final array for datatable */
             return [
                 'data' => $finalArray,
