@@ -30,7 +30,7 @@ class ProcessCommissionAndRebate extends Command
     public function handle()
     {
         $finalYear = 2024;
-        for ($year=2022; $year <= $finalYear; $year++) {
+        for ($year = 2020; $year <= $finalYear; $year++) {
             print_r($year);
             $salesRep = SalesTeam::select('id as sales_rep')->get();
             $res[1] =['January', 'February', 'March'];
