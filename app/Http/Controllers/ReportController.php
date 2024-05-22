@@ -455,7 +455,6 @@ class ReportController extends Controller
             $datas1['paid_check'] = $datas['paid_check'];
             unset($datas['paid_check']);
             foreach ($datas as $key => $data) {
-    
                 if (isset($data['quarter']) && $data['quarter'] == 1) {
                     $datas1['quarter1'] += $data['commissions'];
                 }
@@ -566,23 +565,21 @@ class ReportController extends Controller
     
                 $monthData[$key]['YTD'] = number_format($datas1['January'] + $datas1['February'] + $datas1['March'] + $datas1['April'] + $datas1['May'] + $datas1['June'] + $datas1['July'] + $datas1['August'] + $datas1['September'] + $datas1['October'] + $datas1['November'] + $datas1['December'], 2);
                 // number_format($monthData[$key]['January'] + $monthData[$key]['February'] + $monthData[$key]['March'] + $monthData[$key]['April'] + $monthData[$key]['May'] + $monthData[$key]['June'] + $monthData[$key]['July'] + $monthData[$key]['August'] + $monthData[$key]['September'] + $monthData[$key]['October'] + $monthData[$key]['November'] + $monthData[$key]['December'] , 2);
-                $datas1['YTD'] = number_format($datas1['January'] + $datas1['February'] + $datas1['March'] + $datas1['April'] + $datas1['May'] + $datas1['June'] + $datas1['July'] + $datas1['August'] + $datas1['September'] + $datas1['October'] + $datas1['November'] + $datas1['December'], 2);
-
-                
+                $datas1['YTD'] = number_format($datas1['January'] + $datas1['February'] + $datas1['March'] + $datas1['April'] + $datas1['May'] + $datas1['June'] + $datas1['July'] + $datas1['August'] + $datas1['September'] + $datas1['October'] + $datas1['November'] + $datas1['December'], 2); 
             }
     
             $datas1['January'] = number_format($datas1['January'], 2);
-                $datas1['February'] = number_format($datas1['February'], 2);
-                $datas1['March'] = number_format($datas1['March'], 2);
-                $datas1['April'] = number_format($datas1['April'], 2);
-                $datas1['May'] = number_format($datas1['May'], 2);
-                $datas1['June'] = number_format($datas1['June'], 2);
-                $datas1['July'] = number_format($datas1['July'], 2);
-                $datas1['August'] = number_format($datas1['August'], 2);
-                $datas1['September'] = number_format($datas1['September'], 2);
-                $datas1['October'] = number_format($datas1['October'], 2);
-                $datas1['November'] = number_format($datas1['November'], 2);
-                $datas1['December'] = number_format($datas1['December'], 2);
+            $datas1['February'] = number_format($datas1['February'], 2);
+            $datas1['March'] = number_format($datas1['March'], 2);
+            $datas1['April'] = number_format($datas1['April'], 2);
+            $datas1['May'] = number_format($datas1['May'], 2);
+            $datas1['June'] = number_format($datas1['June'], 2);
+            $datas1['July'] = number_format($datas1['July'], 2);
+            $datas1['August'] = number_format($datas1['August'], 2);
+            $datas1['September'] = number_format($datas1['September'], 2);
+            $datas1['October'] = number_format($datas1['October'], 2);
+            $datas1['November'] = number_format($datas1['November'], 2);
+            $datas1['December'] = number_format($datas1['December'], 2);
                 
             if ($datas1['quarter1'] != 0) {
                 $datas1['quarter1'] = number_format($datas1['quarter1'], 2);
@@ -604,13 +601,17 @@ class ReportController extends Controller
             $datas1['paid_date'] = $allCommission['paid_date'];
             $datas1['month'] = $monthData;
             $datas1['commission_data'] = $datas;
-            $datas1['quarter'] = explode(' ', $request->input('quarter'))[1];
-            $datas1['year'] = $request->input('year');                       
+
+            if ($request->input('quarter') == 'Annual') {
+                $datas1['quarter'] = ' '.$request->input('quarter');
+            } else {
+                $datas1['quarter'] = explode(' ', $request->input('quarter'))[1];
+            }
+
+            $datas1['year'] = $request->input('year');
 
             $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
-            // print_r($pdf);
-            // die;
-            // return $pdf;
+
             return $pdf->download('pdf_commission_report.pdf');
         }
     }
