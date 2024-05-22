@@ -309,7 +309,7 @@ class Account extends Model
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
             ->where('master_account_detail.account_name', $search['account_name']);
 
-            if ($search['check'] == true) {
+            if (isset($search['check']) && $search['check'] == true) {
                 $query->whereIn('master_account_detail.category_supplier', [1, 2, 3, 4, 5]);
                 $query->groupBy('master_account_detail.category_supplier');
                 $results = $query->get();
@@ -319,7 +319,7 @@ class Account extends Model
 
             $finalArray = [];
             if ($results !== null) {
-                if ($search['check'] == true) {
+                if (isset($search['check']) && $search['check'] == true) {
                     foreach ($results as $value) {
                         $finalArray[] = ['supplier' => $value->supplier_name, 'id' => $value->id];
                     }

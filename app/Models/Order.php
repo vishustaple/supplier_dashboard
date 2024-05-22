@@ -776,7 +776,9 @@ class Order extends Model
                             <option value="0" selected>NO</option>
                         </select>';
                     }
-    
+
+                    $finalArray[$key]['end_date'] = date_format(date_create($endDate), 'm/d/Y');
+                    $finalArray[$key]['start_date'] = date_format(date_create($startDate), 'm/d/Y');
                     $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
                     $finalArray[$key]['amount'] = '$'.number_format($data->spend, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
@@ -787,6 +789,8 @@ class Order extends Model
                 
             if ($filter['quarter'] == 'Annual' && !$csv) {
                 $finalArray = [];
+                $finalArrays['end_date'] = date_format(date_create($endDate), 'm/d/Y');
+                $finalArrays['start_date'] = date_format(date_create($startDate), 'm/d/Y');
                 $finalArrays['approved'] = (($annual["approved"] == 0) ? ('No') : ('Yes'));
                 $finalArrays['paid'] = (($annual["paid"] == 0) ? ('No') : ('Yes'));
                 $finalArrays['sales_rep'] = $salesRep->sales_rep;
