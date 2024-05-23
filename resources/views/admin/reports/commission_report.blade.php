@@ -123,7 +123,6 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
 <script>
     $(document).ready(function() {
         $("#paid_date").datepicker();
@@ -193,11 +192,9 @@
                 $('#paidModal').modal('show');
 
                 // Execute code when modal is closed
-                $("#paidModal").on('hidden.bs.modal', function () {
-                    // Your code here
-                    console.log('Modal closed');
-                    // You can call a function, perform an AJAX request, or any other action here
-                });
+                // $("#paidModal").on('hidden.bs.modal', function () {
+                //     // You can call a function, perform an AJAX request, or any other action here
+                // });
             }
         });
 

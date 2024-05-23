@@ -9,14 +9,10 @@
                 <h3 class="mb-0 ">{{ $pageTitle }}</h3>
                 <a href="{{ route('commission.add-view') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Add Commissions</a>
-                <!-- <button id="downloadCommissionCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                    </div> -->
             </div>
             <table class="data_table_files" id="commission_data">
                 <thead>
                     <tr>
-                        <!-- <th>Customer Name</th>
-                        <th>Customer Number</th> -->
                         <th>Account Name</th>
                         <th>Supplier</th>
                         <th>Sales Rep</th>
@@ -126,8 +122,6 @@
                 $('#manualLoader').hide();
             },
             columns: [
-                // { data: 'customer_name', name: 'customer_name' },
-                // { data: 'customer_number', name: 'customer_number' },
                 { data: 'account_name', name: 'account_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'sales_rep', name: 'sales_rep' },
@@ -153,13 +147,13 @@
             window.open(csvUrl, '_blank');
         }
 
-        $('.dateRangePicker').daterangepicker({  
+        $('.dateRangePicker').daterangepicker({
+                autoApply: true,
                 showDropdowns: false,
                 linkedCalendars: false,
         });
         
         var myModal = document.getElementById('editCommissionModal');
-        console.log(myModal);
         myModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget, // Button that triggered the modal
             id = button.getAttribute('data-id'), // Extract value from data-* attributes

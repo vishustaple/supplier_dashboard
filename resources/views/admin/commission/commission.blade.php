@@ -111,7 +111,9 @@
                                     <input type="hidden" class="count" value="1"><select class="mySelectAccountNames mySelectAccountName form-control-sm" name="account_name[]" required><option value="">Select</option></select>
                                 </td>
                                 <td>
-                                    <input type="hidden" class="supplier_id" name="supplier[]" value=""><input type="text" class="mySelectSupplier form-control-sm" disabled name="suppliers[]" value="" >
+                                    <select class="mySelectSupplier form-control-sm" name="supplier[]" aria-label="Default select example" required>
+                                        <option selected>--select--</option>
+                                    </select>
                                 </td>
                                 <td>
                                     <select id="selectBox" name="sales_rep[]" class="mySelectSalesRep form-control-sm" required> 
@@ -219,12 +221,23 @@
                         url: "{{ route('commission.supplierSearch') }}",
                         method: 'GET',
                         data: {
-                            account_name: accountName
+                            account_name: accountName,
+                            check: true,
                         },
                         success: function(response) {
                             // Handle the AJAX response
-                            $('.supplier_id'+count+'').val(response[0].id);
-                            $('.mySelectSupplier'+count+'').val(response[0].supplier);
+                            // Clear any existing options in the select element
+                            $('.mySelectSupplier'+count+'').empty();
+
+                            // Append each object as an option in the select element
+                            response.forEach(function(item) {
+                                $('.mySelectSupplier'+count+'').append(
+                                    $('<option>', {
+                                        value: item.id,
+                                        text: item.supplier
+                                    })
+                                );
+                            });
                         },
                         error: function(xhr, status, error) {
                             // Handle errors
@@ -236,6 +249,7 @@
 
             function setDate(count=''){
                 $('.dateRangePicker'+count+'').daterangepicker({  
+                    autoApply: true,
                     showDropdowns: false,
                     linkedCalendars: false,
                 });
@@ -248,7 +262,7 @@
                 // Your existing code to append rows to the table
                 var count = $('#commission_table tbody tr').length + 1;
 
-                $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountNames mySelectAccountName'+count+'" name="account_name[]" required><option value="">Select</option></select></td><td><input class="supplier_id'+count+'" type="hidden" name="supplier[]" value=""><input type="text" required class="mySelectSupplier'+count+' form-control-sm" disabled name="suppliers[]" value=""></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm" required><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" required /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range" required></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></div></td></tr>');
+                $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountNames mySelectAccountName'+count+'" name="account_name[]" required><option value="">Select</option></select></td><td><select class="mySelectSupplier'+count+' form-control-sm" name="supplier[]" aria-label="Default select example" required><option selected>--select--</option></select></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm" required><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" required /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range" required></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></div></td></tr>');
 
                 setDate(count);
                 selectCustomer(count);

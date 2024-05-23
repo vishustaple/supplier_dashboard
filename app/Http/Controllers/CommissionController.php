@@ -70,19 +70,19 @@ class CommissionController extends Controller
              * error is true and also set value of those account name into accountNameArray
              * For show account name which have already added commissions into error div
              */
-            foreach ($accountName as $key => $value) {
-                $result = DB::table('commission')->where('commission.account_name', $value)->exists();
+            // foreach ($accountName as $key => $value) {
+            //     $result = DB::table('commission')->where('commission.account_name', $value)->exists();
 
-                if ($result) {
-                    $error = true;
-                    $accountNameArray[] = $value;
-                }
-            }
+            //     if ($result) {
+            //         $error = true;
+            //         $accountNameArray[] = $value;
+            //     }
+            // }
 
-            /** Returning the error message */
-            if ($error == true) {
-                return response()->json(['error' => 'You have alraedy added commission of this '. implode(", ", $accountNameArray).'.'], 200);
-            }
+            // /** Returning the error message */
+            // if ($error == true) {
+            //     return response()->json(['error' => 'You have alraedy added commission of this '. implode(", ", $accountNameArray).'.'], 200);
+            // }
 
             /** If getting zero errors than save the data into commission table */
             foreach ($accountName as $key => $value) {

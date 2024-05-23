@@ -125,13 +125,10 @@
                         if ($(this).val() == 3) {
                             anyChecked3 = true;
                         }
-
-                        // Exit the loop if any checkbox is checked
                     }
                 });
 
                 if (!anyChecked3) {
-                    // businessdataTable.column('category:name').visible(true);
                     businessdataTable.column('unit_price_q1_price:name').visible(false);
                     businessdataTable.column('unit_price_q2_price:name').visible(false);
                     businessdataTable.column('unit_price_q3_price:name').visible(false);
@@ -142,7 +139,6 @@
                     businessdataTable.column('web_price_q4_price:name').visible(false);
                     businessdataTable.column('lowest_price:name').visible(false);
                 } else {
-                    // businessdataTable.column('category:name').visible(false);
                     businessdataTable.column('unit_price_q1_price:name').visible(true);
                     businessdataTable.column('unit_price_q2_price:name').visible(true);
                     businessdataTable.column('unit_price_q3_price:name').visible(true);
