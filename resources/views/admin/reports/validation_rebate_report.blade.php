@@ -148,8 +148,6 @@
                     }
 
                     // Set the content of the div with all accumulated error messages
-                   
-                   
                     if(response.success){
                         $('#page-loader').hide();
                         $('#successMessage').text(response.success);

@@ -1,8 +1,4 @@
-<!-- resources/views/excel-import.blade.php -->
-
-
 @extends('layout.app', ['pageTitleCheck' => $pageTitle])
-
  @section('content')
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
@@ -31,15 +27,13 @@
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
                     </div>
-               
-               
                     <div class="form-check relative col-2  mb-0">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="volume_rebate_check" checked>
+                            <input class="form-check-input" type="radio" name="rebate_check" value="1" id="volume_rebate_check" checked>
                             <label class="form-check-label" id="volume_rebate_check_label" for="volume_rebate_check">Volume Rebate</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="incentive_rebate_check" checked>
+                            <input class="form-check-input" type="radio" name="rebate_check" value="2" id="incentive_rebate_check" checked>
                             <label class="form-check-label" id="incentive_rebate_check_label" for="incentive_rebate_check">Incentive Rebate</label>
                         </div>
                     </div>
@@ -48,25 +42,19 @@
                         <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                         <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-2 fa-file-pdf"></i>PDF</button>
                     </div>
-                    </div>
-                    
-                   
-                    <!-- Button trigger modal -->
                 </div>
             </form>
-            <div class="row justify-content-end py-3 header_bar" style="display:none !important;">
-                <div class="col-md-4 card shadow border-0">
-                    <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_amount"></b></h6>
-                    <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
-                    <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
-                    <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
-                    <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
-                </div>
-            </div>
-            <table id="supplier_report_data" class="data_table_files">
-                <!-- Your table content goes here -->
-            </table>
         </div>
+        <div class="row justify-content-end py-3 header_bar" style="display:none !important;">
+            <div class="col-md-4 card shadow border-0">
+                <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_amount"></b></h6>
+                <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
+                <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
+                <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
+                <h6 class="d-flex justify-content-between">End Date: <b style="color:#000;" id="endDates"></b></h6>
+            </div>
+        </div>
+        <table id="supplier_report_data" class="data_table_files"></table>
     </div>
 </div>
 <style>
@@ -80,10 +68,8 @@
         z-index: 999999;
     }
 
-
     div#page-loader-wrap {
         text-align: center;
-        /* vertical-align: center !important; */
         margin-top: 20%;
     }
 
@@ -137,11 +123,11 @@
             if (selectedValue == 3) {
                 $('#incentive_rebate_check').show();
                 $('#incentive_rebate_check_label').show();
-                $('#incentive_rebate_check').prop('checked', true);
+                // $('#incentive_rebate_check').prop('checked', true);
             } else {
                 $('#incentive_rebate_check').hide();
                 $('#incentive_rebate_check_label').hide();
-                $('#incentive_rebate_check').prop('checked', false);
+                // $('#incentive_rebate_check').prop('checked', false);
             }
         });
 
@@ -150,7 +136,6 @@
             event.preventDefault();
             $('#startDates').text($('#enddate').data('daterangepicker').startDate.format('MM/DD/YYYY'));
             $('#endDates').text($('#enddate').data('daterangepicker').endDate.format('MM/DD/YYYY'));
-          
             $('.header_bar').attr('style', 'display:flex !important;');
 
             // Initiate DataTable AJAX request
@@ -163,11 +148,11 @@
             if (selectedValues == 3) {
                 $('#incentive_rebate_check').show();
                 $('#incentive_rebate_check_label').show();
-                $('#incentive_rebate_check').prop('checked', true);
+                // $('#incentive_rebate_check').prop('checked', true);
             } else {
                 $('#incentive_rebate_check').hide();
                 $('#incentive_rebate_check_label').hide();
-                $('#incentive_rebate_check').prop('checked', false);
+                // $('#incentive_rebate_check').prop('checked', false);
             }
 
             var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="total_amount">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
@@ -215,6 +200,7 @@
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
                     d.supplier = $('#supplier').val();
+                    d.rebate_check = $('input[name="rebate_check"]:checked').val();
                     d.end_date = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD');
                     d.start_date = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD');
                 },
@@ -260,10 +246,11 @@
             // You can customize this URL to match your backend route for CSV download
             var csvUrl = '{{ route("report.export-supplier_report-csv") }}', order = supplierDataTable.order(),
             start = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
-            end = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD');
+            end = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD'),
+            rebate_check = $('input[name="rebate_check"]:checked').val();
 
             // Add query parameters for date range and supplier ID
-            csvUrl += '?start_date=' + start + '&end_date=' + end + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val();
+            csvUrl += '?start_date=' + start + '&end_date=' + end + '&column=' + order[0][0] + '&order=' + order[0][1] + '&supplier=' + $('#supplier').val() + '&rebate_check=' + rebate_check;
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');

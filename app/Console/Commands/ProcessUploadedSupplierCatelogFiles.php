@@ -125,7 +125,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         // ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
         // ->whereIn('order_product_details.key', ['Purchase Amount'])
         ->where('orders.negative_amount', '<', 0)
-        ->where('orders.supplier_id', 5)
+        ->where('orders.supplier_id', 3)
         ->get();
         // dd($query);
         foreach ($query as $key => $value) {

@@ -69,10 +69,7 @@
 
             <div class="" id="successMessages"></div>
             <div class="" id="errorMessage"></div>
-
-            <table id="commission_report_data" class="data_table_files">
-                <!-- Your table content goes here -->
-            </table>
+            <table id="commission_report_data" class="data_table_files"></table>
         </div>
 
         <!-- Modal -->
@@ -350,8 +347,8 @@
                 { data: 'amount', name: 'amount', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'commission', name: 'commission', title: 'Commission'},
-                { data: 'start_date', name: 'start_date', title: 'Start Date'},
-                { data: 'end_date', name: 'end_date', title: 'End Date'},
+                // { data: 'start_date', name: 'start_date', title: 'Start Date'},
+                // { data: 'end_date', name: 'end_date', title: 'End Date'},
             ],
         });
 
