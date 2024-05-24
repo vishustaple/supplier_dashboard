@@ -1,5 +1,4 @@
 @extends('layout.app', ['pageTitleCheck' => $pageTitle])
-
  @section('content')
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
@@ -7,42 +6,25 @@
         <h3 class="mb-0 ps-2 ms-1">Manage Rebate</h3>
         <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
             <div class="col-md-12 mb-0 text-end">
-                <!-- <button id="downloadAccountCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button> -->
-                    <a href="{{route('rebate.list', ['rebateType' => 'edit_rebate'])}}" class="bell_icon_link btn btn-info position-relative">
-                       <i class="fa-solid fa-bell"></i>
-                        @if($totalMissingRebate)
-                            @if($totalMissingRebate > 0)
-                                <span class="notification-count">{{ $totalMissingRebate }}</span>
-                            @endif
+                <a href="{{route('rebate.list', ['rebateType' => 'edit_rebate'])}}" class="bell_icon_link btn btn-info position-relative">
+                    <i class="fa-solid fa-bell"></i>
+                    @if($totalMissingRebate)
+                        @if($totalMissingRebate > 0)
+                            <span class="notification-count">{{ $totalMissingRebate }}</span>
                         @endif
-                    </a>
-                </div>
+                    @endif
+                </a>
+            </div>
         </div> 
         <div class="container">
-        <div class="" id="successMessages">
+            <div class="" id="successMessages"></div>
+            <div class="" id="errorMessage"></div>
+            <table id="rebate_data" class="data_table_files"></table>
         </div>
-
-        <div class="" id="errorMessage">    
-        </div>
-        <table id="rebate_data" class="data_table_files">
-            <thead>
-                    <tr>
-                        <th>Account Number</th>
-                        <th>Customer Name</th>
-                        <th>Account Name</th>
-                        <th>Supplier</th>
-                        <th>Volume Rebate</th>
-                        <th class="inncnetive_rebate">Incentive Rebate</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-            </table>
     </div>
-</div>
 </div>
 <script>
     $(document).ready(function(){
-      
         var accountTable = $('#rebate_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
@@ -76,15 +58,14 @@
              
             },
             columns: [
-                { data: 'account_number', name: 'account_number' },
-                { data: 'customer_name', name: 'customer_name' },
-                { data: 'account_name', name: 'account_name' },
-                { data: 'supplier_name', name: 'supplier_name' },
-                { data: 'volume_rebate', name: 'volume_rebate', 'orderable': false, 'searchable': false  },
-                { data: 'incentive_rebate', name: 'incentive_rebate', 'orderable': false, 'searchable': false  },
-                { data: 'id', name: 'id', 'orderable': false, 'searchable': false }
+                { data: 'account_number', name: 'account_number', title: 'Account Number' },
+                { data: 'customer_name', name: 'customer_name', title: 'Customer Name' },
+                { data: 'account_name', name: 'account_name', title: 'Account Name' },
+                { data: 'supplier_name', name: 'supplier_name', title: 'Supplier' },
+                { data: 'volume_rebate', name: 'volume_rebate', 'orderable': false, 'searchable': false, title: 'Volume Rebate'  },
+                { data: 'incentive_rebate', name: 'incentive_rebate', 'orderable': false, 'searchable': false, title: 'Incentive Rebate'  },
+                { data: 'id', name: 'id', 'orderable': false, 'searchable': false, title: 'Action' }
             ],
-            
         });
         $('#rebate_data_length').hide();
         $(document).on('click', '.save_rebate', function(){
@@ -100,9 +81,8 @@
                 headers: {'X-CSRF-TOKEN': token},
                 contentType: 'application/json',                     
                 processData: false,
-                
                 success: function(response) {
-                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+                    // $('html, body').animate({ scrollTop: 0 }, 'slow');
                     if(response.error){
                         var errorMessage = '';
                         if (typeof response.error === 'object') {
@@ -120,7 +100,6 @@
                     if(response.success){
                         $('#successMessages').html('');
                         $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                        // window.location.href = "{{ route('commission.list', ['commissionType' => 'commission_listing']) }}";
                     }
                 },
                 error: function(xhr, status, error) {

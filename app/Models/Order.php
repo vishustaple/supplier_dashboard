@@ -444,13 +444,25 @@ class Order extends Model
         })
 
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
-        if (isset($filter['supplier']) && $filter['supplier'] == 4){
+        
+        if (isset($filter['supplier']) && ($filter['supplier'] == 4 || ($filter['supplier'] == 3 && $filter['rebate_check'] == 2))){
             $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
         }
-
+        
         // $query->where('orders.id', '<=', 932806);
-
+        
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            if ($filter['supplier'] == 3) {   
+                if ($filter['rebate_check'] == 1) {
+                    $query->whereIn('m2.grandparent_id', [1637, 1718, 2140, 2085, 2141]);
+                }
+
+                if ($filter['rebate_check'] == 2) {
+                    $query->whereIn('m2.grandparent_id', [1637, 1718, 2140]);
+                    $query->whereIn('order_product_details.key', ['DEPT']);
+                    $query->whereNotIn('order_product_details.value', ['non code', 'impulse buys', 'manage print service', 'custom bus essentials', 'custom outsourc prnt', 'product assembly', 'MARKETNG/VISUAL SRVC', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
+                }
+            }
             $query->where('orders.supplier_id', $filter['supplier']);
 
             if ($filter['supplier'] == 4) {
@@ -510,7 +522,7 @@ class Order extends Model
             $totalIncentiveRebate += $value->incentive_rebate;
             $totalAmount += $value->amount;
         }
-
+        // dd($query->toSql(), $query->getBindings());
         /** Formatting this */
         $totalAmounts = number_format($totalAmount, 2, '.', false);
         $totalVolumeRebates = number_format($totalVolumeRebate, 2, '.', false);
@@ -535,8 +547,10 @@ class Order extends Model
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['amount'] = number_format($value->amount, 2, '.', false);
-                    $finalArray[$key]['volume_rebate'] = number_format($value->volume_rebate, 2, '.', false);
-                    if ($filter['supplier'] == 3) {
+                    if ($filter['rebate_check'] == 1) {
+                        $finalArray[$key]['volume_rebate'] = number_format($value->volume_rebate, 2, '.', false);
+                    }
+                    if ($filter['supplier'] == 3 && $filter['rebate_check'] == 2) {
                         $finalArray[$key]['incentive_rebate'] = number_format($value->incentive_rebate, 2, '.', false);
                     }
                 } else {
@@ -553,21 +567,18 @@ class Order extends Model
             $startDates = date_format(date_create(trim($filter['start_date'])), 'm-d-Y');
             $endDates = date_format(date_create(trim($filter['end_date'])), 'm-d-Y');
 
-            if ($filter['supplier'] == 3) {
+            if ($filter['supplier'] == 3 && $filter['rebate_check'] == 2) {
                 /** Defining heading array for csv genration */
                 $finalArray['heading'] = [
                     'Supplier',
                     'Account_name',
                     'Amount',
-                    'Volume Rebate',
                     'Incentive Rebate',
                     '',
                     '',
                     '',
                     'Total Amount',
                     $totalAmounts,
-                    'Total Volume Rebate',
-                    $totalVolumeRebates,
                     'Total Incentive Rebate',
                     $totalIncentiveRebates,
                     'Start Date',
@@ -821,9 +832,9 @@ class Order extends Model
         ];
 
         $query = CommissionRebateDetail::query()->selectRaw(
-            "`commission_rebate_detail`.`spend` AS `amount`, 
-            `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
-            `commission_rebate_detail`.`commission` AS `commissions`,
+            "SUM(`commission_rebate_detail`.`spend`) AS `amount`, 
+            SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
+            SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
             `commission_rebate_detail`.`commission_percentage` AS `commission`,
             `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
             `suppliers`.`supplier_name` AS `supplier_name`,
@@ -898,6 +909,9 @@ class Order extends Model
             $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
         }
 
+        // $query->groupBy('suppliers.id');
+        $query->groupBy('commission_rebate_detail.account_name');
+
         // dd($query->toSql(), $query->getBindings());
 
         /** Selecting total record for pagination */
@@ -944,11 +958,11 @@ class Order extends Model
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
-                    $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
+                    // $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
+                    // $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
                     $finalArray[$key]['amount'] = '$'.number_format($value->amount, 2);
-                    $finalArray[$key]['commission'] = '$'.number_format($value->commissions, 2).' ('.(!empty($value->commissions) ? ($value->commission.'%') : ('N/A')).')';
-                    $finalArray[$key]['volume_rebate'] = '$'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
+                    $finalArray[$key]['commission'] = '$'.number_format($value->commissions, 2);
+                    $finalArray[$key]['volume_rebate'] = '$'.number_format($value->volume_rebate, 2);
                 }
             }
         }

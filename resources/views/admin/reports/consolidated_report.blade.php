@@ -29,23 +29,20 @@
                         <div class="form-group relative col-md-9 mb-0">  
                             <div class="row align-items-end">
                                 <div class="col-md-7">
-                            <div class="form-group relative  mb-3">  
-                                <label for="enddate">Select Date:</label>
-                                <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
-                            </div>
-                            <div class="form-group mb-0">
-                                    <label for="selectBox">Select Account:</label>
-                                    <select id="account_name" name="account_name" class="form-control"></select>
+                                    <div class="form-group relative  mb-3">  
+                                        <label for="enddate">Select Date:</label>
+                                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                                    </div>
+                                    <div class="form-group mb-0">
+                                        <label for="selectBox">Select Account:</label>
+                                        <select id="account_name" name="account_name" class="form-control"></select>
+                                    </div>
                                 </div>
-                            </div>
-                          
-                                
                                 <div class="col-md-5 mt-1 mb-0 ms-auto text-end">
                                     <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
                                     <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                                     <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-2 fa-file-pdf"></i>PDF</button>
                                 </div>
-                           
                             </div>
                         </div>
                     </div>
@@ -87,7 +84,6 @@
 
         .form-group.check_form_labels.mb-0 .form-check {
             width: 50%;
-            /* font-size: 15px; */
             padding-bottom: 10px;
         }
         

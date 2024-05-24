@@ -127,6 +127,7 @@ class ReportController extends Controller
         $filter['start_date'] = $request->input('start_date');
         $filter['end_date'] = $request->input('end_date');
         $filter['supplier'] = $request->input('supplier');
+        $filter['rebate_check'] = $request->input('rebate_check');
 
         // dd($filter);
         $csv = true;
