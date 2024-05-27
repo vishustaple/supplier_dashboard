@@ -47,7 +47,7 @@ class ProcessCommissionAndRebate extends Command
             }
 
             foreach ($salesRep as $key => $values) {
-                foreach ($monthDates as $key => $filter) {
+                foreach ($monthDates as $key2 => $filter) {
                     $query = Order::query()->selectRaw(
                         "SUM(`orders`.`amount`) AS `amount`, 
                         `m2`.`account_name` AS `account_name`,
@@ -99,7 +99,7 @@ class ProcessCommissionAndRebate extends Command
                     /** Calculating total volume rebate, total commission on rebate and total amount */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
 
-                    foreach ($query->get() as $key => $value) {
+                    foreach ($query->get() as $value) {
                         $totalAmount += $value->amount;
                         $totalVolumeRebate += $value->volume_rebate;
                         $totalCommissionRebate += $value->commissions;
@@ -135,12 +135,12 @@ class ProcessCommissionAndRebate extends Command
                             ->where('commission_rebate_id', $dataExistCheck->id)
                             ->get();
 
-                            foreach ($query->get() as $key => $value) {
+                            foreach ($query->get() as $key1 => $value) {
                                 echo ' update2 ';
-                                echo ' '.$key.' ';
+                                echo ' '.$key1.' ';
                                 print_r($dataExistCheck2);
                                 if ($dataExistCheck2) {
-                                    CommissionRebateDetail::where('id', $dataExistCheck2[$key]->id)->update([
+                                    CommissionRebateDetail::where('id', $dataExistCheck2[$key1]->id)->update([
                                         'paid' => 0,
                                         'approved' => 0,
                                         'spend' => $value->amount,
@@ -179,7 +179,7 @@ class ProcessCommissionAndRebate extends Command
                                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
             
-                            foreach ($query->get() as $key => $value) {
+                            foreach ($query->get() as $value) {
                                 CommissionRebateDetail::create([
                                     'paid' => 0,
                                     'approved' => 0,
