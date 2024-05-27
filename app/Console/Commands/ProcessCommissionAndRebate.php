@@ -138,6 +138,7 @@ class ProcessCommissionAndRebate extends Command
                             foreach ($query->get() as $key1 => $value) {
                                 echo ' update2 ';
                                 echo ' '.$key1.' ';
+                                print_r(count($dataExistCheck2));
                                 print_r($dataExistCheck2);
                                 if ($dataExistCheck2) {
                                     CommissionRebateDetail::where('id', $dataExistCheck2[$key1]->id)->update([
