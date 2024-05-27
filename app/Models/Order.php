@@ -434,7 +434,7 @@ class Order extends Model
                 "SUM(`orders`.`amount`) AS `amount`, 
                 `m2`.`account_name` AS `account_name`,
                 ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
-                `rebate`.`incentive_rebate` AS `incentive_rebates`,
+                `rebate`.`volume_rebate` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
                 `orders`.`date` AS `date`"
             );
