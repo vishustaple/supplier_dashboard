@@ -31,7 +31,7 @@ class ProcessCommissionAndRebate extends Command
     {
         $finalYear = 2024;
         for ($year = 2022; $year <= $finalYear; $year++) {
-            // print_r($year);
+            print_r($year);
             $salesRep = SalesTeam::select('id as sales_rep')->get();
             $res[1] =['January', 'February', 'March'];
             $res[2] = ['April', 'May', 'June'];
