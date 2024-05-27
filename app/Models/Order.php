@@ -521,12 +521,12 @@ class Order extends Model
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
-        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
-            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
-        } else {
-            $query->orderBy($orderColumnArray[0], 'asc');
-        }
+        // if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+        //     /** Order by column and direction */
+        //     $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        // } else {
+        //     $query->orderBy($orderColumnArray[0], 'asc');
+        // }
 
         /** Calculating total volume rebate, total incentive rebate and total amount */
         $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
@@ -535,7 +535,7 @@ class Order extends Model
             $totalIncentiveRebate += $value->incentive_rebate;
             $totalAmount += $value->amount;
         }
-        // dd($query->toSql(), $query->getBindings());
+        dd($query->toSql(), $query->getBindings());
         /** Formatting this */
         $totalAmounts = number_format($totalAmount, 2, '.', false);
         $totalVolumeRebates = number_format($totalVolumeRebate, 2, '.', false);
