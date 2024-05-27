@@ -421,9 +421,13 @@ class Order extends Model
             0 => 'suppliers.supplier_name',
             1 => 'm2.account_name',
             2 => 'amount',
-            3 => 'volume_rebate',
-            4 => 'incentive_rebate',
         ];
+
+        if ($filter['rebate_check'] == 1) {
+            $orderColumnArray[3] = 'volume_rebate';
+        } else {
+            $orderColumnArray[3] = 'incentive_rebate';
+        }
 
         if ($filter['rebate_check'] == 1) {
             $query = self::query()->selectRaw(
@@ -444,7 +448,6 @@ class Order extends Model
                 `orders`.`date` AS `date`"
             );
         }
-        
 
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('rebate', function($join) {
@@ -516,12 +519,12 @@ class Order extends Model
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
-        // if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-        //     /** Order by column and direction */
-        //     $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
-        // } else {
-        //     $query->orderBy($orderColumnArray[0], 'asc');
-        // }
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+            /** Order by column and direction */
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
+        }
 
         /** Calculating total volume rebate, total incentive rebate and total amount */
         $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
