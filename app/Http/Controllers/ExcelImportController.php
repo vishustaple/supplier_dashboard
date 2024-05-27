@@ -98,12 +98,12 @@ class ExcelImportController extends Controller
             } elseif ($inputFileType === 'Xls') {
                 $reader = new Xls();
             } else {
-                // throw new Exception('Unsupported file type: ' . $inputFileType);
+                return response()->json(['error' => 'Unsupported file type: ' . $inputFileType], 200);
+                throw new Exception('Unsupported file type: ' . $inputFileType);
             }
-            // $reader = new Xlsx(); 
+
             $spreadSheet = $reader->load($request->file('file'), 2);
             $validationCheck = $arrayDiff = false;
-                
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 $maxNonEmptyCount = 0;
                 foreach ($spreadSheets->toArray() as $key=>$value) {
@@ -111,7 +111,7 @@ class ExcelImportController extends Controller
                     $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
                         return !empty($item);
                     }));
-                    
+                   
                     /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
                     if ($nonEmptyCount > $maxNonEmptyCount) {
                         $maxNonEmptyvalue1 = $value;
@@ -120,11 +120,11 @@ class ExcelImportController extends Controller
                     }
                     
                     /** Stop loop after reading 31 rows from excel file */
-                    if($key > 2){
+                    if($key > 20){
                         break;
                     }
                 }
-    
+
                 /** Remove empty key from the array of excel sheet column name */
                 $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
                     return !empty($item);
@@ -136,6 +136,7 @@ class ExcelImportController extends Controller
                     return str_replace(["\r", "\n"], '', $value);
                 }, $finalExcelKeyArray1);
 
+                // dd($cleanedArray);
                 if ($request->supplierselect == 7) {
                     foreach ($cleanedArray as $key => $value) {
                         if ($key > 5) {
@@ -168,14 +169,6 @@ class ExcelImportController extends Controller
             $missingColumns = implode(', ', $arrayDiff);
             return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
         }
-      
-
-        /** Output the cleaned array */
-        // echo"<pre>";
-        // print_r($cleanedArray);
-        // $clean= ManageColumns::cleanRows($cleanedArray);
-        // print_r($clean);
-        // die;
 
         /** Get the uploaded file */
         $file = $request->file('file');
