@@ -466,14 +466,9 @@ class Order extends Model
 
                 if ($filter['rebate_check'] == 2) {
                     $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
-                    $query->where(function($query) {
-                        $query->orWhere('m2.grandparent_id', 1637)
-                            ->orWhere('m2.grandparent_id', 1718)
-                            ->orWhere('m2.grandparent_id', 2140);
-                    });
-
+                    $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
                     $query->where('order_product_details.key', 'DEPT');
-                    $query->whereNotIn('order_product_details.value', ['non code', 'impulse buys', 'manage print service', 'custom bus essentials', 'custom outsourc prnt', 'product assembly', 'MARKETNG/VISUAL SRVC', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
+                    $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'custom bus essentials', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                 }
             }
             $query->where('orders.supplier_id', $filter['supplier']);
