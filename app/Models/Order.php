@@ -530,7 +530,7 @@ class Order extends Model
             $totalIncentiveRebate += $value->incentive_rebate;
             $totalAmount += $value->amount;
         }
-        dd($query->toSql(), $query->getBindings());
+        // dd($query->toSql(), $query->getBindings());
         /** Formatting this */
         $totalAmounts = number_format($totalAmount, 2, '.', false);
         $totalVolumeRebates = number_format($totalVolumeRebate, 2, '.', false);
