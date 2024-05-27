@@ -425,19 +425,28 @@ class Order extends Model
             4 => 'incentive_rebate',
         ];
 
-        $query = self::query()->selectRaw(
-            "SUM(`orders`.`amount`) AS `amount`, 
-            `m2`.`account_name` AS `account_name`,
-            ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
-            ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
-            `rebate`.`volume_rebate` AS `volume_rebates`,
-            `rebate`.`incentive_rebate` AS `incentive_rebates`,
-            `suppliers`.`supplier_name` AS `supplier_name`, 
-            `orders`.`date` AS `date`"
-        )
+        if ($filter['rebate_check'] == 1) {
+            $query = self::query()->selectRaw(
+                "SUM(`orders`.`amount`) AS `amount`, 
+                `m2`.`account_name` AS `account_name`,
+                ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
+                `rebate`.`incentive_rebate` AS `incentive_rebates`,
+                `suppliers`.`supplier_name` AS `supplier_name`, 
+                `orders`.`date` AS `date`"
+            );
+        } else {
+            $query = self::query()->selectRaw(
+                "SUM(`orders`.`amount`) AS `amount`, 
+                `m2`.`account_name` AS `account_name`,
+                ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
+                `rebate`.`incentive_rebate` AS `incentive_rebates`,
+                `suppliers`.`supplier_name` AS `supplier_name`, 
+                `orders`.`date` AS `date`"
+            );
+        }
+        
 
-        ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
-        // ->leftJoin('rebate', 'm2.account_name', '=', 'rebate.account_name')
+        $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('rebate', function($join) {
             $join->on('m2.account_name', '=', 'rebate.account_name')
             ->on('m2.category_supplier', '=', 'rebate.supplier');
@@ -448,8 +457,6 @@ class Order extends Model
         if (isset($filter['supplier']) && $filter['supplier'] == 4){
             $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
         }
-        
-        // $query->where('orders.id', '<=', 932806);
         
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             if ($filter['supplier'] == 3) {   
