@@ -123,7 +123,6 @@
                         Log::error('Email sending failed: ' . $e->getMessage());
                         // $this->error('Email sending failed: ' . $e->getMessage());
                     }
-                    dd($test);
                     return response()->json(['success' => 'Add User Successfully!'], 200);
                 
                 } catch (\Exception $e) {
