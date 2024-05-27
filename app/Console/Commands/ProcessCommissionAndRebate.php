@@ -31,7 +31,7 @@ class ProcessCommissionAndRebate extends Command
     {
         $finalYear = 2024;
         for ($year = 2022; $year <= $finalYear; $year++) {
-            print_r($year);
+            // print_r($year);
             $salesRep = SalesTeam::select('id as sales_rep')->get();
             $res[1] =['January', 'February', 'March'];
             $res[2] = ['April', 'May', 'June'];
@@ -141,9 +141,9 @@ class ProcessCommissionAndRebate extends Command
 
                             $countArray = count($dataExistCheck2);
                             foreach ($query->get() as $key1 => $value) {
-                                echo ' update2 ';
-                                echo ' '.$key1.' ';
-                                print_r($dataExistCheck2);
+                                // echo ' update2 ';
+                                // echo ' '.$key1.' ';
+                                // print_r($dataExistCheck2);
                                 if ($dataExistCheck2 && $countArray > 0) {
                                     $countArray--;
                                     CommissionRebateDetail::where('id', $dataExistCheck2[$key1]->id)->update([
