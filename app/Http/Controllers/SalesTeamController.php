@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Validator;
 use League\Csv\Writer;
 use App\Models\SalesTeam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesTeamController extends Controller
@@ -19,10 +19,6 @@ class SalesTeamController extends Controller
             $salesData = SalesTeam::query() 
             ->where('id', $saleId)
             ->select('first_name', 'last_name', 'email', 'phone', 'status','team_user_type')->get()->toArray();
-            
-            // echo"<pre>";
-            // print_r($salesData);
-            // die;
             return view('admin.viewdetail', compact('salesData'));
         }
 
@@ -46,7 +42,6 @@ class SalesTeamController extends Controller
     }
 
     public function updateSales(Request $request){
-       
         $validator = Validator::make(
             [
                 'first_name' => $request->first_name,
@@ -83,10 +78,8 @@ class SalesTeamController extends Controller
                     'first_name' => $request->first_name,
                     'team_user_type' => $request->user_type,
                 ]);
-
             }
             return response()->json(['success' => 'Sales Repersantative Updated Successfully'], 200);
-           
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 200);
         }
@@ -176,9 +169,6 @@ class SalesTeamController extends Controller
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */
         $data = SalesTeam::getFilterdSalesData($filter, $csv);
-        // echo"<pre>";
-        // print_r($data);
-        // die;
 
         /** Create a stream for output */
         $stream = fopen('php://temp', 'w+');

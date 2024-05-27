@@ -66,24 +66,6 @@ class CommissionController extends Controller
             $error = false;
             $accountNameArray = [];
 
-            /** Checking the all account names if user have already added commission under any account name then set
-             * error is true and also set value of those account name into accountNameArray
-             * For show account name which have already added commissions into error div
-             */
-            // foreach ($accountName as $key => $value) {
-            //     $result = DB::table('commission')->where('commission.account_name', $value)->exists();
-
-            //     if ($result) {
-            //         $error = true;
-            //         $accountNameArray[] = $value;
-            //     }
-            // }
-
-            // /** Returning the error message */
-            // if ($error == true) {
-            //     return response()->json(['error' => 'You have alraedy added commission of this '. implode(", ", $accountNameArray).'.'], 200);
-            // }
-
             /** If getting zero errors than save the data into commission table */
             foreach ($accountName as $key => $value) {
                 DB::table('commission')->insert([
@@ -126,9 +108,6 @@ class CommissionController extends Controller
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */
         $data = Commission::getFilterdCommissionData($filter, $csv);
-        // echo"<pre>";
-        // print_r($data);
-        // die;
 
         /** Create a stream for output */
         $stream = fopen('php://temp', 'w+');

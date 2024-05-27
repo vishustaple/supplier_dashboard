@@ -22,7 +22,6 @@ class RebateController extends Controller
             return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType]]);
         } else {
             $missingRebate = Account::select('r1.id')
-            // ->leftJoin('rebate  AS r1', 'master_account_detail.account_name', '=', 'r1.account_name')
             ->leftJoin('rebate AS r1', function($join) {
                 $join->on('master_account_detail.account_name', '=', 'r1.account_name')
                 ->on('master_account_detail.category_supplier', '=', 'r1.supplier');

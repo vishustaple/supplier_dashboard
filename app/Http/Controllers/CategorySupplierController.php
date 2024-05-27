@@ -2,18 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
-use App\Models\{CategorySupplier,Order};
 
 class CategorySupplierController extends Controller
 {
-    public function index()
-    {
-      
+    public function index(){ 
         $model = new Order();
-        // dd($model->random_invoice_num());
-        // $categorySuppliers = CategorySupplier::all();
-        //  dd($categorySuppliers);
-        // return view('admin.export', compact('categorySuppliers'));
     }
 }
