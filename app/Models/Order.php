@@ -463,9 +463,9 @@ class Order extends Model
         
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             if ($filter['supplier'] == 3) {   
-                if ($filter['rebate_check'] == 1) {
-                    $query->whereIn('m2.grandparent_id', [1637, 1718, 2140, 2085, 2141]);
-                }
+                // if ($filter['rebate_check'] == 1) {
+                //     $query->whereIn('m2.grandparent_id', [1637, 1718, 2140, 2085, 2141]);
+                // }
 
                 if ($filter['rebate_check'] == 2) {
                     $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
