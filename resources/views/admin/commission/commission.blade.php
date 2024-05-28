@@ -12,9 +12,12 @@
             } 
 
             #commission_table tbody tr td:nth-of-type(2) {
-                width: 170px;
-                min-width: 170px;
-                max-width: 170px;
+                width: 140px;
+                min-width: 140px;
+                max-width: 140px;
+            }
+            #commission_table tbody tr td:nth-of-type(2) select{
+                  width: 100%;
             }
 
             #commission_table tbody tr td:nth-of-type(2) input{
@@ -55,6 +58,7 @@
             #commission_table .dateRangePickers.form-control {
                 font-size: 13px;
                 height: 31px;
+                padding: 10px;
             }
 
             #commission_table td{
