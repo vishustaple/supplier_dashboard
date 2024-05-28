@@ -529,7 +529,6 @@ class ProcessUploadedFiles extends Command
                                         $keyCustomer = array_search($columnArray[$fileValue->supplier_id]['customer_number'], $maxNonEmptyValue);
                                     }
 
-
                                     if (!empty($columnArray[$fileValue->supplier_id]['gd_customer_name'])) {
                                         $keyGrandParentName = array_search($columnArray[$fileValue->supplier_id]['gd_customer_name'], $maxNonEmptyValue);
                                     }

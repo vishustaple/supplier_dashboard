@@ -296,7 +296,7 @@ class ExcelImportController extends Controller
             4 => 'staple_sample.xlsx',
             5 => 'wb_sample.xlsx',
             6 => 'lyreco_sample.xlsx',
-            7 => 'od_sample.xlsx',
+            7 => 'weekly_office_depot_sample_file.xlsx',
         ];
 
         $destinationPath = public_path('/excel_sheets');
