@@ -542,9 +542,7 @@ class ProcessUploadedFiles extends Command
                                     }
 
                                     if (($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
-                                        $customer = Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->first();
-
-                                        if (empty($customer)) {
+                                        if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
                                                 Account::create([
@@ -560,49 +558,32 @@ class ProcessUploadedFiles extends Command
                                                 Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->update([
                                                     'parent_id' => $row[$keyParent],
                                                     'parent_name' => $row[$keyParentName],
-                                                    'account_number' => $row[$keyCustomer],
+                                                    'account_number' => ltrim($row[$keyCustomer], '0'),
                                                     'customer_name' => $row[$keyCustomerName],
                                                     'grandparent_id' => $row[$keyGrandParent],
                                                     'category_supplier' => $fileValue->supplier_id,
                                                     'grandparent_name' => $row[$keyGrandParentName],
                                                 ]);
                                             }
-                                        } else {
-                                            Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->update([
-                                                'parent_id' => $row[$keyParent],
-                                                'parent_name' => $row[$keyParentName],
-                                                'account_number' => $row[$keyCustomer],
-                                                'customer_name' => $row[$keyCustomerName],
-                                                'grandparent_id' => $row[$keyGrandParent],
-                                                'category_supplier' => $fileValue->supplier_id,
-                                                'grandparent_name' => $row[$keyGrandParentName],
-                                            ]);
                                         }
                                     }
 
                                     if (in_array($fileValue->supplier_id, [1, 4, 5, 6])) {
-                                        $customer = Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->first();
-                                        if (empty($customer)) {
+                                        if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
                                                 Account::create([
-                                                    'account_number' => $row[$keyCustomer],
+                                                    'account_number' => ltrim($row[$keyCustomer], '0'),
                                                     'customer_name' => $row[$keyCustomerName],
                                                     'category_supplier' => $fileValue->supplier_id,
                                                 ]);
                                             } else {
                                                 Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->update([
-                                                    'account_number' => $row[$keyCustomer],
+                                                    'account_number' => ltrim($row[$keyCustomer], '0'),
                                                     'customer_name' => $row[$keyCustomerName],
                                                     'category_supplier' => $fileValue->supplier_id,
                                                 ]);
                                             }
-                                        } else {
-                                            Account::where('account_number', 'LIKE', '%' . $row[$keyCustomer] . '%')->update([
-                                                'account_number' => $row[$keyCustomer],
-                                                'customer_name' => $row[$keyCustomerName],
-                                                'category_supplier' => $fileValue->supplier_id,
-                                            ]);
                                         }
                                     }
                                 }
@@ -704,7 +685,7 @@ class ProcessUploadedFiles extends Command
                                                             'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                            'customer_number' => (!empty($keyCustomerNumber) && !empty($row[$keyCustomerNumber])) ? ($row[$keyCustomerNumber]) : (''),
+                                                            'customer_number' => (!empty($keyCustomerNumber) && !empty($row[$keyCustomerNumber])) ? (ltrim($row[$keyCustomerNumber], "0")) : (''),
                                                         ]);
     
                                                         if ($weeklyCheck) {
@@ -754,7 +735,7 @@ class ProcessUploadedFiles extends Command
                                                         'date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : ($fileValue->start_date),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                        'customer_number' => $row[$keyCustomerNumber],
+                                                        'customer_number' => ltrim($row[$keyCustomerNumber], '0'),
                                                     ]);
                                                 }
     
