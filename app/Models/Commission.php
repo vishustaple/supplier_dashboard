@@ -61,7 +61,11 @@ class Commission extends Model
             $searchTerm = $filter['search']['value'];
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
                 foreach ($orderColumnArray as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                    if ($column == 'commission.sales_rep') {
+                        $q->orWhere(DB::raw("CONCAT(sales_team.first_name, ' ', sales_team.last_name)"), 'LIKE', '%' . $searchTerm . '%');
+                    } else {
+                        $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                    }
                 }
             });
         }

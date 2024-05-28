@@ -284,14 +284,14 @@ class Account extends Model
                     return [];
                 }
             } else {
-                if (isset($supplier) && !empty($supplier)) {
-                    $query->where('master_account_detail.category_supplier', $supplier);
-                }
+                // if (isset($supplier) && !empty($supplier)) {
+                //     $query->where('master_account_detail.category_supplier', $supplier);
+                // }
             }
 
             $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
             $results = $query->get();
-            // dd($results);
+
             if ($results->isNotEmpty()) {
                 foreach ($results as $value) {
                     $finalArray[] = ['id' => $value->account_name, 'text' => $value->account_name];        
@@ -307,9 +307,9 @@ class Account extends Model
         if (!empty($search)) {
             $query = self::query()->select('suppliers.supplier_name as supplier_name', 'master_account_detail.category_supplier as id')
             ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            ->where('master_account_detail.account_name', $search['account_name']);
+            ->where('master_account_detail.account_name', 'LIKE', '%' . $search['account_name'] . '%');
 
-            if (isset($search['check']) && $search['check'] == true) {
+            if (isset($search['check']) && $search['check'] == "true") {
                 $query->whereIn('master_account_detail.category_supplier', [1, 2, 3, 4, 5]);
                 $query->groupBy('master_account_detail.category_supplier');
                 $results = $query->get();
@@ -319,7 +319,7 @@ class Account extends Model
 
             $finalArray = [];
             if ($results !== null) {
-                if (isset($search['check']) && $search['check'] == true) {
+                if (isset($search['check']) && $search['check'] == "true") {
                     foreach ($results as $value) {
                         $finalArray[] = ['supplier' => $value->supplier_name, 'id' => $value->id];
                     }
