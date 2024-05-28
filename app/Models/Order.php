@@ -204,7 +204,7 @@ class Order extends Model
                     ->whereNotIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo', 'Transactional Technology', 'Transactional Furniture', 'Install Labor']);
             } else {
                 $query->where(function($query) {
-                    $query->orWhereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions', 'Sunrise'])
+                    $query->orWhereIn('transaction_source_system_desc', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
                         ->orWhere('on_contract_id', 'Y')
                         ->orWhereIn('primary_product_hierarchy_desc', ['STS Technology', 'Promo', 'Transactional Technology', 'Transactional Furniture', 'Install Labor']);
                 });
