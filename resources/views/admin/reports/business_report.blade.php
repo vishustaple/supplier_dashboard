@@ -117,7 +117,7 @@
             });
 
             function hideColumns() {
-                var anyChecked3 = false;
+                var anyChecked3 = anyCheckedOther = false;
                  // Loop through each checkbox with class "myCheckbox"
                  $('.checkboxs').each(function(){
                     // Check if the current checkbox is checked
@@ -125,8 +125,20 @@
                         if ($(this).val() == 3) {
                             anyChecked3 = true;
                         }
+
+                        if ($(this).val() != 3) {
+                            anyCheckedOther = true;
+                        }
                     }
                 });
+
+                if (anyChecked3 == true && anyCheckedOther == true) {
+                    businessdataTable.column('category:name').visible(true);
+                } else if (anyChecked3 == true && anyCheckedOther == false) {
+                    businessdataTable.column('category:name').visible(false);
+                } else {
+                    businessdataTable.column('category:name').visible(true);
+                }
 
                 if (!anyChecked3) {
                     businessdataTable.column('unit_price_q1_price:name').visible(false);
