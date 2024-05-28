@@ -224,7 +224,8 @@
                 serverSide: true,
                 lengthMenu: [],
                 paging: false,
-                searching:false, 
+                info: false,
+                searching: false, 
                 pageLength: 40,
                 ajax: {
                     url: '{{ route('report.filter') }}',
