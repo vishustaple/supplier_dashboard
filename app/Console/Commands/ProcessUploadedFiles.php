@@ -399,7 +399,6 @@ class ProcessUploadedFiles extends Command
 
                         $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
 
-
                         if ($inputFileType === 'Xlsx') {
                             $reader = new Xlsx();
                         } elseif ($inputFileType === 'Xls') {
@@ -512,7 +511,7 @@ class ProcessUploadedFiles extends Command
                             unset($startIndexValueArray);
 
                             if ($fileValue->supplier_id == 2) {
-                               $graingerCount = $startIndex; + 1;
+                               $graingerCount = $startIndex + 1;
                             }
                          
                             foreach ($workSheetArray as $key => $row) {
