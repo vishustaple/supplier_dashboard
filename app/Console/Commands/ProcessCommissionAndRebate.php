@@ -93,8 +93,8 @@ class ProcessCommissionAndRebate extends Command
                     }
 
                     $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']])
-                    ->where('commission.start_date', '<=', DB::raw('orders.date'))
-                    ->where('commission.end_date', '>=', DB::raw('orders.date'));
+                    ->where('commission.start_date', '<=', $filter['start_date'])
+                    ->where('commission.end_date', '>=', $filter['end_date']);
                 
                     /** Group by with account name */
                     $query->groupBy('m2.account_name');
