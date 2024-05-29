@@ -271,7 +271,7 @@ class Order extends Model
             if ($filter['core'] == 2) {
                 $query->where('active_price_point', 'CSP');
             } else {
-                $query->whereNot('active_price_point', 'CSP');
+                $query->whereNotIn('active_price_point', ['CSP']);
             }
 
             $query->orderBy('total_spend', 'desc')->limit(100);
