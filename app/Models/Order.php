@@ -921,7 +921,7 @@ class Order extends Model
         }
 
         // $query->groupBy('suppliers.id');
-        $query->groupBy('commission_rebate_detail.account_name');
+        $query->groupBy('commission_rebate_detail.account_name', 'commission_rebate_detail.supplier');
 
         // dd($query->toSql(), $query->getBindings());
 
