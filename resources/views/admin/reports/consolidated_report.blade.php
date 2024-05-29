@@ -18,7 +18,7 @@
                             @if(isset($categorySuppliers))
                                 @foreach($categorySuppliers as $supplier)
                                     <div class="form-check">
-                                        @if(!empty($supplier->supplier_name))
+                                        @if(!empty($supplier->supplier_name) &&  $supplier->id != 7)
                                             <input class="form-check-input checkboxs" name="supplier_id[]" type="checkbox" value="{{ $supplier->id }}">
                                             <label class="form-check-label" for="defaultCheck1">{{ $supplier->supplier_name }}</label>
                                         @endif
