@@ -716,7 +716,7 @@ class Order extends Model
                 $query->where('spend', '!=', 0);    
             }
 
-            dd($startDate, $endDate);
+            // dd($startDate, $endDate);
             // $query->whereBetween($startDate, $endDate);
             $query->whereDate('start_date', '>=', $startDate)
                 ->whereDate('end_date', '<=', $endDate);
