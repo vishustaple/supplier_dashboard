@@ -923,7 +923,7 @@ class Order extends Model
         // $query->groupBy('suppliers.id');
         $query->groupBy('commission_rebate_detail.account_name');
 
-        // dd($query->toSql(), $query->getBindings());
+        dd($query->toSql(), $query->getBindings());
 
         /** Selecting total record for pagination */
         $totalRecords = $query->getQuery()->getCountForPagination();
