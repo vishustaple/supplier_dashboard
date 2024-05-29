@@ -97,7 +97,7 @@ class ProcessCommissionAndRebate extends Command
                     ->where('commission.end_date', '>=', $filter['end_date']);
                 
                     /** Group by with account name */
-                    $query->groupBy('m2.account_name');
+                    $query->groupBy('m2.account_name', 'commission.supplier');
         
                     /** Calculating total volume rebate, total commission on rebate and total amount */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
