@@ -18,7 +18,9 @@
                             <option value="" selected>--Select--</option>
                             @if(isset($categorySuppliers))
                                 @foreach($categorySuppliers as $categorySupplier)
-                                    <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                                    @if($categorySupplier->id != 7)
+                                        <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                                    @endif
                                 @endforeach
                             @endif
                         </select>

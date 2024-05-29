@@ -551,7 +551,7 @@ class ProcessUploadedFiles extends Command
                                                     'account_number' => $row[$keyCustomer],
                                                     'customer_name' => $row[$keyCustomerName],
                                                     'grandparent_id' => $row[$keyGrandParent],
-                                                    'category_supplier' => $fileValue->supplier_id,
+                                                    'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
                                                     'grandparent_name' => $row[$keyGrandParentName],
                                                 ]);
                                             } else {
@@ -561,7 +561,7 @@ class ProcessUploadedFiles extends Command
                                                     'account_number' => ltrim($row[$keyCustomer], '0'),
                                                     'customer_name' => $row[$keyCustomerName],
                                                     'grandparent_id' => $row[$keyGrandParent],
-                                                    'category_supplier' => $fileValue->supplier_id,
+                                                    'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                                     'grandparent_name' => $row[$keyGrandParentName],
                                                 ]);
                                             }
@@ -680,7 +680,7 @@ class ProcessUploadedFiles extends Command
                                                         $orderLastInsertId = Order::create([
                                                             'data_id' => $fileValue->id,
                                                             'created_by' => $fileValue->created_by,
-                                                            'supplier_id' => $fileValue->supplier_id,
+                                                            'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                                             'amount' => str_replace(",", "", number_format($row[$key], 2, '.')),
                                                             'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
