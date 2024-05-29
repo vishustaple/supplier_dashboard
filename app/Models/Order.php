@@ -903,7 +903,7 @@ class Order extends Model
             }
 
             $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
-            ->whereDate('commission_rebate_detail.start_date', '<=', $endDate);
+            ->whereDate('commission_rebate_detail.end_date', '<=', $endDate);
         }
 
         /** Filter the data on the bases of commission_rebate_id */
@@ -923,7 +923,7 @@ class Order extends Model
         // $query->groupBy('suppliers.id');
         $query->groupBy('commission_rebate_detail.account_name');
 
-        dd($query->toSql(), $query->getBindings());
+        // dd($query->toSql(), $query->getBindings());
 
         /** Selecting total record for pagination */
         $totalRecords = $query->getQuery()->getCountForPagination();
