@@ -842,10 +842,13 @@ class Order extends Model
             6 => 'commission_rebate_detail.end_date',
         ];
 
+        // SUM(`commission_rebate_detail`.`spend`) AS `amount`, 
+        //     SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
+        //     SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
         $query = CommissionRebateDetail::query()->selectRaw(
-            "SUM(`commission_rebate_detail`.`spend`) AS `amount`, 
-            SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
-            SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
+            "`commission_rebate_detail`.`spend` AS `amount`, 
+            `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
+            `commission_rebate_detail`.`commission` AS `commissions`,
             `commission_rebate_detail`.`commission_percentage` AS `commission`,
             `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
             `suppliers`.`supplier_name` AS `supplier_name`,
