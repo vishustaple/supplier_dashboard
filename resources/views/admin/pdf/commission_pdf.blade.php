@@ -182,6 +182,8 @@
                     @if(isset($commission_data))
                         @foreach($commission_data as $key => $commission)
                             <tr>
+                                <?php 
+                                $commissionName = $commission['account_name'];?>
                                 <td class="border-0 text-left">{{ $commission['account_name'] }}</td>
                                 <td class="border-0">{{ $commission['supplier'] }}</td>
                                 <td class="border-0">{{ $commission['commission'] }}%</td>
