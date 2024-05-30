@@ -610,7 +610,9 @@ class ReportController extends Controller
             }
 
             $datas1['year'] = $request->input('year');
-
+            echo"<pre>";
+            print_r($datas1);
+            die;
             $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
 
             return $pdf->download('pdf_commission_report.pdf');
