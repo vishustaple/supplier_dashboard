@@ -459,7 +459,6 @@ class ProcessUploadedFiles extends Command
                             } else {
                                 $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
                             }
-                            
 
                             foreach ($workSheetArray as $key=>$values) {
                                 /** Checking not empty columns */
@@ -672,6 +671,7 @@ class ProcessUploadedFiles extends Command
 
                                                     }
                                                     
+                                                    $excelInsertArray[$key]['data_id'] = $fileValue->id;
                                                     $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                                                     $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
 
@@ -792,7 +792,7 @@ class ProcessUploadedFiles extends Command
                                                     } elseif ($fileValue->supplier_id == 2) {
                                                         DB::table('grainger_order')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 3) {
-                                                        // DB::table('office_depot_order')->insert($excelInsertArray);
+                                                        DB::table('office_depot_order')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 4) {   
                                                         DB::table('staples_order')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 5) {
@@ -840,7 +840,7 @@ class ProcessUploadedFiles extends Command
                                     } elseif ($fileValue->supplier_id == 2) {
                                         DB::table('grainger_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 3) {
-                                        // DB::table('office_depot_order')->insert($excelInsertArray);
+                                        DB::table('office_depot_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 4) {   
                                         DB::table('staples_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 5) {
