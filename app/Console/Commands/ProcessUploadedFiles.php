@@ -409,7 +409,6 @@ class ProcessUploadedFiles extends Command
 
                         /** Loading excel file using path and name of file from table "uploaded_file" */
                         $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
-                        dd($spreadSheet);
                         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
                         
                         if ($fileValue->supplier_id == 4 || $fileValue->supplier_id == 3) {
