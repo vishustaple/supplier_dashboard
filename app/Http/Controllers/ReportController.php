@@ -610,7 +610,43 @@ class ReportController extends Controller
             }
 
             $datas1['year'] = $request->input('year');
-            echo"<pre>";
+
+
+            $groupedData = [];
+
+foreach ($datas['commission_data'] as $item) {
+    $key = $item['account_name'] . '|' . $item['commission'];
+    if (!isset($groupedData[$key])) {
+        $groupedData[$key] = [
+            'account_name' => $item['account_name'],
+            'commission' => $item['commission'],
+            'start_date' => $item['start_date'],
+            'end_date' => $item['end_date'],
+            'data' => []
+        ];
+    }
+    
+    // Update start_date and end_date
+    if ($item['start_date'] < $groupedData[$key]['start_date']) {
+        $groupedData[$key]['start_date'] = $item['start_date'];
+    }
+    if ($item['end_date'] > $groupedData[$key]['end_date']) {
+        $groupedData[$key]['end_date'] = $item['end_date'];
+    }
+
+    $groupedData[$key]['data'][] = $item;
+}
+
+// Step 2: Remove the inner data array if you only need grouped data
+$result = [];
+foreach ($groupedData as $group) {
+    unset($group['data']);
+    $result[] = $group;
+}
+
+// Output the result
+echo"<pre>";
+print_r($result);
             print_r($datas1);
             die;
             $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
