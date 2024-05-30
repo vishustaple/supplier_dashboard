@@ -15,11 +15,11 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command(MailSend::class)->everyMinute();
         
-        // $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes();
-        // $schedule->command(validateUploadedFile::class)->everyTenMinutes();
-        // $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes();
-        // $schedule->command(RemoveFrontZeroAccountNumber::class)->everyTenMinutes();
-        // $schedule->command(ProcessCommissionAndRebate::class)->everyFifteenMinutes();
+        $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes();
+        $schedule->command(validateUploadedFile::class)->everyTenMinutes();
+        $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes();
+        $schedule->command(RemoveFrontZeroAccountNumber::class)->everyTenMinutes();
+        $schedule->command(ProcessCommissionAndRebate::class)->everyFifteenMinutes();
     }
 
     /**
