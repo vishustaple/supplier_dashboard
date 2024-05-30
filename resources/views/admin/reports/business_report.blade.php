@@ -117,20 +117,56 @@
             });
 
             function hideColumns() {
-                var anyChecked3 = anyCheckedOther = false;
+                var anyChecked1 = anyChecked2 = anyChecked3 = anyCheckedOther1 = anyChecked4 = anyChecked5 = anyChecked6 = anyChecked7 = anyCheckedOther = false;
                  // Loop through each checkbox with class "myCheckbox"
                  $('.checkboxs').each(function(){
                     // Check if the current checkbox is checked
                     if ($(this).is(':checked')) {
+                        if ($(this).val() == 1) {
+                            anyChecked1 = true;
+                        }
+
+                        if ($(this).val() == 2) {
+                            anyChecked2 = true;
+                        }
+
                         if ($(this).val() == 3) {
                             anyChecked3 = true;
+                        }
+
+                        if ($(this).val() == 4) {
+                            anyChecked4 = true;
+                        }
+
+                        if ($(this).val() == 5) {
+                            anyChecked5 = true;
+                        }
+
+                        if ($(this).val() == 6) {
+                            anyChecked6 = true;
+                        }
+
+                        if ($(this).val() == 7) {
+                            anyChecked7 = true;
                         }
 
                         if ($(this).val() != 3) {
                             anyCheckedOther = true;
                         }
+
+                        if ($(this).val() != 2) {
+                            anyCheckedOther1 = true;
+                        }
                     }
                 });
+
+                if (anyChecked2 == true && anyCheckedOther1 == true) {
+                    businessdataTable.column('uom:name').visible(true);
+                }  else if (anyChecked2 == true && anyCheckedOther1 == false) {
+                    businessdataTable.column('uom:name').visible(false);
+                } else {
+                    businessdataTable.column('uom:name').visible(true);
+                }
 
                 if (anyChecked3 == true && anyCheckedOther == true) {
                     businessdataTable.column('category:name').visible(true);
