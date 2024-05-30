@@ -409,7 +409,7 @@ class ProcessUploadedFiles extends Command
 
                         /** Loading excel file using path and name of file from table "uploaded_file" */
                         $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
-                        
+                        dd($spreadSheet);
                         $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
                         
                         if ($fileValue->supplier_id == 4 || $fileValue->supplier_id == 3) {
@@ -545,15 +545,29 @@ class ProcessUploadedFiles extends Command
                                         if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
-                                                Account::create([
-                                                    'parent_id' => $row[$keyParent],
-                                                    'parent_name' => $row[$keyParentName],
-                                                    'account_number' => $row[$keyCustomer],
-                                                    'customer_name' => $row[$keyCustomerName],
-                                                    'grandparent_id' => $row[$keyGrandParent],
-                                                    'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
-                                                    'grandparent_name' => $row[$keyGrandParentName],
-                                                ]);
+                                                $accountName = Account::where('parent_id', $row[$keyParent])->where('grandparent_id', $row[$keyGrandParent])->first();
+                                                if ($accountName) {
+                                                    Account::create([
+                                                        'parent_id' => $row[$keyParent],
+                                                        'parent_name' => $row[$keyParentName],
+                                                        'account_number' => $row[$keyCustomer],
+                                                        'customer_name' => $row[$keyCustomerName],
+                                                        'grandparent_id' => $row[$keyGrandParent],
+                                                        'account_name' => $accountName->account_name,
+                                                        'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
+                                                        'grandparent_name' => $row[$keyGrandParentName],
+                                                    ]);
+                                                } else {
+                                                    Account::create([
+                                                        'parent_id' => $row[$keyParent],
+                                                        'parent_name' => $row[$keyParentName],
+                                                        'account_number' => $row[$keyCustomer],
+                                                        'customer_name' => $row[$keyCustomerName],
+                                                        'grandparent_id' => $row[$keyGrandParent],
+                                                        'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
+                                                        'grandparent_name' => $row[$keyGrandParentName],
+                                                    ]);
+                                                }
                                             } else {
                                                 Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->update([
                                                     'parent_id' => $row[$keyParent],
