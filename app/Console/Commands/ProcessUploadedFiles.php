@@ -792,7 +792,7 @@ class ProcessUploadedFiles extends Command
                                                     } elseif ($fileValue->supplier_id == 2) {
                                                         DB::table('grainger_order')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 3) {
-                                                        DB::table('office_depot_order')->insert($excelInsertArray);
+                                                        // DB::table('office_depot_order')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 4) {   
                                                         DB::table('staples_order')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 5) {
@@ -840,7 +840,7 @@ class ProcessUploadedFiles extends Command
                                     } elseif ($fileValue->supplier_id == 2) {
                                         DB::table('grainger_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 3) {
-                                        DB::table('office_depot_order')->insert($excelInsertArray);
+                                        // DB::table('office_depot_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 4) {   
                                         DB::table('staples_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 5) {
