@@ -842,25 +842,41 @@ class Order extends Model
             6 => 'commission_rebate_detail.end_date',
         ];
 
-        // SUM(`commission_rebate_detail`.`spend`) AS `amount`, 
-        //     SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
-        //     SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
-        $query = CommissionRebateDetail::query()->selectRaw(
-            "`commission_rebate_detail`.`spend` AS `amount`, 
-            `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
-            `commission_rebate_detail`.`commission` AS `commissions`,
-            `commission_rebate_detail`.`commission_percentage` AS `commission`,
-            `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
-            `suppliers`.`supplier_name` AS `supplier_name`,
-            `commission_rebate_detail`.`start_date` as start_date,
-            `commission_rebate_detail`.`end_date` as end_date,
-            `commission_rebate_detail`.`quarter` as quarter,
-            `commission_rebate_detail`.`account_name` as account_name,
-            `commission_rebate_detail`.`month` as month,
-            `commission_rebate_detail`.`approved` as approved,
-            `commission_rebate_detail`.`paid` as paid"
-        )
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'commission_rebate_detail.supplier');
+        if ($csv) {
+            $query = CommissionRebateDetail::query()->selectRaw(
+                "`commission_rebate_detail`.`spend` AS `amount`, 
+                `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
+                `commission_rebate_detail`.`commission` AS `commissions`,
+                `commission_rebate_detail`.`commission_percentage` AS `commission`,
+                `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
+                `suppliers`.`supplier_name` AS `supplier_name`,
+                `commission_rebate_detail`.`start_date` as start_date,
+                `commission_rebate_detail`.`end_date` as end_date,
+                `commission_rebate_detail`.`quarter` as quarter,
+                `commission_rebate_detail`.`account_name` as account_name,
+                `commission_rebate_detail`.`month` as month,
+                `commission_rebate_detail`.`approved` as approved,
+                `commission_rebate_detail`.`paid` as paid"
+            );
+        } else {
+            $query = CommissionRebateDetail::query()->selectRaw(
+                "SUM(`commission_rebate_detail`.`spend`) AS `amount`, 
+                SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
+                SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
+                `commission_rebate_detail`.`commission_percentage` AS `commission`,
+                `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
+                `suppliers`.`supplier_name` AS `supplier_name`,
+                `commission_rebate_detail`.`start_date` as start_date,
+                `commission_rebate_detail`.`end_date` as end_date,
+                `commission_rebate_detail`.`quarter` as quarter,
+                `commission_rebate_detail`.`account_name` as account_name,
+                `commission_rebate_detail`.`month` as month,
+                `commission_rebate_detail`.`approved` as approved,
+                `commission_rebate_detail`.`paid` as paid"
+            );
+        }
+
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'commission_rebate_detail.supplier');
     
          /** Year and quarter filter here */
          if (isset($filter['year']) || !empty($filter['quarter'])) {
@@ -924,7 +940,9 @@ class Order extends Model
         }
 
         // $query->groupBy('suppliers.id');
-        // $query->groupBy('commission_rebate_detail.account_name', 'commission_rebate_detail.supplier');
+        if (!$csv) {
+            $query->groupBy('commission_rebate_detail.account_name', 'commission_rebate_detail.supplier');
+        }
 
         // dd($query->toSql(), $query->getBindings());
 
