@@ -125,12 +125,14 @@ class Order extends Model
 
         if (in_array(3, $filter['supplier'])) {
             $query = DB::table('office_depot_order')
+            // SUM(total_spend) as total_spend,
+            // SUM(qty_shipped) as quantity_purchased,
             ->selectRaw(
                 'sku,
                 uom,
-                SUM(qty_shipped) as quantity_purchased,
                 product_description as description,
-                SUM(total_spend) as total_spend,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`qty_shipped` ELSE 0 END) AS quantity_purchased,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`total_spend` ELSE 0 END) AS total_spend,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q1_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q2_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q3_price,
@@ -140,6 +142,10 @@ class Order extends Model
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q3_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q4_price',
                 [
+                    $start,
+                    $end,
+                    $start,
+                    $end,
                     $startDate1,
                     $endDate1,
                     $startDate2,
@@ -161,9 +167,9 @@ class Order extends Model
             ->groupBy('sku');
             $query->whereIn('customer_id', $accountNumber);
 
-            if (isset($filter['year'])) {
-                $query->whereYear('shipped_date', $filter['year']);
-            }
+            // if (isset($filter['year'])) {
+            //     $query->whereYear('shipped_date', $filter['year']);
+            // }
             
             if ($filter['core'] == 1) {
                 $query->where('core_flag', 'N');
@@ -471,6 +477,7 @@ class Order extends Model
                     $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
                     $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
                     $query->where('order_product_details.key', 'DEPT');
+                    // $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                     $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'custom bus essentials', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                 }
             }
