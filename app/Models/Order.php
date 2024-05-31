@@ -161,9 +161,9 @@ class Order extends Model
             ->groupBy('sku');
             $query->whereIn('customer_id', $accountNumber);
 
-            // if (isset($filter['year'])) {
-            //     $query->whereYear('shipped_date', $filter['year']);
-            // }
+            if (isset($filter['year'])) {
+                $query->whereYear('shipped_date', $filter['year']);
+            }
             
             if ($filter['core'] == 1) {
                 $query->where('core_flag', 'N');
