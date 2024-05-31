@@ -125,14 +125,12 @@ class Order extends Model
 
         if (in_array(3, $filter['supplier'])) {
             $query = DB::table('office_depot_order')
-            // SUM(total_spend) as total_spend,
-            // SUM(qty_shipped) as quantity_purchased,
             ->selectRaw(
-                'SUM(CASE WHEN `office_depot_order`.`sku` BETWEEN ? AND ? THEN `office_depot_order`.`sku` ELSE 0 END) AS sku,
-                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`uom` ELSE 0 END) AS uom,
-                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`product_description` ELSE 0 END) AS description,
-                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`qty_shipped` ELSE 0 END) AS quantity_purchased,
-                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`total_spend` ELSE 0 END) AS total_spend,
+                'sku,
+                uom,
+                SUM(qty_shipped) as quantity_purchased,
+                product_description as description,
+                SUM(total_spend) as total_spend,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q1_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q2_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q3_price,
@@ -142,16 +140,6 @@ class Order extends Model
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q3_price,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END) AS web_price_q4_price',
                 [
-                    $start,
-                    $end,
-                    $start,
-                    $end,
-                    $start,
-                    $end,
-                    $start,
-                    $end,
-                    $start,
-                    $end,
                     $startDate1,
                     $endDate1,
                     $startDate2,
