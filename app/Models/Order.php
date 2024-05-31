@@ -54,6 +54,8 @@ class Order extends Model
         $startDate4 = $monthDates[9]['start_date'];
         $endDate4 = $monthDates[11]['end_date'];
 
+        dd($startDate1, $endDate1, $startDate2, $endDate2, $startDate3, $endDate3, $startDate4, $endDate4);
+
         $query = DB::table('master_account_detail')->select('master_account_detail.account_number as account_number', 'master_account_detail.category_supplier as supplier');
 
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
