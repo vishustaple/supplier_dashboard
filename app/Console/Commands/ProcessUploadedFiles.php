@@ -543,15 +543,28 @@ class ProcessUploadedFiles extends Command
                                         if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
-                                                Account::create([
-                                                    'parent_id' => $row[$keyParent],
-                                                    'parent_name' => $row[$keyParentName],
-                                                    'account_number' => $row[$keyCustomer],
-                                                    'customer_name' => $row[$keyCustomerName],
-                                                    'grandparent_id' => $row[$keyGrandParent],
-                                                    'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
-                                                    'grandparent_name' => $row[$keyGrandParentName],
-                                                ]);
+                                                if (strpos($row[$keyParentName], "CenterPoint") !== false) {
+                                                    Account::create([
+                                                        'parent_id' => $row[$keyParent],
+                                                        'parent_name' => $row[$keyParentName],
+                                                        'account_number' => $row[$keyCustomer],
+                                                        'account_name' => $row[$keyCustomerName],
+                                                        'customer_name' => $row[$keyCustomerName],
+                                                        'grandparent_id' => $row[$keyGrandParent],
+                                                        'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
+                                                        'grandparent_name' => $row[$keyGrandParentName],
+                                                    ]);
+                                                } else {
+                                                    Account::create([
+                                                        'parent_id' => $row[$keyParent],
+                                                        'parent_name' => $row[$keyParentName],
+                                                        'account_number' => $row[$keyCustomer],
+                                                        'customer_name' => $row[$keyCustomerName],
+                                                        'grandparent_id' => $row[$keyGrandParent],
+                                                        'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
+                                                        'grandparent_name' => $row[$keyGrandParentName],
+                                                    ]);
+                                                }
                                             } else {
                                                 Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->update([
                                                     'parent_id' => $row[$keyParent],
