@@ -128,9 +128,9 @@ class Order extends Model
             // SUM(total_spend) as total_spend,
             // SUM(qty_shipped) as quantity_purchased,
             ->selectRaw(
-                'sku,
-                uom,
-                product_description as description,
+                'SUM(CASE WHEN `office_depot_order`.`sku` BETWEEN ? AND ? THEN `office_depot_order`.`sku` ELSE 0 END) AS sku,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`uom` ELSE 0 END) AS uom,
+                SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`product_description` ELSE 0 END) AS description,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`qty_shipped` ELSE 0 END) AS quantity_purchased,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`total_spend` ELSE 0 END) AS total_spend,
                 SUM(CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END) AS unit_price_q1_price,
