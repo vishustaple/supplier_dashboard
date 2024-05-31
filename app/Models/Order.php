@@ -241,8 +241,8 @@ class Order extends Model
                 });
             } else {
                 $query->where(function($query) {
-                    $query->orWhere('price_method', 'NOT LIKE', 'PPL%')
-                        ->orWhere('price_method', 'NOT LIKE', 'CTL%');
+                    $query->where('price_method', 'NOT LIKE', 'PPL%')
+                        ->where('price_method', 'NOT LIKE', 'CTL%');
                 });
             } 
 
