@@ -131,14 +131,14 @@ class Order extends Model
                 SUM(qty_shipped) as quantity_purchased,
                 product_description as description,
                 SUM(total_spend) as total_spend,
-                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END AS unit_price_q1_price,
-                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END AS unit_price_q2_price,
-                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END AS unit_price_q3_price,
-                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_net_price` ELSE 0 END AS unit_price_q4_price,
-                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END AS web_price_q1_price,
-                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END AS web_price_q2_price,
-                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END AS web_price_q3_price,
-                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? THEN `office_depot_order`.`unit_web_price` ELSE 0 END AS web_price_q4_price',
+                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? AND `office_depot_order`.`unit_net_price` IS NOT NULL THEN `office_depot_order`.`unit_net_price` ELSE 0 END AS unit_price_q1_price,
+                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? AND `office_depot_order`.`unit_net_price` IS NOT NULL THEN `office_depot_order`.`unit_net_price` ELSE 0 END AS unit_price_q2_price,
+                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? AND `office_depot_order`.`unit_net_price` IS NOT NULL THEN `office_depot_order`.`unit_net_price` ELSE 0 END AS unit_price_q3_price,
+                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? AND `office_depot_order`.`unit_net_price` IS NOT NULL THEN `office_depot_order`.`unit_net_price` ELSE 0 END AS unit_price_q4_price,
+                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? AND `office_depot_order`.`unit_net_price` IS NOT NULL THEN `office_depot_order`.`unit_web_price` ELSE 0 END AS web_price_q1_price,
+                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? AND `office_depot_order`.`unit_net_price` IS NOT NULL THEN `office_depot_order`.`unit_web_price` ELSE 0 END AS web_price_q2_price,
+                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? AND `office_depot_order`.`unit_net_price` IS NOT NULL THEN `office_depot_order`.`unit_web_price` ELSE 0 END AS web_price_q3_price,
+                CASE WHEN `office_depot_order`.`shipped_date` BETWEEN ? AND ? AND `office_depot_order`.`unit_net_price` IS NOT NULL THEN `office_depot_order`.`unit_web_price` ELSE 0 END AS web_price_q4_price',
                 [
                     $startDate1,
                     $endDate1,
@@ -160,8 +160,7 @@ class Order extends Model
             )
             ->groupBy('sku');
             $query->whereIn('customer_id', $accountNumber);
-            $query->whereNotNull('office_depot_order.unit_net_price');
-            $query->whereNotNull('office_depot_order.unit_web_price');
+
             if (isset($filter['year'])) {
                 $query->whereYear('shipped_date', $filter['year']);
             }
