@@ -160,7 +160,14 @@ class Order extends Model
             )
             ->groupBy('sku');
             $query->whereIn('customer_id', $accountNumber);
-
+            $query->whereNotNull('unit_price_q1_price');
+            $query->whereNotNull('unit_price_q2_price');
+            $query->whereNotNull('unit_price_q3_price');
+            $query->whereNotNull('unit_price_q4_price');
+            $query->whereNotNull('web_price_q1_price');
+            $query->whereNotNull('web_price_q2_price');
+            $query->whereNotNull('web_price_q3_price');
+            $query->whereNotNull('web_price_q4_price');
             if (isset($filter['year'])) {
                 $query->whereYear('shipped_date', $filter['year']);
             }
