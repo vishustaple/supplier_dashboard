@@ -108,7 +108,8 @@
             showDropdowns: true,
             showCustomRangeLabel: true,
             minYear: moment().subtract(7, 'years').year(),
-            maxDate: moment(),
+            maxYear: moment().add(7, 'years').year(),
+            // maxDate: moment(),
             ranges: {
                 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
                 'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
