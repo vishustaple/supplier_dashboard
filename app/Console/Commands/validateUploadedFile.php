@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use App\Models\Order;
@@ -42,7 +43,16 @@ class validateUploadedFile extends Command
         $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
  
         if ($fileValue !== null) {
-            $reader = new Xlsx(); 
+            $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
+
+            if ($inputFileType === 'Xlsx') {
+                $reader = new Xlsx();
+            } elseif ($inputFileType === 'Xls') {
+                $reader = new Xls();
+            } else {
+                // throw new Exception('Unsupported file type: ' . $inputFileType);
+            }
+            
             $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
 
             $columnValues = DB::table('manage_columns')->select('id', 'supplier_id', 'field_name')->where('supplier_id', $fileValue->supplier_id)->get();
