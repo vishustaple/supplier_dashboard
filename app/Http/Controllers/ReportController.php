@@ -610,46 +610,78 @@ class ReportController extends Controller
             }
 
             $datas1['year'] = $request->input('year');
+          
+            $groupedData = [];
 
+            // Grouping the data
+            foreach ($datas1['commission_data'] as $item_key => $item) {
+                $key = $item['account_name'] . '|' . $item['supplier'] . '|' . $item['commission'];
 
-//             $groupedData = [];
+                if (!isset($groupedData[$key])) {
+                    $groupedData[$key] = [
+                        'account_name' => $item['account_name'],
+                        'supplier' => $item['supplier'],
+                        'commission' => $item['commission'],
+                        'start_date' => $item['start_date'],
+                        'end_date' => $item['end_date'],
+                        'amounts' => [],
+                        'commissions' => [],
+                        'volume_rebates' => [],
+                        'month' => array_fill_keys(
+                            ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'YTD'], 0
+                        ),
+                    ];
+                }
 
-// foreach ($datas1['commission_data'] as $item) {
-//     $key = $item['account_name'] . '|' . $item['supplier'] . '|' . $item['commission'];
-//     if (!isset($groupedData[$key])) {
-//         $groupedData[$key] = [
-//             'supplier' => $item['supplier'],
-//             'account_name' => $item['account_name'],
-//             'commission' => $item['commission'],
-//             'start_date' => $item['start_date'],
-//             'end_date' => $item['end_date'],
-//             'data' => []
-//         ];
-//     }
-    
-//     // Update start_date and end_date
-//     if ($item['start_date'] < $groupedData[$key]['start_date']) {
-//         $groupedData[$key]['start_date'] = $item['start_date'];
-//     }
-//     if ($item['end_date'] > $groupedData[$key]['end_date']) {
-//         $groupedData[$key]['end_date'] = $item['end_date'];
-//     }
+                // Update the start_date and end_date
+                $groupedData[$key]['start_date'] = min($groupedData[$key]['start_date'], $item['start_date']);
+                $groupedData[$key]['end_date'] = max($groupedData[$key]['end_date'], $item['end_date']);
 
-//     $groupedData[$key]['data'][] = $item;
-// }
+                // Append values for sum calculation
+                $groupedData[$key]['amounts'][] = $item['amount'];
+                $groupedData[$key]['commissions'][] = $item['commissions'];
+                $groupedData[$key]['volume_rebates'][] = $item['volume_rebate'];
 
-// // Step 2: Remove the inner data array if you only need grouped data
-// $result = [];
-// foreach ($groupedData as $group) {
-//     unset($group['data']);
-//     $result[] = $group;
-// }
+                // Initialize the month's array if not already set
+                if (!isset($datas1['month'][$item_key])) {
+                    $datas1['month'][$item_key] = array_fill_keys(
+                        ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'YTD'], 0
+                    );
+                }
 
-// // Output the result
-// echo"<pre>";
-// print_r($result);
-//             print_r($datas1);
-//             die;
+                // Aggregate month data
+                foreach ($datas1['month'][$item_key] as $month => $value) {
+                    if ($month != 'YTD') {
+                        $groupedData[$key]['month'][$month] += $value;
+                        $groupedData[$key]['month']['YTD'] += $value;
+                    }
+                }
+            }
+
+            // Summarize the amounts, commissions, and volume rebates
+            foreach ($groupedData as &$data) {
+                $data['total_amount'] = array_sum($data['amounts']);
+                $data['total_commissions'] = array_sum($data['commissions']);
+                $data['total_volume_rebate'] = array_sum($data['volume_rebates']);
+                unset($data['amounts'], $data['commissions'], $data['volume_rebates']);
+            }
+            
+            // echo"<pre>";
+            // print_r($groupedData);
+            // die;
+            // Step 2: Remove the inner data array if you only need grouped data
+            $result = [];
+            foreach ($groupedData as $group) {
+                unset($group['data']);
+                $result[] = $group;
+            }
+
+            // Output the result
+            // echo"<pre>";
+            // print_r($result);
+            // die;
+            unset($datas1['month']);
+            $datas1['commission_data'] = $result;
             $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
 
             return $pdf->download('pdf_commission_report.pdf');

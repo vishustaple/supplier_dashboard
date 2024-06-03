@@ -189,19 +189,19 @@
                                 <td class="border-0">{{ $commission['commission'] }}%</td>
                                 <td class="border-0">{{ $commission['start_date'] }}</td>
                                 <td class="border-0">{{ $commission['end_date'] }}</td>
-                                <td class="">$ {{ $month[$key]['January'] }}</td>
-                                <td class="border-right-0">$ {{ $month[$key]['February'] }}</td>
-                                <td>$ {{ $month[$key]['March'] }}</td>                        
-                                <td class="">$ {{ $month[$key]['April'] }}</td>
-                                <td class="border-right-0">$ {{ $month[$key]['May'] }}</td>
-                                <td>$ {{ $month[$key]['June'] }}</td>
-                                <td class="">$ {{ $month[$key]['July'] }}</td>
-                                <td class="border-right-0">$ {{ $month[$key]['August'] }}</td>
-                                <td>$ {{ $month[$key]['September'] }}</td>
-                                <td class="">$ {{ $month[$key]['October'] }}</td>
-                                <td class="border-right-0">$ {{ $month[$key]['November'] }}</td>
-                                <td>$ {{ $month[$key]['December'] }}</td>
-                                <td>$ {{ $month[$key]['YTD'] }}</td>
+                                <td class="">$ {{ $commission['month']['January'] }}</td>
+                                <td class="border-right-0">$ {{ $commission['month']['February'] }}</td>
+                                <td>$ {{ $commission['month']['March'] }}</td>                        
+                                <td class="">$ {{ $commission['month']['April'] }}</td>
+                                <td class="border-right-0">$ {{ $commission['month']['May'] }}</td>
+                                <td>$ {{ $commission['month']['June'] }}</td>
+                                <td class="">$ {{ $commission['month']['July'] }}</td>
+                                <td class="border-right-0">$ {{ $commission['month']['August'] }}</td>
+                                <td>$ {{ $commission['month']['September'] }}</td>
+                                <td class="">$ {{ $commission['month']['October'] }}</td>
+                                <td class="border-right-0">$ {{ $commission['month']['November'] }}</td>
+                                <td>$ {{ $commission['month']['December'] }}</td>
+                                <td>$ {{ $commission['month']['YTD'] }}</td>
                             </tr>
                         @endforeach
                     @endif
