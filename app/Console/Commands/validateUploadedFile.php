@@ -181,10 +181,9 @@ class validateUploadedFile extends Command
                     }
                 }
             }
+            /** Update cron two means start processing data into excel */
+            DB::table('uploaded_files')->where('id', $fileValue->id)
+            ->update(['cron' => 11]);
         }
-
-        /** Update cron two means start processing data into excel */
-        DB::table('uploaded_files')->where('id', $fileValue->id)
-        ->update(['cron' => 11]);
     }
 }
