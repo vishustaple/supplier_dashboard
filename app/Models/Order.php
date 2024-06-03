@@ -160,8 +160,8 @@ class Order extends Model
             )
             ->groupBy('sku');
             $query->whereIn('customer_id', $accountNumber);
-            $query->whereNotNull('`office_depot_order`.`unit_net_price`');
-            $query->whereNotNull('`office_depot_order`.`unit_web_price`');
+            $query->whereNotNull('office_depot_order.unit_net_price');
+            $query->whereNotNull('office_depot_order.unit_web_price');
             if (isset($filter['year'])) {
                 $query->whereYear('shipped_date', $filter['year']);
             }
