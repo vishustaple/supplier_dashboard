@@ -613,7 +613,7 @@ class ReportController extends Controller
           
             $groupedData = [];
 
-            // Grouping the data
+            /** Grouping the data */
             foreach ($datas1['commission_data'] as $item_key => $item) {
                 $key = $item['account_name'] . '|' . $item['supplier'] . '|' . $item['commission'];
 
@@ -628,28 +628,56 @@ class ReportController extends Controller
                         'commissions' => [],
                         'volume_rebates' => [],
                         'month' => array_fill_keys(
-                            ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'YTD'], 0
+                            [
+                                'January',
+                                'February',
+                                'March',
+                                'April',
+                                'May',
+                                'June',
+                                'July',
+                                'August',
+                                'September',
+                                'October',
+                                'November',
+                                'December',
+                                'YTD'
+                            ], 0
                         ),
                     ];
                 }
 
-                // Update the start_date and end_date
+                /** Update the start_date and end_date */
                 $groupedData[$key]['start_date'] = min($groupedData[$key]['start_date'], $item['start_date']);
                 $groupedData[$key]['end_date'] = max($groupedData[$key]['end_date'], $item['end_date']);
 
-                // Append values for sum calculation
+                /** Append values for sum calculation */
                 $groupedData[$key]['amounts'][] = $item['amount'];
                 $groupedData[$key]['commissions'][] = $item['commissions'];
                 $groupedData[$key]['volume_rebates'][] = $item['volume_rebate'];
 
-                // Initialize the month's array if not already set
+                /** Initialize the month's array if not already set */
                 if (!isset($datas1['month'][$item_key])) {
                     $datas1['month'][$item_key] = array_fill_keys(
-                        ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'YTD'], 0
+                        [
+                            'January',
+                            'February',
+                            'March',
+                            'April',
+                            'May',
+                            'June',
+                            'July',
+                            'August',
+                            'September',
+                            'October',
+                            'November',
+                            'December',
+                            'YTD'
+                        ], 0
                     );
                 }
 
-                // Aggregate month data
+                /** Aggregate month data */
                 foreach ($datas1['month'][$item_key] as $month => $value) {
                     if ($month != 'YTD') {
                         $groupedData[$key]['month'][$month] += $value;
@@ -658,7 +686,7 @@ class ReportController extends Controller
                 }
             }
 
-            // Summarize the amounts, commissions, and volume rebates
+            /** Summarize the amounts, commissions, and volume rebates */
             foreach ($groupedData as &$data) {
                 $data['total_amount'] = array_sum($data['amounts']);
                 $data['total_commissions'] = array_sum($data['commissions']);
@@ -669,14 +697,15 @@ class ReportController extends Controller
             // echo"<pre>";
             // print_r($groupedData);
             // die;
-            // Step 2: Remove the inner data array if you only need grouped data
+
+            /** Step 2: Remove the inner data array if you only need grouped data */
             $result = [];
             foreach ($groupedData as $group) {
                 unset($group['data']);
                 $result[] = $group;
             }
 
-            // Output the result
+            /** Output the result */
             // echo"<pre>";
             // print_r($result);
             // die;
