@@ -142,9 +142,9 @@ Route::group(['prefix' => 'admin'], function () {
 });
 
 /** Default redirection */
-Route::fallback(function () {
-    return redirect()->back();
-});
+// Route::fallback(function () {
+//     return redirect()->back();
+// });
 
 Route::get('/create-password', [HomeController::class, 'createPassword'])->name('create.password');
 Route::get('/random-function', [CategorySupplierController::class, 'index'])->name('random.number');

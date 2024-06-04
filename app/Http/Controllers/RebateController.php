@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 class RebateController extends Controller
 {
+    public function __construct(){
+        $this->middleware('permission:Rebate')->only(['index', 'getUpdateRebateWithAjax', 'getRebateWithAjax', 'rebateCount', 'rebateUpdate']);
+    }
+
     public function index(Request $request, $rebateType, $id=null){
         if (!isset($id)) {
             $id = $request->query('id');

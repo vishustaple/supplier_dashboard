@@ -14,7 +14,8 @@
     class HomeController extends Controller
     {
         public function __construct(){
-            $this->middleware('user.type')->only(['index', 'userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
+            // $this->middleware('user.type')->only(['index', 'userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
+            $this->middleware('permission:Manage Users')->only(['userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
         }
     
         /**
@@ -157,7 +158,7 @@
             $validator = Validator::make($request->all(), [
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email,' . $request->update_user_id,
-                'user_role' => 'required',
+                'update_user_role' => 'required',
                 'permissions' => 'required|array',
                 'permissions.*' => 'exists:permissions,id',
             ]);

@@ -15,11 +15,13 @@ class CheckPermission
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, $permission): Response
     {
-        if (!auth()->user()->hasPermission($permission)) {
+        if (!auth()->user()->hasPermission($permission) && Auth::user()->user_type == User::USER_TYPE_USER) {
             // return response()->json(['error' => 'Unauthorized'], 403);
-            return redirect()->back();
+            // return redirect()->back();
+            // return redirect()->back()->with('error', 'Unauthorized');
+            return redirect('/')->with('error', 'Unauthorized');
         }
 
         return $next($request);
