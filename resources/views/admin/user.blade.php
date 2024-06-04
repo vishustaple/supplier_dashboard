@@ -31,53 +31,48 @@
                             </div>
 
                             <form action="" id="add_user" method="POST">
-                                        @csrf
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3 mb-md-0">
-                                                        <label for="inputFirstName">First name</label>
-                                                        <input class="form-control" id="inputFirstName" name="first_name" type="text" placeholder="Enter your first name" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="inputLastName">Last name</label>
-                                                        <input class="form-control" id="inputLastName" name="last_name"type="text" placeholder="Enter your last name" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="inputEmail">Email address</label>
-                                                <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
-                                            </div>
-                                            <!-- <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3 mb-md-0">
-                                                        <label for="inputPassword">Password</label>
-                                                        <input class="form-control" id="inputPassword" name="password" type="password" placeholder="Create a password" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3 mb-md-0">
-                                                        <label for="inputPasswordConfirm">Confirm Password</label>
-                                                        <input class="form-control" id="inputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
-                                                    </div>
-                                                </div>
-                                            </div> -->
-                                            <div class="form-group mb-3">
-                                                <label for="userrole">User Role</label>
-                                                    <select id="user_role" name="user_role" class="form-control"> 
-                                                    <option value="" selected>--Select--</option>
-                                                    <option value="2">Admin</option>
-                                                    <option value="3">User</option>
-                                                    </select>
-                                            </div>
-                                            <div class="mt-4 mb-0">
-                                                <div class="d-grid">
-                                                    <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
-                                                    <button type="submit" class="btn btn-primary mx-auto">Create User</button>
-                                                </div>
-                                            </div>
+                            @csrf
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3 mb-md-0">
+                                            <label for="inputFirstName">First name</label>
+                                            <input class="form-control" id="inputFirstName" name="first_name" type="text" placeholder="Enter your first name" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="inputLastName">Last name</label>
+                                            <input class="form-control" id="inputLastName" name="last_name"type="text" placeholder="Enter your last name" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="inputEmail">Email address</label>
+                                    <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="userrole">User Role</label>
+                                    <select id="user_role" name="user_role" class="form-control"> 
+                                        <option value="" selected>--Select--</option>
+                                        <option value="2">Admin</option>
+                                        <option value="3">User</option>
+                                    </select>
+                                </div>
+                                <div class="permissions">
+                                    <p>Permissions:</p>
+                                    @foreach($permissions as $permission)
+                                        <div>
+                                            <input type="checkbox" name="permissions[]" value="{{ $permission->id }}">
+                                            <label>{{ $permission->name }}</label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="mt-4 mb-0">
+                                    <div class="d-grid">
+                                        <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
+                                        <button type="submit" class="btn btn-primary mx-auto">Create User</button>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -98,62 +93,48 @@
                         <div class="modal-body">
                             <div  id="updatesuccessMessage" >  </div>
                             <div  id="updateerrorMessage" ></div>
-                                <form action="" id="update_user" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="update_user_id" id="update_user_id">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3 mb-md-0">
-                                                        <label for="inputFirstName">First name</label>
-                                                        <input class="form-control" id="updateFirstName" name="first_name" type="text" placeholder="Enter your first name" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="inputLastName">Last name</label>
-                                                        <input class="form-control" id="updateLastName" name="last_name"type="text" placeholder="Enter your last name" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="inputEmail">Email address</label>
-                                                <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
-                                            </div>
-                                            <!-- <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3 mb-md-0">
-                                                        <label for="inputPassword">Password</label>
-                                                        <input class="form-control" id="updateinputPassword" name="password" type="password" placeholder="Create a password" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-3 mb-md-0">
-                                                        <label for="inputPasswordConfirm">Confirm Password</label>
-                                                        <input class="form-control" id="updateinputPasswordConfirm" name="confirm_password" type="password" placeholder="Confirm password" />
-                                                    </div>
-                                                </div>
-                                            </div> -->
-                                            <div class="form-group mb-3">
-                                                <label for="userrole">User Role</label>
-                                                    <select id="update_user_role" name="update_user_role" class="form-control"> 
-                                                    <option value="" selected>--Select--</option>
-                                                    <option value="2">Admin</option>
-                                                    <option value="3">User</option>
-                                                    </select>
-                                            </div>
-                                            <div class="mt-4 mb-0">
-                                                <div class="d-grid">
-                                                    <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
-                                                    <button type="submit" class="btn btn-primary mx-auto">Update User</button>
-                                                </div>
-                                            </div>
-                                </form>
+                            <form action="" id="update_user" method="POST">
+                                @csrf
+                                <input type="hidden" name="update_user_id" id="update_user_id">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3 mb-md-0">
+                                            <label for="inputFirstName">First name</label>
+                                            <input class="form-control" id="updateFirstName" name="first_name" type="text" placeholder="Enter your first name" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="inputLastName">Last name</label>
+                                            <input class="form-control" id="updateLastName" name="last_name"type="text" placeholder="Enter your last name" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="inputEmail">Email address</label>
+                                    <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="userrole">User Role</label>
+                                        <select id="update_user_role" name="update_user_role" class="form-control"> 
+                                        <option value="" selected>--Select--</option>
+                                        <option value="2">Admin</option>
+                                        <option value="3">User</option>
+                                        </select>
+                                </div>
+                                <div class="permissions" id="permissions-container"></div>
+                                <div class="mt-4 mb-0">
+                                    <div class="d-grid">
+                                        <!-- <a class="btn btn-primary btn-block" href="">Create Account</a> -->
+                                        <button type="submit" class="btn btn-primary mx-auto">Update User</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="container">
             <table id="user_data" class="data_table_files">
             <!-- Your table content goes here -->
@@ -194,6 +175,50 @@
             $('#successMessage').fadeOut();
             $("#add_user")[0].reset();
         })
+
+        // Function to fetch user and permissions data
+        function fetchUserPermissions(userId) {
+            $.ajax({
+                url: "{{ route('user.editPermissions', ':userId') }}".replace(':userId', userId),
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log(response); // Log the response from the server
+                    // Render checkboxes for permissions
+                    renderPermissions(response.user, response.permissions);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to fetch user permissions', error);
+                }
+            });
+        }
+
+        // Function to render checkboxes for permissions
+        function renderPermissions(user, permissions) {
+            var permissionsContainer = $('#permissions-container');
+            permissionsContainer.empty();
+            permissionsContainer.append('<p>Permissions:</p>');
+            permissions.forEach(function(permission) {
+                var checkbox = $('<input>', { type: 'checkbox', name: 'permissions[]', value: permission.id });
+                
+                // Check if the permission ID exists in the user's permissions array
+                var isPermissionChecked = user.permissions.some(function(userPermission) {
+                    return userPermission.id === permission.id;
+                });
+
+                if (isPermissionChecked) {
+                    checkbox.prop('checked', true);
+                }
+
+                var label = $('<label>').text(permission.name);
+
+                permissionsContainer.append($('<div>').append(checkbox, label));
+            });
+        }
+
+        // $('#updateuserModal').on('show.bs.modal', function (e) {
+        //     fetchUserPermissions(userId);
+        // })
 
         //submit user form with ajax
 
@@ -243,9 +268,10 @@
             });
         });
 
-       
-         //get data on updateform
-            $('.updateuser').on('click',function(e){ 
+        
+
+        //get data on updateform
+        $('.updateuser').on('click',function(e){ 
             e.preventDefault();
             var id=$(this).attr("data-userid"); 
             // alert(id);
@@ -270,6 +296,7 @@
                         $('#update_user_role option[value="' + response.editUserData.user_type + '"]').prop('selected', true);
 
                         $('#updateuserModal').modal('show');
+                        fetchUserPermissions(response.editUserData.id);
                     }
                 },
                 error:function(xhr, status, error) {

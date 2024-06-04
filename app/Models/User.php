@@ -14,6 +14,15 @@ class User extends Authenticatable
     const USER_TYPE_SUPERADMIN = 1;
     const USER_TYPE_ADMIN = 2;
     const USER_TYPE_USER = 3;
+
+    public function permissions(){
+        return $this->belongsToMany(Permission::class);
+    }
+
+    public function hasPermission($permission){
+        return $this->permissions()->where('name', $permission)->exists();
+    }
+
     /**
      * The attributes that are mass assignable.
      *

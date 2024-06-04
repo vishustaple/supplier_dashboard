@@ -1,7 +1,7 @@
 <?php
     namespace App\Http\Controllers;
 
-    use App\Models\User;
+    use App\Models\{User, Permission};
     use Illuminate\Support\Str;
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\DB;
@@ -44,23 +44,35 @@
                 ];
                 $i++;
             }
-            $data=json_encode($formatuserdata);
-            return view('admin.user',compact('data'));
+
+            /** Get all permissions */
+            $permissions = Permission::all();
+            $data = json_encode($formatuserdata);
+            return view('admin.user',compact('data', 'permissions'));
+        }
+
+        public function editPermissions($userId){
+            /** Find the user by ID */
+            $user = User::with('permissions')->findOrFail($userId);
+
+            /** Get all permissions */
+            $permissions = Permission::all();
+
+            /** Return user and permissions data as JSON response */
+            return response()->json([
+                'user' => $user,
+                'permissions' => $permissions
+            ]);
         }
         
         public function userRegister(Request $request){   
-            $validator = Validator::make(
-                [
-                    'first_name' => $request->first_name,
-                    'email' => $request->email,
-                    'user_role' => $request->user_role,
-                ],
-                [
-                    'first_name'=>'required|string|max:255',
-                    'email' => 'required|string|email|max:255|unique:users',
-                    'user_role' => 'required',
-                ]
-            );
+            $validator = Validator::make($request->all(), [
+                'first_name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'user_role' => 'required',
+                'permissions' => 'required|array',
+                'permissions.*' => 'exists:permissions,id',
+            ]);
 
             if ($validator->fails()) {  
                 return response()->json(['error' => $validator->errors()], 200);
@@ -76,6 +88,9 @@
                         'remember_token' => $token,
                         'user_type'=> $userType,
                     ]);
+
+                    /** Sync permissions for the user */
+                    $user->permissions()->sync($request->input('permissions'));
 
                     $email=$request->email;
                     $key = env('APP_KEY');
@@ -139,18 +154,13 @@
         }
     
         public function UpdateUserData(Request $request){
-            $validator = Validator::make(
-                [
-                    'first_name' => $request->first_name,
-                    'email' => $request->email,
-                    'user_role' => $request->update_user_role,
-                ],
-                [
-                    'first_name'=>'required|string|max:255',
-                    'email' => 'required|string|email|max:255|unique:users,email,'.$request->update_user_id,
-                    'user_role' => 'required',
-                ]
-            );
+            $validator = Validator::make($request->all(), [
+                'first_name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users,email,' . $request->update_user_id,
+                'user_role' => 'required',
+                'permissions' => 'required|array',
+                'permissions.*' => 'exists:permissions,id',
+            ]);
 
             if ($validator->fails()) {  
                 return response()->json(['error' => $validator->errors()], 200);
@@ -167,6 +177,9 @@
                             'email' => $request->email,
                             'user_type' => $userType,
                         ]);
+
+                        /** Sync user permissions */
+                        $user->permissions()->sync($request->input('permissions'));
                     }
 
                     return response()->json(['success' => 'Update User Successfully!'], 200);
