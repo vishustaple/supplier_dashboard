@@ -21,9 +21,15 @@ use App\Models\{
     CategorySupplier,
 };
 
-
 class ExcelImportController extends Controller
 {
+    public function __construct(){
+        $this->middleware('permission:Manage Supplier')->only(['allSupplier']);
+        $this->middleware('permission:Supplier Edit')->only(['editSupplierName', 'showSupplier', 'getSupplierDetailWithAjax']);
+        $this->middleware('permission:Supplier Add')->only(['addSupplierName','addSupplierMain', 'showSupplier','getSupplierDetailWithAjax']);
+        $this->middleware('permission:Supplier Delete')->only(['deleteSupplier']);
+    }
+
     public function index(){
         $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
         $uploadData = UploadedFiles::query()->selectRaw("`uploaded_files`.*, CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name")

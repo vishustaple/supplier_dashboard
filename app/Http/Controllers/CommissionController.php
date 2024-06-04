@@ -11,6 +11,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CommissionController extends Controller
 {
+    public function __construct(){
+        $this->middleware('permission:Sales Rep')->only(['index', 'commissionAdd', 'commissionAjaxFilter', 'commissionAddView', 'editCommission']);
+    }
+
     public function index(Request $request, $commissionType, $id=null){
         if (!isset($id)) {
             $id = $request->query('id');

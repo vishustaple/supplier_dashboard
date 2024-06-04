@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
     
     protected $routeMiddleware = [
         // Other middleware...
+        'permission' => \App\Http\Middleware\CheckPermission::class,
         'user.type' => \App\Http\Middleware\RedirectIfUserTypeIsUser::class,
     ];
 }

@@ -13,6 +13,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesTeamController extends Controller
 {
+    public function __construct(){
+        $this->middleware('permission:Sales Rep')->only(['index', 'salesAjaxFilter', 'editSales', 'updateSales', 'addsales', 'removeSales', 'status_sales', 'exportSaleCsv']);
+    }
+
     public function index(Request $request){
         $saleId = $request->id;
         if (isset($saleId) && !empty($saleId)) {
