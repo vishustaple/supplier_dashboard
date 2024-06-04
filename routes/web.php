@@ -91,6 +91,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
         Route::get('/updateuser', [HomeController::class, 'UpdateUser'])->name('user.updateuser');
         Route::post('/updateuserdata', [HomeController::class, 'UpdateUserData'])->name('user.updateuserdata');
+        Route::get('/user/{userId}/edit-permissions', [HomeController::class, 'editPermissions'])->name('user.editPermissions');
 
         /** Catalog Section Start */
         Route::get('/catalog/{catalogType}/{id?}', [CatalogController::class, 'index'])->name('catalog.list');
