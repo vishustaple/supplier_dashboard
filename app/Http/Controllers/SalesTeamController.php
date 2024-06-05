@@ -137,13 +137,20 @@ class SalesTeamController extends Controller
 
     public function removeSales(Request $request){
         $saleId = $request->id;
-        $sale = SalesTeam::find($saleId);
-        if($sale) {
-            $sale->delete();
-            return response()->json(['success' => 'Sales Repersantative deleted successfully']);
-        } else {
-            return response()->json(['error' => 'Sales Repersantative not found'], 404);
-        }
+        try{
+            $sale = SalesTeam::find($saleId);
+            if($sale) {
+                $sale->delete();
+                return response()->json(['success' => 'Sales Repersantative deleted successfully']);
+            } else {
+                return response()->json(['error' => 'Sales Repersantative not found'], 404);
+            }
+        } catch (QueryException $e) { 
+            return response()->json(['error' => 'Sales Repersantative not removed' . $e->getMessage()], 404);
+            echo "Database table uploaded_files select query failed: " . $e->getMessage();
+            die;
+        } 
+        
     }
 
     public function status_sales(Request $request){
