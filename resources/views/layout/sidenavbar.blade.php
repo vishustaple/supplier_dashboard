@@ -63,10 +63,6 @@
                                 </a>
                             </div>
                             @endif
-                            <!-- <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commission.list', ['commissionType' => 'commission_listing'])}}">
-                                <div class="sb-nav-link-icon"><i class="fa fa-book" aria-hidden="true"></i></div>
-                                Commission
-                            </a> -->
                             @if(in_array('Manage Users', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                             <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'User Data') ? 'active' : '' }}" href="{{route('user.show')}}">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
@@ -88,7 +84,7 @@
                                 <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Validation Rebate Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'validation_rebate_report'])}}">Validation Rebate Report</a>
                                 <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'commission_report'])}}">Commission Report</a>
                             </div>
-                            @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
+                            @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || !in_array(auth()->user()->user_type, [\App\Models\User::USER_TYPE_USER, \App\Models\User::USER_TYPE_ADMIN]))
                             <a class="nav-link" target="_blank" href="http://3.95.106.180:7080/phpMyAdmin2025/">
                                 <div class="sb-nav-link-icon"><i class="fa fa-database" aria-hidden="true"></i></div>
                                 SQL Maintenance
@@ -98,7 +94,6 @@
                                 <div class="sb-nav-link-icon"><i class="fa fa-sign-out" aria-hidden="true"></i></div>
                                 Logout
                             </a>
-                       
                         </div>
                     </div>
                     <div class="sb-sidenav-footer text-center">

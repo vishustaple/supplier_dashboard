@@ -191,23 +191,26 @@
 
         // Function to fetch user and permissions data
         function fetchUserPermissions(userId) {
-            $.ajax({
-                url: "{{ route('user.editPermissions', ':userId') }}".replace(':userId', userId),
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    console.log(response); // Log the response from the server
-                    // Render checkboxes for permissions
-                    renderPermissions(response.user, response.permissions);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Failed to fetch user permissions', error);
-                }
+            return new Promise(function(resolve, reject) {
+                $.ajax({
+                    url: "{{ route('user.editPermissions', ':userId') }}".replace(':userId', userId),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        // Resolve the promise with the response data
+                        resolve(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Failed to fetch user permissions', error);
+                        // Reject the promise with the error
+                        reject(error);
+                    }
+                });
             });
         }
 
         // Function to render checkboxes for permissions
-        function renderPermissions(user, permissions) {
+        async function renderPermissions(user, permissions) {
             var permissionsContainer = $('#permissions-container');
             permissionsContainer.empty();
             permissionsContainer.append('<p id="permission_heading">Permissions:</p>');
@@ -262,7 +265,6 @@
         $("#add_user").on('submit', function (e){
             e.preventDefault();
             var formData = new FormData($('#add_user')[0]);
-            // console.log(formData);
             $.ajax({
                 type: 'POST',
                 url: '{{ route("user.register") }}', // Replace with your actual route name
@@ -301,46 +303,45 @@
         });
 
         //get data on updateform
-        $('.updateuser').on('click',function(e){ 
+        $('.updateuser').on('click', async function(e) {
             e.preventDefault();
-            var id=$(this).attr("data-userid"); 
-            $.ajax({
-                type: 'GET',
-                url: '{{ route("user.updateuser") }}',
-                data: { id: id },
-                success: function(response) {
-                    if (response.error) {
-                        $('#errorMessage').text(response.error);
-                        $('#errorMessage').css('display', 'block');
-                        setTimeout(function () {
-                            $('#errorMessage').fadeOut();
-                        }, 3000);
-                    } else {
-                        $('#update_user_id').val(response.editUserData.id);
-                        $('#updateFirstName').val(response.editUserData.first_name);
-                        $('#updateLastName').val(response.editUserData.last_name);
-                        $('#updateinputEmail').val(response.editUserData.email);
-                        $('#update_user_role option[value="' + response.editUserData.user_type + '"]').prop('selected', true);
-
-                        fetchUserPermissions(response.editUserData.id);
-                        setTimeout(function () {
-                            $('#updateuserModal').modal('show');
-                            if ($('#update_user_role').val() == 2) {
-                                $('input[type="checkbox"]').parent().hide();
-                                $('input[type="checkbox"][value="4"]').parent().show();
-                            }
-                        }, 1000);
-                    }
-                },
-                error:function(xhr, status, error) {
-                    const errorresponse = JSON.parse(xhr.responseText);
-                    $('#errorMessage').text(errorresponse.error);
-                    $('#errorMessage').css('display','block');
-                    setTimeout(function () {
+            var id = $(this).attr("data-userid");
+            try {
+                const response = await $.ajax({
+                    type: 'GET',
+                    url: '{{ route("user.updateuser") }}',
+                    data: { id: id }
+                });
+                
+                if (response.error) {
+                    $('#errorMessage').text(response.error);
+                    $('#errorMessage').css('display', 'block');
+                    setTimeout(function() {
                         $('#errorMessage').fadeOut();
                     }, 3000);
+                } else {
+                    $('#update_user_id').val(response.editUserData.id);
+                    $('#updateFirstName').val(response.editUserData.first_name);
+                    $('#updateLastName').val(response.editUserData.last_name);
+                    $('#updateinputEmail').val(response.editUserData.email);
+                    $('#update_user_role option[value="' + response.editUserData.user_type + '"]').prop('selected', true);
+
+                    $('#updateuserModal').modal('show');
+                    const responses = await fetchUserPermissions(id);
+
+                    await renderPermissions(responses.user, responses.permissions);
+                    if ($('#update_user_role').val() == 2) {
+                        $('input[type="checkbox"]').parent().hide();
+                        $('input[type="checkbox"][value="4"]').parent().show();
+                    }                    
                 }
-            });
+            } catch (error) {
+                $('#errorMessage').text(error.responseJSON.error);
+                $('#errorMessage').css('display', 'block');
+                setTimeout(function() {
+                    $('#errorMessage').fadeOut();
+                }, 3000);
+            }
         });
 
         //close model on close 
