@@ -58,7 +58,7 @@
                                         <option value="3">User</option>
                                     </select>
                                 </div>
-                                <div class="permissions">
+                                <div class="permissions" id="add_permissions">
                                     <p>Permissions:</p>
                                     @foreach($permissions as $permission)
                                         <div>
@@ -140,15 +140,36 @@
             <!-- Your table content goes here -->
             </table>
         </div>
-        
     </div>
 </div>
+<style>
+    .permissions>p {
+        width: 100%;
+    }
 
+    .permissions {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .permissions>div {
+        width: 50%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .permissions>div input[type="checkbox"] {
+        vertical-align: middle;
+        margin-top: -9px;
+    }
+    div#updateuserModal button.close.updatemodal,div#userModal button.close{
+        align-items: center;
+    }
+</style>
 <script type="text/javascript">
-   
     $(document).ready(function() {
-     
-       var userTable = $('#user_data').DataTable({
+        var userTable = $('#user_data').DataTable({
             "paging": true,   // Enable pagination
             "ordering": false, // Enable sorting
             "searching": true, // Enable search
@@ -156,19 +177,11 @@
             "lengthChange":false,
             "data": <?php if(isset($data)){echo $data;}  ?>,
             "columns": [
-                // { title: 'SR. No' },
                 { title: 'User Name' },
                 { title: 'User Role' },
                 { title: 'Action' },
-
-            
             ]
         });
-        // if (userTable.data().count() > 40) {
-        //     $('#user_data_paginate').show(); // Enable pagination
-        // } else {
-        //     $('#user_data_paginate').hide();
-        // }
 
         $('#userModal').on('show.bs.modal', function (e) {
             $('#errorMessage').fadeOut();
@@ -197,7 +210,7 @@
         function renderPermissions(user, permissions) {
             var permissionsContainer = $('#permissions-container');
             permissionsContainer.empty();
-            permissionsContainer.append('<p>Permissions:</p>');
+            permissionsContainer.append('<p id="permission_heading">Permissions:</p>');
             permissions.forEach(function(permission) {
                 var checkbox = $('<input>', { type: 'checkbox', name: 'permissions[]', value: permission.id });
                 
@@ -216,17 +229,41 @@
             });
         }
 
-        // $('#updateuserModal').on('show.bs.modal', function (e) {
-        //     fetchUserPermissions(userId);
-        // })
+        $('input[type="checkbox"]').parent().hide();
+        if ($('#user_role').val() == 2) {
+            $('input[type="checkbox"]').parent().hide();
+            $('input[type="checkbox"]').prop('checked', false);
+            $('input[type="checkbox"][value="4"]').parent().show();
+        } else if ($('#user_role').val() == 3) {
+            $('input[type="checkbox"]').prop('checked', false);
+            $('input[type="checkbox"]').parent().show();
+        } else {
+            $('input[type="checkbox"]').prop('checked', false);
+            $('input[type="checkbox"]').parent().hide();
+        }
+
+        $('#user_role, #update_user_role').on('change', function(){
+            if ($(this).val() == 2) {
+                $('#permission_heading').show();
+                $('input[type="checkbox"]').prop('checked', false);
+                $('input[type="checkbox"]').parent().hide();
+                $('input[type="checkbox"][value="4"]').parent().show();
+            } else if ($(this).val() == 3) {
+                $('#permission_heading').show();
+                $('input[type="checkbox"]').prop('checked', false);
+                $('input[type="checkbox"]').parent().show();
+            } else {
+                $('#permission_heading').hide();
+                $('input[type="checkbox"]').parent().hide();
+            }
+        });
 
         //submit user form with ajax
-
         $("#add_user").on('submit', function (e){
-        e.preventDefault();
-        var formData = new FormData($('#add_user')[0]);
-        // console.log(formData);
-        $.ajax({
+            e.preventDefault();
+            var formData = new FormData($('#add_user')[0]);
+            // console.log(formData);
+            $.ajax({
                 type: 'POST',
                 url: '{{ route("user.register") }}', // Replace with your actual route name
                 data: formData,
@@ -259,22 +296,14 @@
                 },
                 error: function(xhr, status, error) {          
                     const errorresponse = JSON.parse(xhr.responseText);
-                        // $('#errorMessage').text(errorresponse.error);
-                        // $('#errorMessage').css('display','block');
-                        // setTimeout(function () {
-                        // $('#errorMessage').fadeOut();
-                        // }, 3000);
                 }
             });
         });
-
-        
 
         //get data on updateform
         $('.updateuser').on('click',function(e){ 
             e.preventDefault();
             var id=$(this).attr("data-userid"); 
-            // alert(id);
             $.ajax({
                 type: 'GET',
                 url: '{{ route("user.updateuser") }}',
@@ -284,46 +313,48 @@
                         $('#errorMessage').text(response.error);
                         $('#errorMessage').css('display', 'block');
                         setTimeout(function () {
-                        $('#errorMessage').fadeOut();
+                            $('#errorMessage').fadeOut();
                         }, 3000);
                     } else {
-                    // console.log(response.editUserData.password);
                         $('#update_user_id').val(response.editUserData.id);
                         $('#updateFirstName').val(response.editUserData.first_name);
                         $('#updateLastName').val(response.editUserData.last_name);
                         $('#updateinputEmail').val(response.editUserData.email);
-                        // $('#user_type').val(response.editUserData.user_type);
                         $('#update_user_role option[value="' + response.editUserData.user_type + '"]').prop('selected', true);
 
-                        $('#updateuserModal').modal('show');
                         fetchUserPermissions(response.editUserData.id);
+                        setTimeout(function () {
+                            $('#updateuserModal').modal('show');
+                            if ($('#update_user_role').val() == 2) {
+                                $('input[type="checkbox"]').parent().hide();
+                                $('input[type="checkbox"][value="4"]').parent().show();
+                            }
+                        }, 100);
                     }
                 },
                 error:function(xhr, status, error) {
-               
                     const errorresponse = JSON.parse(xhr.responseText);
                     $('#errorMessage').text(errorresponse.error);
                     $('#errorMessage').css('display','block');
                     setTimeout(function () {
-                    $('#errorMessage').fadeOut();
+                        $('#errorMessage').fadeOut();
                     }, 3000);
-                    }
-                });
+                }
             });
-               //close model on close 
-                var updateuserModal = $('#updateuserModal');
-                var closeButton = updateuserModal.find('.close');
-                closeButton.on('click', function () {
-                updateuserModal.modal('hide');
-                });
+        });
 
+        //close model on close 
+        var updateuserModal = $('#updateuserModal'),
+        closeButton = updateuserModal.find('.close');
+        closeButton.on('click', function () {
+            updateuserModal.modal('hide');
+        });
 
-            // updateform data on submit 
-            $('#updateuserModal').on('submit',function(e){ 
+        // updateform data on submit 
+        $('#updateuserModal').on('submit',function(e){ 
             e.preventDefault();
             var formData = new FormData($('#update_user')[0]);
-            // console.log(formData);
-                $.ajax({
+            $.ajax({
                 type: 'POST',
                 url: '{{ route("user.updateuserdata") }}',
                 data: formData,
@@ -356,59 +387,49 @@
                     }   
                 },
                 error:function(xhr, status, error) {
-               
                     const errorresponse = JSON.parse(xhr.responseText);
                     $('#updateerrorMessage').text(errorresponse.error);
                     $('#updateerrorMessage').css('display','block');
                     setTimeout(function () {
-                    $('#updateerrorMessage').fadeOut();
+                        $('#updateerrorMessage').fadeOut();
                     }, 3000);
-                    }   
-                });
-
+                }   
             });
-
-               //to remove user 
-                $(document).on('click','.remove',function(){               
-                var id = $(this).attr('data-id');
-                    swal.fire({
-                        // title: "Oops....",
-                        text: "Are you sure you want to delete this user?",
-                        icon: "error",
-                        showCancelButton: true,
-                        confirmButtonText: 'YES',
-                        cancelButtonText: 'NO',
-                        reverseButtons: true
-                        }).then((result) => {
-                                 if (result.isConfirmed) {
-                                    $.ajax({
-                                    url:"{{route('user.remove')}}",
-                                    data:{id:id},
-                                    success:function(data)
-                                    {
-                                        $('#user_del_success').html('');
-                                        $('#user_del_success').css('display','block');
-                                        $('#user_del_success').append('<div class="alert alert-success alert-dismissible fade show m-3" role="alert"> User Delete Successfully! <button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
-                                    },
-                                    error:function(error){
-                                    
-                                    }
-                                    });
-                            } 
-                            else {
-
-                            }
-                    });
-                });
-    });
-     //on close window reload after adding user 
-        $(document).on('click', '.updatemodal, .addpopup, .deletemodal', function() {
-              location.reload();
-        
         });
-      
- 
-    
+
+        //to remove user 
+        $(document).on('click','.remove',function(){               
+        var id = $(this).attr('data-id');
+            swal.fire({
+                text: "Are you sure you want to delete this user?",
+                icon: "error",
+                showCancelButton: true,
+                confirmButtonText: 'YES',
+                cancelButtonText: 'NO',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url:"{{route('user.remove')}}",
+                        data:{id:id},
+                        success:function(data){
+                            $('#user_del_success').html('');
+                            $('#user_del_success').css('display','block');
+                            $('#user_del_success').append('<div class="alert alert-success alert-dismissible fade show m-3" role="alert"> User Delete Successfully! <button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
+                        },
+                        error:function(error){
+                            console.log(error);
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    //on close window reload after adding user 
+    $(document).on('click', '.updatemodal, .addpopup, .deletemodal', function() {
+        location.reload();
+    });
 </script>
 
 @endsection
