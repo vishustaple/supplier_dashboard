@@ -18,10 +18,11 @@ class CheckPermission
     public function handle(Request $request, Closure $next, $permission): Response
     {
         if (!auth()->user()->hasPermission($permission) && Auth::user()->user_type == User::USER_TYPE_USER) {
-            // return response()->json(['error' => 'Unauthorized'], 403);
-            // return redirect()->back();
-            // return redirect()->back()->with('error', 'Unauthorized');
-            return redirect('/')->with('error', 'Unauthorized');
+            if ($request->ajax()) {
+                return response()->json(['error' => 'You are not authorized to do this action'], 403);
+            } else {
+                return redirect('/')->with('error', 'Unauthorized');
+            }
         }
 
         return $next($request);
