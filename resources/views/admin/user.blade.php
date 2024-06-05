@@ -59,7 +59,7 @@
                                     </select>
                                 </div>
                                 <div class="permissions" id="add_permissions">
-                                    <p>Permissions:</p>
+                                    <p id="permission_heading">Permissions:</p>
                                     @foreach($permissions as $permission)
                                         <div>
                                             <input type="checkbox" name="permissions[]" value="{{ $permission->id }}">
@@ -234,13 +234,16 @@
 
         $('input[type="checkbox"]').parent().hide();
         if ($('#user_role').val() == 2) {
+            $('#permission_heading').show();
             $('input[type="checkbox"]').parent().hide();
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"][value="4"]').parent().show();
         } else if ($('#user_role').val() == 3) {
+            $('#permission_heading').show();
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"]').parent().show();
         } else {
+            $('#permission_heading').hide();
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"]').parent().hide();
         }
@@ -256,6 +259,7 @@
                 $('input[type="checkbox"]').prop('checked', false);
                 $('input[type="checkbox"]').parent().show();
             } else {
+                $('#permission_heading').hide();
                 $('#permission_heading').hide();
                 $('input[type="checkbox"]').parent().hide();
             }
@@ -294,6 +298,20 @@
                         $('#successMessage').css('display','block');
                         $('#successMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         $("form")[0].reset();
+                        if ($('#user_role').val() == 2) {
+                            $('#permission_heading').show();
+                            $('input[type="checkbox"]').parent().hide();
+                            $('input[type="checkbox"]').prop('checked', false);
+                            $('input[type="checkbox"][value="4"]').parent().show();
+                        } else if ($('#user_role').val() == 3) {
+                            $('#permission_heading').show();
+                            $('input[type="checkbox"]').prop('checked', false);
+                            $('input[type="checkbox"]').parent().show();
+                        } else {
+                            $('#permission_heading').hide();
+                            $('input[type="checkbox"]').prop('checked', false);
+                            $('input[type="checkbox"]').parent().hide();
+                        }
                     }    
                 },
                 error: function(xhr, status, error) {          

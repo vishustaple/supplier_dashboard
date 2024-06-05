@@ -14,6 +14,7 @@
                 </div>
             </div>
             <div id="successMessages"></div>
+            <div id="editerrorMessages" ></div>
             <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="editSupplierModalLabel" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -23,7 +24,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div id="editsuccessMessage"></div>
-                        <div  id="editerrorMessage" ></div>
+                        <div id="editerrorMessage" ></div>
                         <div class="modal-body">
                             <form method="post" id="edit_supplier_name">
                                 @csrf
@@ -243,11 +244,12 @@
                 },
                 error: function(xhr, status, error) {
                     // Handle error response
-                    $('#editerrorMessage').text(JSON.parse(xhr.responseText).error);
-                    $('#editerrorMessage').css('display','block');
-                    setTimeout(function () {
-                        $('#editerrorMessage').fadeOut();
-                    }, 5000);
+                    $('#editerrorMessages').html('');
+                    $('#editerrorMessages').css('display','block');
+                    $('#editerrorMessages').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + JSON.parse(xhr.responseText).error + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    setTimeout(() => {
+                        location.reload(); 
+                    }, 3000);
                 }
             });
         });
@@ -276,11 +278,12 @@
                 },
                 error: function(xhr, status, error) {
                     // Handle error response
-                    $('#editerrorMessage').text(JSON.parse(xhr.responseText).error);
-                    $('#editerrorMessage').css('display','block');
-                    setTimeout(function () {
-                        $('#editerrorMessage').fadeOut();
-                    }, 5000);
+                    $('#editerrorMessages').html('');
+                    $('#editerrorMessages').css('display','block');
+                    $('#editerrorMessages').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + JSON.parse(xhr.responseText).error + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    setTimeout(() => {
+                        location.reload(); 
+                    }, 3000);
                 }
             });
         });
@@ -307,7 +310,7 @@
                         }
 
                         $('#editerrorMessage').text('');
-                        $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                        $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + errorMessage + '<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
                     }
 
                     if(response.success){
@@ -320,11 +323,12 @@
                 },
                 error: function(xhr, status, error) {
                     // Handle error response
-                    $('#editerrorMessage').text(JSON.parse(xhr.responseText).error);
+                    $('#editerrorMessage').html('');
                     $('#editerrorMessage').css('display','block');
-                    setTimeout(function () {
-                        $('#editerrorMessage').fadeOut();
-                    }, 5000);
+                    $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + JSON.parse(xhr.responseText).error + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    setTimeout(() => {
+                        location.reload(); 
+                    }, 3000);
                 }
             });
         });
@@ -350,8 +354,8 @@
                             errorMessage = response.error;
                         }
 
-                        $('#adderrorMessage').text('');
-                        $('#adderrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                        $('#adderrorMessage').html('');
+                        $('#adderrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + errorMessage + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                     }
 
                     if(response.success){
@@ -365,11 +369,12 @@
                 },
                 error: function(xhr, status, error) {
                     // Handle error response
-                    $('#adderrorMessage').text(JSON.parse(xhr.responseText).error);
+                    $('#adderrorMessage').html('');
                     $('#adderrorMessage').css('display','block');
-                    setTimeout(function () {
-                        $('#adderrorMessage').fadeOut();
-                    }, 5000);
+                    $('#adderrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + JSON.parse(xhr.responseText).error + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                    setTimeout(() => {
+                        location.reload(); 
+                    }, 3000);
                 }
             });
         });

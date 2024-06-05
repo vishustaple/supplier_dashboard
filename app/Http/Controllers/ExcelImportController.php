@@ -25,8 +25,8 @@ class ExcelImportController extends Controller
 {
     public function __construct(){
         $this->middleware('permission:Manage Supplier')->only(['allSupplier']);
-        $this->middleware('permission:Supplier Edit')->only(['editSupplierName', 'showSupplier', 'getSupplierDetailWithAjax']);
-        $this->middleware('permission:Supplier Add')->only(['addSupplierName','addSupplierMain', 'showSupplier','getSupplierDetailWithAjax']);
+        $this->middleware('permission:Supplier Edit')->only(['editSupplierName']);
+        $this->middleware('permission:Supplier Add')->only(['addSupplierName', 'addSupplierMain']);
         $this->middleware('permission:Supplier Delete')->only(['deleteSupplier']);
     }
 
