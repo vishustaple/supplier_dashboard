@@ -329,7 +329,7 @@
                                 $('input[type="checkbox"]').parent().hide();
                                 $('input[type="checkbox"][value="4"]').parent().show();
                             }
-                        }, 100);
+                        }, 1000);
                     }
                 },
                 error:function(xhr, status, error) {
