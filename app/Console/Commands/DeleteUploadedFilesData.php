@@ -68,6 +68,7 @@ class DeleteUploadedFilesData extends Command
                     /** Delete records from Order table */
                     DB::table('orders')->where('data_id', $id)->delete();
 
+                    dd($supplierTableArray[$fileData->supplier_id]);
                     /** Delete records from Suppliers Orders table */
                     DB::table($supplierTableArray[$fileData->supplier_id])->where('data_id', $id)->delete();
                 }
