@@ -2,18 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class UploadedFiles extends Model
 {
     use HasFactory, SoftDeletes;
+    
     const UPLOAD = 1;
     const CRON = 2;
     const PROCESSED = 3;
+
     protected $table = 'uploaded_files';
+
      /**
      * The attributes that are mass assignable.
      *
@@ -31,19 +36,17 @@ class UploadedFiles extends Model
 
     protected $dates = ['deleted_at'];
 
-    // Define the relationship with the supplier table
-    public function supplier()
+    public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id');
+        return $this->belongsTo(Supplier::class);
     }
 
-    // Define the relationship with the user table
-    public function createdByUser()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function deletedByUser()
+    public function deletedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
@@ -59,18 +62,23 @@ class UploadedFiles extends Model
         ];
          
         $query = self::query()->selectRaw(
-            "`uploaded_files`.`file_name` as file_name,
-            `uploaded_files`.`created_by` as created_by,
-            `uploaded_files`.`cron` as cron,
-            `uploaded_files`.`id` as id,
-            `uploaded_files`.`created_at` as created_at,
-            `uploaded_files`.`deleted_at` as deleted_at,
-            `suppliers`.`supplier_name` as supplier_name,
-            CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name"
+            "`uploaded_files`.`file_name` as `file_name`,
+            `uploaded_files`.`created_by` as `created_by`,
+            `uploaded_files`.`cron` as `cron`,
+            `uploaded_files`.`id` as `id`,
+            `uploaded_files`.`created_at` as `created_at`,
+            `uploaded_files`.`deleted_at` as `deleted_at`,
+            `uploaded_files`.`delete` as `delete`,
+            `suppliers`.`supplier_name` as `supplier_name`,
+            CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS `user_name`"
         )
         ->leftJoin('users', 'uploaded_files.created_by', '=', 'users.id')
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id');
-       
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id')
+        ->withTrashed();
+
+        /** Get total records count (without filtering) */
+        $totalRecords = $query->count();
+
         /** Search functionality */
         if(isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
@@ -84,9 +92,6 @@ class UploadedFiles extends Model
             $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
-        /** Get total records count (without filtering) */
-        $totalRecords = $query->count();
-
         $query->orderBy('uploaded_files.id', 'desc');
         if (isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
@@ -95,10 +100,12 @@ class UploadedFiles extends Model
             $filteredData = $query->get();
         }
         
-        /** Print the SQL query */
-        // dd($query->toSql()); 
+        /** Print the SQL query
+        * For debug query */
+        // dd($query->toSql(), $query->getBindings());
+
         /** Get filtered records count */
-        $filteredRecords = $query->count();
+        $filteredRecords = $query->getQuery()->getCountForPagination();
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
@@ -134,7 +141,7 @@ class UploadedFiles extends Model
         return [
             'data' => $formatuserdata,
             'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
         ];
     }
 }
