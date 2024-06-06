@@ -11,12 +11,17 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    
     const USER_TYPE_SUPERADMIN = 1;
     const USER_TYPE_ADMIN = 2;
     const USER_TYPE_USER = 3;
 
     public function permissions(){
         return $this->belongsToMany(Permission::class);
+    }
+
+    public function uploadedFiles(){
+        return $this->hasMany(UploadedFiles::class);
     }
 
     public function hasPermission($permission){

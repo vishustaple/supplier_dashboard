@@ -17,6 +17,16 @@ class Supplier extends Model
     'supplier_name',
   ];
 
+  public function uploadedFiles()
+  {
+      return $this->hasMany(UploadedFiles::class);
+  }
+
+  public function createdByUser()
+  {
+      return $this->belongsTo(User::class, 'created_by');
+  }
+
   public static function getSearchSupplierData($search=''){
     if (!empty($search)) {
       $query = self::query()->select('id', 'supplier_name')->where('supplier_name', 'LIKE', '%' . $search . '%');

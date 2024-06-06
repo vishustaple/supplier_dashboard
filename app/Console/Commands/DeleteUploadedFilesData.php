@@ -34,6 +34,17 @@ class DeleteUploadedFilesData extends Command
         /** Selecting the file data row using table id */
         $fileData = UploadedFiles::where('delete', 1)->first();
         
+        /** Array of different supplires table */
+        $supplierTableArray = [
+            1 => 'g_and_t_laboratories_charles_river_order',
+            2 => 'grainger_order',
+            3 => 'office_depot_order',
+            4 => 'staples_order',
+            5 => 'wb_mason_order',
+            6 => 'lyreco_order',
+            7 => 'odp_order',
+        ];
+
         if (isset($fileData->id) && !empty($fileData->id)) {
             /** Update delete two means start deleting data into excel */
             DB::table('uploaded_files')->where('id', $fileData->id)->update(['delete' => UploadedFiles::CRON]);
@@ -56,6 +67,9 @@ class DeleteUploadedFilesData extends Command
         
                     /** Delete records from Order table */
                     DB::table('orders')->where('data_id', $id)->delete();
+
+                    /** Delete records from Suppliers Orders table */
+                    DB::table($supplierTableArray[$fileData->supplier_id])->where('data_id', $id)->delete();
                 }
     
                 if (File::exists($filePath)) {
