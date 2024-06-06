@@ -240,7 +240,6 @@
                     { data: 'spend', name: 'spend', title: 'Spend', 'searchable': false },
                     { data: 'category', name: 'category', title: 'Category', 'orderable': false, 'searchable': false },
                 ],
-                
             });
 
             $('#consolidated_supplier_data_length').hide();

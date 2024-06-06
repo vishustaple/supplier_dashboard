@@ -185,13 +185,7 @@
             if ($(this).val() == 1 && $('.approved_'+$(this).data('paid_ids')+'').val() == 1) {
                 $(this).prop('disabled', true);
                 $('.approved_'+$(this).data('paid_ids')+'').prop('disabled', true);
-
                 $('#paidModal').modal('show');
-
-                // Execute code when modal is closed
-                // $("#paidModal").on('hidden.bs.modal', function () {
-                //     // You can call a function, perform an AJAX request, or any other action here
-                // });
             }
         });
 
@@ -240,7 +234,6 @@
                 }
             });
         });
-
 
         // DataTable initialization
         var supplierDataTable = $('#commission_report_data').DataTable({
@@ -347,8 +340,6 @@
                 { data: 'amount', name: 'amount', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'commission', name: 'commission', title: 'Commission'},
-                // { data: 'start_date', name: 'start_date', title: 'Start Date'},
-                // { data: 'end_date', name: 'end_date', title: 'End Date'},
             ],
         });
 

@@ -434,7 +434,6 @@ class ProcessUploadedFiles extends Command
                         ->update([
                         'cron' => 4
                         ]);
-
                         // print_r($sheetCount);die;
                         for ($i = 0; $i <= $sheetCount; $i++) {
                             $count = $maxNonEmptyCount = 0;
