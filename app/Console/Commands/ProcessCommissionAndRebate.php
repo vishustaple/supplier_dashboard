@@ -112,8 +112,6 @@ class ProcessCommissionAndRebate extends Command
                     ->whereYear('start_date', $year)
                     ->whereDate('start_date', '>=', $filter['start_date'])
                     ->whereDate('end_date', '<=', $filter['end_date'])
-                    ->where('paid', 0)
-                    ->where('approved', 0)
                     ->where('commission_rebate.sales_rep', $values->sales_rep)
                     ->first();
 
@@ -137,8 +135,6 @@ class ProcessCommissionAndRebate extends Command
                             ->whereYear('start_date', $year)
                             ->whereDate('start_date', '>=', $filter['start_date'])
                             ->whereDate('end_date', '<=', $filter['end_date'])
-                            ->where('paid', 0)
-                            ->where('approved', 0)
                             ->where('commission_rebate_id', $dataExistCheck->id)
                             ->get();
 

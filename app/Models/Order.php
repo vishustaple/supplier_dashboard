@@ -423,13 +423,13 @@ class Order extends Model
             2 => 'amount',
         ];
 
-        if ($filter['rebate_check'] == 1) {
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
             $orderColumnArray[3] = 'volume_rebate';
         } else {
             $orderColumnArray[3] = 'incentive_rebate';
         }
 
-        if ($filter['rebate_check'] == 1) {
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
             $query = self::query()->selectRaw(
                 "SUM(`orders`.`amount`) AS `amount`, 
                 `m2`.`account_name` AS `account_name`,
@@ -463,10 +463,6 @@ class Order extends Model
         
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             if ($filter['supplier'] == 3) {   
-                // if ($filter['rebate_check'] == 1) {
-                //     $query->whereIn('m2.grandparent_id', [1637, 1718, 2140, 2085, 2141]);
-                // }
-
                 if ($filter['rebate_check'] == 2) {
                     $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
                     $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
@@ -516,7 +512,7 @@ class Order extends Model
     
         /** Group by with account name */
         $query->groupBy('m2.account_name');
-        // dd($query->get()->toArray());
+
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
@@ -552,7 +548,6 @@ class Order extends Model
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-        
 
         /** Making final array */
         $finalArray=[];

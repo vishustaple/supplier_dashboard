@@ -130,7 +130,7 @@
             } else {
                 $('#incentive_rebate_check').hide();
                 $('#incentive_rebate_check_label').hide();
-                // $('#incentive_rebate_check').prop('checked', false);
+                $('#incentive_rebate_check').prop('checked', false);
             }
         });
 
@@ -155,7 +155,7 @@
             } else {
                 $('#incentive_rebate_check').hide();
                 $('#incentive_rebate_check_label').hide();
-                // $('#incentive_rebate_check').prop('checked', false);
+                $('#incentive_rebate_check').prop('checked', false);
             }
 
             var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="total_amount">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
@@ -237,8 +237,7 @@
             fnDrawCallback: function( oSettings ) {
                 setPercentage();
             },
-        });  
-
+        });
 
         $('#downloadCsvBtn').on('click', function () {
             // Trigger CSV download
