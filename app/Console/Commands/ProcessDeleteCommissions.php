@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-// use App\Models\{SalesTeam, Commission, CommissionRebate, CommissionRebateDetail, Account};
 
 class ProcessDeleteCommissions extends Command
 {
