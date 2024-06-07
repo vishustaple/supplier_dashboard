@@ -20,7 +20,7 @@
             <a href="{{ route('sales.index') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
             @endif
             @if (isset($catalog) && !empty($catalog))
-            <a href="{{ route('catalog.list') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
+            <a href="{{ route('catalog.list', ['catalogType' => 'catalog']) }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
             @endif
             
             <!-- Add redirect conditions here -->
