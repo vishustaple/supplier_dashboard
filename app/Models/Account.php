@@ -266,7 +266,7 @@ class Account extends Model
         ];
     }
 
-    public static function getSearchCustomerData($search='', $supplier='', $supplierArray=[], $check=false){
+    public static function getSearchCustomerData($search='', $supplier='', $supplierArray=[], $check=false, $allSupplier=false){
         if (!empty($search)) {
             $query = self::query()->select('master_account_detail.account_name as account_name', 'master_account_detail.account_number as customer_number');
             $query->groupBy('master_account_detail.account_name');
@@ -280,13 +280,11 @@ class Account extends Model
                     } else {
                         $query->whereIn('master_account_detail.category_supplier', $supplierArray);
                     }
+                } else if ($allSupplier) {
+                    $query->whereIn('master_account_detail.category_supplier', [1, 2, 3, 4, 5, 6, 7]);
                 } else {
                     return [];
                 }
-            } else {
-                // if (isset($supplier) && !empty($supplier)) {
-                //     $query->where('master_account_detail.category_supplier', $supplier);
-                // }
             }
 
             $query->where('master_account_detail.account_name', 'LIKE', '%' . $search . '%');
@@ -296,6 +294,7 @@ class Account extends Model
                 foreach ($results as $value) {
                     $finalArray[] = ['id' => $value->account_name, 'text' => $value->account_name];        
                 }
+                
                 return $finalArray;
             }
 
