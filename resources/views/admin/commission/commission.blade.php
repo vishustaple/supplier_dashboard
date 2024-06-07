@@ -206,9 +206,13 @@
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {
-                            return {
-                                q: params.term // search term
+                            var data = {
+                                all_supplier: true,
+                                supplier_check: true,
+                                q: params.term, // search term
                             };
+
+                            return data;
                         },
                         processResults: function(data) {
                             return {
@@ -225,8 +229,8 @@
                         url: "{{ route('commission.supplierSearch') }}",
                         method: 'GET',
                         data: {
-                            account_name: accountName,
                             check: true,
+                            account_name: accountName,
                         },
                         success: function(response) {
                             // Handle the AJAX response
