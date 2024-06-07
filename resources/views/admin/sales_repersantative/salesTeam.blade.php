@@ -119,9 +119,7 @@
                                     $('#account_del_success').text('Sales Representative Delete Successfully!');
                                     $('#account_del_success').css('display', 'block');
                                     $('#account_del_success').append('<button type="button" id="closeSuccessMessage" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
-                                        $('#closeSuccessMessage').on('click', function() {
-                                            location.reload();
-                                        });
+                                    $('#sales_data').DataTable().ajax.reload();
                                 } else {
                                     // Handle other cases where response.success is false
                                 }
