@@ -85,7 +85,6 @@
                         'first_name' => $request->first_name,
                         'last_name' => $request->last_name,
                         'email' => $request->email,
-                       // 'password' => bcrypt($request->password), // Hash the password before saving
                         'remember_token' => $token,
                         'user_type'=> $userType,
                     ]);
@@ -95,7 +94,7 @@
 
                     $email=$request->email;
                     $key = env('APP_KEY');
-                    $salt = openssl_random_pseudo_bytes(16); // Generate salt
+                    $salt = openssl_random_pseudo_bytes(16); /** Generate salt */
                     $data = ''.$user->id . '|' . $user->remember_token.'';
 
                     try{
@@ -129,11 +128,11 @@
 
             if (Auth::attempt($credentials, $remember)) {
                 Auth::logoutOtherDevices($request->password);
-                // Connection could not be established with host "mailpit:1025": stream_socket_client(): php_network_getaddresses: getaddrinfo for mailpit failed: Name or service not known
-                // Log::info('Email sent successfully');
+                /** Connection could not be established with host "mailpit:1025": stream_socket_client(): php_network_getaddresses: getaddrinfo for mailpit failed: Name or service not known */
+                /** Log::info('Email sent successfully'); */
                 return redirect()->intended('/admin/upload-sheet');
             } else {
-                // Authentication failed...
+                /** Authentication failed... */
                 return redirect()->route('login')->withErrors(['email' => 'Invalid credentials']);
             }
         }

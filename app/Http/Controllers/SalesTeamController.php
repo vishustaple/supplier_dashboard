@@ -46,21 +46,11 @@ class SalesTeamController extends Controller
     }
 
     public function updateSales(Request $request){
-        $validator = Validator::make(
-            [
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'phone' => $request->phone_number,
-                'status' => $request->status,
-                'user_type' => $request->user_type,
-
-            ],
-            [
+        $validator = Validator::make($request->all(), [
                 'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
                 'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
                 'email' => 'required|regex:/^\S+@\S+\.\S+$/|unique:sales_team,email,'.$request->id,
-                'phone' => 'required|digits:10|unique:sales_team,phone,'.$request->id,
+                'phone_number' => 'required|digits:10|unique:sales_team,phone,'.$request->id,
                 'status' => 'required',
                 'user_type' => 'required',
             ],
@@ -91,20 +81,11 @@ class SalesTeamController extends Controller
 
     public function addsales(Request $request){
         if ($request->ajax()) {            
-            $validator = Validator::make(
-                [
-                    'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
-                    'email' => $request->email,
-                    'phone' => $request->phone_number,
-                    'status' => $request->status,
-                    'user_type' => $request->user_type,
-                ],
-                [
+            $validator = Validator::make($request->all(), [
                     'first_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
                     'last_name' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
                     'email' => 'required|regex:/^\S+@\S+\.\S+$/|required|email|unique:sales_team,email',
-                    'phone' => 'required|digits:10|unique:sales_team',
+                    'phone_number' => 'required|digits:10|unique:sales_team',
                     'status' => 'required',
                     'user_type' => 'required',
                 ],
@@ -131,16 +112,25 @@ class SalesTeamController extends Controller
         } else {
             $fromTitle = 'SalesTeam';
             $currentTitle ='Sales Team';
+
             return view('admin.sales_repersantative.add',compact('fromTitle','currentTitle'));
         }
     }
 
     public function removeSales(Request $request){
         $saleId = $request->id;
-        try{
+        try {
             $sale = SalesTeam::find($saleId);
             if($sale) {
+                /** Disable foreign key checks */
+                DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+                /** Deleting sales repersentative */
                 $sale->delete();
+
+                /** Re-enable foreign key checks */
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
                 return response()->json(['success' => 'Sales Repersantative deleted successfully']);
             } else {
                 return response()->json(['error' => 'Sales Repersantative not found'], 404);
@@ -149,15 +139,15 @@ class SalesTeamController extends Controller
             return response()->json(['error' => 'Sales Repersantative not removed' . $e->getMessage()], 404);
             echo "Database table uploaded_files select query failed: " . $e->getMessage();
             die;
-        } 
-        
+        }
     }
 
     public function status_sales(Request $request){
-        try{
+        try {
             $getstatus = SalesTeam::find($request->id); 
             $status = ($getstatus->status == SalesTeam::STATUS_ACTIVE) ? SalesTeam::STATUS_INACTIVE : SalesTeam::STATUS_ACTIVE;
-            $data = SalesTeam::where('id', $request->id)->update([
+            $data = SalesTeam::where('id', $request->id)
+            ->update([
                 'status' => $status
             ]);
 
@@ -166,8 +156,7 @@ class SalesTeamController extends Controller
             } else {
                 return response()->json(['error' => 'Failed to update status'], 500);
             }
-            }
-        catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             return $this->error($th->getMessage());
         }
     }
