@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{ExcelImportController, SalesTeamController, RebateController, CommissionController,  CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
+use App\Http\Controllers\{SavedQueryController, ExcelImportController, SalesTeamController, RebateController, CommissionController,  CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
 use Illuminate\Support\Facades\Auth; 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +32,16 @@ Route::post('/user-register', [HomeController::class, 'userRegister'])->name('us
 
 Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
+      
+        Route::get('/queries', [SavedQueryController::class, 'index'])->name('queries.index');
+        Route::get('/queries/create', [SavedQueryController::class, 'create'])->name('queries.create');
+        Route::post('/queries', [SavedQueryController::class, 'store'])->name('queries.store');
+        Route::get('/queries/{query}', [SavedQueryController::class, 'show'])->name('queries.show');
+        Route::get('/queries/{query}/edit', [SavedQueryController::class, 'edit'])->name('queries.edit');
+        Route::put('/queries/{query}', [SavedQueryController::class, 'update'])->name('queries.update');
+        Route::delete('/queries/delete/{query}', [SavedQueryController::class, 'destroy'])->name('queries.destroy');
+        
+
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::get('/supplier', [ExcelImportController::class, 'allSupplier'])->name('supplier');
         Route::get('/supplier/{id?}', [ExcelImportController::class, 'showSupplier'])->name('supplier.show');
