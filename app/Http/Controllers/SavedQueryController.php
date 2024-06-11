@@ -58,6 +58,7 @@ class SavedQueryController extends Controller
         $query = SavedQuery::find($id);
         $query->delete();
 
-        return redirect()->route('queries.index');
+        return response()->json(['success' => 'Query deleted successfully'], 200);
+        // return redirect()->route('queries.index');
     }
 }
