@@ -5,12 +5,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Commission Report</title>
         <style>
-            /* @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+             @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
             body{
                 padding: 15px;
                 font-family: "Roboto", sans-serif;
-            } */
-
+            } 
+            @media print {
+                .page-break {
+                    page-break-before: always;
+                }
+            }
             .clearfix {
                 overflow: auto;
             }
@@ -21,235 +25,153 @@
                 display: table;
             }
 
-            th, td {
-                border: 1px solid black;
-                border-collapse: collapse;
-                border-right: 0px;
-            }
-
-            .pdf_header,.pdf_data_details{
-                overflow: auto;
-                display: table;
-                width: 100%;
-            }
-
-            .logo_block,.middle_block,.right_block{
-                width: 33%;
-                float: left;
-                text-align: center;
-                display: table;
-            }
-
-            .logo_block{
-                text-align: left;
-            }
-
-            .middle_block span,.right_block span{
-                display: table-cell;
-                vertical-align: bottom;
-                height: 54px;
-            }
-
-            .details{
-                padding-top: 25px;
-                width: 40%;
-                padding-bottom: 25px;
-            }
-
-            .details p{
-                font-size: 13px;
-                margin: 0px;
-                margin-bottom: 5px;
-            }
-
             table{
                 width: 100%;
-                border-spacing: 0px;
+                border: 3px solid #000;
                 margin-bottom: 50px;
+                border-spacing: 0px;
             }
-
             th{
-                color: #fff;
+                font-style: italic;
             }
-
+            .border-top{
+                border-top: 2px solid #000;
+            }
+            .border-bottom{
+                border-bottom: 2px solid #000;
+            }
+            .border-right{
+                border-right: 2px solid #000;
+            }
+            .border-left{
+                border-left: 2px solid #000;
+            }
             th,td{
-                font-size: 11px;
-            }
-
-            .border-0{
-                border: 0px;
+                padding: 5px 10px;
                 text-align: center;
             }
-
-            tr th:last-child,tr td:last-child{
-                border-right: 1px solid #000;
-            }
-
-            tr td{
-                border-top: 0px;
-            }
-
-            .total_tr td:first-child{
-                border-top: 1px solid #000;
-            }
-
-            .right_sign{
-                width: 40%;
-                float: right;
-            }
-
-            .border-right-0{
-                border-right:0px;
-                border-left:0px;
-                padding-left: 2px;
-                padding-right: 0px;
-            }
-
-            .border-right-0 + td{
-                border-left: 0px;
-                padding-left: 2px;
-            }
-
-            .text-left{
-                text-align: left;
+            .container{
+                max-width: 800px;
             }
         </style>
     </head>
     <body>
+        <div class="container">
         <div class="pdf_header clearfix">
             <div class="logo_block">
                 <img src="https://sql.centerpointgroup.com/images/logo-1.webp" alt="">
             </div>
-            <div class="middle_block">
-                <span>Q{{ $quarter }} {{ $year }}</span>
-            </div>
-            <div class="right_block">
-                <span>Amount: $ {{$amount}} </span>
-            </div>
         </div>
-        <div class="pdf_data_details clearfix">
-        <div class="details">
-                <p>Agent Name: {{ $sales_rep }}</p>
-                <p>Generated on: {{ now()->format('m/d/Y') }}</p>
+       
+        <div class="detail_top_pdf clearfix" style="margin: 35px 0px;">
+           <div class="left_commission" style="width: 50%;float:left;">
+             <p style="margin: 0px;padding-bottom: 5px;"><b>Commission Statement for period: {{explode(' ', $commission_statement_text)[0]}} to</b></p>
+             <p style="margin: 0px;padding-bottom: 5px;"><b>{{explode(' ', $commission_statement_text)[1]}} {{$year}}</b></p>
+             <p style="margin: 0px;padding-bottom: 5px;"><b>Agent Name: {{ $sales_rep }}</b></p>
+           </div>
+           <div class="right_quarter" style="width: 50%;float:left;padding-top: 35px;">
                 @if(isset($quarter1) && $quarter1 != 0)
-                    <p>Quarter 1 Commission: $ {{ $quarter1 }}</p>
+                    <p>Quarter 1 Commission <b>${{ $quarter1 }}</b></p>
                 @endif
                 @if(isset($quarter2) && $quarter2 != 0)
-                    <p>Quarter 2 Commission: $ {{ $quarter2 }}</p>
+                    <p>Quarter 2 Commission <b>${{ $quarter2 }}</b></p>
                 @endif
                 @if(isset($quarter3) && $quarter3 != 0)
-                    <p>Quarter 3 Commission: $ {{ $quarter3 }}</p>
+                    <p>Quarter 3 Commission <b>${{ $quarter3 }}</b></p>
                 @endif
                 @if(isset($quarter4) && $quarter4 != 0)
-                    <p>Quarter 4 Commission: $ {{ $quarter4 }}</p>
+                    <p>Quarter 4 Commission <b>${{ $quarter4 }}</b></p>
                 @endif
-                <p>YTD Commission: $ {{ $anual }}</p>
+                <!-- <p>Year Commission <b>${{-- $anual --}}</b></p> -->
+           </div>
         </div>
+
+        <div class="generated_date" style="padding-bottom: 20px;">
+          <b>Generated on: {{ now()->format('m/d/Y') }}</b>
         </div>
-        <div class="table_responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="border-0"></th>
-                        <th class="border-0"></th>
-                        <th class="border-0"></th>
-                        <th class="border-0"></th>
-                        <th class="border-0"></th>
-                        <th colspan="13" style="background-color: #538dd5;text-align: center;color: #fff;border-bottom: 0px;">Commission 2023</th>
+
+        <div class="table_wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Account Name <br>Commissionable Period</th>
+                    <th>Month / Year</th>
+                    <th >Customer <br>
+                        Spend</th>
+                    <th>Management <br>
+                        Fee</th>
+                    <th>Commission <br>
+                        Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if(isset($commission_data))
+                @foreach($commission_data as $key1 => $commissions)
+                    <tr class="subtotal" style="background-color: #d0d0d0;">
+                        <th colspan="2" class="border-bottom border-top" style="text-align: center;background-color: #d0d0d0;">{{ $key1 }}</th>
+                        <th class="border-bottom border-top"  colspan="3"></th>
                     </tr>
-                    <tr style="background-color: #b8cce4;">
-                        <th>Business Name</th>
-                        <th>Supplier</th>
-                        <th>Rate #1</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Jan</th>
-                        <th>Feb</th>
-                        <th>Mar</th>
-                        <th>Apr</th>
-                        <th>May</th>
-                        <th>Jun</th>
-                        <th>Jul</th>
-                        <th>Aug</th>
-                        <th>Sep</th>
-                        <th>Oct</th>
-                        <th>Nov</th>
-                        <th>Dec</th>
-                        <th>YTD</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if(isset($commission_data))
-                        @foreach($commission_data as $key => $commission)
+                    @php $amount = $rebate = $commission_total = 0; @endphp
+                    @foreach($commissions as $key2 => $commission)
+                        <?php 
+                            $amount += (float)str_replace(',', '', $commission['total_amount']);
+                            $rebate += (float)str_replace(',', '', $commission['total_volume_rebate']);
+                            $commission_total += (float)str_replace(',', '', $commission['total_commissions']);
+                            // Remove 'YTD' key from the array
+                            $filteredArray = array_filter($commission['month'], function($value, $key) {
+                                return $key !== 'YTD';
+                            }, ARRAY_FILTER_USE_BOTH);
+
+                            // Count non-zero values in the filtered array
+                            $nonZeroCount = count(array_filter($filteredArray, function($value) {
+                                return $value != 0;
+                            }));
+                            $firstTime = true;
+                        ?>
+                        @foreach($commission['month'] as $key => $month)
+                        @if(!empty($commission['month_amount'][$key]) && $key != 'YTD')
                             <tr>
-                                <?php 
-                                $commissionName = $commission['account_name'];?>
-                                <td class="border-0 text-left">{{ $commission['account_name'] }}</td>
-                                <td class="border-0">{{ $commission['supplier'] }}</td>
-                                <td class="border-0">{{ $commission['commission'] }}%</td>
-                                <td class="border-0">{{ $commission['start_date'] }}</td>
-                                <td class="border-0">{{ $commission['end_date'] }}</td>
-                                <td class="">$ {{ $commission['month']['January'] }}</td>
-                                <td class="border-right-0">$ {{ $commission['month']['February'] }}</td>
-                                <td>$ {{ $commission['month']['March'] }}</td>                        
-                                <td class="">$ {{ $commission['month']['April'] }}</td>
-                                <td class="border-right-0">$ {{ $commission['month']['May'] }}</td>
-                                <td>$ {{ $commission['month']['June'] }}</td>
-                                <td class="">$ {{ $commission['month']['July'] }}</td>
-                                <td class="border-right-0">$ {{ $commission['month']['August'] }}</td>
-                                <td>$ {{ $commission['month']['September'] }}</td>
-                                <td class="">$ {{ $commission['month']['October'] }}</td>
-                                <td class="border-right-0">$ {{ $commission['month']['November'] }}</td>
-                                <td>$ {{ $commission['month']['December'] }}</td>
-                                <td>$ {{ $commission['month']['YTD'] }}</td>
+                                @if($firstTime == true)
+                                    @php $firstTime = false; @endphp
+                                    <td rowspan="{{$nonZeroCount + 1}}" style="text-align: center;" class="border-right border-bottom">{{ $commission['supplier'] }} <br>
+                                    {{ $commission['start_date'] }} - {{ $commission['end_date'] }}</td>
+                                @endif
+                                <td>{{ $key }} {{ $year }}</td>
+                                <td>${{ $commission['month_amount'][$key] }}</td>
+                                <td>${{ $commission['month_rebate'][$key] }}</td>
+                                <td>${{ $commission['month'][$key] }}</td>
                             </tr>
+                            @endif
                         @endforeach
-                    @endif
-                    <tr class="total_tr">
-                        <td colspan="5">Total</td>
-                        <td class="">$ {{ $January }}</td>
-                        <td class="border-right-0">$ {{ $February }} </td>
-                        <td>$ {{ $March }}</td>
-                        <td class="">$ {{ $April }}</td>
-                        <td class="border-right-0">$ {{ $May }}</td>
-                        <td>$ {{ $June }}</td>
-                        <td class="">$ {{ $July }}</td>
-                        <td class="border-right-0">$ {{ $August }}</td>
-                        <td>$ {{ $September }}</td>
-                        <td class="">$ {{ $October }}</td>
-                        <td class="border-right-0">$ {{ $November }}</td>
-                        <td>$ {{ $December }}</td>
-                        <td>$ {{ $YTD }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        @if($paid_check == false)
-            <div class="sign_block clearfix">
-                <div class="right_sign">
-                    <div class="line_sign">
-                        <span style="padding-bottom: 15px; display: block;">X</span>
-                        <img width="150px" height="50px"  src="{{ public_path('/excel_sheets') .'/'. 'signature.svg'}}" alt="">
-                        <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
-                        <p style="text-align: center;"><b>Approved By</b></p>
-                    </div>
-                    <div class="line_sign">
-                     
-                        <span style="padding-bottom: 15px; display: block;">X</span>
-                        <table style="border: 0px; margin-bottom:10px;padding-bottom :0px;">
-                            <tbody>
-                                <tr>
-                                    <td style="border: 0px;"><img width="150px" height="50px" src="{{ public_path('/excel_sheets') .'/'. 'paid.jpg'}}" alt=""></td>
-                                    <td style="border: 0px;"><p style="font-size: 20px;margin-bottom:0px;">{{ $paid_date }}</p></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    
-                        <div style="border-bottom: 2px solid #000;margin-bottom: 15px;"></div>
-                        <p style="text-align: center;"><b>Paid On</b></p>
-                    </div>
-                </div>
-            </div>
-        @endif
+                        <tr style="background-color: #f2f2f2;">
+                            <th class="border-top border-bottom">{{ $commission['supplier'] }} Subtotal</th>
+                            <th class="border-top border-bottom">${{ number_format($commission['total_amount'], 2) }}</th>
+                            <th class="border-top border-bottom">${{ number_format($commission['total_volume_rebate'], 2) }}</th>
+                            <th class="border-top border-bottom">${{ number_format($commission['total_commissions'], 2) }}</th>
+                        </tr>
+                        @endforeach
+                        <tr class="subtotal" style="background-color: #f2f2f2;">
+                            <th class="border-top border-bottom" colspan="2">{{ $commission['account_name'] }} Subtotal</th>
+                            <th class="border-top border-bottom">${{ number_format($amount, 2) }}</th>
+                            <th class="border-top border-bottom">${{ number_format($rebate, 2) }}</th>
+                            <th class="border-top border-bottom">${{ number_format($commission_total, 2); }}</th>
+                        </tr>
+                    @endforeach
+                @endif
+                <tr class="grand_total">
+                    <th colspan="4" style="padding: 20px 10px; background-color: #000; color: #fff;">Grand Total</th>
+                    <th style="padding: 20px 10px; background-color: #000; color: #fff;">
+                    $ {{ $anual }}
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+<div class="approved_by">
+<p>@if ($paid_check == false) <i class="fa fa-check-square" aria-hidden="true"></i> @endif
+Approved by __________________________</p>
+</div>
+</div>
     </body>
 </html>
+<?php //die;?>
