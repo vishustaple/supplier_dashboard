@@ -4,21 +4,19 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Commission Report</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap">
+
         <style>
-             @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
             body{
                 padding: 15px;
                 font-family: "Roboto", sans-serif;
             } 
-            @media print {
-                .page-break {
-                    page-break-before: always;
-                }
+            .page-break {
+                page-break-after: always;
             }
             .clearfix {
                 overflow: auto;
             }
-
             .clearfix::after {
                 content: "";
                 clear: both;
@@ -156,6 +154,8 @@
                             <th class="border-top border-bottom">${{ number_format($rebate, 2) }}</th>
                             <th class="border-top border-bottom">${{ number_format($commission_total, 2); }}</th>
                         </tr>
+                        <!-- Page break after each set of commissions -->
+                        <div class="page-break"></div>
                     @endforeach
                 @endif
                 <tr class="grand_total">

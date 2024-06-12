@@ -719,13 +719,13 @@ class ReportController extends Controller
             }
 
             $datas1['year'] = $request->input('year');
-            if ($request->input('quarter') == 1) {
+            if ($request->input('quarter') == 'Quarter 1') {
                 $datas1['commission_statement_text'] = 'January March';
-            } else if ($request->input('quarter') == 2) {
+            } else if ($request->input('quarter') == 'Quarter 2') {
                 $datas1['commission_statement_text'] = 'April June';
-            } else if ($request->input('quarter') == 3) {
+            } else if ($request->input('quarter') == 'Quarter 3') {
                 $datas1['commission_statement_text'] = 'July September';
-            } else if ($request->input('quarter') == 4) {
+            } else if ($request->input('quarter') == 'Quarter 4') {
                 $datas1['commission_statement_text'] = 'October December';
             } else {
                 $datas1['commission_statement_text'] = 'January December';
@@ -933,7 +933,7 @@ class ReportController extends Controller
             // print_r($datas1['commission_data']);
             // die;
             /** Output the result */
-            $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setOption('dpi', 80)
+            $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setOption('dpi', 100)
             ->setOption('defaultFont', 'mohanonda')
             ->setOption('isHtml5ParserEnabled', true)
             ->setOption('isPhpEnabled', true)
