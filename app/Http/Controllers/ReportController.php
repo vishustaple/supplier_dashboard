@@ -744,6 +744,8 @@ class ReportController extends Controller
                         'account_name' => $item['account_name'],
                         'supplier' => $item['supplier'],
                         'commission' => $item['commission'],
+                        'commission_end_date' => $item['commission_end_date'],
+                        'commission_start_date' => $item['commission_start_date'],
                         'start_date' => $item['start_date'],
                         'end_date' => $item['end_date'],
                         'amounts' => [],
