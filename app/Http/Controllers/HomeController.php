@@ -168,8 +168,8 @@
                     $user = User::find(Crypt::decryptString($request->update_user_id));
                     $user1 = Auth::user();
                     if ($user) {
-                        if (($user->user_type != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($user->user_type, [2, 3]) && $user1->user_type == 3)) {
                         $userType = ($request->update_user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
+                        if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
                             $user->update([
                                 'first_name' => $request->first_name,
                                 'last_name' => $request->last_name,
