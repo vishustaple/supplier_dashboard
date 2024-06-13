@@ -181,7 +181,7 @@
                     $('#manualLoader').hide();     
                 },
                 columns: [
-                    { data: 'customer_number', name: 'customer_number', title: 'Customer Number' },
+                    { data: 'customer_number', name: 'customer_number', title: 'Supplier Customer Number' },
                     { data: 'customer_name', name: 'customer_name', title: 'Customer Name' },
                     { data: 'account_name', name: 'account_name', title: 'Account Name' },
                     { data: 'supplier_name', name: 'supplier_name', title: 'Supplier' },

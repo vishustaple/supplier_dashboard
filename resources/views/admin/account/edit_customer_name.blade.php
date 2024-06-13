@@ -18,7 +18,7 @@
         <table class="dataTable no-footer">
             <thead>
                 <tr>
-                <th>Customer Number</th>
+                <th>Supplier Customer Number</th>
                 <th>Customer Name</th>
                 <th>Account Name</th>
                 <th>Supplier</th>
