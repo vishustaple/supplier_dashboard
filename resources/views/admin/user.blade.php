@@ -8,9 +8,9 @@
         <div class="m-1 px-2 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
             <h3 class="mb-0 ps-2">Manage Users</h3>
             <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#userModal">
-            <i class="fa-solid fa-plus"></i> User
-            </button>
+            @if(isset($userInfo) && $userInfo->user_type != 3) 
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#userModal"><i class="fa-solid fa-plus"></i> User </button>
+            @endif
         </div>
         <div id="user_del_success" ></div>
         <div class="mx-auto py-0 d-flex justify-content-between align-items-center">
@@ -179,7 +179,9 @@
             "columns": [
                 { title: 'User Name' },
                 { title: 'User Role' },
+                <?php if(isset($userInfo) && $userInfo->user_type != 3) { ?>
                 { title: 'Action' },
+                <?php }?>
             ]
         });
 

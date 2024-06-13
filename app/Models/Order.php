@@ -1109,7 +1109,7 @@ class Order extends Model
         }
 
         $totalRecords = 0;
-        if (isset($filter['account_name']) && !empty($filter['account_name'])) {
+        if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
             $query->where('master_account_detail.account_name', $filter['account_name']);
         }
 
