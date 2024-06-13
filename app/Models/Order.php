@@ -868,6 +868,8 @@ class Order extends Model
                 `commission_rebate_detail`.`start_date` as start_date,
                 `commission_rebate_detail`.`end_date` as end_date,
                 `commission_rebate_detail`.`quarter` as quarter,
+                `commission_rebate_detail`.`commission_start_date` as commission_start_date,
+                `commission_rebate_detail`.`commission_end_date` as commission_end_date,
                 `commission_rebate_detail`.`account_name` as account_name,
                 `commission_rebate_detail`.`month` as month,
                 `commission_rebate_detail`.`approved` as approved,
@@ -974,6 +976,8 @@ class Order extends Model
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['amount'] = $value->amount;
+                    $finalArray[$key]['commission_end_date'] = $value->commission_end_date;
+                    $finalArray[$key]['commission_start_date'] = $value->commission_start_date;
                     $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
                     $finalArray[$key]['commissions'] = $value->commissions;
                     $finalArray[$key]['commission'] = $value->commission;
