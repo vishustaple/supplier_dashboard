@@ -107,7 +107,6 @@
                         } catch (\Exception $e) {
                             /** Handle the exception here */
                             Log::error('Email sending failed: ' . $e->getMessage());
-                            // $this->error('Email sending failed: ' . $e->getMessage());
                         }
                         return response()->json(['success' => 'Add User Successfully!'], 200);
                     } else {
@@ -124,6 +123,7 @@
                 "email" => "required|email",
                 "password" => "required",
             ]);
+            
             $credentials = $request->only('email', 'password');
             $remember = $request->has('remember');
 
@@ -161,35 +161,34 @@
                 'update_user_role' => 'required',
             ]);
             
-                if ($validator->fails()) {  
-                    return response()->json(['error' => $validator->errors()], 200);
-                } else {
-                    try {
-                        $user = User::find(Crypt::decryptString($request->update_user_id));
-                        $user1 = Auth::user();
-                        if ($user) {
-                            if (($user->user_type != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($user->user_type, [2, 3]) && $user1->user_type == 3)) {
-                            $userType = ($request->update_user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
-                                $user->update([
-                                    'first_name' => $request->first_name,
-                                    'last_name' => $request->last_name,
-                                    'email' => $request->email,
-                                    'user_type' => $userType,
-                                ]);
+            if ($validator->fails()) {  
+                return response()->json(['error' => $validator->errors()], 200);
+            } else {
+                try {
+                    $user = User::find(Crypt::decryptString($request->update_user_id));
+                    $user1 = Auth::user();
+                    if ($user) {
+                        if (($user->user_type != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($user->user_type, [2, 3]) && $user1->user_type == 3)) {
+                        $userType = ($request->update_user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
+                            $user->update([
+                                'first_name' => $request->first_name,
+                                'last_name' => $request->last_name,
+                                'email' => $request->email,
+                                'user_type' => $userType,
+                            ]);
 
-                                /** Sync user permissions */
-                                $user->permissions()->sync($request->input('permissions'));
-                            } else {
-                                return response()->json(['error' => 'You do not have permission to update this user'], 200);
-                            }
+                            /** Sync user permissions */
+                            $user->permissions()->sync($request->input('permissions'));
+                        } else {
+                            return response()->json(['error' => 'You do not have permission to update this user'], 200);
                         }
-
-                        return response()->json(['success' => 'Update User Successfully!'], 200);
-                    } catch (\Exception $e) {
-                        return response()->json(['error' => $e->getMessage()], 200);
                     }
+
+                    return response()->json(['success' => 'Update User Successfully!'], 200);
+                } catch (\Exception $e) {
+                    return response()->json(['error' => $e->getMessage()], 200);
                 }
-           
+            }
         }
 
         public function UserRemove(Request $request){
@@ -215,12 +214,11 @@
             $decryptedData=decryptData($data, $key);
             [$userid, $token] = explode('|', $decryptedData);
             $dbtoken = User::select('remember_token')->where('id',$userid)->first();
-             if($dbtoken->remember_token === null){
-                 return view('admin.linkexpire');
-                }
-                else{
-                 return view('admin.createpassword',compact('userid','token'));
-             }
+            if ($dbtoken->remember_token === null) {
+                return view('admin.linkexpire');
+            } else {
+                return view('admin.createpassword',compact('userid','token'));
+            }
         }
 
         public function updatePassword(Request $request){
@@ -228,38 +226,36 @@
                 [
                     'user_id' => 'required|exists:users,id',
                     'password' => $request->password,
-                    'confirm_password' => $request->confirm_password,
-                    
+                    'confirm_password' => $request->confirm_password,   
                 ],
                 [
                     'password' => 'required|string|min:8',
                     'confirm_password' => 'required|string|min:8|same:password',
-            
                 ]
             );
 
-            if ( $validator->fails() ) {  
+            if ($validator->fails()) {  
                 return redirect()->back()->withErrors($validator)->withInput();
             } else {
-                // Find the user
+                /** Find the user */
                 $user = User::findOrFail($request->user_id);
-                if($user->user_type == User::USER_TYPE_SUPERADMIN){
+                if ($user->user_type == User::USER_TYPE_SUPERADMIN) {
                     $user->update(['password' => bcrypt($request->password)]);
                     Log::info('Admin Password has been updated.');
                     return redirect()->back()->with('success', 'Your Password updated successfully.');
                 }
-                // Verify the token
+                /** Verify the token */
                 if ($user->remember_token === $request->token) {
-                    // Update the user's password
+                    /** Update the user's password */
                     $user->password = bcrypt($request->password);
                     $user->save();
                     $user->update(['remember_token' => null]);
 
-                    // Redirect to the login route
+                    /** Redirect to the login route */
                     return redirect()->route('login')->with('success', 'Password updated successfully. Please log in with your new password.');
                 } else {
                     return view('admin.linkexpire');
-                    // Token does not match, return error or redirect back
+                    /** Token does not match, return error or redirect back */
                     return redirect()->back()->with('error', 'Invalid token.');
                 }
             }
