@@ -829,7 +829,6 @@ class Order extends Model
     }
 
     public static function getCommissionReportFilterdDataSecond($filter = [], $csv = false){
-        // dd($filter);
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
             0 => 'commission_rebate_detail.account_name',
@@ -851,6 +850,8 @@ class Order extends Model
                 `suppliers`.`supplier_name` AS `supplier_name`,
                 `commission_rebate_detail`.`start_date` as start_date,
                 `commission_rebate_detail`.`end_date` as end_date,
+                `commission_rebate_detail`.`commission_start_date` as `commission_start_date`,
+                `commission_rebate_detail`.`commission_end_date` as `commission_end_date`,
                 `commission_rebate_detail`.`quarter` as quarter,
                 `commission_rebate_detail`.`account_name` as account_name,
                 `commission_rebate_detail`.`month` as month,
@@ -868,8 +869,6 @@ class Order extends Model
                 `commission_rebate_detail`.`start_date` as start_date,
                 `commission_rebate_detail`.`end_date` as end_date,
                 `commission_rebate_detail`.`quarter` as quarter,
-                `commission_rebate_detail`.`commission_start_date` as commission_start_date,
-                `commission_rebate_detail`.`commission_end_date` as commission_end_date,
                 `commission_rebate_detail`.`account_name` as account_name,
                 `commission_rebate_detail`.`month` as month,
                 `commission_rebate_detail`.`approved` as approved,
@@ -888,35 +887,34 @@ class Order extends Model
             $res[4] = ['October', 'November', 'December'];
 
             $monthDates = [];
-
             for ($month = 1; $month <= 12; $month++) {
                 $start = date('Y-m-01', strtotime("$year-$month-01"));
                 $end = date('Y-m-t', strtotime("$year-$month-01"));
-        
+
                 $monthDates[] = ['start_date' => $start, 'end_date' => $end];
             }
 
-            if($filter['quarter'] == 'Quarter 1'){
+            if ($filter['quarter'] == 'Quarter 1') {
                 $startDate = $monthDates[0]['start_date'];
                 $endDate = $monthDates[2]['end_date'];
             }
 
-            if($filter['quarter'] == 'Quarter 2'){
+            if ($filter['quarter'] == 'Quarter 2') {
                 $startDate = $monthDates[3]['start_date'];
                 $endDate = $monthDates[5]['end_date'];
             }
 
-            if($filter['quarter'] == 'Quarter 3'){
+            if ($filter['quarter'] == 'Quarter 3') {
                 $startDate = $monthDates[6]['start_date'];
                 $endDate = $monthDates[8]['end_date'];
             }
 
-            if($filter['quarter'] == 'Quarter 4'){
+            if ($filter['quarter'] == 'Quarter 4') {
                 $startDate = $monthDates[9]['start_date'];
                 $endDate = $monthDates[11]['end_date'];
             }
 
-            if ($filter['quarter'] == 'Annual'){
+            if ($filter['quarter'] == 'Annual') {
                 $startDate = $monthDates[0]['start_date'];
                 $endDate = $monthDates[11]['end_date'];
                 $query->where('spend', '!=', 0);    
@@ -935,7 +933,6 @@ class Order extends Model
             $query->whereIn('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
         }
 
-        // dd($filter['sales_rep']);
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
             $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
         }
@@ -967,7 +964,6 @@ class Order extends Model
         })->get();
         
         $finalArray=[];
-
         /** Making final array */
         if (isset($formatuserdata) && !empty($formatuserdata)) {
             $paid = false;
@@ -976,8 +972,8 @@ class Order extends Model
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['amount'] = $value->amount;
-                    $finalArray[$key]['commission_end_date'] = $value->commission_end_date;
-                    $finalArray[$key]['commission_start_date'] = $value->commission_start_date;
+                    $finalArray[$key]['commission_end_date'] = date_format(date_create($value->commission_end_date), 'm/d/Y');
+                    $finalArray[$key]['commission_start_date'] = date_format(date_create($value->commission_start_date), 'm/d/Y');
                     $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
                     $finalArray[$key]['commissions'] = $value->commissions;
                     $finalArray[$key]['commission'] = $value->commission;
@@ -987,14 +983,12 @@ class Order extends Model
                     $finalArray[$key]['month'] = $value->month;
                     $finalArray[$key]['approved'] = $value->approved;
                     $finalArray[$key]['paid'] = $value->paid;
-                    if ($value->approved == 0 || $value->paid == 0)  {
+                    if ($value->approved == 0 || $value->paid == 0) {
                         $paid = true;
                     }
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    // $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
-                    // $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
                     $finalArray[$key]['amount'] = '$'.number_format($value->amount, 2);
                     $finalArray[$key]['commission'] = '$'.number_format($value->commissions, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($value->volume_rebate, 2) .' ('. $value->volume_rebates. '%)';
