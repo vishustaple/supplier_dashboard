@@ -35,13 +35,12 @@
             $userdata=User::where('user_type', '!=', User::USER_TYPE_SUPERADMIN)->orderBy('id','desc')->get();
             $formatuserdata=[];
             $i=1;
+            $userInfo = Auth::user();
             foreach ($userdata as $data) {
-                
                 $formatuserdata[] = [
-                    // $i, 
                     $data->first_name. ' ' .$data->last_name,
                     ($data->user_type == 3)? 'User':' Admin ',
-                    '<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser " data-userid="' . $data->id . '" ><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . $data->id . '" class="btn btn-danger btn-xs remove" title="Remove User"><i class="fa-solid fa-trash"></i></button>',
+                    (($data->user_type != 2 && $userInfo->user_type == 2) || $userInfo->user_type == 1 || (!in_array($data->user_type, [2, 3]) && $userInfo->user_type == 3)) ? ('<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser" data-userid="' . Crypt::encryptString($data->id) . '"><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . Crypt::encryptString($data->id) . '" class="btn btn-danger btn-xs remove" title="Remove User"><i class="fa-solid fa-trash"></i></button>') : (''),
                 ];
                 $i++;
             }
@@ -49,12 +48,12 @@
             /** Get all permissions */
             $permissions = Permission::all();
             $data = json_encode($formatuserdata);
-            return view('admin.user',compact('data', 'permissions'));
+            return view('admin.user',compact('data', 'permissions', 'userInfo'));
         }
 
         public function editPermissions($userId){
             /** Find the user by ID */
-            $user = User::with('permissions')->findOrFail($userId);
+            $user = User::with('permissions')->findOrFail(Crypt::decryptString($userId));
 
             /** Get all permissions */
             $permissions = Permission::all();
@@ -71,47 +70,49 @@
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'user_role' => 'required',
-                'permissions' => 'required|array',
-                'permissions.*' => 'exists:permissions,id',
             ]);
 
             if ($validator->fails()) {  
                 return response()->json(['error' => $validator->errors()], 200);
             } else {
                 try {
+                    $user1 = Auth::user();
                     $userType = ($request->user_role == USER::USER_TYPE_ADMIN) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
-                    $token=Str::random(40);
-                    $user = User::create([
-                        'first_name' => $request->first_name,
-                        'last_name' => $request->last_name,
-                        'email' => $request->email,
-                        'remember_token' => $token,
-                        'user_type'=> $userType,
-                    ]);
+                    if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
+                        $token=Str::random(40);
+                        $user = User::create([
+                            'first_name' => $request->first_name,
+                            'last_name' => $request->last_name,
+                            'email' => $request->email,
+                            'remember_token' => $token,
+                            'user_type'=> $userType,
+                        ]);
 
-                    /** Sync permissions for the user */
-                    $user->permissions()->sync($request->input('permissions'));
+                        /** Sync permissions for the user */
+                        $user->permissions()->sync($request->input('permissions'));
 
-                    $email=$request->email;
-                    $key = env('APP_KEY');
-                    $salt = openssl_random_pseudo_bytes(16); /** Generate salt */
-                    $data = ''.$user->id . '|' . $user->remember_token.'';
+                        $email=$request->email;
+                        $key = env('APP_KEY');
+                        $salt = openssl_random_pseudo_bytes(16); /** Generate salt */
+                        $data = ''.$user->id . '|' . $user->remember_token.'';
 
-                    try{
-                        Log::info('Attempting to send email...');
-                        Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function($message) use ($email) {
-                                $message->to($email)
-                                        ->subject('Password Creation Form');
-                            });
-                         
-                        Log::info('Email sent successfully');
-                    } catch (\Exception $e) {
-                        /** Handle the exception here */
-                        Log::error('Email sending failed: ' . $e->getMessage());
-                        // $this->error('Email sending failed: ' . $e->getMessage());
+                        try{
+                            Log::info('Attempting to send email...');
+                            Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function($message) use ($email) {
+                                    $message->to($email)
+                                            ->subject('Password Creation Form');
+                                });
+                            
+                            Log::info('Email sent successfully');
+                        } catch (\Exception $e) {
+                            /** Handle the exception here */
+                            Log::error('Email sending failed: ' . $e->getMessage());
+                            // $this->error('Email sending failed: ' . $e->getMessage());
+                        }
+                        return response()->json(['success' => 'Add User Successfully!'], 200);
+                    } else {
+                        return response()->json(['error' => 'You do not have permission to add user'], 200);    
                     }
-                    return response()->json(['success' => 'Add User Successfully!'], 200);
-                
                 } catch (\Exception $e) {
                     return response()->json(['error' => $e->getMessage()], 200);
                 }
@@ -142,10 +143,10 @@
             return redirect('/');
         }
 
-        public function UpdateUser(Request $request){  
+        public function UpdateUser(Request $request){
             $userId = $request->id;
-            $editUserData = User::where('id',$userId)->first();
-
+            $editUserData = User::where('id', Crypt::decryptString($userId))->first()->toArray();
+            $editUserData['id'] = Crypt::encryptString($editUserData['id']);
             if ($editUserData) {
                 return response()->json(['success' => true, 'editUserData' => $editUserData]);
             } else {
@@ -156,47 +157,56 @@
         public function UpdateUserData(Request $request){
             $validator = Validator::make($request->all(), [
                 'first_name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . $request->update_user_id,
+                'email' => 'required|string|email|max:255|unique:users,email,' . Crypt::decryptString($request->update_user_id),
                 'update_user_role' => 'required',
-                'permissions' => 'required|array',
-                'permissions.*' => 'exists:permissions,id',
             ]);
+            
+                if ($validator->fails()) {  
+                    return response()->json(['error' => $validator->errors()], 200);
+                } else {
+                    try {
+                        $user = User::find(Crypt::decryptString($request->update_user_id));
+                        $user1 = Auth::user();
+                        if ($user) {
+                            if (($user->user_type != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($user->user_type, [2, 3]) && $user1->user_type == 3)) {
+                            $userType = ($request->update_user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
+                                $user->update([
+                                    'first_name' => $request->first_name,
+                                    'last_name' => $request->last_name,
+                                    'email' => $request->email,
+                                    'user_type' => $userType,
+                                ]);
 
-            if ($validator->fails()) {  
-                return response()->json(['error' => $validator->errors()], 200);
-            } else {
-                try {
-                    $user = User::find($request->update_user_id);
-                    
-                    if ($user) {
-                        $userType = ($request->update_user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
+                                /** Sync user permissions */
+                                $user->permissions()->sync($request->input('permissions'));
+                            } else {
+                                return response()->json(['error' => 'You do not have permission to update this user'], 200);
+                            }
+                        }
 
-                        $user->update([
-                            'first_name' => $request->first_name,
-                            'last_name' => $request->last_name,
-                            'email' => $request->email,
-                            'user_type' => $userType,
-                        ]);
-
-                        /** Sync user permissions */
-                        $user->permissions()->sync($request->input('permissions'));
+                        return response()->json(['success' => 'Update User Successfully!'], 200);
+                    } catch (\Exception $e) {
+                        return response()->json(['error' => $e->getMessage()], 200);
                     }
-
-                    return response()->json(['success' => 'Update User Successfully!'], 200);
-                } catch (\Exception $e) {
-                    return response()->json(['error' => $e->getMessage()], 200);
                 }
-            }
+           
         }
 
         public function UserRemove(Request $request){
-            /** Disable foreign key checks */
-            DB::statement('SET FOREIGN_KEY_CHECKS=0');
-            DB::table('users')->where('id', $request->id)->delete();
-            
-            /** Re-enable foreign key checks */
-            DB::statement('SET FOREIGN_KEY_CHECKS=1');
-            return response()->json(['success' => true]);
+            $user = User::find(Crypt::decryptString($request->id));
+            $user1 = Auth::user();
+            if (($user->user_type != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($user->user_type, [2, 3]) && $user1->user_type == 3)) {
+                /** Disable foreign key checks */
+                DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+                DB::table('users')->where('id', Crypt::decryptString($request->id))->delete();
+
+                /** Re-enable foreign key checks */
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                return response()->json(['success' => true]);
+            } else {
+                return response()->json(['success' => false]);
+            }
         }
 
         public function createPassword(Request $request){
