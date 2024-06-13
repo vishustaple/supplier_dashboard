@@ -992,8 +992,8 @@ class Order extends Model
                     // $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
                     // $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
                     $finalArray[$key]['amount'] = '$'.number_format($value->amount, 2);
-                    $finalArray[$key]['commission'] = '$'.number_format($value->commissions, 2);
-                    $finalArray[$key]['volume_rebate'] = '$'.number_format($value->volume_rebate, 2);
+                    $finalArray[$key]['commission'] = '$'.number_format($value->commissions, 2) .' ('. $value->commission. '%)';
+                    $finalArray[$key]['volume_rebate'] = '$'.number_format($value->volume_rebate, 2) .' ('. $value->volume_rebates. '%)';
                 }
             }
         }
