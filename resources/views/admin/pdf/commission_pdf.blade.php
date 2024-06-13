@@ -57,7 +57,7 @@
         <div class="container">
         <div class="pdf_header clearfix">
             <div class="logo_block">
-                <img src="https://sql.centerpointgroup.com/images/logo-1.webp" alt="">
+                <img src="{{ public_path('/images') .'/'. 'logo.jpg'}}" alt="">
             </div>
         </div>
        
@@ -92,13 +92,13 @@
         <table>
             <thead>
                 <tr>
-                    <th>Account Name <br>Commissionable Period</th>
-                    <th>Month / Year</th>
-                    <th >Customer <br>
+                    <th class="border-bottom">Account Name <br>Commissionable Period</th>
+                    <th class="border-bottom">Month / Year</th>
+                    <th class="border-bottom">Customer <br>
                         Spend</th>
-                    <th>Management <br>
+                    <th class="border-bottom">Management <br>
                         Fee</th>
-                    <th>Commission <br>
+                    <th class="border-bottom">Commission <br>
                         Amount</th>
                 </tr>
             </thead>

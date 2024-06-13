@@ -6,6 +6,7 @@ use League\Csv\Writer;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Models\{Order, CategorySupplier, Account, SalesTeam, CommissionRebate, CommissionRebateDetailHtml};
@@ -933,17 +934,22 @@ class ReportController extends Controller
             // print_r($datas1['commission_data']);
             // die;
             /** Output the result */
-            $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setOption('dpi', 100)
-            ->setOption('defaultFont', 'mohanonda')
-            ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('isPhpEnabled', true)
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('pageSize', 'A4')
-            ->setOption('margin-top', '10mm')
-            ->setOption('margin-bottom', '10mm')
-            ->setOption('margin-left', '10mm')
-            ->setOption('margin-right', '10mm');
-            return $pdf->download('pdf_commission_report.pdf');
+            // $pdf = new Mpdf;
+            // $pdf->WriteHTML(view('admin.pdf.commission_pdf', $datas1));
+            // // $pdf = Pdf::loadView('admin.pdf.commission_pdf', $datas1)->setOption('dpi', 100)
+            // // ->setOption('defaultFont', 'mohanonda')
+            // // ->setOption('isHtml5ParserEnabled', true)
+            // // ->setOption('isPhpEnabled', true)
+            // // ->setOption('isRemoteEnabled', true)
+            // // ->setOption('pageSize', 'A4')
+            // // ->setOption('margin-top', '10mm')
+            // // ->setOption('margin-bottom', '10mm')
+            // // ->setOption('margin-left', '10mm')
+            // // ->setOption('margin-right', '10mm');
+            // return $pdf->download('pdf_commission_report.pdf');
+            $pdf = new Mpdf();
+            $pdf->WriteHTML(view('admin.pdf.commission_pdf', $datas1));
+            return $pdf->Output('pdf_commission_report.pdf', 'D');
         }
     }
 
