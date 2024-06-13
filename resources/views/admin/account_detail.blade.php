@@ -69,14 +69,14 @@
                 },
 
                 columns: [
-                    { data: 'customer_number', name: 'customer_number', title: 'customer_number'},
-                    { data: 'customer_name', name: 'customer_name', title: 'customer_name'},
-                    { data: 'account_name', name: 'account_name', title: 'account_name'},
-                    { data: 'parent_id', name: 'parent_id', title: 'parent_id'},
-                    { data: 'parent_name', name: 'parent_name', title: 'parent_name'},
-                    { data: 'supplier_name', name: 'supplier_name', title: 'supplier_name'},
-                    { data: 'record_type', name: 'record_type', title: 'record_type'},
-                    { data: 'date', name: 'date', title: 'date'},
+                    { data: 'customer_number', name: 'customer_number', title: 'Supplier Customer Number'},
+                    { data: 'customer_name', name: 'customer_name', title: 'Customer Name'},
+                    { data: 'account_name', name: 'account_name', title: 'Account Name'},
+                    { data: 'parent_id', name: 'parent_id', title: 'Parent Id'},
+                    { data: 'parent_name', name: 'parent_name', title: 'Parent Name'},
+                    { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name'},
+                    { data: 'record_type', name: 'record_type', title: 'Record Type'},
+                    { data: 'date', name: 'date', title: 'Date'},
                 ],
             });
         });        
