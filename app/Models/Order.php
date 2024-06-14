@@ -856,8 +856,11 @@ class Order extends Model
                 `commission_rebate_detail`.`account_name` as account_name,
                 `commission_rebate_detail`.`month` as month,
                 `commission_rebate_detail`.`approved` as approved,
-                `commission_rebate_detail`.`paid` as paid"
+                `commission_rebate_detail`.`paid` as paid,
+                CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS `approved_by`"
             );
+
+            $query->leftJoin('users', 'users.id', '=', 'commission_rebate_detail.paid_by');
         } else {
             $query = CommissionRebateDetail::query()->selectRaw(
                 "SUM(`commission_rebate_detail`.`spend`) AS `amount`, 
@@ -972,6 +975,7 @@ class Order extends Model
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['amount'] = $value->amount;
+                    $finalArray[$key]['approved_by'] = $value->approved_by;
                     $finalArray[$key]['commission_end_date'] = date_format(date_create($value->commission_end_date), 'm/d/Y');
                     $finalArray[$key]['commission_start_date'] = date_format(date_create($value->commission_start_date), 'm/d/Y');
                     $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
