@@ -296,7 +296,7 @@ class ReportController extends Controller
 
             $salesRep = SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'))->where('id', $filter['sales_reps'])->first();
             $datas1['sales_rep'] = $salesRep->sales_rep;
-            $datas1['approved_by'] = $datas[0]['approved_by'];
+            $datas1['approved_by'] =   $datas[0]['approved_by'];
             $datas1['January'] = $datas1['February'] = $datas1['March'] = $datas1['April'] = $datas1['May'] = $datas1['June'] = $datas1['July'] = $datas1['August'] = $datas1['September'] = $datas1['October'] = $datas1['November'] = $datas1['December'] = 0;
             $datas1['rebate']['January'] = $datas1['rebate']['February'] = $datas1['rebate']['March'] = $datas1['rebate']['April'] = $datas1['rebate']['May'] = $datas1['rebate']['June'] = $datas1['rebate']['July'] = $datas1['rebate']['August'] = $datas1['rebate']['September'] = $datas1['rebate']['October'] = $datas1['rebate']['November'] = $datas1['rebate']['December'] = 0;
 
