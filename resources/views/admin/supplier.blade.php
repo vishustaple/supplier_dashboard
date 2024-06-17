@@ -15,6 +15,43 @@
             </div>
             <div class="container">
                 <input type="hidden" value="0" id="show"/>
+
+                <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form id="edit_supplier">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Supplier Edit</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="editerrorMessage"></div>
+                                <div class="editsuccessMessage"></div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <input type="hidden" name="supplier_id" id="supplier_id">
+                                        <label for="supplier_name" class="form-label">Supplier Name</label>
+                                        <input type="text" class="form-control" name="supplier_name" id="supplier_name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="category" class="form-label">Supplier Category</label>
+                                        <input type="text" class="form-control" name="category" id="category" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <select class="form-select" name="show" id="show" aria-label="Default select example" required>
+                                            <option value="0">Show</option>
+                                            <option value="1">Hide</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Modal -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -37,8 +74,8 @@
                                     </div>
                                     <div class="mb-3">
                                         <select class="form-select" name="show" aria-label="Default select example" required>
-                                            <option value="0">Hide</option>
-                                            <option value="1">Show</option>
+                                            <option value="0">Show</option>
+                                            <option value="1">Hide</option>
                                         </select>
                                     </div>
                                 </div>
@@ -114,6 +151,7 @@
                     { data: 'name', name: 'name', title: 'Name'},
                     { data: 'email', name: 'email', title: 'Email'},
                     { data: 'phone', name: 'phone', title: 'Phone'},
+                    { data: 'category', name: 'category', title: 'Category'},
                     { data: 'status', name: 'status', title: 'Status'},
                     { data: 'edit', name: 'edit', title: 'Action', 'orderable': false, 'searchable': false},
                 ],
@@ -183,12 +221,12 @@
                         }
 
                         if (response.success) {
-                            $('#page-loader').hide();
-                            $('#editsuccessMessage').html('');
-                            $('#editsuccessMessage').append('<div class="alert alert-success m-2 alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage"><span aria-hidden="true">&times;</span></button></div>');
-                            setTimeout(() => {
+                            // $('#page-loader').hide();
+                            // $('#editsuccessMessage').html('');
+                            // $('#editsuccessMessage').append('<div class="alert alert-success m-2 alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage"><span aria-hidden="true">&times;</span></button></div>');
+                            // setTimeout(() => {
                                 location.reload();
-                            }, 5000);
+                            // }, 5000);
                             // $("form")[0].reset();
                         }
                     },
@@ -203,6 +241,76 @@
                     }
                 });
             });
-        });   
+
+            //set modal value 
+            var myModal = document.getElementById('editSupplierModal');
+            myModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget, // Button that triggered the modal
+                id = button.getAttribute('data-id'), // Extract value from data-* attributes
+                supplier_name = button.getAttribute('data-supplier_name'),
+                category = button.getAttribute('data-category'),
+                show = button.getAttribute('data-show'),
+                supplierIdNameInput = document.getElementById('supplier_id'),
+                supplierNameInput = document.getElementById('supplier_name'),
+                categoryInput = document.getElementById('category'),
+                showIdInput = document.getElementById('show');
+                // Set the value of the input element
+                supplierIdNameInput.value = id;
+                supplierNameInput.value = supplier_name;
+                categoryInput.value = category;
+                showIdInput.value = show;
+            });
+
+            $('#edit_supplier').on('submit',function(e){ 
+                e.preventDefault();
+                var formData = new FormData($('#edit_supplier')[0]),
+                token = "{{ csrf_token() }}";
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route("suppliers.update") }}',
+                    headers: {'X-CSRF-TOKEN': token},
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.error) {
+                            // Iterate over each field in the error object
+                            var errorMessage = '';
+                                if (typeof response.error === 'object') {
+                                    // Iterate over the errors object
+                                    $.each(response.error, function (key, value) {
+                                        errorMessage += value[0] + '<br>';
+                                    });
+                                } else {
+                                    errorMessage = response.error;
+                                }
+                            $('#editerrorMessage').html('');
+                            $('#editerrorMessage').append('<div class="alert alert-danger m-2 alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        
+                        }
+
+                        if (response.success) {
+                            // $('#page-loader').hide();
+                            // $('#editsuccessMessage').html('');
+                            // $('#editsuccessMessage').append('<div class="alert alert-success m-2 alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage"><span aria-hidden="true">&times;</span></button></div>');
+                            // setTimeout(() => {
+                                location.reload();
+                            // }, 5000);
+                            // $("form")[0].reset();
+                        }
+                    },
+                    error:function(xhr, status, error) {
+                        const errorresponse = JSON.parse(xhr.responseText);
+                        $('#errorMessage').text(errorresponse.error);
+                        $('#errorMessage').css('display','block');
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        setTimeout(function () {
+                            $('#errorMessage').fadeOut();
+                        }, 3000);
+                    }
+                });
+            });
+        });
     </script>
 @endsection
