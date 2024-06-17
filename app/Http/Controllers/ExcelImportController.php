@@ -519,4 +519,28 @@ class ExcelImportController extends Controller
         ->update(['show' => $request->input('show')]);
         return response()->json(['success' => true], 200);
     }
+
+    public function supplierUpdate(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'show' => 'required',
+                'category' => 'required',
+                'supplier_name' => 'required',
+                'supplier_id' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        CategorySupplier::where('id', $request->input('supplier_id'))
+        ->update([
+            'show' => $request->input('show'),
+            'category' => $request->input('category'),
+            'supplier_name' => $request->input('supplier_name'),
+        ]);
+        
+        return response()->json(['success' => true], 200);
+    }
 }

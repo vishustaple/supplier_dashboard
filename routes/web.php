@@ -50,6 +50,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/suppliers/delete/supplier/detail', [ExcelImportController::class, 'deleteSupplier'])->name('supplierDetail.delete');
         Route::post('/supplier/show/edit', [ExcelImportController::class, 'editSupplierShowHide'])->name('supplier_show.update');
         Route::post('/supplier/add', [ExcelImportController::class, 'supplierAdd'])->name('suppliers.add');
+        Route::post('/supplier/update', [ExcelImportController::class, 'supplierUpdate'])->name('suppliers.update');
         Route::post('/show/supplier/filter', [ExcelImportController::class, 'ShowAllSupplier'])->name('supplier_ajax.filter');
         
         Route::post('/suppliers/updatemain', [ExcelImportController::class, 'addSupplierMain'])->name('main.update');
