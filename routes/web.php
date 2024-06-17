@@ -48,6 +48,9 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/suppliers/edit', [ExcelImportController::class, 'editSupplierName'])->name('supplier.edit');
         Route::post('/suppliers/add', [ExcelImportController::class, 'addSupplierName'])->name('supplier.add');
         Route::post('/suppliers/delete/supplier/detail', [ExcelImportController::class, 'deleteSupplier'])->name('supplierDetail.delete');
+        Route::post('/supplier/show/edit', [ExcelImportController::class, 'editSupplierShowHide'])->name('supplier_show.update');
+        Route::post('/supplier/add', [ExcelImportController::class, 'supplierAdd'])->name('suppliers.add');
+        Route::post('/show/supplier/filter', [ExcelImportController::class, 'ShowAllSupplier'])->name('supplier_ajax.filter');
         
         Route::post('/suppliers/updatemain', [ExcelImportController::class, 'addSupplierMain'])->name('main.update');
         Route::post('/supplier/details', [ExcelImportController::class, 'getSupplierDetailWithAjax'])->name('supplier_detail_filter');

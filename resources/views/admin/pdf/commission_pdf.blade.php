@@ -6,6 +6,18 @@
         <title>Commission Report</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap">
         <style>
+             @page {
+                footer: html_myfooter;
+                margin-bottom: 50px;
+            }
+
+            .footer {
+                width: 100%;
+                text-align: right;
+                font-size: 12px;
+                padding-right: 20px;
+            }
+
             body {
                 padding: 15px;
                 font-family: "Roboto", sans-serif;
@@ -138,9 +150,9 @@
                                             {{ $commission['commission_start_date'] }} - {{ $commission['commission_end_date'] }}</td>
                                         @endif
                                         <td>{{ $key }} {{ $year }}</td>
-                                        <td>${{ $commission['month_amount'][$key] }}</td>
-                                        <td>${{ $commission['month_rebate'][$key] }}</td>
-                                        <td>${{ $commission['month'][$key] }}</td>
+                                        <td>${{ number_format($commission['month_amount'][$key], 2) }}</td>
+                                        <td>${{ number_format($commission['month_rebate'][$key], 2) }}</td>
+                                        <td>${{ number_format($commission['month'][$key], 2) }}</td>
                                     </tr>
                                     @endif
                                 @endforeach
@@ -166,10 +178,29 @@
                     </tbody>
                 </table>
             </div>
-            <div class="approved_by">
-                <p>@if ($paid_check == false) <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 448 512"><path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> @endif @if(isset($approved_by) && !empty($approved_by)) Approved by <u>{{$approved_by}}</u>@else Approved by _________________________</p> @endif
-            </div>
+            
         </div>
+        <htmlpagefooter name="myfooter">
+        <div class="approved_by">
+                <p>
+                    @if ($paid_check == false) 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 448 512">
+                            <path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/>
+                        </svg> 
+                    @else 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 448 512">
+                            <path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96z"/>
+                        </svg>
+                    @endif 
+                    @if(isset($approved_by) && !empty($approved_by))
+                        Approved by <u>{{$approved_by}}</u>
+                    @else 
+                        Approved by _________________________</p> 
+                    @endif
+            </div>
+            <div class="footer">
+                Page {PAGENO} of {nb}
+            </div>
+        </htmlpagefooter>
     </body>
 </html>
-<?php //die; ?>
