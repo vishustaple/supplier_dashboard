@@ -23,14 +23,14 @@ use App\Models\{
 
 class ExcelImportController extends Controller
 {
-    public function __construct(){
+    public function __construct() {
         $this->middleware('permission:Manage Supplier')->only(['allSupplier']);
         $this->middleware('permission:Supplier Edit')->only(['editSupplierName']);
         $this->middleware('permission:Supplier Add')->only(['addSupplierName', 'addSupplierMain']);
         $this->middleware('permission:Supplier Delete')->only(['deleteSupplier']);
     }
 
-    public function index(){
+    public function index() {
         $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
         $uploadData = UploadedFiles::query()->selectRaw("`uploaded_files`.*, CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name")
         ->leftJoin('users', 'uploaded_files.created_by', '=', 'users.id')
@@ -71,7 +71,8 @@ class ExcelImportController extends Controller
  
         return view('admin.export',compact('categorySuppliers','data', 'pageTitle'));
     }
-    public function import(Request $request){
+
+    public function import(Request $request) {
         ini_set('memory_limit', '1024M');
         $suppliers = ManageColumns::getRequiredColumns();
         $endDateRange = $request->input('enddate');
@@ -226,41 +227,17 @@ class ExcelImportController extends Controller
             return response()->json(['error' => 'Please select supplier.'], 200);
         }
     }
-    public function allSupplier(){
-        $categorySuppliers = CategorySupplier::select([
-            'suppliers.id as id',
-            'suppliers.supplier_name as supplier_name',
-            'suppliers_detail.first_name as first_name',
-            'suppliers_detail.last_name as last_name',
-            'suppliers_detail.email as email',
-            'suppliers_detail.phone as phone',
-            'suppliers_detail.status as status',
-            'department.department as department',
-        ])
-        ->leftJoin('suppliers_detail', function($join) {
-            $join->on('suppliers_detail.supplier', '=', 'suppliers.id')
-                 ->where('suppliers_detail.main', '=', 1);
-        })
-        ->leftJoin('department', 'department.id', '=', 'suppliers_detail.department_id')
-        ->get();
 
-        // dd($categorySuppliers);
-
-        $formattedData = [];
-        foreach ($categorySuppliers as $suppliers) {
-            $formattedData[] = [
-                '<a class="dots" href="'.route('supplier.show', ['id' => $suppliers->id]).'">'.$suppliers->supplier_name.'</a>',
-                $suppliers->department,
-                $suppliers->first_name.' '.$suppliers->last_name,
-                $suppliers->email,
-                $suppliers->phone,
-                (($suppliers->status == 1) ? ('Active') : ((isset($suppliers->status)) ? ('In-active') : (''))),
-            ];
-        }
-       
-        $data = json_encode($formattedData);
+    public function allSupplier() {
         $pageTitle = 'Supplier Data';
-        return view('admin.supplier', compact('data', 'pageTitle'));
+        return view('admin.supplier', compact('pageTitle'));
+    }
+
+    public function ShowAllSupplier(Request $request) {
+        if ($request->ajax()) {
+            $response = CategorySupplier::supplierShowDataTable($request->all());
+            return response()->json($response);
+        }
     }
     
     public function deleteFile(Request $request, $id) {
@@ -316,12 +293,12 @@ class ExcelImportController extends Controller
         return response()->download($destinationPath.'/'.$filename[$id], $filename[$id], $headers);
     }
 
-    public function getColumns(Request $request){
+    public function getColumns(Request $request) {
         $columns = ManageColumns::where('supplier_id',$request->dataIdValue)->get();
         return response()->json($columns);
     }
 
-    public function saveColumns(Request $request){
+    public function saveColumns(Request $request) {
         foreach ($request->all() as $key => $value) {
             $id = $value['fieldId'];
             $columnValue = $value['fieldValue'];
@@ -335,7 +312,7 @@ class ExcelImportController extends Controller
 
     }
 
-    public function getExportWithAjax(Request $request){
+    public function getExportWithAjax(Request $request) {
         if ($request->ajax()) {
             $formatuserdata = UploadedFiles::getFilterdExcelData($request->all());
             return response()->json($formatuserdata);
@@ -343,17 +320,7 @@ class ExcelImportController extends Controller
     }
  
     public function editSupplierName(Request $request) {
-        $validator = Validator::make(
-            [
-                'id' => $request->id,
-                'phone' => $request->phone,
-                'email' => $request->email,
-                'status' => $request->status,
-                'last_name' => $request->last_name,
-                'department' => $request->department,
-                'first_name' => $request->first_name,
-                'supplier_id' => $request->supplier_id,
-            ],
+        $validator = Validator::make($request->all(),
             [
                 'id' => 'required',
                 'phone' => 'required',
@@ -416,7 +383,7 @@ class ExcelImportController extends Controller
         return response()->json(['success' => 'Supplier info updated'], 200);
     }
 
-    public function addSupplierName(Request $request){
+    public function addSupplierName(Request $request) {
         $validator = Validator::make(
             [
                 'phone'=> $request->phone,
@@ -472,6 +439,27 @@ class ExcelImportController extends Controller
         return response()->json(['success' => 'Supplier info added'], 200);
     }
 
+    public function supplierAdd(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'show' => 'required',
+                'category' => 'required',
+                'supplier_name' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        CategorySupplier::create([
+            'created_by' => Auth::id(),
+            'show' => $request->input('show'),
+            'category' => $request->input('category'),
+            'supplier_name' => $request->input('supplier_name'),
+        ]);
+    }
+
     public function addSupplierMain(Request $request) {
         if ($request->main == 1) {
             SupplierDetail::where('main', 1)->where('supplier', $request->supplier_id)
@@ -508,10 +496,27 @@ class ExcelImportController extends Controller
         return view('admin.supplier_detail',compact('id', 'pageTitle', 'departments'));
     }
 
-    public function getSupplierDetailWithAjax(Request $request){
+    public function getSupplierDetailWithAjax(Request $request) {
         if ($request->ajax()) {
             $supplierData = SupplierDetail::getSupplierDetailFilterdData($request->all());
             return response()->json($supplierData);
         }
+    }
+
+    public function editSupplierShowHide(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'id' => 'required',
+                'show' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        CategorySupplier::where('id', $request->input('id'))
+        ->update(['show' => $request->input('show')]);
+        return response()->json(['success' => true], 200);
     }
 }
