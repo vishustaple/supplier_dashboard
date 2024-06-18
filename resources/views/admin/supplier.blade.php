@@ -14,7 +14,7 @@
                 </button>
             </div>
             <div class="container">
-                <input type="hidden" value="0" id="show"/>
+                <input type="hidden" value="1" id="show"/>
 
                 <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
