@@ -14,8 +14,7 @@
                 </button>
             </div>
             <div class="container">
-                <input type="hidden" value="1" id="show"/>
-
+                <input type="hidden" value="all" id="show"/>
                 <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -37,7 +36,7 @@
                                         <input type="text" class="form-control" name="category" id="category" required>
                                     </div>
                                     <div class="mb-3">
-                                        <select class="form-select" name="show" id="show" aria-label="Default select example" required>
+                                        <select class="form-select" name="show" id="shows" aria-label="Default select example" required>
                                             <option value="0">Hide</option>
                                             <option value="1">Show</option>
                                         </select>
@@ -217,17 +216,10 @@
                             $('#editerrorMessage').html('');
                             $('#editerrorMessage').append('<div class="alert alert-danger m-2 alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
                             $('html, body').animate({ scrollTop: 0 }, 'slow');
-                        
                         }
 
                         if (response.success) {
-                            // $('#page-loader').hide();
-                            // $('#editsuccessMessage').html('');
-                            // $('#editsuccessMessage').append('<div class="alert alert-success m-2 alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage"><span aria-hidden="true">&times;</span></button></div>');
-                            // setTimeout(() => {
-                                location.reload();
-                            // }, 5000);
-                            // $("form")[0].reset();
+                            location.reload();
                         }
                     },
                     error:function(xhr, status, error) {
@@ -245,20 +237,12 @@
             //set modal value 
             var myModal = document.getElementById('editSupplierModal');
             myModal.addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget, // Button that triggered the modal
-                id = button.getAttribute('data-id'), // Extract value from data-* attributes
-                supplier_name = button.getAttribute('data-supplier_name'),
-                category = button.getAttribute('data-category'),
-                show = button.getAttribute('data-show'),
-                supplierIdNameInput = document.getElementById('supplier_id'),
-                supplierNameInput = document.getElementById('supplier_name'),
-                categoryInput = document.getElementById('category'),
-                showIdInput = document.getElementById('show');
+                var button = event.relatedTarget; // Button that triggered the modal
                 // Set the value of the input element
-                supplierIdNameInput.value = id;
-                supplierNameInput.value = supplier_name;
-                categoryInput.value = category;
-                showIdInput.value = show;
+                $('#supplier_id').val(button.getAttribute('data-id'));
+                $('#supplier_name').val(button.getAttribute('data-supplier_name'));
+                $('#category').val(button.getAttribute('data-category'));
+                $('#shows').val(button.getAttribute('data-show'));
             });
 
             $('#edit_supplier').on('submit',function(e){ 
@@ -287,17 +271,10 @@
                             $('#editerrorMessage').html('');
                             $('#editerrorMessage').append('<div class="alert alert-danger m-2 alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
                             $('html, body').animate({ scrollTop: 0 }, 'slow');
-                        
                         }
 
                         if (response.success) {
-                            // $('#page-loader').hide();
-                            // $('#editsuccessMessage').html('');
-                            // $('#editsuccessMessage').append('<div class="alert alert-success m-2 alert-dismissible fade show" role="alert">'+response.success+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closesuccessMessage"><span aria-hidden="true">&times;</span></button></div>');
-                            // setTimeout(() => {
-                                location.reload();
-                            // }, 5000);
-                            // $("form")[0].reset();
+                            location.reload();
                         }
                     },
                     error:function(xhr, status, error) {
