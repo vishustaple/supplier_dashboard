@@ -32,7 +32,7 @@ class CategorySupplier extends Model
 
         $query = self::select([
             'suppliers.id as id',
-            'suppliers.show as show',
+            'suppliers.hide_show as hide_show',
             'suppliers.category as category',
             'suppliers_detail.email as email',
             'suppliers_detail.phone as phone',
@@ -52,7 +52,7 @@ class CategorySupplier extends Model
 
         /** Add filter using by show column */
         if (isset($filter['show']) && $filter['show'] != 'all') {
-            $query->where('suppliers.show', $filter['show']);
+            $query->where('suppliers.hide_show', $filter['show']);
         }
 
         /** Search functionality */
@@ -96,8 +96,8 @@ class CategorySupplier extends Model
                 'phone' => $suppliers->phone,
                 'category' => $suppliers->category,
                 'status' => (($suppliers->status == 1) ? ('Active') : ((isset($suppliers->status)) ? ('In-active') : (''))),
-                'show' => '<div class="form-check"><input data-id="'.$suppliers->id.'" class="form-check-input checkboxMain" type="checkbox" value="1" aria-label="..." '.(($suppliers->show == 0) ? ('checked') : ('')).'></div>',
-                'edit' => '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a title="Edit Account" class="" id="edit_account" data-id="'.$suppliers->id.'" data-supplier_name="'.$suppliers->supplier_name.'" data-category="'.$suppliers->category.'" data-show="'.$suppliers->show.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>'
+                'show' => '<div class="form-check"><input data-id="'.$suppliers->id.'" class="form-check-input checkboxMain" type="checkbox" value="1" aria-label="..." '.(($suppliers->hide_show == 1) ? ('checked') : ('')).'></div>',
+                'edit' => '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a title="Edit Account" class="" id="edit_account" data-id="'.$suppliers->id.'" data-supplier_name="'.$suppliers->supplier_name.'" data-category="'.$suppliers->category.'" data-show="'.$suppliers->hide_show.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>'
             ];
         }
        

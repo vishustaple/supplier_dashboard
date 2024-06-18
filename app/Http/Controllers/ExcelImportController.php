@@ -516,7 +516,7 @@ class ExcelImportController extends Controller
         }
 
         CategorySupplier::where('id', $request->input('id'))
-        ->update(['show' => $request->input('show')]);
+        ->update(['hide_show' => $request->input('show')]);
         return response()->json(['success' => true], 200);
     }
 
@@ -536,7 +536,7 @@ class ExcelImportController extends Controller
 
         CategorySupplier::where('id', $request->input('supplier_id'))
         ->update([
-            'show' => $request->input('show'),
+            'hide_show' => $request->input('show'),
             'category' => $request->input('category'),
             'supplier_name' => $request->input('supplier_name'),
         ]);

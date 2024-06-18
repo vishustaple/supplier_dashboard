@@ -38,8 +38,8 @@
                                     </div>
                                     <div class="mb-3">
                                         <select class="form-select" name="show" id="show" aria-label="Default select example" required>
-                                            <option value="0">Show</option>
-                                            <option value="1">Hide</option>
+                                            <option value="0">Hide</option>
+                                            <option value="1">Show</option>
                                         </select>
                                     </div>
                                 </div>
@@ -74,8 +74,8 @@
                                     </div>
                                     <div class="mb-3">
                                         <select class="form-select" name="show" aria-label="Default select example" required>
-                                            <option value="0">Show</option>
-                                            <option value="1">Hide</option>
+                                            <option value="0">Hide</option>
+                                            <option value="1">Show</option>
                                         </select>
                                     </div>
                                 </div>
