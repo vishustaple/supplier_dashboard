@@ -178,28 +178,36 @@
                     </tbody>
                 </table>
             </div>
-            
         </div>
         <htmlpagefooter name="myfooter">
-        <div class="approved_by">
-                <p>
-                    @if ($paid_check == false) 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 448 512">
-                            <path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/>
-                        </svg> 
-                    @else 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 448 512">
-                            <path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96z"/>
-                        </svg>
-                    @endif 
-                    @if(isset($approved_by) && !empty($approved_by))
-                        Approved by <u>{{$approved_by}}</u>
-                    @else 
-                        Approved by _________________________</p> 
-                    @endif
-            </div>
-            <div class="footer">
-                Page {PAGENO} of {nb}
+            <div style="width: 100%; border: none;">
+                <table style="width: 100%; border-collapse: collapse; border: none; margin-bottom: 0;">
+                    <tr>
+                        <td style="text-align: left; vertical-align: middle; border: none;">
+                            <p style="margin: 0; display: flex; align-items: center;">
+                                @if ($paid_check == false)
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 448 512" style="margin-right: 5px;">
+                                        <path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/>
+                                    </svg>
+                                @else
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 448 512" style="margin-right: 5px;">
+                                        <path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96z"/>
+                                    </svg>
+                                @endif
+                                @if(isset($approved_by) && !empty($approved_by))
+                                    Approved by <u>{{$approved_by}}</u>
+                                @else
+                                    Approved by _________________________
+                                @endif
+                            </p>
+                        </td>
+                        <td style="text-align: right; vertical-align: middle; border: none;">
+                            <p style="margin: 0;">
+                                Page {PAGENO} of {nb}
+                            </p>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </htmlpagefooter>
     </body>
