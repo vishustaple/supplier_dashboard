@@ -97,12 +97,12 @@
                 var dataId = $(this).attr('data-id');
                 $('#show').val($(this).attr('data-id'));
                 
-                if (dataId == 0) {
+                if (dataId == 1) {
                     $(this).text('Show All Supplier');
                     $(this).attr('data-id', 'all');  
                 } else {
                     $(this).text('Hide supplier');
-                    $(this).attr('data-id', 0);  
+                    $(this).attr('data-id', 1);  
                 }
 
                 $('#supplier_data').DataTable().ajax.reload();
@@ -159,9 +159,9 @@
 
             // Assuming there is only one element with the class checkboxMain
             $(document).on('change', '.checkboxMain', function(){
-                var show = 1;
+                var show = 0;
                 if ($(this).is(":checked")) {
-                    show = 0;   
+                    show = 1;   
                 }
 
                 var formData = { id : $(this).data('id'), show : show },
