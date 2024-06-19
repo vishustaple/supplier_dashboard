@@ -74,11 +74,13 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['p_customer_name'] = $value->field_name;
                     }
 
-                    if (in_array($value->id, [1, 18, 48, 264, 125, 148, 203])) {
+                    // if (in_array($value->id, [1, 18, 48, 264, 125, 148, 203])) {
+                    if (in_array($value->id, [1, 18, 48, 297, 125, 148, 203])) {
                         $columnArray[$value->supplier_id]['customer_number'] = $value->field_name;
                     }
-
-                    if (in_array($value->id, [2, 19, 49, 265, 126, 149, 204])) {
+                    
+                    // if (in_array($value->id, [2, 19, 49, 265, 126, 149, 204])) {
+                    if (in_array($value->id, [2, 19, 49, 298, 126, 149, 204])) {
                         $columnArray[$value->supplier_id]['customer_name'] = $value->field_name;
                     }
 
@@ -86,7 +88,8 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['amount'] = '';
                     }
 
-                    if (in_array($value->id, [34, 65, 296, 145, 185, 262])) {
+                    // if (in_array($value->id, [34, 65, 296, 145, 185, 262])) {
+                    if (in_array($value->id, [34, 65, 341, 145, 185, 262])) {
                         $columnArray[$value->supplier_id]['amount'] = $value->field_name;
                     }
 
@@ -94,11 +97,13 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['invoice_no'] = '';
                     }
 
-                    if (in_array($value->id, [43, 69, 293, 127, 194])) {
+                    // if (in_array($value->id, [43, 69, 293, 127, 194])) {
+                    if (in_array($value->id, [43, 69, 326, 127, 194])) {
                         $columnArray[$value->supplier_id]['invoice_no'] = $value->field_name;
                     }
 
-                    if (in_array($value->id, [24, 68, 284, 128, 195, 258])) {
+                    // if (in_array($value->id, [24, 68, 284, 128, 195, 258])) {
+                    if (in_array($value->id, [24, 68, 336, 128, 195, 258])) {
                         $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
                     }
 
@@ -199,40 +204,90 @@ class ProcessUploadedFiles extends Command
                 } elseif ($fileValue->supplier_id == 4) {
                     $columnArray2 = [
                         $fileValue->supplier_id => [
-                            $columnArray1['263'] => 'div_id',
-                            $columnArray1['264'] => 'master_customer_number_id',
-                            $columnArray1['265'] => 'master_customer_name_id',
-                            $columnArray1['266'] => 'bill_to_number_id',
-                            $columnArray1['267'] => 'bill_to_name_id',
-                            $columnArray1['268'] => 'ship_to_number_id',
-                            $columnArray1['269'] => 'ship_to_name_id',
-                            $columnArray1['270'] => 'ship_to_line1_address_id',
-                            $columnArray1['271'] => 'ship_to_line2_address_id',
-                            $columnArray1['272'] => 'ship_to_line3_address_id',
-                            $columnArray1['273'] => 'ship_to_city_id',
-                            $columnArray1['274'] => 'ship_to_state_id',
-                            $columnArray1['275'] => 'ship_to_zip_id',
-                            $columnArray1['276'] => 'primary_product_hierarchy_desc',
-                            $columnArray1['277'] => 'sku_id',
-                            $columnArray1['278'] => 'item_description_id',
-                            $columnArray1['279'] => 'vendor_name_id',
-                            $columnArray1['280'] => 'vendor_part_number_id',
-                            $columnArray1['281'] => 'sell_uom_id',
-                            $columnArray1['282'] => 'selling_unit_measure_qty_id',
-                            $columnArray1['283'] => 'order_date_id',
-                            $columnArray1['284'] => 'shipped_date_id',
-                            $columnArray1['285'] => 'order_number_id',
-                            $columnArray1['286'] => 'order_contact_id',
-                            $columnArray1['287'] => 'order_contact_phone_number_id',
-                            $columnArray1['288'] => 'order_method_code_id',
-                            $columnArray1['289'] => 'order_method_description_id',
-                            $columnArray1['290'] => 'transaction_source_system_desc',
-                            $columnArray1['291'] => 'sku_type_id',
-                            $columnArray1['292'] => 'on_contract_id',
-                            $columnArray1['293'] => 'invoice_number_id',
-                            $columnArray1['294'] => 'invoice_date_id',
-                            $columnArray1['295'] => 'qty',
-                            $columnArray1['296'] => 'adj_gross_sales',
+                            "Group ID1" => 'group_id',
+                            $columnArray1['337'] => 'sku',
+                            $columnArray1['340'] => 'qty',
+                            $columnArray1['323'] => 'eco_id',
+                            $columnArray1['334'] => 'sell_uom',
+                            $columnArray1['318'] => 'recycled',
+                            $columnArray1['312'] => 'diversity',
+                            $columnArray1['339'] => 'group_id1',
+                            $columnArray1['330'] => 'order_date',
+                            $columnArray1['308'] => 'ship_to_zip',
+                            $columnArray1['316'] => 'vendor_name',
+                            $columnArray1['321'] => 'eco_feature',
+                            $columnArray1['327'] => 'on_contract',
+                            $columnArray1['306'] => 'ship_to_city',
+                            $columnArray1['325'] => 'invoice_date',
+                            $columnArray1['332'] => 'order_number',
+                            $columnArray1['300'] => 'bill_to_name',
+                            $columnArray1['302'] => 'ship_to_name',
+                            $columnArray1['336'] => 'shipped_date',
+                            $columnArray1['328'] => 'order_contact',
+                            $columnArray1['317'] => 'recycled_flag',
+                            $columnArray1['307'] => 'ship_to_state',
+                            $columnArray1['313'] => 'diversity_code',
+                            $columnArray1['301'] => 'ship_to_number',
+                            $columnArray1['299'] => 'bill_to_number',
+                            $columnArray1['342'] => 'avg_sell_price',
+                            $columnArray1['326'] => 'invoice_number',
+                            $columnArray1['341'] => 'adj_gross_sales',
+                            $columnArray1['322'] => 'eco_sub_feature',
+                            $columnArray1['335'] => 'ship_to_contact',
+                            $columnArray1['310'] => 'item_description',
+                            $columnArray1['309'] => 'vendor_part_number',
+                            $columnArray1['324'] => 'budget_center_name',
+                            $columnArray1['333'] => 'payment_method_code1',
+                            $columnArray1['298'] => 'master_customer_name',
+                            "Payment Method Code1" => 'payment_method_code',
+                            $columnArray1['303'] => 'ship_to_line1_address',
+                            $columnArray1['314'] => 'diversity_sub_type_cd',
+                            $columnArray1['304'] => 'ship_to_line2_address',
+                            $columnArray1['305'] => 'ship_to_line3_address',
+                            $columnArray1['297'] => 'master_customer_number',
+                            $columnArray1['331'] => 'order_method_description',
+                            $columnArray1['315'] => 'selling_unit_measure_qty',
+                            $columnArray1['311'] => 'primary_product_hierarchy',
+                            $columnArray1['338'] => 'transaction_source_system1',
+                            $columnArray1['329'] => 'order_contact_phone_number',
+                            $columnArray1['319'] => 'product_post_consumer_content',
+                            $columnArray1['320'] => 'remanufactured_refurbished_flag',
+                            "Transaction Source System1" => 'transaction_source_system',
+
+                            // $columnArray1['263'] => 'div_id',
+                            // $columnArray1['264'] => 'master_customer_number_id',
+                            // $columnArray1['265'] => 'master_customer_name_id',
+                            // $columnArray1['266'] => 'bill_to_number_id',
+                            // $columnArray1['267'] => 'bill_to_name_id',
+                            // $columnArray1['268'] => 'ship_to_number_id',
+                            // $columnArray1['269'] => 'ship_to_name_id',
+                            // $columnArray1['270'] => 'ship_to_line1_address_id',
+                            // $columnArray1['271'] => 'ship_to_line2_address_id',
+                            // $columnArray1['272'] => 'ship_to_line3_address_id',
+                            // $columnArray1['273'] => 'ship_to_city_id',
+                            // $columnArray1['274'] => 'ship_to_state_id',
+                            // $columnArray1['275'] => 'ship_to_zip_id',
+                            // $columnArray1['276'] => 'primary_product_hierarchy_desc',
+                            // $columnArray1['277'] => 'sku_id',
+                            // $columnArray1['278'] => 'item_description_id',
+                            // $columnArray1['279'] => 'vendor_name_id',
+                            // $columnArray1['280'] => 'vendor_part_number_id',
+                            // $columnArray1['281'] => 'sell_uom_id',
+                            // $columnArray1['282'] => 'selling_unit_measure_qty_id',
+                            // $columnArray1['283'] => 'order_date_id',
+                            // $columnArray1['284'] => 'shipped_date_id',
+                            // $columnArray1['285'] => 'order_number_id',
+                            // $columnArray1['286'] => 'order_contact_id',
+                            // $columnArray1['287'] => 'order_contact_phone_number_id',
+                            // $columnArray1['288'] => 'order_method_code_id',
+                            // $columnArray1['289'] => 'order_method_description_id',
+                            // $columnArray1['290'] => 'transaction_source_system_desc',
+                            // $columnArray1['291'] => 'sku_type_id',
+                            // $columnArray1['292'] => 'on_contract_id',
+                            // $columnArray1['293'] => 'invoice_number_id',
+                            // $columnArray1['294'] => 'invoice_date_id',
+                            // $columnArray1['295'] => 'qty',
+                            // $columnArray1['296'] => 'adj_gross_sales',
                         ]
                     ];
                 } elseif ($fileValue->supplier_id == 5) {
@@ -416,9 +471,6 @@ class ProcessUploadedFiles extends Command
                         } else {
                             $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
                         }
-                        
-                        // print_r($sheetCount);
-                        // die;
 
                         $supplierFilesNamesArray = [
                             1 => 'Usage By Location and Item',
@@ -430,16 +482,14 @@ class ProcessUploadedFiles extends Command
                             7 => 'Weekly Sales Account Summary', 
                         ];
 
-                        DB::table('uploaded_files')->where('id', $fileValue->id)
+                        DB::table('uploaded_files')
+                        ->where('id', $fileValue->id)
                         ->update([
-                        'cron' => 4
+                            'cron' => 4
                         ]);
-                        // print_r($sheetCount);die;
+
                         for ($i = 0; $i <= $sheetCount; $i++) {
                             $count = $maxNonEmptyCount = 0;
-
-                            // print_r($i);
-                            // die;
                             
                             // if ($fileValue->supplier_id == 5 && $i == 1) {
                             //     continue;
@@ -477,14 +527,21 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
 
+                            if ($fileValue->supplier_id == 4) {
+                                $maxNonEmptyValue[36] = "Payment Method Code1";
+                                $maxNonEmptyValue[37] = "Payment Method Code";
+                                $maxNonEmptyValue[42] = "Transaction Source System1";
+                                $maxNonEmptyValue[43] = "Transaction Source System";
+                                $maxNonEmptyValue[44] = "Group ID1";
+                                $maxNonEmptyValue[45] = "Group ID";
+                            }
+
+                            // dd($maxNonEmptyValue, $columnArray2);
                             /** Clean up the values */
                             $maxNonEmptyValue = array_map(function ($value) {
                                 /** Remove line breaks and trim whitespace */
                                 return str_replace(["\r", "\n"], '', $value);
                             }, $maxNonEmptyValue);
-
-                            // print_r($maxNonEmptyValue);
-                            // die;
 
                             if ($fileValue->supplier_id == 7) {
                                 $weeklyPriceColumnArray = [];
@@ -495,9 +552,6 @@ class ProcessUploadedFiles extends Command
                                     }
                                 }
                             }
-
-                            // print_r($weeklyPriceColumnArray);
-                            // die;
 
                             /** Unset the "$maxNonEmptyCount" for memory save */
                             unset($maxNonEmptyCount);
@@ -641,7 +695,7 @@ class ProcessUploadedFiles extends Command
                                                             $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
                                                         }
                                                     } elseif ($fileValue->supplier_id == 4) {   
-                                                        if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == 'shipped_date_id') {
+                                                        if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == 'shipped_date') {
                                                             $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s');
                                                         } else {
                                                             $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
@@ -791,7 +845,8 @@ class ProcessUploadedFiles extends Command
                                                     } elseif ($fileValue->supplier_id == 3) {
                                                         DB::table('office_depot_order')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 4) {   
-                                                        DB::table('staples_order')->insert($excelInsertArray);
+                                                        // DB::table('staples_order')->insert($excelInsertArray);
+                                                        DB::table('staples_orders_data')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 5) {
                                                         DB::table('wb_mason_order')->insert($excelInsertArray);
                                                     } elseif ($fileValue->supplier_id == 6) {
@@ -839,7 +894,8 @@ class ProcessUploadedFiles extends Command
                                     } elseif ($fileValue->supplier_id == 3) {
                                         DB::table('office_depot_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 4) {   
-                                        DB::table('staples_order')->insert($excelInsertArray);
+                                        // DB::table('staples_order')->insert($excelInsertArray);
+                                        DB::table('staples_orders_data')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 5) {
                                         DB::table('wb_mason_order')->insert($excelInsertArray);
                                     } elseif ($fileValue->supplier_id == 6) {
@@ -863,7 +919,6 @@ class ProcessUploadedFiles extends Command
 
                             unset($finalInsertArray, $finalOrderInsertArray, $excelInsertArray);
                         }
-
                     try {
                         /** Update the 'cron' field three after processing done */
                         DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 6]);
