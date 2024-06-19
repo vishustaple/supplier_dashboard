@@ -841,6 +841,7 @@ class Order extends Model
         ];
 
         if ($csv) {
+            /** Create query for CSV export with specific columns */
             $query = CommissionRebateDetail::query()->selectRaw(
                 "`commission_rebate_detail`.`spend` AS `amount`, 
                 `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
@@ -862,6 +863,7 @@ class Order extends Model
 
             $query->leftJoin('users', 'users.id', '=', 'commission_rebate_detail.paid_by');
         } else {
+            /** Create query for normal data retrieval with aggregated columns */
             $query = CommissionRebateDetail::query()->selectRaw(
                 "SUM(`commission_rebate_detail`.`spend`) AS `amount`, 
                 SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
@@ -923,6 +925,7 @@ class Order extends Model
                 $query->where('spend', '!=', 0);    
             }
 
+            /** Apply date filter to the query */
             $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
             ->whereDate('commission_rebate_detail.end_date', '<=', $endDate);
         }
@@ -941,6 +944,7 @@ class Order extends Model
         }
 
         // $query->groupBy('suppliers.id');
+        /** Group by necessary fields */
         if (!$csv) {
             $query->groupBy('commission_rebate_detail.account_name', 'commission_rebate_detail.supplier');
         }
@@ -950,9 +954,8 @@ class Order extends Model
         /** Selecting total record for pagination */
         $totalRecords = $query->getQuery()->getCountForPagination();
 
-        /** Get total records count (without filtering) */
+        /** Order by column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
             if (in_array($filter['order'][0]['column'], [2, 3, 4])) {
                 $query->orderBy(DB::raw('CAST('.$orderColumnArray[$filter['order'][0]['column']].' AS DECIMAL(10, 2))'), $filter['order'][0]['dir']);
             } else {
@@ -1014,28 +1017,34 @@ class Order extends Model
     }
 
     public static function getAllCommission($filter = []){
+        /** Initialize the query on the CommissionRebateDetail model, selecting the sum of commissions and the paid date */
         $query = CommissionRebateDetail::query()->selectRaw(
             "SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
             paid_date"
         );
 
-        /** Year and quarter filter here */
+        /** Check if year or quarter filters are provided */
         if (isset($filter['year']) || !empty($filter['quarter'])) {
             $year = $filter['year'];
+
+            /** Define the quarters with corresponding months */
             $res[1] =['January', 'February', 'March'];
             $res[2] = ['April', 'May', 'June'];
             $res[3] = ['July', 'August', 'September'];
             $res[4] = ['October', 'November', 'December'];
             $monthDates = [];
 
+            /** Create start and end dates for each month of the given year */
             for ($month = 1; $month <= 12; $month++) {
                 $start = date('Y-m-01', strtotime("$year-$month-01"));
                 $end = date('Y-m-t', strtotime("$year-$month-01"));
                 $monthDates[] = ['start_date' => $start, 'end_date' => $end];
             }
 
+            /** Start date for the filter */
             $startDate = $monthDates[0]['start_date'];
 
+            /** Determine the end date based on the selected quarter */
             if($filter['quarter'] == 'Quarter 1'){
                 $endDate = $monthDates[2]['end_date'];
             }
@@ -1057,16 +1066,24 @@ class Order extends Model
                 $query->where('spend', '!=', 0);    
             }
 
+            /** Apply the date range filter to the query */
             $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
                 ->whereDate('commission_rebate_detail.start_date', '<=', $endDate);
         }
 
+        /** Apply sales representative filter if provided */
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
             $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
         }
+
+        /** Execute the query and get the first result */
         $record = $query->first();
+
+        /** Prepare the final result array with the calculated commissions and paid date */
         $finallArray['commissions'] = $record->commissions;
         $finallArray['paid_date'] = $record->paid_date;
+
+        /** Return the result array */
         return $finallArray;
     }
 
@@ -1078,6 +1095,7 @@ class Order extends Model
             2 => 'spend',
         ];
 
+        /** Define supplier categories array for categorizing the data */
         $supplierColumnArray = [
             1 => 'Office Supplies',
             2 => 'MRO',
@@ -1093,7 +1111,7 @@ class Order extends Model
             12 => 'Packaging',
         ];
 
-        $query = self::query() /** Replace YourModel with the actual model you are using for the data */
+        $query = self::query()
         ->selectRaw(
             'suppliers.supplier_name as supplier_name,
             suppliers.id as supplier_id,
@@ -1113,6 +1131,7 @@ class Order extends Model
         }
 
         $totalRecords = 0;
+        /** Filter by account name if provided */
         if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
             $query->where('master_account_detail.account_name', $filter['account_name']);
         }
@@ -1121,9 +1140,11 @@ class Order extends Model
 
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
             $totalRecords = $query->getQuery()->getCountForPagination();
+            /** Filter for specific supplier IDs */
             $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
         } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
             $totalRecords = $query->getQuery()->getCountForPagination();
+            /** Filter for specified supplier IDs */
             $query->whereIn('orders.supplier_id', $filter['supplier_id']);
         } else {
             if ($csv == true) {
@@ -1136,6 +1157,7 @@ class Order extends Model
 
                 return $finalArray;
             } else {
+                /** Return empty data if no filters match */
                 return [
                     'data' => [],
                     'recordsTotal' => $totalRecords,
@@ -1148,6 +1170,7 @@ class Order extends Model
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
 
+            /** Implementing search across specified columns */
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
                 foreach ($orderColumnArray as $column) {
                     if (in_array($column, ['spend'])) {
@@ -1159,18 +1182,20 @@ class Order extends Model
             });            
         }
         
-        /** Get total records count (without filtering) */
+        /** Order by specified column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
+        /** Group by with order supplier id */
         $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
 
+        /** Get the filtered records count */
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
+        /** Paginate the results if pagination filters are provided */
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
@@ -1178,11 +1203,13 @@ class Order extends Model
         $finalArray = [];
         foreach ($queryData as $key => $value) {
             if($csv) {
+                /** Prepare the final array for CSV */
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] = $value->spend;
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
             } else {
+                /** Prepare the final array for non-CSV */
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] = '$'.number_format($value->spend, 2);
@@ -1193,6 +1220,7 @@ class Order extends Model
         // dd($finalArray);
 
         if ($csv == true) {
+            /** CSV header definition */
             $finalArray['heading'] = [
                 'Supplier Name',
                 'Account Name',
