@@ -882,8 +882,9 @@ class ProcessUploadedFiles extends Command
                             unset($workSheetArray1, $count, $maxNonEmptyValue);
                             if (isset($finalInsertArray) && !empty($finalInsertArray)) {
                                 try {
-                                    DB::table('uploaded_files')->where('id', $fileValue->id)
-                                        ->update([
+                                    DB::table('uploaded_files')
+                                    ->where('id', $fileValue->id)
+                                    ->update([
                                         'cron' => 5
                                     ]);
 
