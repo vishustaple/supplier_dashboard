@@ -126,6 +126,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         ->whereIn('order_product_details.key', ['Total Spend'])
         ->where('orders.supplier_id', 3)
         ->get();
+        dd($query);
         foreach ($query as $key => $value) {
             $id = DB::table('orders')
             ->where('id', $value->id)
