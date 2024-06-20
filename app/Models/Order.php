@@ -1138,12 +1138,14 @@ class Order extends Model
 
         $query->groupBy('orders.supplier_id', 'master_account_detail.account_name');
 
+        $totalRecords = $query->getQuery()->getCountForPagination();
+        
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $totalRecords = $query->getQuery()->getCountForPagination();
+
             /** Filter for specific supplier IDs */
             $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
         } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
-            $totalRecords = $query->getQuery()->getCountForPagination();
+            
             /** Filter for specified supplier IDs */
             $query->whereIn('orders.supplier_id', $filter['supplier_id']);
         } else {
