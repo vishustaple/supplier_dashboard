@@ -19,6 +19,7 @@ use App\Models\{
     ManageColumns,
     SupplierDetail,
     CategorySupplier,
+    RequiredFieldName,
 };
 
 class ExcelImportController extends Controller
@@ -542,5 +543,114 @@ class ExcelImportController extends Controller
         ]);
         
         return response()->json(['success' => true], 200);
+    }
+
+    public function supplierFileFormatImport(Request $request) {
+        try{
+            $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('excel_file'));
+            if ($inputFileType === 'Xlsx') {
+                $reader = new Xlsx();
+            } elseif ($inputFileType === 'Xls') {
+                $reader = new Xls();
+            } else {
+                return response()->json(['error' => 'Unsupported file type: ' . $inputFileType], 200);
+            }
+
+            $spreadSheet = $reader->load($request->file('excel_file'), 2);
+                $maxNonEmptyCount = 0;
+                foreach ($spreadSheet->getAllSheets()[0]->toArray() as $key=>$value) {
+                    /** Checking not empty columns */
+                    $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
+                        return !empty($item);
+                    }));
+                   
+                    /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+                    if ($nonEmptyCount > $maxNonEmptyCount) {
+                        $maxNonEmptyvalue1 = $value;
+                        $startIndexValueArray = $key;
+                        $maxNonEmptyCount = $nonEmptyCount;
+                    }
+                    
+                    /** Stop loop after reading 31 rows from excel file */
+                    if($key > 20){
+                        break;
+                    }
+                }
+
+                /** Remove empty key from the array of excel sheet column name */
+                $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
+                    return !empty($item);
+                }, ARRAY_FILTER_USE_BOTH));
+                            
+                /** Clean up the values */
+                $cleanedArray = array_map(function ($value) {
+                    /** Remove line breaks and trim whitespace */
+                    return str_replace(["\r", "\n"], '', $value);
+                }, $finalExcelKeyArray1);
+
+                $finalArray = [];
+                
+                $fields = RequiredFieldName::all();
+                $mapColumns = '<select class="form-select form-select-sm excel_col" aria-label=".form-select-sm example" name="required_field_id[]">
+                <option value="0" selected>Select map column</option>';
+
+                foreach ($fields as $key => $value) {
+                    $mapColumns .= '<option value="'.$value->id.'" >'.$value->fields_select_name.'</option>';
+                }
+
+                $mapColumns .= '</select>'; 
+
+                foreach ($cleanedArray as $key => $value) {
+                    $finalArray[] = [
+                        'excel_field' => '<input type="hidden" name="field_name[]" value="'.$value.'">'.$value,
+                        'map_columns' => $mapColumns
+                    ];
+                }
+                // dd($cleanedArray);
+                return response()->json(['success' => true, 'final' => $finalArray], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 200);
+        }
+    }
+
+    public function addSupplierFileFormatImport(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'field_name' => 'required',
+                'supplier_id' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+    
+        $fields = [
+            5 => 'customer_number',
+            6 => 'customer_name',
+            7 => 'amount',
+            8 => 'invoice_no',
+            9 => 'invoice_date',
+        ];
+
+        // Get the keys of the $fields array
+        $field_keys = array_keys($fields);
+
+        // Collect missing keys
+        $missing_keys = [];
+
+        foreach ($field_keys as $key) {
+            if (!in_array((string)$key, $request->input('required_field_id'))) {
+                $missing_keys[] = $fields[$key];
+            }
+        }
+
+        if (!empty($missing_keys)) {
+            return response()->json(['error' => "The following field keys are not present in the Map column" . implode(', ', $missing_keys) . "."], 200);
+        }
+
+        
+        
     }
 }
