@@ -6,16 +6,23 @@
             <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
                 <h3 class="mb-0 ps-2 ">Manage Supplier</h3>
                 <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Add Supplier
-                </button>
-                <button id="show_all_supplier" type="button" data-id="all" class="btn btn-primary">
-                    Show All Supplier
-                </button>
+                <div class="supplier_buttons">
+                    <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        Add Supplier
+                    </button>
+                    <button id="show_all_supplier" type="button" data-id="all" class="btn btn-primary">
+                        Show All Supplier
+                    </button>
+                </div>
             </div>
+            <style>
+                .loading-icon {
+                    display: none; /* Hidden by default */
+                }
+            </style>
             <div class="container">
                 <input type="hidden" value="all" id="show"/>
-                <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" data-bs-backdrop="static" id="editSupplierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <form id="edit_supplier">
@@ -52,7 +59,7 @@
                 </div>
 
                 <!-- Modal -->
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" data-bs-backdrop="static" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <form id="add_supplier">
@@ -86,12 +93,166 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" data-bs-backdrop="static" id="editSupplierFileFormatModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">File Add</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="editerrorMessage"></div>
+                            <div class="editsuccessMessage"></div>
+                            <div class="modal-body">
+                                <form id="edit_file_format">
+                                    <div class="mb-3">
+                                        <label for="formFile" class="form-label">Upload format file</label>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-spinner fa-spin loading-icon me-2" id="fileLoader"></i>
+                                            <input class="form-control" type="file" name="excel_file" id="formFile">
+                                        </div>
+                                    </div>
+                                </form>
+                            <form action="" id="columns_form">
+                                <input type="hidden" name="supplier_id" id="supplier_data_id">
+                                <table class="table" id="dynamicTable">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Sr. No</th>
+                                            <th scope="col">Columns</th>
+                                            <th scope="col">Map Columns</th>
+                                        </tr>
+                                    </thead>
+                                        <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="importBtn" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary "><i class="me-2 fa-solid fa-file-import"></i>Save changes</button>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <table id="supplier_data" class="data_table_files"></table>
             </div>
         </div>
     </div>
     <script>
         $(document).ready(function() {
+            $('#formFile').on('change', function(event) {
+                var button = document.getElementById('importBtn'),
+                formData = new FormData($('#edit_file_format')[0]),
+                loader = $('#fileLoader');
+                loader.show();
+                $.ajax({
+                    type: 'POST',
+                    url: "{{route('import.supplier_file')}}", // Replace with your actual route name
+                    data: formData,
+                    headers: {'X-CSRF-TOKEN': token},
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if(response.error){
+                            var errorMessage = '';
+                            if (typeof response.error === 'object') {
+                                // Iterate over the errors object
+                                $.each(response.error, function (key, value) {
+                                    errorMessage += value[0] + '<br>';
+                                });
+                            } else {
+                                errorMessage = response.error;
+                            }
+
+                            $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        }
+
+                        if(response.success){
+                            loader.hide();
+                            var tableBody = $('#dynamicTable tbody');
+                            tableBody.empty();
+                            $.each(response.final, function(index, value) {
+                                var row = '<tr class="rows">' +
+                                    '<td>' + (index + 1) + '</td>' +
+                                    '<td>' + value.excel_field + '</td>' +
+                                    '<td>' + value.map_columns + '</td>' + // Placeholder, update as necessary
+                                    '</tr>';
+                                tableBody.append(row);
+                            });
+                            
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+
+            var myModal = document.getElementById('editSupplierFileFormatModal');
+            myModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; // Button that triggered the modal
+                // Set the value of the input element
+                $('#supplier_data_id').val(button.getAttribute('data-id'));
+                
+            });
+
+            $('#columns_form').on('submit', function(e){
+                e.preventDefault();
+                var formData = new FormData($('#columns_form')[0])
+                $.ajax({
+                    type: 'POST',
+                    url: "{{route('add.supplier_file')}}", // Replace with your actual route name
+                    data: formData,
+                    headers: {'X-CSRF-TOKEN': token},
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.error) {
+                            var errorMessage = '';
+                            if (typeof response.error === 'object') {
+                                // Iterate over the errors object
+                                $.each(response.error, function (key, value) {
+                                    errorMessage += value[0] + '<br>';
+                                });
+                            } else {
+                                errorMessage = response.error;
+                            }
+
+                            $('.editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        }
+
+                        if (response.success) {
+                            
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+
+            $(document).on('change', '.excel_col', function() {
+                var selectedValue = $(this).val();
+                var currentRow = $(this).closest('.rows');
+
+                // Disable corresponding option in other rows
+                $('.rows').not(currentRow).each(function() {
+                    $(this).find('.excel_col option[value="' + selectedValue + '"]').prop('disabled', true);
+                });
+                
+                // Enable options that are not selected in the current row
+                currentRow.find('.excel_col').not(this).each(function() {
+                    $(this).find('option').prop('disabled', false);
+                });
+            });
+
+            $('#importBtn').on( "click", function(event) {
+                event.preventDefault();
+                $('#page-loader').show();
+             
+            });
+
             $('#show_all_supplier').on('click', function() {
                 var dataId = $(this).attr('data-id');
                 $('#show').val($(this).attr('data-id'));
