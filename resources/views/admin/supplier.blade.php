@@ -590,5 +590,37 @@
                 });
             });
         });
+
+        $(document).on('click', '.delete_format', function () {
+            var id = $(this).attr('data-id');
+            swal.fire({
+                text: "Are you sure you want to delete this File format?",
+                icon: "error",
+                showCancelButton: true,
+                confirmButtonText: 'YES',
+                cancelButtonText: 'NO',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('remove.file_format') }}",
+                        data: { id: id },
+                        success: function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                // Handle other cases where response.success is false
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            // Handle error
+                        }
+                    });
+                } else {
+                    // Handle cancellation
+                }
+            });    
+        });
     </script>
 @endsection

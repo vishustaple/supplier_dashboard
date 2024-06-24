@@ -55,7 +55,9 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/import/supplier/file', [ExcelImportController::class, 'supplierFileFormatImport'])->name('import.supplier_file');
         Route::post('/add/supplier/file', [ExcelImportController::class, 'addSupplierFileFormatImport'])->name('add.supplier_file');
         Route::post('/edit/supplier/file', [ExcelImportController::class, 'editSupplierFileFormatImport'])->name('edit.supplier_file');
-        
+        Route::get('/delete/supplier/file', [ExcelImportController::class, 'removeSupplierFileFormatImport'])->name('remove.file_format');
+
+
         Route::post('/suppliers/updatemain', [ExcelImportController::class, 'addSupplierMain'])->name('main.update');
         Route::post('/supplier/details', [ExcelImportController::class, 'getSupplierDetailWithAjax'])->name('supplier_detail_filter');
         Route::get('/upload-sheet', [ExcelImportController::class, 'index'])->name('upload.sheets');
