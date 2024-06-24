@@ -97,23 +97,58 @@
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">File Edit</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="editerrorMessages"></div>
+                            <div class="editsuccessMessage"></div>
+                            <div class="modal-body">
+                            <form id="edit_file_format">
+                                <input type="hidden" name="supplier_id" id="supplier_data_edit_id_one">
+                            </form>
+                            <form action="" id="columns_form_edit">
+                                <input type="hidden" name="supplier_id" id="supplier_data_id">
+                                <table class="table" id="dynamicTableOne">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Sr. No</th>
+                                            <th scope="col">Columns</th>
+                                            <th scope="col">Map Columns</th>
+                                        </tr>
+                                    </thead>
+                                        <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="importBtn" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary "><i class="me-2 fa-solid fa-file-import"></i>Save changes</button>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" data-bs-backdrop="static" id="addSupplierFileFormatModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel">File Add</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="editerrorMessage"></div>
+                            <div class="editerrorMessages"></div>
                             <div class="editsuccessMessage"></div>
                             <div class="modal-body">
-                                <form id="edit_file_format">
-                                    <div class="mb-3">
-                                        <label for="formFile" class="form-label">Upload format file</label>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-spinner fa-spin loading-icon me-2" id="fileLoader"></i>
-                                            <input class="form-control" type="file" name="excel_file" id="formFile">
-                                        </div>
+                            <form id="add_file_format">
+                                <div class="mb-3">
+                                    <label for="formFile" class="form-label">Upload format file</label>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-spinner fa-spin loading-icon me-2" id="fileLoader"></i>
+                                        <input class="form-control" type="file" name="excel_file" id="formFile">
                                     </div>
-                                </form>
+                                </div>
+                            </form>
                             <form action="" id="columns_form">
-                                <input type="hidden" name="supplier_id" id="supplier_data_id">
+                                @csrf
+                                <input type="hidden" name="supplier_id" id="supplier_data_edit_id_two">
                                 <table class="table" id="dynamicTable">
                                     <thead>
                                         <tr>
@@ -139,69 +174,15 @@
     </div>
     <script>
         $(document).ready(function() {
+
             $('#formFile').on('change', function(event) {
                 var button = document.getElementById('importBtn'),
-                formData = new FormData($('#edit_file_format')[0]),
+                formData = new FormData($('#add_file_format')[0]),
                 loader = $('#fileLoader');
                 loader.show();
                 $.ajax({
                     type: 'POST',
                     url: "{{route('import.supplier_file')}}", // Replace with your actual route name
-                    data: formData,
-                    headers: {'X-CSRF-TOKEN': token},
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        if(response.error){
-                            var errorMessage = '';
-                            if (typeof response.error === 'object') {
-                                // Iterate over the errors object
-                                $.each(response.error, function (key, value) {
-                                    errorMessage += value[0] + '<br>';
-                                });
-                            } else {
-                                errorMessage = response.error;
-                            }
-
-                            $('#errorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                        }
-
-                        if(response.success){
-                            loader.hide();
-                            var tableBody = $('#dynamicTable tbody');
-                            tableBody.empty();
-                            $.each(response.final, function(index, value) {
-                                var row = '<tr class="rows">' +
-                                    '<td>' + (index + 1) + '</td>' +
-                                    '<td>' + value.excel_field + '</td>' +
-                                    '<td>' + value.map_columns + '</td>' + // Placeholder, update as necessary
-                                    '</tr>';
-                                tableBody.append(row);
-                            });
-                            
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        console.error(xhr.responseText);
-                    }
-                });
-            });
-
-            var myModal = document.getElementById('editSupplierFileFormatModal');
-            myModal.addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget; // Button that triggered the modal
-                // Set the value of the input element
-                $('#supplier_data_id').val(button.getAttribute('data-id'));
-                
-            });
-
-            $('#columns_form').on('submit', function(e){
-                e.preventDefault();
-                var formData = new FormData($('#columns_form')[0])
-                $.ajax({
-                    type: 'POST',
-                    url: "{{route('add.supplier_file')}}", // Replace with your actual route name
                     data: formData,
                     headers: {'X-CSRF-TOKEN': token},
                     processData: false,
@@ -218,7 +199,153 @@
                                 errorMessage = response.error;
                             }
 
-                            $('.editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                            $('.editerrorMessages').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                            loader.hide();
+                        }
+
+                        if (response.success) {
+                            loader.hide();
+                            var tableBody = $('#dynamicTable tbody');
+                            tableBody.empty();
+                            $.each(response.final, function(index, value) {
+                                var row = '<tr class="rows">' +
+                                    '<td>' + (index + 1) + '</td>' +
+                                    '<td>' + value.excel_field + '</td>' +
+                                    '<td>' + value.map_columns + '</td>' + // Placeholder, update as necessary
+                                    '</tr>';
+                                tableBody.append(row);
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+
+            var myModal = document.getElementById('editSupplierFileFormatModal');
+            myModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; // Button that triggered the modal
+                // Set the value of the input element
+                $('#supplier_data_edit_id_one').val(button.getAttribute('data-id'));
+                formData = new FormData($('#edit_file_format')[0]),
+                $.ajax({
+                    type: 'POST',
+                    url: "{{route('import.supplier_file')}}", // Replace with your actual route name
+                    data: formData,
+                    headers: {'X-CSRF-TOKEN': token},
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.error) {
+                            var errorMessage = '';
+                            if (typeof response.error === 'object') {
+                                // Iterate over the errors object
+                                $.each(response.error, function (key, value) {
+                                    errorMessage += value[0] + '<br>';
+                                });
+                            } else {
+                                errorMessage = response.error;
+                            }
+
+                            $('.editerrorMessages').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                            loader.hide();
+                        }
+
+                        if (response.success) {
+                            var tableBody = $('#dynamicTableOne tbody');
+                            tableBody.empty();
+                            $.each(response.final, function(index, value) {
+                                var row = '<tr class="rows">' +
+                                    '<td>' + (index + 1) + '</td>' +
+                                    '<td>' + value.excel_field + '</td>' +
+                                    '<td>' + value.map_columns + '</td>' + // Placeholder, update as necessary
+                                    '</tr>';
+                                tableBody.append(row);
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+
+            var myModal = document.getElementById('addSupplierFileFormatModal');
+            myModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; // Button that triggered the modal
+                // Set the value of the input element
+                $('#supplier_data_edit_id_two').val(button.getAttribute('data-id'));
+            });
+
+            $('#addSupplierFileFormatModal').on('hidden.bs.modal', function () {
+                location.reload();
+            });
+
+            $('#editSupplierFileFormatModal').on('hidden.bs.modal', function () {
+                location.reload();
+            });
+
+            $('#columns_form').on('submit', function(e){
+                e.preventDefault();
+                var formData = new FormData(this)
+                $.ajax({
+                    type: 'POST',
+                    url: "{{route('add.supplier_file')}}", // Replace with your actual route name
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.error) {
+                            var errorMessage = '';
+                            if (typeof response.error === 'object') {
+                                // Iterate over the errors object
+                                $.each(response.error, function (key, value) {
+                                    errorMessage += value[0] + '<br>';
+                                });
+                            } else {
+                                errorMessage = response.error;
+                            }
+
+                            $('.editerrorMessages').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                        }
+
+                        if (response.success) {
+                            
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+
+            $('#columns_form_edit').on('submit', function(e){
+                e.preventDefault();
+                var formData = new FormData(this)
+                $.ajax({
+                    type: 'POST',
+                    url: "{{route('edit.supplier_file')}}", // Replace with your actual route name
+                    data: formData,
+                    headers: {'X-CSRF-TOKEN': token},
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.error) {
+                            var errorMessage = '';
+                            if (typeof response.error === 'object') {
+                                // Iterate over the errors object
+                                $.each(response.error, function (key, value) {
+                                    errorMessage += value[0] + '<br>';
+                                });
+                            } else {
+                                errorMessage = response.error;
+                            }
+
+                            $('.editerrorMessages').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         }
 
                         if (response.success) {
@@ -234,13 +361,26 @@
 
             $(document).on('change', '.excel_col', function() {
                 var selectedValue = $(this).val();
+                var previousValue = $(this).data('previous');
                 var currentRow = $(this).closest('.rows');
 
-                // Disable corresponding option in other rows
-                $('.rows').not(currentRow).each(function() {
-                    $(this).find('.excel_col option[value="' + selectedValue + '"]').prop('disabled', true);
-                });
-                
+                // Enable the previously selected option in other rows, unless it's zero
+                if (previousValue && previousValue !== '0') {
+                    $('.rows').not(currentRow).each(function() {
+                        $(this).find('.excel_col option[value="' + previousValue + '"]').prop('disabled', false);
+                    });
+                }
+
+                // Update the previous value with the current value
+                $(this).data('previous', selectedValue);
+
+                // Disable the selected option in other rows, unless it's zero
+                if (selectedValue !== '0') {
+                    $('.rows').not(currentRow).each(function() {
+                        $(this).find('.excel_col option[value="' + selectedValue + '"]').prop('disabled', true);
+                    });
+                }
+
                 // Enable options that are not selected in the current row
                 currentRow.find('.excel_col').not(this).each(function() {
                     $(this).find('option').prop('disabled', false);
@@ -345,7 +485,7 @@
                         $('#editerrorMessages').css('display','block');
                         $('#editerrorMessages').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + JSON.parse(xhr.responseText).error + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         setTimeout(() => {
-                            location.reload(); 
+                            location.reload();
                         }, 3000);
                     }
                 });
