@@ -55,61 +55,58 @@ class ProcessUploadedFiles extends Command
                 /** Add column name here those row you want to skip */
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
                  
-                $columnValues = DB::table('manage_columns')->select('id', 'supplier_id', 'field_name')->where('supplier_id', $fileValue->supplier_id)->get();
+                $columnValues = DB::table('manage_columns')->select('manage_columns.id as id', 'manage_columns.supplier_id as supplier_id', 'manage_columns.field_name as field_name', 'requird_fields.field_name as required_field_id')->leftJoin('requird_fields', 'manage_columns.required_field_id', '=', 'requird_fields.id')->where('supplier_id', $fileValue->supplier_id)->get();
 
                 foreach ($columnValues as $key => $value) {
-                    if (in_array($value->id, [14, 44, 199])) {
-                        $columnArray[$value->supplier_id]['gd_customer_number'] =  $value->field_name;
+                    if (!empty($value->required_field_id)) {
+                        $columnArray[$value->supplier_id][$value->required_field_id] =  $value->field_name;
                     }
 
-                    if (in_array($value->id, [15, 45, 200])) {
-                        $columnArray[$value->supplier_id]['gd_customer_name'] = $value->field_name;
-                    }
+                    // if (in_array($value->id, [15, 45, 200])) {
+                    //     $columnArray[$value->supplier_id]['gd_customer_name'] = $value->field_name;
+                    // }
 
-                    if (in_array($value->id, [16, 46, 201])) {
-                        $columnArray[$value->supplier_id]['p_customer_number'] = $value->field_name;
-                    }
+                    // if (in_array($value->id, [16, 46, 201])) {
+                    //     $columnArray[$value->supplier_id]['p_customer_number'] = $value->field_name;
+                    // }
 
-                    if (in_array($value->id, [17, 47, 202])) {
-                        $columnArray[$value->supplier_id]['p_customer_name'] = $value->field_name;
-                    }
+                    // if (in_array($value->id, [17, 47, 202])) {
+                    //     $columnArray[$value->supplier_id]['p_customer_name'] = $value->field_name;
+                    // }
 
-                    // if (in_array($value->id, [1, 18, 48, 264, 125, 148, 203])) {
-                    if (in_array($value->id, [1, 18, 48, 297, 125, 148, 203])) {
-                        $columnArray[$value->supplier_id]['customer_number'] = $value->field_name;
-                    }
+                    // // if (in_array($value->id, [1, 18, 48, 264, 125, 148, 203])) {
+                    // if (in_array($value->id, [1, 18, 48, 297, 125, 148, 203])) {
+                    //     $columnArray[$value->supplier_id]['customer_number'] = $value->field_name;
+                    // }
                     
-                    // if (in_array($value->id, [2, 19, 49, 265, 126, 149, 204])) {
-                    if (in_array($value->id, [2, 19, 49, 298, 126, 149, 204])) {
-                        $columnArray[$value->supplier_id]['customer_name'] = $value->field_name;
-                    }
+                    // // if (in_array($value->id, [2, 19, 49, 265, 126, 149, 204])) {
+                    // if (in_array($value->id, [2, 19, 49, 298, 126, 149, 204])) {
+                    //     $columnArray[$value->supplier_id]['customer_name'] = $value->field_name;
+                    // }
 
                     if ($value->supplier_id == 7) {
                         $columnArray[$value->supplier_id]['amount'] = '';
+                        $columnArray[$value->supplier_id]['invoice_date'] = '';
                     }
 
-                    // if (in_array($value->id, [34, 65, 296, 145, 185, 262])) {
-                    if (in_array($value->id, [34, 65, 341, 145, 185, 262])) {
-                        $columnArray[$value->supplier_id]['amount'] = $value->field_name;
-                    }
+                    // // if (in_array($value->id, [34, 65, 296, 145, 185, 262])) {
+                    // if (in_array($value->id, [34, 65, 341, 145, 185, 262])) {
+                    //     $columnArray[$value->supplier_id]['amount'] = $value->field_name;
+                    // }
 
                     if (in_array($value->supplier_id, [1, 7])) {
                         $columnArray[$value->supplier_id]['invoice_no'] = '';
                     }
 
-                    // if (in_array($value->id, [43, 69, 293, 127, 194])) {
-                    if (in_array($value->id, [43, 69, 326, 127, 194])) {
-                        $columnArray[$value->supplier_id]['invoice_no'] = $value->field_name;
-                    }
+                    // // if (in_array($value->id, [43, 69, 293, 127, 194])) {
+                    // if (in_array($value->id, [43, 69, 326, 127, 194])) {
+                    //     $columnArray[$value->supplier_id]['invoice_no'] = $value->field_name;
+                    // }
 
-                    // if (in_array($value->id, [24, 68, 284, 128, 195, 258])) {
-                    if (in_array($value->id, [24, 68, 336, 128, 195, 258])) {
-                        $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
-                    }
-
-                    if (in_array($value->supplier_id, [7])) {
-                        $columnArray[$value->supplier_id]['invoice_date'] = '';
-                    }
+                    // // if (in_array($value->id, [24, 68, 284, 128, 195, 258])) {
+                    // if (in_array($value->id, [24, 68, 336, 128, 195, 258])) {
+                    //     $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
+                    // }
 
                     $columnArray1[$value->id] = $value->field_name;
                 }
@@ -507,7 +504,7 @@ class ProcessUploadedFiles extends Command
                             } else {
                                 $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
                             }
-
+                            
                             foreach ($workSheetArray as $key=>$values) {
                                 /** Checking not empty columns */
                                 $nonEmptyCount = count(array_filter(array_values($values), function ($item) {
