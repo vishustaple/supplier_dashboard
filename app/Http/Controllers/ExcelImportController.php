@@ -744,4 +744,9 @@ class ExcelImportController extends Controller
         
         return response()->json(['success' => "Column updated successfully"], 200);
     }
+
+    public function removeSupplierFileFormatImport(Request $request) {
+        DB::table('manage_columns')->where('supplier_id', $request->input('id'))->delete();
+        return response()->json(['success' => "Columns deleted successfully"], 200);
+    }
 }
