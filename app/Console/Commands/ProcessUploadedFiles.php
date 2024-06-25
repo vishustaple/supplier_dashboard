@@ -74,7 +74,6 @@ class ProcessUploadedFiles extends Command
                     $columnArray1[$value->id] = $value->field_name;
                 }
 
-                dd(count($columnArray[$fileValue->supplier_id]));
                 if ($fileValue->supplier_id == 1) {
                     $columnArray2 = [
                         $fileValue->supplier_id => [
