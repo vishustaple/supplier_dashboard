@@ -629,7 +629,7 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
 
-                                    if (in_array($fileValue->supplier_id, [1, 4, 5, 6])) {
+                                    if (in_array($fileValue->supplier_id, [1, 4, 5, 6]) || !in_array($fileValue->supplier_id, [2, 3, 7])) {
                                         if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
