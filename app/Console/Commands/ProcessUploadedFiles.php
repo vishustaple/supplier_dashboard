@@ -74,6 +74,8 @@ class ProcessUploadedFiles extends Command
                     $columnArray1[$value->id] = $value->field_name;
                 }
 
+                // dd($columnArray);
+
                 if ($fileValue->supplier_id == 1) {
                     $columnArray2 = [
                         $fileValue->supplier_id => [
@@ -656,7 +658,7 @@ class ProcessUploadedFiles extends Command
                                                         }
                                                     } elseif ($fileValue->supplier_id == 4) {   
                                                         if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == 'shipped_date') {
-                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s');
+                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = (!empty($value)) ? Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s') : ('');
                                                         } else {
                                                             $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
                                                         }
