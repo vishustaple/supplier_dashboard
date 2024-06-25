@@ -62,55 +62,19 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id][$value->required_field_id] =  $value->field_name;
                     }
 
-                    // if (in_array($value->id, [15, 45, 200])) {
-                    //     $columnArray[$value->supplier_id]['gd_customer_name'] = $value->field_name;
-                    // }
-
-                    // if (in_array($value->id, [16, 46, 201])) {
-                    //     $columnArray[$value->supplier_id]['p_customer_number'] = $value->field_name;
-                    // }
-
-                    // if (in_array($value->id, [17, 47, 202])) {
-                    //     $columnArray[$value->supplier_id]['p_customer_name'] = $value->field_name;
-                    // }
-
-                    // // if (in_array($value->id, [1, 18, 48, 264, 125, 148, 203])) {
-                    // if (in_array($value->id, [1, 18, 48, 297, 125, 148, 203])) {
-                    //     $columnArray[$value->supplier_id]['customer_number'] = $value->field_name;
-                    // }
-                    
-                    // // if (in_array($value->id, [2, 19, 49, 265, 126, 149, 204])) {
-                    // if (in_array($value->id, [2, 19, 49, 298, 126, 149, 204])) {
-                    //     $columnArray[$value->supplier_id]['customer_name'] = $value->field_name;
-                    // }
-
                     if ($value->supplier_id == 7) {
                         $columnArray[$value->supplier_id]['amount'] = '';
                         $columnArray[$value->supplier_id]['invoice_date'] = '';
                     }
 
-                    // // if (in_array($value->id, [34, 65, 296, 145, 185, 262])) {
-                    // if (in_array($value->id, [34, 65, 341, 145, 185, 262])) {
-                    //     $columnArray[$value->supplier_id]['amount'] = $value->field_name;
-                    // }
-
                     if (in_array($value->supplier_id, [1, 7])) {
                         $columnArray[$value->supplier_id]['invoice_no'] = '';
                     }
 
-                    // // if (in_array($value->id, [43, 69, 293, 127, 194])) {
-                    // if (in_array($value->id, [43, 69, 326, 127, 194])) {
-                    //     $columnArray[$value->supplier_id]['invoice_no'] = $value->field_name;
-                    // }
-
-                    // // if (in_array($value->id, [24, 68, 284, 128, 195, 258])) {
-                    // if (in_array($value->id, [24, 68, 336, 128, 195, 258])) {
-                    //     $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
-                    // }
-
                     $columnArray1[$value->id] = $value->field_name;
                 }
 
+                dd(count($columnArray[$fileValue->supplier_id]));
                 if ($fileValue->supplier_id == 1) {
                     $columnArray2 = [
                         $fileValue->supplier_id => [
@@ -589,7 +553,7 @@ class ProcessUploadedFiles extends Command
                                         $keyCustomerName = array_search($columnArray[$fileValue->supplier_id]['customer_name'], $maxNonEmptyValue);
                                     }
 
-                                    if (($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) {
+                                    if ((($fileValue->supplier_id == 2 && $key > $graingerCount) || $fileValue->supplier_id == 3 || $fileValue->supplier_id == 7) || count($columnArray[$fileValue->supplier_id]) > 5) {
                                         if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
@@ -629,7 +593,7 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
 
-                                    if (in_array($fileValue->supplier_id, [1, 4, 5, 6]) || !in_array($fileValue->supplier_id, [2, 3, 7])) {
+                                    if (in_array($fileValue->supplier_id, [1, 4, 5, 6]) || count($columnArray[$fileValue->supplier_id]) <= 5) {
                                         if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
