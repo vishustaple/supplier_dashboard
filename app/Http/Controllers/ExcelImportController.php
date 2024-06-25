@@ -688,14 +688,16 @@ class ExcelImportController extends Controller
             return response()->json(['error' => "The following field keys are not present in the Map column: " . implode(', ', $missing_keys) . "."], 200);
         }
 
-        dd($request);
         foreach ($request->input('required_field_id') as $key => $value) {
-            DB::table('manage_columns')->create([
+            DB::table('manage_columns')->insert([
+                'required' => (($value != 0 ) ? ($value) : (0)),
                 'supplier_id' => $request->input('supplier_id'),
                 'field_name' => $request->input('field_name')[$key],
                 'required_field_id' => (($value != 0 ) ? ($value) : (null)),
             ]);
         }
+
+        return response()->json(['success' => "Columns added successfully"], 200);
     }
 
     public function editSupplierFileFormatImport(Request $request) {
