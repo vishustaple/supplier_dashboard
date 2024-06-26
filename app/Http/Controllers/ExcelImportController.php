@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
@@ -696,6 +698,43 @@ class ExcelImportController extends Controller
                 'required_field_id' => (($value != 0 ) ? ($value) : (null)),
             ]);
         }
+
+        $tableName = DB::table('supplier_tables')->select('table_name')->where('supplier_id', $request->input('supplier_id'))->first();
+        if (!$tableName) {
+            $supplierName = DB::table('supplier_tables')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
+            $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
+        } else {
+            $tableName = $tableName->table_name;
+        }
+
+        $columns = $request->input('field_name');
+        $requiredFieldId = $request->input('required_field_id');
+
+        /** Check if the table already exists */
+        if (Schema::hasTable($tableName)) {
+            $newTableName = $tableName . '_old_' . time();
+            Schema::rename($tableName, $newTableName);
+        }
+
+        /** Create the table */
+        Schema::create($tableName, function (Blueprint $table) use ($columns, $requiredFieldId) {
+            $table->id();
+            $table->bigInteger('data_id')->unsigned()->index(); /** Adding the data_id column */
+            foreach ($columns as $key => $column) {
+                /** Replace spaces with underscores, remove unwanted characters, and convert to lowercase */
+                $column = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $column))));
+                if (!empty($column)) {
+                    if ($requiredFieldId[$key] == 7) {
+                        $table->decimal($column)->nullable();
+                    } elseif ($requiredFieldId[$key] == 9) {
+                        $table->date($column)->nullable();
+                    } else {
+                        $table->string($column)->nullable();
+                    }
+                }
+            }
+            $table->timestamps(); /** This adds created_at and updated_at columns */
+        });
 
         return response()->json(['success' => "Columns added successfully"], 200);
     }
