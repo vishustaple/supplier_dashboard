@@ -130,7 +130,7 @@ class ExcelImportController extends Controller
                     }
                     
                     /** Stop loop after reading 31 rows from excel file */
-                    if($key > 20){
+                    if($key > 30){
                         break;
                     }
                 }
@@ -692,7 +692,7 @@ class ExcelImportController extends Controller
 
         foreach ($request->input('required_field_id') as $key => $value) {
             DB::table('manage_columns')->insert([
-                'required' => (($value != 0 ) ? ($value) : (0)),
+                'required' => (($value != 0 ) ? (1) : (0)),
                 'supplier_id' => $request->input('supplier_id'),
                 'field_name' => $request->input('field_name')[$key],
                 'required_field_id' => (($value != 0 ) ? ($value) : (null)),
