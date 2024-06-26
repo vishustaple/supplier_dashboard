@@ -26,12 +26,16 @@
                             <td>{{ $query->query }}</td>
                             <td>
                                 <div class="row">
-                                    <a href="{{ route('queries.edit', ['query' => $query->id]) }}" class="btn btn-primary">
+                                    <div class="col-md-6"> 
+                                    <a href="{{ route('queries.edit', ['query' => $query->id]) }}" class="btn btn-primary ">
                                         <i class="fa fa-pencil-square" aria-hidden="true"></i>
                                     </a>
+                                    </div>
+                                    <div class="col-md-6"> 
                                     <a class="btn btn-danger" href="#" onclick="deleteQuery({{ $query->id }})">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
                                     </a>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
