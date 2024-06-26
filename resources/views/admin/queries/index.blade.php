@@ -25,7 +25,7 @@
                             <td>{{ $query->title }}</td>
                             <td>{{ $query->query }}</td>
                             <td><a href="{{ route('queries.edit', ['query' => $query->id]) }}" class="btn btn-primary">
-                            <i class="fa fa-pencil-square" aria-hidden="true"></i> Edit</a> <a class="btn btn-danger" href="#" onclick="deleteQuery({{ $query->id }})"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a></td>
+                            <i class="fa fa-pencil-square" aria-hidden="true"></i></a> <a class="btn btn-danger" href="#" onclick="deleteQuery({{ $query->id }})"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
                         </tr>
                     @endforeach
                 </tbody>

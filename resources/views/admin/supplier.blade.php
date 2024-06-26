@@ -229,6 +229,8 @@
                 var button = event.relatedTarget; // Button that triggered the modal
                 // Set the value of the input element
                 $('#supplier_data_edit_id_one').val(button.getAttribute('data-id'));
+                $('#supplier_data_id').val(button.getAttribute('data-id'));
+                
                 formData = new FormData($('#edit_file_format')[0]),
                 $.ajax({
                     type: 'POST',
@@ -313,7 +315,7 @@
                         }
 
                         if (response.success) {
-                            
+                            location.reload();
                         }
                     },
                     error: function(xhr, status, error) {
@@ -349,7 +351,7 @@
                         }
 
                         if (response.success) {
-                            
+                            location.reload();
                         }
                     },
                     error: function(xhr, status, error) {

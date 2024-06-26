@@ -701,7 +701,7 @@ class ExcelImportController extends Controller
 
         $tableName = DB::table('supplier_tables')->select('table_name')->where('supplier_id', $request->input('supplier_id'))->first();
         if (!$tableName) {
-            $supplierName = DB::table('supplier_tables')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
+            $supplierName = DB::table('suppliers')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
             $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
         } else {
             $tableName = $tableName->table_name;
@@ -784,9 +784,9 @@ class ExcelImportController extends Controller
         }
 
         $tableName = DB::table('supplier_tables')->select('table_name')->where('supplier_id', $request->input('supplier_id'))->first();
-        
+
         if (!$tableName) {
-            $supplierName = DB::table('supplier_tables')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
+            $supplierName = DB::table('suppliers')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
             $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
         } else {
             $tableName = $tableName->table_name;
@@ -795,11 +795,18 @@ class ExcelImportController extends Controller
         $columns = $request->input('field_name');
         $requiredFieldId = $request->input('required_field_id');
 
-        /** Check if the table already exists */
+       /** Check if the table already exists */
         if (Schema::hasTable($tableName)) {
-            $newTableName = $tableName . '_old_' . time();
-            Schema::rename($tableName, $newTableName);
+            /** Check if the table is empty */
+            $rowCount = DB::table($tableName)->count();
+            if ($rowCount == 0) {
+                Schema::drop($tableName);
+            } else {
+                $newTableName = $tableName . '_old_' . time();
+                Schema::rename($tableName, $newTableName);
+            }
         }
+
 
         /** Create the table */
         Schema::create($tableName, function (Blueprint $table) use ($columns, $requiredFieldId) {
