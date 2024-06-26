@@ -90,11 +90,75 @@ class ProcessUploadedFiles extends Command
                     $columnArray1[$value->id] = $value->field_name;
                 }
 
-                $columnArray2 = [];
-                foreach ($columnArray1 as $key => $value) {
-                    $columnArray2[$fileValue->supplier_id][$value] = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value)))); 
-                }                
-
+                if ($fileValue->supplier_id == 7) {
+                    $columnArray2 = [
+                        $fileValue->supplier_id => [
+                            $columnArray1['199'] => 'gp_id',
+                            $columnArray1['200'] => 'gp_name',
+                            $columnArray1['201'] => 'parent_id',
+                            $columnArray1['202'] => 'parent_name',
+                            $columnArray1['203'] => 'account_id',
+                            $columnArray1['204'] => 'account_name',
+                            $columnArray1['205'] => 'year_01',
+                            $columnArray1['206'] => 'year_02',
+                            $columnArray1['207'] => 'year_03',
+                            $columnArray1['208'] => 'year_04',
+                            $columnArray1['209'] => 'year_05',
+                            $columnArray1['210'] => 'year_06',
+                            $columnArray1['211'] => 'year_07',
+                            $columnArray1['212'] => 'year_08',
+                            $columnArray1['213'] => 'year_09',
+                            $columnArray1['214'] => 'year_10',
+                            $columnArray1['215'] => 'year_11',
+                            $columnArray1['216'] => 'year_12',
+                            $columnArray1['217'] => 'year_13',
+                            $columnArray1['218'] => 'year_14',
+                            $columnArray1['219'] => 'year_15',
+                            $columnArray1['220'] => 'year_16',
+                            $columnArray1['221'] => 'year_17',
+                            $columnArray1['222'] => 'year_18',
+                            $columnArray1['223'] => 'year_19',
+                            $columnArray1['224'] => 'year_20',
+                            $columnArray1['225'] => 'year_21',
+                            $columnArray1['226'] => 'year_22',
+                            $columnArray1['227'] => 'year_23',
+                            $columnArray1['228'] => 'year_24',
+                            $columnArray1['229'] => 'year_25',
+                            $columnArray1['230'] => 'year_26',
+                            $columnArray1['231'] => 'year_27',
+                            $columnArray1['232'] => 'year_28',
+                            $columnArray1['233'] => 'year_29',
+                            $columnArray1['234'] => 'year_30',
+                            $columnArray1['235'] => 'year_31',
+                            $columnArray1['236'] => 'year_32',
+                            $columnArray1['237'] => 'year_33',
+                            $columnArray1['238'] => 'year_34',
+                            $columnArray1['239'] => 'year_35',
+                            $columnArray1['240'] => 'year_36',
+                            $columnArray1['242'] => 'year_37',
+                            $columnArray1['243'] => 'year_38',
+                            $columnArray1['244'] => 'year_39',
+                            $columnArray1['245'] => 'year_40',
+                            $columnArray1['246'] => 'year_41',
+                            $columnArray1['247'] => 'year_42',
+                            $columnArray1['248'] => 'year_43',
+                            $columnArray1['249'] => 'year_44',
+                            $columnArray1['250'] => 'year_45',
+                            $columnArray1['251'] => 'year_46',
+                            $columnArray1['252'] => 'year_47',
+                            $columnArray1['253'] => 'year_48',
+                            $columnArray1['254'] => 'year_49',
+                            $columnArray1['255'] => 'year_50',
+                            $columnArray1['256'] => 'year_51',
+                            $columnArray1['257'] => 'year_52',
+                        ]
+                    ];
+                } else {
+                    $columnArray2 = [];
+                    foreach ($columnArray1 as $key => $value) {
+                        $columnArray2[$fileValue->supplier_id][$value] = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value)))); 
+                    }
+                }
                 try {
                     /** Increasing the memory limit becouse memory limit issue */
                     ini_set('memory_limit', '1024M');
