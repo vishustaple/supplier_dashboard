@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class SavedQueryController extends Controller
 {
     public function index(){
-        $queries = SavedQuery::all();
+        $queries = SavedQuery::orderBy('id', 'DESC')->all();
         $pageTitle = "Save SQL Queries";
 
         return view('admin.queries.index', compact('queries', 'pageTitle'));
