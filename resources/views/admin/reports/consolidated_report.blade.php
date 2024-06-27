@@ -38,6 +38,11 @@
                                         <select id="account_name" name="account_name" class="form-control"></select>
                                     </div>
                                 </div>
+                                <div class="card bg-light mb-3" style="width: 18rem; display: none;">
+                                    <div class="card-body">
+                                        <p class="card-text"><b>Test: </b></p>
+                                    </div>
+                                </div>
                                 <div class="col-md-5 mt-1 mb-0 ms-auto text-end">
                                     <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
                                     <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
@@ -194,6 +199,16 @@
                 }
             });
 
+            function setTotalAmount() {
+                if ($('.total_amount').val() != null) {
+                    $('.card-body').html('');
+                    $('.card').show();
+                    $('.card-body').html('<p class="card-text"><b>Total Amount: </b> $' + $('.total_amount').val() + '</p>');
+                } else {
+                    $('.card').hide();
+                }
+            }
+
             // DataTable initialization
             var consolidateddataTable = $('#consolidated_supplier_data').DataTable({
                 oLanguage: {
@@ -240,6 +255,10 @@
                     { data: 'spend', name: 'spend', title: 'Spend', 'searchable': false },
                     { data: 'category', name: 'category', title: 'Category', 'orderable': false, 'searchable': false },
                 ],
+
+                fnDrawCallback: function( oSettings ) {
+                    setTotalAmount();
+                },
             });
 
             $('#consolidated_supplier_data_length').hide();
