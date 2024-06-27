@@ -65,7 +65,7 @@
             }
 
             th, td {
-                padding: 5px 10px;
+                padding: 2px 10px;
                 text-align: center;
             }
 
@@ -81,13 +81,13 @@
                     <img src="{{ public_path('/images') .'/'. 'logo.jpg'}}" alt="">
                 </div>
             </div>
-            <div class="detail_top_pdf clearfix" style="margin: 35px 0px;">
-                <div class="left_commission" style="width: 50%;float:left;">
-                    <p style="margin: 0px;padding-bottom: 5px;"><b>Commission Statement for period: {{explode(' ', $commission_statement_text)[0]}} to</b></p>
-                    <p style="margin: 0px;padding-bottom: 5px;"><b>{{explode(' ', $commission_statement_text)[1]}} {{$year}}</b></p>
+            <div class="detail_top_pdf clearfix" style="margin: 35px 0px 10px 0px;">
+                <div class="left_commission" style="width: 65%;float:left;">
                     <p style="margin: 0px;padding-bottom: 5px;"><b>Agent Name: {{ $sales_rep }}</b></p>
+                    <p style="padding-top:10px;margin: 0px;padding-bottom: 5px;"><b>Commission Statement for period: {{explode(' ', $commission_statement_text)[0]}} to </b><b>{{explode(' ', $commission_statement_text)[1]}} {{$year}}</b></p>
+                    <!-- <p style="margin: 0px;padding-bottom: 5px;"></p> -->
                 </div>
-                <div class="right_quarter" style="width: 50%;float:left;padding-top: 35px;">
+                <div class="right_quarter" style="width: 35%;float:left;margin-top: -20px;">
                     @if(isset($quarter1) && $quarter1 != 0)
                         <p>Quarter 1 Commission <b>${{ $quarter1 }}</b></p>
                     @endif
@@ -172,8 +172,8 @@
                             @endforeach
                         @endif
                         <tr class="grand_total">
-                            <th colspan="4" style="padding: 20px 10px; background-color: #000; color: #fff;">Grand Total</th>
-                            <th style="padding: 20px 10px; background-color: #000; color: #fff;">$ {{ $anual }}</th>
+                            <th colspan="4" style="padding: 5px 10px; background-color: #000; color: #fff;">Grand Total</th>
+                            <th style="padding: 5px 10px; background-color: #000; color: #fff;">$ {{ $anual }}</th>
                         </tr>
                     </tbody>
                 </table>
@@ -194,7 +194,7 @@
                                         <path d="M64 80c-8.8 0-16 7.2-16 16V416c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V96c0-8.8-7.2-16-16-16H64zM0 96C0 60.7 28.7 32 64 32H384c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96z"/>
                                     </svg>
                                 @endif
-                                @if(isset($approved_by) && !empty($approved_by))
+                                @if($paid_check == false && isset($approved_by) && !empty($approved_by))
                                     Approved by <u>{{$approved_by}}</u>
                                 @else
                                     Approved by _________________________
