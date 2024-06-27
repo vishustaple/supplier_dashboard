@@ -757,8 +757,8 @@ class ReportController extends Controller
             // die;
             $pdf = new Mpdf();
             $pdf->WriteHTML(view('admin.pdf.commission_pdf', $datas1));
-            // return $pdf->Output('pdf_commission_report.pdf', 'I');
-            return $pdf->Output('pdf_commission_report.pdf', 'D');
+            return $pdf->Output('pdf_commission_report.pdf', 'I');
+            // return $pdf->Output('pdf_commission_report.pdf', 'D');
         }
     }
 

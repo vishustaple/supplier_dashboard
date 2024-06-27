@@ -10,7 +10,7 @@
                 footer: html_myfooter;
                 margin-bottom: 50px;
             }
-
+ 
             .footer {
                 width: 100%;
                 text-align: right;
@@ -22,7 +22,9 @@
                 padding: 15px;
                 font-family: "Roboto", sans-serif;
             }
-
+         *{
+            box-sizing: border-box;
+         }
             .page-break {
                 page-break-after: always;
             }
@@ -83,23 +85,24 @@
             </div>
             <div class="detail_top_pdf clearfix" style="margin: 35px 0px 10px 0px;">
                 <div class="left_commission" style="width: 65%;float:left;">
-                    <p style="margin: 0px;padding-bottom: 5px;"><b>Agent Name: {{ $sales_rep }}</b></p>
-                    <p style="padding-top:10px;margin: 0px;padding-bottom: 5px;"><b>Commission Statement for period: {{explode(' ', $commission_statement_text)[0]}} to </b><b>{{explode(' ', $commission_statement_text)[1]}} {{$year}}</b></p>
-                    <!-- <p style="margin: 0px;padding-bottom: 5px;"></p> -->
+                    <p style="padding-top:10px;margin: 0px;padding-bottom: 5px;font-size:13px;"><b>Commission Statement for period: {{explode(' ', $commission_statement_text)[0]}} to </b><b>{{explode(' ', $commission_statement_text)[1]}} {{$year}}</b></p>
+                    <p style="margin: 0px;padding-bottom: 5px;font-size:13px;"><b>Agent Name: {{ $sales_rep }}</b></p>
                 </div>
-                <div class="right_quarter" style="width: 35%;float:left;margin-top: -20px;">
+                <div class="right_quarter" style="width: 35%;float:left;margin-top: 0px;">
+                    <div style="padding-left: 10px;">
                     @if(isset($quarter1) && $quarter1 != 0)
-                        <p>Quarter 1 Commission <b>${{ $quarter1 }}</b></p>
+                        <p style="margin:2px 0px; font-size:13px;">Quarter 1 Commission <b>${{ $quarter1 }}</b></p>
                     @endif
                     @if(isset($quarter2) && $quarter2 != 0)
-                        <p>Quarter 2 Commission <b>${{ $quarter2 }}</b></p>
+                        <p style="margin:2px 0px; font-size:13px;">Quarter 2 Commission <b>${{ $quarter2 }}</b></p>
                     @endif
                     @if(isset($quarter3) && $quarter3 != 0)
-                        <p>Quarter 3 Commission <b>${{ $quarter3 }}</b></p>
+                        <p style="margin:2px 0px; font-size:13px;">Quarter 3 Commission <b>${{ $quarter3 }}</b></p>
                     @endif
                     @if(isset($quarter4) && $quarter4 != 0)
-                        <p>Quarter 4 Commission <b>${{ $quarter4 }}</b></p>
+                        <p style="margin:2px 0px; font-size:13px;">Quarter 4 Commission <b>${{ $quarter4 }}</b></p>
                     @endif
+                </div>
                 </div>
             </div>
             <div class="generated_date" style="padding-bottom: 20px;"><b>Generated on: {{ now()->format('m/d/Y') }}</b></div>
@@ -118,50 +121,50 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if(isset($commission_data))
-                        @foreach($commission_data as $key1 => $commissions)
-                            <tr class="subtotal" style="background-color: #d0d0d0;">
-                                <th colspan="2" class="border-bottom border-top" style="text-align: center;background-color: #d0d0d0;">{{ $key1 }}</th>
-                                <th class="border-bottom border-top"  colspan="3"></th>
-                            </tr>
-                            @php $amount = $rebate = $commission_total = 0; @endphp
-                            @foreach($commissions as $key2 => $commission)
-                                <?php 
-                                    $amount += (float)str_replace(',', '', $commission['total_amount']);
-                                    $rebate += (float)str_replace(',', '', $commission['total_volume_rebate']);
-                                    $commission_total += (float)str_replace(',', '', $commission['total_commissions']);
-                                    // Remove 'YTD' key from the array
-                                    $filteredArray = array_filter($commission['month'], function($value, $key) {
-                                        return $key !== 'YTD';
-                                    }, ARRAY_FILTER_USE_BOTH);
-
-                                    // Count non-zero values in the filtered array
-                                    $nonZeroCount = count(array_filter($filteredArray, function($value) {
-                                        return $value != 0;
-                                    }));
-                                    $firstTime = true;
-                                ?>
-                                @foreach($commission['month'] as $key => $month)
-                                @if(!empty($commission['month_amount'][$key]) && $key != 'YTD')
-                                    <tr>
-                                        @if($firstTime == true)
-                                            @php $firstTime = false; @endphp
-                                            <td rowspan="{{$nonZeroCount + 1}}" style="text-align: center;" class="border-right border-bottom">{{ $commission['supplier'] }} <br>
-                                            {{ $commission['commission_start_date'] }} - {{ $commission['commission_end_date'] }}</td>
-                                        @endif
-                                        <td>{{ $key }} {{ $year }}</td>
-                                        <td>${{ number_format($commission['month_amount'][$key], 2) }}</td>
-                                        <td>${{ number_format($commission['month_rebate'][$key], 2) }}</td>
-                                        <td>${{ number_format($commission['month'][$key], 2) }}</td>
-                                    </tr>
-                                    @endif
-                                @endforeach
-                                <tr style="background-color: #f2f2f2;">
-                                    <th class="border-top border-bottom">{{ $commission['supplier'] }} Subtotal</th>
-                                    <th class="border-top border-bottom">${{ number_format($commission['total_amount'], 2) }}</th>
-                                    <th class="border-top border-bottom">${{ number_format($commission['total_volume_rebate'], 2) }}</th>
-                                    <th class="border-top border-bottom">${{ number_format($commission['total_commissions'], 2) }}</th>
+                        @if(isset($commission_data))
+                            @foreach($commission_data as $key1 => $commissions)
+                                <tr class="subtotal" style="background-color: #d0d0d0;">
+                                    <th colspan="2" class="border-bottom border-top" style="text-align: center;background-color: #d0d0d0;">{{ $key1 }}</th>
+                                    <th class="border-bottom border-top"  colspan="3"></th>
                                 </tr>
+                                @php $amount = $rebate = $commission_total = 0; @endphp
+                                @foreach($commissions as $key2 => $commission)
+                                    <?php 
+                                        $amount += (float)str_replace(',', '', $commission['total_amount']);
+                                        $rebate += (float)str_replace(',', '', $commission['total_volume_rebate']);
+                                        $commission_total += (float)str_replace(',', '', $commission['total_commissions']);
+                                        // Remove 'YTD' key from the array
+                                        $filteredArray = array_filter($commission['month'], function($value, $key) {
+                                            return $key !== 'YTD';
+                                        }, ARRAY_FILTER_USE_BOTH);
+
+                                        // Count non-zero values in the filtered array
+                                        $nonZeroCount = count(array_filter($filteredArray, function($value) {
+                                            return $value != 0;
+                                        }));
+                                        $firstTime = true;
+                                    ?>
+                                    @foreach($commission['month'] as $key => $month)
+                                        @if(!empty($commission['month_amount'][$key]) && $key != 'YTD')
+                                            <tr>
+                                                @if($firstTime == true)
+                                                    @php $firstTime = false; @endphp
+                                                    <td rowspan="{{$nonZeroCount + 1}}" style="text-align: center;" class="border-right border-bottom">{{ $commission['supplier'] }} <br>
+                                                    {{ $commission['commission_start_date'] }} - {{ $commission['commission_end_date'] }}</td>
+                                                @endif
+                                                <td>{{ $key }} {{ $year }}</td>
+                                                <td>${{ number_format($commission['month_amount'][$key], 2) }}</td>
+                                                <td>${{ number_format($commission['month_rebate'][$key], 2) }}</td>
+                                                <td>${{ number_format($commission['month'][$key], 2) }}</td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                    <tr style="background-color: #f2f2f2;">
+                                        <th class="border-top border-bottom">{{ $commission['supplier'] }} Subtotal</th>
+                                        <th class="border-top border-bottom">${{ number_format($commission['total_amount'], 2) }}</th>
+                                        <th class="border-top border-bottom">${{ number_format($commission['total_volume_rebate'], 2) }}</th>
+                                        <th class="border-top border-bottom">${{ number_format($commission['total_commissions'], 2) }}</th>
+                                    </tr>
                                 @endforeach
                                 <tr class="subtotal" style="background-color: #f2f2f2;">
                                     <th class="border-top border-bottom" colspan="2">{{ $commission['account_name'] }} Subtotal</th>
