@@ -1202,6 +1202,7 @@ class Order extends Model
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
 
+        $totalAmount = 0;
         $finalArray = [];
         foreach ($queryData as $key => $value) {
             if($csv) {
@@ -1211,16 +1212,19 @@ class Order extends Model
                 $finalArray[$key]['spend'] = $value->spend;
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
             } else {
+                /** Calculating total amount */
+                $totalAmount += $value->spend;
+
                 /** Prepare the final array for non-CSV */
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
                 $finalArray[$key]['account_name'] = $value->account_name;
-                $finalArray[$key]['spend'] = '$'.number_format($value->spend, 2);
+                $finalArray[$key]['spend'] =  '$'.number_format($value->spend, 2);
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
             }
         }
         // dd($query->toSql(), $query->getBindings());
         // dd($finalArray);
-
+        $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
         if ($csv == true) {
             /** CSV header definition */
             $finalArray['heading'] = [
