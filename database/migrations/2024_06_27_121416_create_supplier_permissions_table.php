@@ -18,8 +18,8 @@ return new class extends Migration
             $table->timestamps();
 
             // Manually define foreign key constraints with unique names
-            $table->foreign('category_supplier_id', 'fk_permission_supplier_user_id')->references('id')->on('suppliers')->onDelete('cascade');
-            $table->foreign('show_permissions_id', 'fk_permission_supplier_permission_id')->references('id')->on('show_permissions')->onDelete('cascade');
+            $table->foreign('category_supplier_id', 'fk_permission_category_supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
+            $table->foreign('show_permissions_id', 'fk_permission_show_permissions_id')->references('id')->on('show_permissions')->onDelete('cascade');
         });
     }
 
