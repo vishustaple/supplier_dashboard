@@ -103,26 +103,405 @@
             }
         });
 
-        $('#enddate').daterangepicker({
-            autoApply: true,
-            showDropdowns: true,
-            showCustomRangeLabel: true,
-            minYear: moment().subtract(7, 'years').year(),
-            maxYear: moment().add(7, 'years').year(),
-            // maxDate: moment(),
-            ranges: {
+        var selectedValues = $('#supplier').val();
+        if (selectedValues == 1) {
+                // Grand & Toy
+            var startOfQuarter1 = moment().month(5).date(1),  // June 1st
+            endOfQuarter1 = moment().month(7).date(31),  // August 31st
+            startOfQuarter2 = moment().month(8).date(1),  // September 1st
+            endOfQuarter2 = moment().month(10).date(30),  // November 30th
+            startOfQuarter3 = moment().month(11).date(1),  // December 1st
+            endOfQuarter3 = moment().month(1).date(moment().year() % 4 === 0 ? 29 : 28),  // February 28th (or 29th in a leap year)
+            startOfQuarter4 = moment().month(2).date(1),  // March 1st
+            endOfQuarter4 = moment().month(4).date(31),  // May 31st
+            // Grand & Toy
+
+            ranges = {
+                // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                'Quarter 4': [startOfQuarter4, endOfQuarter4],
+            };
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                showCustomRangeLabel: true,
+                minYear: moment().subtract(7, 'years').year(),
+                maxYear: moment().add(7, 'years').year(),
+                ranges: ranges,
+            });
+
+        } else if (selectedValues == 2) {
+            // grainer
+            var startOfQuarter1 = moment().month(8).date(1),  // September 1st
+            endOfQuarter1 = moment().month(10).date(30),  // November 30th
+            startOfQuarter2 = moment().month(11).date(1),  // December 1st
+            endOfQuarter2 = moment().month(1).date(moment().year() % 4 === 0 ? 29 : 28),  // February 29th (or 28th)
+            startOfQuarter3 = moment().month(2).date(1),  // March 1st
+            endOfQuarter3 = moment().month(4).date(31),  // May 31st
+            startOfQuarter4 = moment().month(5).date(1),  // June 1st
+            endOfQuarter4 = moment().month(7).date(31),  // August 31st
+            // grainer
+
+            ranges = {
+                // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                'Quarter 4': [startOfQuarter4, endOfQuarter4],
+            };
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                showCustomRangeLabel: true,
+                minYear: moment().subtract(7, 'years').year(),
+                maxYear: moment().add(7, 'years').year(),
+                ranges: ranges,
+            });
+
+        } else if (selectedValues == 3) {
+            // Office Depot
+            // Volume rebate (Calendar Quarter)
+            var startOfQuarter1 = moment().month(0).date(1),  // January 1st
+            endOfQuarter1 = moment().month(2).date(31),  // March 31st
+            startOfQuarter2 = moment().month(3).date(1),  // April 1st
+            endOfQuarter2 = moment().month(5).date(30),  // June 30th
+            startOfQuarter3 = moment().month(6).date(1),  // July 1st
+            endOfQuarter3 = moment().month(8).date(30),  // September 30th
+            startOfQuarter4 = moment().month(9).date(1),  // October 1st
+            endOfQuarter4 = moment().month(11).date(31);  // December 31st
+            // Volume rebate (Calendar Quarter)
+
+            // Incentive Rebate
+            // var startOfQuarter1 = moment().month(10).date(1),  // November 1st
+            // endOfQuarter1 = moment().month(0).date(31).add(1, 'year'),  // January 31st
+            // startOfQuarter2 = moment().month(1).date(1),  // February 1st
+            // endOfQuarter2 = moment().month(3).date(30),  // April 30th
+            // startOfQuarter3 = moment().month(4).date(1),  // May 1st
+            // endOfQuarter3 = moment().month(6).date(31),  // July 31st
+            // startOfQuarter4 = moment().month(7).date(1),  // August 1st
+            // endOfQuarter4 = moment().month(9).date(31);  // October 31st
+            // Incentive Rebate
+
+            var ranges = {
+                // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                'Quarter 4': [startOfQuarter4, endOfQuarter4],
+            };
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                showCustomRangeLabel: true,
+                minYear: moment().subtract(7, 'years').year(),
+                maxYear: moment().add(7, 'years').year(),
+                ranges: ranges,
+            });
+
+        } else if (selectedValues == 4) {
+            ranges = {
+                // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            };
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                showCustomRangeLabel: true,
+                minYear: moment().subtract(7, 'years').year(),
+                maxYear: moment().add(7, 'years').year(),
+                ranges: ranges,
+            });
+
+        } else if (selectedValues == 5) {
+            // WB Mason (Calendar Quarter)
+            var startOfQuarter1 = moment().month(0).date(1),  // January 1st
+            endOfQuarter1 = moment().month(2).date(31),  // March 31st
+            startOfQuarter2 = moment().month(3).date(1),  // April 1st
+            endOfQuarter2 = moment().month(5).date(30),  // June 30th
+            startOfQuarter3 = moment().month(6).date(1),  // July 1st
+            endOfQuarter3 = moment().month(8).date(30),  // September 30th
+            startOfQuarter4 = moment().month(9).date(1),  // October 1st
+            endOfQuarter4 = moment().month(11).date(31);  // December 31st
+            // WB Mason (Calendar Quarter)
+            ranges = {
+                // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                'Quarter 4': [startOfQuarter4, endOfQuarter4],
+            };
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                showCustomRangeLabel: true,
+                minYear: moment().subtract(7, 'years').year(),
+                maxYear: moment().add(7, 'years').year(),
+                ranges: ranges,
+            });
+
+        } else if (selectedValues == 6) {
+            // lyrco
+            var startOfQuarter1 = moment().month(0).date(1),  // January 1st
+            endOfQuarter1 = moment().month(2).date(31),  // March 31st
+            startOfQuarter2 = moment().month(3).date(1),  // April 1st
+            endOfQuarter2 = moment().month(5).date(30),  // June 30th
+            startOfQuarter3 = moment().month(6).date(1),  // July 1st
+            endOfQuarter3 = moment().month(8).date(30),  // September 30th
+            startOfQuarter4 = moment().month(9).date(1),  // October 1st
+            endOfQuarter4 = moment().month(11).date(31),  // December 31st
+            // lyrco
+            ranges = {
+                // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                'Quarter 4': [startOfQuarter4, endOfQuarter4],
+            };
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                showCustomRangeLabel: true,
+                minYear: moment().subtract(7, 'years').year(),
+                maxYear: moment().add(7, 'years').year(),
+                ranges: ranges,
+            });
+
+        } else {
+            ranges = {
                 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
                 'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                 'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-            }
-        });
+            };
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                showCustomRangeLabel: true,
+                minYear: moment().subtract(7, 'years').year(),
+                maxYear: moment().add(7, 'years').year(),
+                ranges: ranges,
+            });
+        }
 
         // Assuming your select element has id 'mySelect'
         $('#supplier').change(function() {
             // Get the selected value
             var selectedValue = $(this).val();
             
+            if (selectedValue == 1) {
+                 // Grand & Toy
+                var startOfQuarter1 = moment().month(5).date(1),  // June 1st
+                endOfQuarter1 = moment().month(7).date(31),  // August 31st
+                startOfQuarter2 = moment().month(8).date(1),  // September 1st
+                endOfQuarter2 = moment().month(10).date(30),  // November 30th
+                startOfQuarter3 = moment().month(11).date(1),  // December 1st
+                endOfQuarter3 = moment().month(1).date(moment().year() % 4 === 0 ? 29 : 28),  // February 28th (or 29th in a leap year)
+                startOfQuarter4 = moment().month(2).date(1),  // March 1st
+                endOfQuarter4 = moment().month(4).date(31),  // May 31st
+                // Grand & Toy
+
+                ranges = {
+                    // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                    'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                    'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                    'Quarter 4': [startOfQuarter4, endOfQuarter4],
+                };
+
+                $('#enddate').daterangepicker({
+                    autoApply: true,
+                    showDropdowns: true,
+                    showCustomRangeLabel: true,
+                    minYear: moment().subtract(7, 'years').year(),
+                    maxYear: moment().add(7, 'years').year(),
+                    ranges: ranges,
+                });
+            } else if (selectedValue == 2) {
+                // grainer
+                var startOfQuarter1 = moment().month(8).date(1),  // September 1st
+                endOfQuarter1 = moment().month(10).date(30),  // November 30th
+                startOfQuarter2 = moment().month(11).date(1),  // December 1st
+                endOfQuarter2 = moment().month(1).date(moment().year() % 4 === 0 ? 29 : 28),  // February 29th (or 28th)
+                startOfQuarter3 = moment().month(2).date(1),  // March 1st
+                endOfQuarter3 = moment().month(4).date(31),  // May 31st
+                startOfQuarter4 = moment().month(5).date(1),  // June 1st
+                endOfQuarter4 = moment().month(7).date(31),  // August 31st
+                // grainer
+
+                ranges = {
+                    // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                    'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                    'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                    'Quarter 4': [startOfQuarter4, endOfQuarter4],
+                };
+                $('#enddate').daterangepicker({
+                    autoApply: true,
+                    showDropdowns: true,
+                    showCustomRangeLabel: true,
+                    minYear: moment().subtract(7, 'years').year(),
+                    maxYear: moment().add(7, 'years').year(),
+                    ranges: ranges,
+                });
+            } else if (selectedValue == 3) {
+                // Office Depot
+                // Volume rebate (Calendar Quarter)
+                var startOfQuarter1 = moment().month(0).date(1),  // January 1st
+                endOfQuarter1 = moment().month(2).date(31),  // March 31st
+                startOfQuarter2 = moment().month(3).date(1),  // April 1st
+                endOfQuarter2 = moment().month(5).date(30),  // June 30th
+                startOfQuarter3 = moment().month(6).date(1),  // July 1st
+                endOfQuarter3 = moment().month(8).date(30),  // September 30th
+                startOfQuarter4 = moment().month(9).date(1),  // October 1st
+                endOfQuarter4 = moment().month(11).date(31);  // December 31st
+                // Volume rebate (Calendar Quarter)
+
+                // Incentive Rebate
+                // var startOfQuarter1 = moment().month(10).date(1),  // November 1st
+                // endOfQuarter1 = moment().month(0).date(31).add(1, 'year'),  // January 31st
+                // startOfQuarter2 = moment().month(1).date(1),  // February 1st
+                // endOfQuarter2 = moment().month(3).date(30),  // April 30th
+                // startOfQuarter3 = moment().month(4).date(1),  // May 1st
+                // endOfQuarter3 = moment().month(6).date(31),  // July 31st
+                // startOfQuarter4 = moment().month(7).date(1),  // August 1st
+                // endOfQuarter4 = moment().month(9).date(31);  // October 31st
+                // Incentive Rebate
+
+                var ranges = {
+                    // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                    'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                    'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                    'Quarter 4': [startOfQuarter4, endOfQuarter4],
+                };
+                $('#enddate').daterangepicker({
+                    autoApply: true,
+                    showDropdowns: true,
+                    showCustomRangeLabel: true,
+                    minYear: moment().subtract(7, 'years').year(),
+                    maxYear: moment().add(7, 'years').year(),
+                    ranges: ranges,
+                });
+            } else if (selectedValue == 4) {
+                ranges = {
+                    'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                };
+                $('#enddate').daterangepicker({
+                    autoApply: true,
+                    showDropdowns: true,
+                    showCustomRangeLabel: true,
+                    minYear: moment().subtract(7, 'years').year(),
+                    maxYear: moment().add(7, 'years').year(),
+                    ranges: ranges,
+                });
+            } else if (selectedValue == 5) {
+                // WB Mason (Calendar Quarter)
+                var startOfQuarter1 = moment().month(0).date(1),  // January 1st
+                endOfQuarter1 = moment().month(2).date(31),  // March 31st
+                startOfQuarter2 = moment().month(3).date(1),  // April 1st
+                endOfQuarter2 = moment().month(5).date(30),  // June 30th
+                startOfQuarter3 = moment().month(6).date(1),  // July 1st
+                endOfQuarter3 = moment().month(8).date(30),  // September 30th
+                startOfQuarter4 = moment().month(9).date(1),  // October 1st
+                endOfQuarter4 = moment().month(11).date(31),  // December 31st
+                // WB Mason (Calendar Quarter)
+
+                ranges = {
+                    // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                    'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                    'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                    'Quarter 4': [startOfQuarter4, endOfQuarter4],
+                };
+                $('#enddate').daterangepicker({
+                    autoApply: true,
+                    showDropdowns: true,
+                    showCustomRangeLabel: true,
+                    minYear: moment().subtract(7, 'years').year(),
+                    maxYear: moment().add(7, 'years').year(),
+                    ranges: ranges,
+                });
+            } else if (selectedValue == 6) {
+                // lyrco
+                var startOfQuarter1 = moment().month(0).date(1),  // January 1st
+                endOfQuarter1 = moment().month(2).date(31),  // March 31st
+                startOfQuarter2 = moment().month(3).date(1),  // April 1st
+                endOfQuarter2 = moment().month(5).date(30),  // June 30th
+                startOfQuarter3 = moment().month(6).date(1),  // July 1st
+                endOfQuarter3 = moment().month(8).date(30),  // September 30th
+                startOfQuarter4 = moment().month(9).date(1),  // October 1st
+                endOfQuarter4 = moment().month(11).date(31),  // December 31st
+                // lyrco
+
+                ranges = {
+                    // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                    'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                    'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                    'Quarter 4': [startOfQuarter4, endOfQuarter4],
+                };
+                $('#enddate').daterangepicker({
+                    autoApply: true,
+                    showDropdowns: true,
+                    showCustomRangeLabel: true,
+                    minYear: moment().subtract(7, 'years').year(),
+                    maxYear: moment().add(7, 'years').year(),
+                    ranges: ranges,
+                });
+            } else {
+                ranges = {
+                    'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                };
+                $('#enddate').daterangepicker({
+                    autoApply: true,
+                    showDropdowns: true,
+                    showCustomRangeLabel: true,
+                    minYear: moment().subtract(7, 'years').year(),
+                    maxYear: moment().add(7, 'years').year(),
+                    ranges: ranges,
+                });
+            }
+
             if (selectedValue == 3) {
                 $('#incentive_rebate_check').show();
                 $('#incentive_rebate_check_label').show();
@@ -133,6 +512,16 @@
                 $('#incentive_rebate_check').prop('checked', false);
             }
         });
+        // $('#enddate').daterangepicker({
+        //     autoApply: true,
+        //     showDropdowns: true,
+        //     showCustomRangeLabel: true,
+        //     minYear: moment().subtract(7, 'years').year(),
+        //     maxYear: moment().add(7, 'years').year(),
+        //     // maxDate: moment(),
+        //     ranges: ranges,
+
+        // });
 
         // Button click event
         $('#import_form').on('submit', function () {
