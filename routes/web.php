@@ -56,7 +56,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/add/supplier/file', [ExcelImportController::class, 'addSupplierFileFormatImport'])->name('add.supplier_file');
         Route::post('/edit/supplier/file', [ExcelImportController::class, 'editSupplierFileFormatImport'])->name('edit.supplier_file');
         Route::get('/delete/supplier/file', [ExcelImportController::class, 'removeSupplierFileFormatImport'])->name('remove.file_format');
-
+        Route::get('/supplier/{id}/edit-permissions', [ExcelImportController::class, 'editSupplierPermissions'])->name('supplier.editPermissions');
+        Route::post('/update/supplier/showpermissions', [ExcelImportController::class, 'updateSupplierPermissions'])->name('supplier.updatesupplierpermissions');
 
         Route::post('/suppliers/updatemain', [ExcelImportController::class, 'addSupplierMain'])->name('main.update');
         Route::post('/supplier/details', [ExcelImportController::class, 'getSupplierDetailWithAjax'])->name('supplier_detail_filter');

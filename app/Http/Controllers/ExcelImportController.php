@@ -16,10 +16,10 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use App\Models\{
-    Order,
     UploadedFiles,
     ManageColumns,
     SupplierDetail,
+    ShowPermissions,
     CategorySupplier,
     RequiredFieldName,
 };
@@ -834,5 +834,40 @@ class ExcelImportController extends Controller
     public function removeSupplierFileFormatImport(Request $request) {
         DB::table('manage_columns')->where('supplier_id', $request->input('id'))->delete();
         return response()->json(['success' => "Columns deleted successfully"], 200);
+    }
+
+    public function editSupplierPermissions($id){
+        /** Find the user by ID */
+        $supplier = CategorySupplier::with('showPermissions')->find($id);
+
+        /** Get all permissions */
+        $showPermissions = ShowPermissions::all();
+
+        /** Return user and permissions data as JSON response */
+        return response()->json([
+            'supplier' => $supplier,
+            'show_permissions' => $showPermissions
+        ]);
+    }
+
+    public function updateSupplierPermissions(Request $request){
+        $validator = Validator::make($request->all(), [
+            'supplier_id' => 'required',
+            'show_permissions' => 'required',
+        ]);
+        
+        if ($validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        } else {
+            try {
+                $supplier = CategorySupplier::find($request->supplier_id);
+
+                /** Sync supplier permissions */
+                $supplier->showPermissions()->sync($request->input('show_permissions'));
+                return response()->json(['success' => true], 200);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 200);
+            }
+        }
     }
 }
