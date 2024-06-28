@@ -216,9 +216,9 @@
             async function renderPermissions(supplier, show_permissions) {
                 var permissionsContainer = $('#permissions-container');
                 permissionsContainer.empty();
-                permissionsContainer.append('<p id="permission_heading">Supplier Permissions:</p>');
+                permissionsContainer.append('<h3 id="permission_heading">Supplier Permissions:</h3>');
                 show_permissions.forEach(function(show_permissions) {
-                    var checkbox = $('<input>', { type: 'checkbox', name: 'show_permissions[]', value: show_permissions.id });
+                    var checkbox = $('<input>', { class: 'mr-2', type: 'checkbox', name: 'show_permissions[]', value: show_permissions.id });
                     
                     // Check if the permission ID exists in the user's permissions array
                     var isPermissionChecked = supplier.show_permissions.some(function(userPermission) {
