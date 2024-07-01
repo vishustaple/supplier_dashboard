@@ -53,7 +53,6 @@
                 { data: 'incentive_rebate', name: 'incentive_rebate', title: 'Incentive Rebate' },
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false, title: 'Action' }
             ],
-            
         });
         $('#edit_rebate_length').hide();
         $(document).on('click', '.save_rebate', function(){

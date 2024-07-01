@@ -25,10 +25,6 @@
                             @endif
                         </select>
                     </div>
-                    <div class="form-group relative col-md-3 mb-0">  
-                        <label for="enddate">Select Date:</label>
-                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
-                    </div>
                     <div class="form-check relative col-2  mb-0">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="rebate_check" value="1" id="volume_rebate_check" checked>
@@ -39,6 +35,11 @@
                             <label class="form-check-label" id="incentive_rebate_check_label" for="incentive_rebate_check">Incentive Rebate</label>
                         </div>
                     </div>
+                    <div class="form-group relative col-md-3 mb-0">  
+                        <label for="enddate">Select Date:</label>
+                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                    </div>
+                   
                     <div class="col-5 mt-2 text-end">
                         <button type="submit" class="btn btn-primary m-1">Submit</button>
                         <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
@@ -179,19 +180,7 @@
             endOfQuarter4 = moment().month(11).date(31);  // December 31st
             // Volume rebate (Calendar Quarter)
 
-            // Incentive Rebate
-            // var startOfQuarter1 = moment().month(10).date(1),  // November 1st
-            // endOfQuarter1 = moment().month(0).date(31).add(1, 'year'),  // January 31st
-            // startOfQuarter2 = moment().month(1).date(1),  // February 1st
-            // endOfQuarter2 = moment().month(3).date(30),  // April 30th
-            // startOfQuarter3 = moment().month(4).date(1),  // May 1st
-            // endOfQuarter3 = moment().month(6).date(31),  // July 31st
-            // startOfQuarter4 = moment().month(7).date(1),  // August 1st
-            // endOfQuarter4 = moment().month(9).date(31);  // October 31st
-            // Incentive Rebate
-
             var ranges = {
-                // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
                 'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                 'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
@@ -200,6 +189,7 @@
                 'Quarter 3': [startOfQuarter3, endOfQuarter3],
                 'Quarter 4': [startOfQuarter4, endOfQuarter4],
             };
+
             $('#enddate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
@@ -208,7 +198,6 @@
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
             });
-
         } else if (selectedValues == 4) {
             ranges = {
                 // 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
@@ -302,6 +291,51 @@
             });
         }
 
+        $('input[name="rebate_check"]').change(function() {
+            if ($('input[name="rebate_check"]:checked').val() == 1) {
+                // Volume rebate (Calendar Quarter)
+                var startOfQuarter1 = moment().month(0).date(1),  // January 1st
+                endOfQuarter1 = moment().month(2).date(31),  // March 31st
+                startOfQuarter2 = moment().month(3).date(1),  // April 1st
+                endOfQuarter2 = moment().month(5).date(30),  // June 30th
+                startOfQuarter3 = moment().month(6).date(1),  // July 1st
+                endOfQuarter3 = moment().month(8).date(30),  // September 30th
+                startOfQuarter4 = moment().month(9).date(1),  // October 1st
+                endOfQuarter4 = moment().month(11).date(31);  // December 31st
+                // Volume rebate (Calendar Quarter)
+            } else {
+                // Incentive Rebate
+                var startOfQuarter1 = moment().month(10).date(1),  // November 1st
+                endOfQuarter1 = moment().month(0).date(31).add(1, 'year'),  // January 31st
+                startOfQuarter2 = moment().month(1).date(1),  // February 1st
+                endOfQuarter2 = moment().month(3).date(30),  // April 30th
+                startOfQuarter3 = moment().month(4).date(1),  // May 1st
+                endOfQuarter3 = moment().month(6).date(31),  // July 31st
+                startOfQuarter4 = moment().month(7).date(1),  // August 1st
+                endOfQuarter4 = moment().month(9).date(31);  // October 31st
+                // Incentive Rebate
+            }
+
+            var ranges = {
+                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Quarter 1': [startOfQuarter1, endOfQuarter1],
+                'Quarter 2': [startOfQuarter2, endOfQuarter2],
+                'Quarter 3': [startOfQuarter3, endOfQuarter3],
+                'Quarter 4': [startOfQuarter4, endOfQuarter4],
+            };
+
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                showCustomRangeLabel: true,
+                minYear: moment().subtract(7, 'years').year(),
+                maxYear: moment().add(7, 'years').year(),
+                ranges: ranges,
+            });
+        });
+        
         // Assuming your select element has id 'mySelect'
         $('#supplier').change(function() {
             // Get the selected value

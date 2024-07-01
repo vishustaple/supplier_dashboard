@@ -41,9 +41,9 @@
                         <select id="selectBox" name="supplierselect" class="form-control"> 
                         <option value="" selected>--Select--</option>
                         @if(isset($categorySuppliers))
-                        @foreach($categorySuppliers as $categorySupplier)
-                        <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
-                        @endforeach
+                            @foreach($categorySuppliers as $categorySupplier)
+                                <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                            @endforeach
                         @endif
                         </select>
                     </div>
@@ -77,7 +77,7 @@
                     <div class="modal-header flex-wrap">
                         <h3 class="modal-title" id="staticBackdropLabel">Fields List</h3>
                         <h5 id="sup_name" class="w-100 pt-2"></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close_popup"></button>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" id="close_popup"><span aria-hidden="true">×</span></button>
                     </div>
                     <div class="modal-body p-2">
                         <div class="row list_filed m-3  border border-secondary">
