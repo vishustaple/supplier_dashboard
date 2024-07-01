@@ -67,7 +67,7 @@
                             <div class="modal-header">
                                 <h5 class="modal-title" id="editAccountModalLabel">Edit Account</h5>
                                 <!-- Close icon -->
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                             </div>
                             <div id="editsuccessMessage"></div>
                             <div  id="editerrorMessage" ></div>

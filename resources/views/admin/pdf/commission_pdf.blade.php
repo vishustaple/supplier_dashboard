@@ -85,7 +85,7 @@
             </div>
             <div class="detail_top_pdf clearfix" style="margin: 35px 0px 10px 0px;">
                 <div class="left_commission" style="width: 65%;float:left;">
-                    <p style="padding-top:10px;margin: 0px;padding-bottom: 5px;font-size:13px;"><b>Commission Statement for period: {{explode(' ', $commission_statement_text)[0]}} to </b><b>{{explode(' ', $commission_statement_text)[1]}} {{$year}}</b></p>
+                    <p style="padding-top:4px;margin: 0px;padding-bottom: 5px;font-size:13px;"><b>Commission Statement for period: {{explode(' ', $commission_statement_text)[0]}} to </b><b>{{explode(' ', $commission_statement_text)[1]}} {{$year}}</b></p>
                     <p style="margin: 0px;padding-bottom: 5px;font-size:13px;"><b>Agent Name: {{ $sales_rep }}</b></p>
                 </div>
                 <div class="right_quarter" style="width: 35%;float:left;margin-top: 0px;">

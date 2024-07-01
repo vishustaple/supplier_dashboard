@@ -28,7 +28,7 @@
                             <form id="edit_supplier">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalLabel">Supplier Edit</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                 </div>
                                 <div class="editerrorMessage"></div>
                                 <div class="editsuccessMessage"></div>
@@ -65,28 +65,29 @@
                             <form id="add_supplier">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalLabel">Supplier Add</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                 </div>
                                 <div class="editerrorMessage"></div>
                                 <div class="editsuccessMessage"></div>
-                                <div class="modal-body">
-                                    <div class="mb-3">
+                                <div class="modal-body row">
+                                    <div class="mb-3 col-12">
                                         <label for="supplier_name" class="form-label">Supplier Name</label>
                                         <input type="text" class="form-control" name="supplier_name" id="supplier_name" required>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="mb-3 col-6">
                                         <label for="category" class="form-label">Supplier Category</label>
                                         <input type="text" class="form-control" name="category" id="category" required>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="mb-3 col-6">
+                                    <label for="category" class="form-label">Show/Hide Supplier</label>
                                         <select class="form-select" name="show" aria-label="Default select example" required>
                                             <option value="0">Hide</option>
                                             <option value="1">Show</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <div class="modal-footer justify-content-center">
+                                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
                                     <button type="submit" class="btn btn-primary">Save changes</button>
                                 </div>
                             </form>
@@ -98,7 +99,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel">File Edit</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                             </div>
                             <div class="editerrorMessages"></div>
                             <div class="editsuccessMessage"></div>
@@ -132,7 +133,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel">File Add</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                             </div>
                             <div class="editerrorMessages"></div>
                             <div class="editsuccessMessage"></div>
