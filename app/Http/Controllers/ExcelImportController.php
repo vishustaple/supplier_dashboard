@@ -150,7 +150,7 @@ class ExcelImportController extends Controller
                 if ($request->supplierselect == 7) {
                     foreach ($cleanedArray as $key => $value) {
                         if ($key > 5) {
-                            $cleanedArray[$key] = trim("Year_" . substr($cleanedArray[$key], - 2));
+                            $cleanedArray[$key] = trim("year_" . substr($cleanedArray[$key], - 2));
                         }
                     }
                 }
@@ -666,13 +666,20 @@ class ExcelImportController extends Controller
             return response()->json(['error' => $validator->errors()], 200);
         }
 
-        $fields = [
-            5 => 'customer_number',
-            6 => 'customer_name',
-            7 => 'amount',
-            8 => 'invoice_no',
-            9 => 'invoice_date',
-        ];
+        if ($request->input('supplier_id') == 7) {
+            $fields = [
+                5 => 'customer_number',
+                6 => 'customer_name',
+            ];
+        } else {
+            $fields = [
+                5 => 'customer_number',
+                6 => 'customer_name',
+                7 => 'amount',
+                8 => 'invoice_no',
+                9 => 'date',
+            ];
+        }
 
         /** Get the keys of the $fields array */
         $field_keys = array_keys($fields);
@@ -750,13 +757,20 @@ class ExcelImportController extends Controller
             return response()->json(['error' => $validator->errors()], 200);
         }
 
-        $fields = [
-            5 => 'customer_number',
-            6 => 'customer_name',
-            7 => 'amount',
-            8 => 'invoice_no',
-            9 => 'invoice_date',
-        ];
+        if ($request->input('supplier_id') == 7) {
+            $fields = [
+                5 => 'customer_number',
+                6 => 'customer_name',
+            ];
+        } else {
+            $fields = [
+                5 => 'customer_number',
+                6 => 'customer_name',
+                7 => 'amount',
+                8 => 'invoice_no',
+                9 => 'date',
+            ];
+        }
 
         /** Get the keys of the $fields array */
         $field_keys = array_keys($fields);
@@ -832,7 +846,13 @@ class ExcelImportController extends Controller
     }
 
     public function removeSupplierFileFormatImport(Request $request) {
-        DB::table('manage_columns')->where('supplier_id', $request->input('id'))->delete();
+        DB::table('manage_columns')
+        ->where(
+            'supplier_id',
+            $request->input('id')
+        )
+        ->delete();
+
         return response()->json(['success' => "Columns deleted successfully"], 200);
     }
 

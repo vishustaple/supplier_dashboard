@@ -243,6 +243,10 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
 
+                            if ($fileValue->supplier_id == 7) {
+                                $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
+                            }
+
                             if ($fileValue->supplier_id == 4) {
                                 $columnArray2[$fileValue->supplier_id]["Group ID1"] = 'group_id';
                                 $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
@@ -405,10 +409,14 @@ class ProcessUploadedFiles extends Command
                                                         if ($key1 < 6) {
                                                             $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
                                                         } else {
-                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim("Year_" . substr($maxNonEmptyValue[$key1], - 2))]] = $value;
+                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim("year_" . substr($maxNonEmptyValue[$key1], - 2))]] = $value;
                                                         }
                                                     }
                                                     
+                                                    if ($fileValue->supplier_id == 7) {
+                                                        $excelInsertArray[$key]['year'] = $supplierYear;
+                                                    }
+
                                                     $excelInsertArray[$key]['data_id'] = $fileValue->id;
                                                     $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                                                     $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
