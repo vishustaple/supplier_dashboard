@@ -41,7 +41,7 @@ class validateUploadedFile extends Command
 
         /** Select those file name where cron is one */
         $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
- 
+        
         if ($fileValue !== null) {
             $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
 
@@ -183,6 +183,7 @@ class validateUploadedFile extends Command
                     }
                 }
             }
+            // dd($fileValue);
             /** Update cron two means start processing data into excel */
             DB::table('uploaded_files')->where('id', $fileValue->id)
             ->update(['cron' => 11]);

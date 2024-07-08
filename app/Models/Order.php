@@ -1224,7 +1224,10 @@ class Order extends Model
         }
         // dd($query->toSql(), $query->getBindings());
         // dd($finalArray);
-        $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
+        if(!$csv) {
+            $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
+        }
+        
         if ($csv == true) {
             /** CSV header definition */
             $finalArray['heading'] = [
