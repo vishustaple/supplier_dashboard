@@ -42,7 +42,7 @@ class validateUploadedFile extends Command
         /** Select those file name where cron is one */
         $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
         
-        if ($fileValue !== null) {
+        if ($fileValue !== null && $fileValue->supplier_id != 7) {
             $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
 
             if ($inputFileType === 'Xlsx') {
@@ -60,10 +60,6 @@ class validateUploadedFile extends Command
             foreach ($columnValues as $key => $value) {
                 if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {
                     $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
-                }
-
-                if (in_array($value->supplier_id, [7])) {
-                    $columnArray[$value->supplier_id]['invoice_date'] = '';
                 }
             }
                 
@@ -98,14 +94,6 @@ class validateUploadedFile extends Command
                     /** Remove line breaks and trim whitespace */
                     return str_replace(["\r", "\n"], '', $value);
                 }, $finalExcelKeyArray1);
-
-                if ($fileValue->supplier_id == 7) {
-                    foreach ($cleanedArray as $key => $value) {
-                        if ($key > 5) {
-                            $cleanedArray[$key] = trim("Year_" . substr($cleanedArray[$key], - 2));
-                        }
-                    }
-                }
 
                 if ($fileValue->supplier_id == 2) {
                     $startIndex = $startIndexValueArray + 1;
@@ -188,6 +176,12 @@ class validateUploadedFile extends Command
             /** Update cron two means start processing data into excel */
             DB::table('uploaded_files')->where('id', $fileValue->id)
             ->update(['cron' => 11]);
+        } else if ($fileValue->supplier_id == 7) {
+            /** Update cron two means start processing data into excel */
+            DB::table('uploaded_files')->where('id', $fileValue->id)
+            ->update(['cron' => 11]);
+        } else {
+
         }
     }
 }
