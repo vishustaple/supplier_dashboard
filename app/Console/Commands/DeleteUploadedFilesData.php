@@ -58,7 +58,7 @@ class DeleteUploadedFilesData extends Command
                 /** Delete records from UploadedFiles table */
                 UploadedFiles::where('id', $id)->delete();
     
-                if (in_array($fileData->cron, [3, 10, 11, 6])) {
+                // if (in_array($fileData->cron, [3, 10, 11, 6])) {
                     /** Delete records from ExcelData table */
                     DB::table('order_product_details')->where('data_id', $id)->delete();
         
@@ -70,7 +70,7 @@ class DeleteUploadedFilesData extends Command
 
                     /** Delete records from Suppliers Orders table */
                     DB::table($supplierTableArray[$fileData->supplier_id])->where('data_id', $id)->delete();
-                }
+                // }
     
                 if (File::exists($filePath)) {
                     try {

@@ -217,7 +217,7 @@ class ProcessUploadedFiles extends Command
                             if ($fileValue->supplier_id != 3) {
                                 $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$fileValue->supplier_id]);
                             }
-                
+
                             if (isset($sheet) && $sheet) {
                                 $workSheetArray = $sheet->toArray();
                             } else {
@@ -235,7 +235,7 @@ class ProcessUploadedFiles extends Command
                                     $maxNonEmptyValue = $values;
                                     $startIndexValueArray = $key;
                                     $maxNonEmptyCount = $nonEmptyCount;
-                                } 
+                                }
                                 
                                 /** Stop loop after reading 31 rows from excel file */
                                 if ($key > 20) {
@@ -285,7 +285,7 @@ class ProcessUploadedFiles extends Command
                             }
                          
                             foreach ($workSheetArray as $key => $row) {
-                                if($key > $startIndex){
+                                if ($key > $startIndex) {
                                     $workSheetArray1[] = $row;
                                     if (!empty($columnArray[$fileValue->supplier_id]['gd_customer_number'])) {
                                         $keyGrandParent = array_search($columnArray[$fileValue->supplier_id]['gd_customer_number'], $maxNonEmptyValue);
