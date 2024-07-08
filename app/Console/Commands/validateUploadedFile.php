@@ -173,8 +173,6 @@ class validateUploadedFile extends Command
                         })->where('supplier_id', $fileValue->supplier_id);
                 
                         if ($fileExist->count() > 0) {
-                            dd($fileExist->count());
-
                             /** Update cron two means start processing data into excel */
                             DB::table('uploaded_files')
                             ->where('id', $fileValue->id)
