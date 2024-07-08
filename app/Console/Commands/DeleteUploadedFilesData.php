@@ -98,7 +98,7 @@ class DeleteUploadedFilesData extends Command
 
             $this->info('File deleted successfully.');
         } else {
-            $this->info('No file for delete successfully.');
+            $this->info('No file for delete.');
         }
     }
 }
