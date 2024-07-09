@@ -44,11 +44,16 @@ class ProcessUploadedFiles extends Command
 
         try{
             /** Select those file name where cron is one */
-            $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 11)->whereNull('deleted_by')->first();
+            $fileValue = DB::table('uploaded_files')
+            ->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')
+            ->where('cron', '=', 11)
+            ->whereNull('deleted_by')
+            ->first();
             
             if ($fileValue !== null) {
                 /** Update cron two means start processing data into excel */
-                DB::table('uploaded_files')->where('id', $fileValue->id)
+                DB::table('uploaded_files')
+                ->where('id', $fileValue->id)
                 ->update([
                     'cron' => UploadedFiles::CRON
                 ]);
@@ -159,6 +164,7 @@ class ProcessUploadedFiles extends Command
                         $columnArray2[$fileValue->supplier_id][$value] = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value)))); 
                     }
                 }
+
                 try {
                     /** Increasing the memory limit becouse memory limit issue */
                     ini_set('memory_limit', '1024M');
@@ -187,11 +193,10 @@ class ProcessUploadedFiles extends Command
                         } else {
                             $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
                         }
-
+                        
                         $supplierFilesNamesArray = [
                             1 => 'Usage By Location and Item',
                             2 => 'Invoice Detail Report',
-                            // 3 => '',
                             4 => 'All Shipped Order Detail',
                             5 => 'Centerpoint_Summary_Report',
                             6 => 'Blad1',
@@ -223,7 +228,7 @@ class ProcessUploadedFiles extends Command
                             } else {
                                 $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
                             }
-                            
+
                             foreach ($workSheetArray as $key=>$values) {
                                 /** Checking not empty columns */
                                 $nonEmptyCount = count(array_filter(array_values($values), function ($item) {
@@ -243,6 +248,8 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
 
+                            dd($maxNonEmptyValue);
+
                             if ($fileValue->supplier_id == 7) {
                                 $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
                             }
@@ -259,7 +266,6 @@ class ProcessUploadedFiles extends Command
                                 $maxNonEmptyValue[45] = "Group ID";
                             }
 
-                            // dd($maxNonEmptyValue, $columnArray2);
                             /** Clean up the values */
                             $maxNonEmptyValue = array_map(function ($value) {
                                 /** Remove line breaks and trim whitespace */
@@ -271,7 +277,6 @@ class ProcessUploadedFiles extends Command
                                 foreach ($maxNonEmptyValue as $key => $value) {
                                     if ($key >= 6) {
                                         $weeklyPriceColumnArray[$key] = $value;
-                                        // $weeklyArrayKey++;
                                     }
                                 }
                             }

@@ -130,7 +130,7 @@ class ExcelImportController extends Controller
                     }
                     
                     /** Stop loop after reading 31 rows from excel file */
-                    if($key > 30){
+                    if($key > 20){
                         break;
                     }
                 }
