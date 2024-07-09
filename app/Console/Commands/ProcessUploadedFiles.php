@@ -248,7 +248,7 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
 
-                            dd($maxNonEmptyValue);
+                            // dd($maxNonEmptyValue);
 
                             if ($fileValue->supplier_id == 7) {
                                 $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
