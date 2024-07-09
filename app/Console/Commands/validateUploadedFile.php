@@ -10,7 +10,7 @@ use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\Order;
+use App\Models\{Order, ManageColumns};
 
 class validateUploadedFile extends Command
 {
@@ -42,6 +42,8 @@ class validateUploadedFile extends Command
         /** Select those file name where cron is one */
         $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
         
+        $suppliers = ManageColumns::getRequiredColumns();
+
         if ($fileValue !== null && $fileValue->supplier_id != 7) {
             $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
 
@@ -66,21 +68,50 @@ class validateUploadedFile extends Command
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 $maxNonEmptyCount = 0;       
                 foreach ($spreadSheets->toArray() as $key=>$value) {
-                    /** Checking not empty columns */
-                    $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
+                    // /** Checking not empty columns */
+                    // $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
+                    //     return !empty($item);
+                    // }));
+                    
+                    // /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+                    // if ($nonEmptyCount > $maxNonEmptyCount) {
+                    //     $maxNonEmptyvalues = $maxNonEmptyvalue1 = $value;
+                    //     $startIndexValueArray = $key;
+                    //     $maxNonEmptyCount = $nonEmptyCount;
+                    // } 
+                    
+                    // /** Stop loop after reading 31 rows from excel file */
+                    // if($key > 30){
+                    //     break;
+                    // }
+
+                    $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                         return !empty($item);
-                    }));
-                    
-                    /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
-                    if ($nonEmptyCount > $maxNonEmptyCount) {
-                        $maxNonEmptyvalues = $maxNonEmptyvalue1 = $value;
-                        $startIndexValueArray = $key;
-                        $maxNonEmptyCount = $nonEmptyCount;
-                    } 
-                    
-                    /** Stop loop after reading 31 rows from excel file */
-                    if($key > 30){
-                        break;
+                    }, ARRAY_FILTER_USE_BOTH));
+                                
+                    /** Clean up the values */
+                    $cleanedArray = array_map(function ($values) {
+                        /** Remove line breaks and trim whitespace */
+                        return str_replace(["\r", "\n"], '', $values);
+                    }, $finalExcelKeyArray1);
+
+                    if ($fileValue->supplier_id == 7) {
+                        foreach ($cleanedArray as $keys => $valuess) {
+                            if ($keys > 5) {
+                                $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
+                            }
+                        }
+                    }
+
+                    if (isset($suppliers[$fileValue->supplier_id])) {
+                        $supplierValues = $suppliers[$fileValue->supplier_id];
+                        $arrayDiff = array_diff($supplierValues, $cleanedArray);
+    
+                        if (empty($arrayDiff)) {
+                            $maxNonEmptyvalue1 = $value;
+                            $startIndexValueArray = $key;
+                            break;
+                        }
                     }
                 }
 
