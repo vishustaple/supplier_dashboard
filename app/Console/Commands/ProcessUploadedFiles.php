@@ -15,7 +15,8 @@ use App\Models\{
     Order,
     Account,
     OrderDetails,
-    UploadedFiles
+    UploadedFiles,
+    ManageColumns,
 };
 
 class ProcessUploadedFiles extends Command
@@ -50,6 +51,8 @@ class ProcessUploadedFiles extends Command
             ->whereNull('deleted_by')
             ->first();
             
+            $suppliers = ManageColumns::getRequiredColumns();
+
             if ($fileValue !== null) {
                 /** Update cron two means start processing data into excel */
                 DB::table('uploaded_files')
@@ -229,26 +232,36 @@ class ProcessUploadedFiles extends Command
                                 $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
                             }
 
-                            foreach ($workSheetArray as $key=>$values) {
-                                /** Checking not empty columns */
-                                $nonEmptyCount = count(array_filter(array_values($values), function ($item) {
+                            foreach ($workSheetArray as $key=>$value) {
+                                $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                                     return !empty($item);
-                                }));
-                                
-                                /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
-                                if ($nonEmptyCount > $maxNonEmptyCount) {
-                                    $maxNonEmptyValue = $values;
-                                    $startIndexValueArray = $key;
-                                    $maxNonEmptyCount = $nonEmptyCount;
+                                }, ARRAY_FILTER_USE_BOTH));
+                                            
+                                /** Clean up the values */
+                                $cleanedArray = array_map(function ($values) {
+                                    /** Remove line breaks and trim whitespace */
+                                    return str_replace(["\r", "\n"], '', $values);
+                                }, $finalExcelKeyArray1);
+        
+                                if ($fileValue->supplier_id == 7) {
+                                    foreach ($cleanedArray as $keys => $valuess) {
+                                        if ($keys > 5) {
+                                            $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
+                                        }
+                                    }
                                 }
-                                
-                                /** Stop loop after reading 31 rows from excel file */
-                                if ($key > 20) {
-                                    break;
+        
+                                if (isset($suppliers[$fileValue->supplier_id])) {
+                                    $supplierValues = $suppliers[$fileValue->supplier_id];
+                                    $arrayDiff = array_diff($supplierValues, $cleanedArray);
+                
+                                    if (empty($arrayDiff)) {
+                                        $maxNonEmptyValue = $value;
+                                        $startIndexValueArray = $key;
+                                        break;
+                                    }
                                 }
                             }
-
-                            // dd($maxNonEmptyValue);
 
                             if ($fileValue->supplier_id == 7) {
                                 $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
