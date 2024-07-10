@@ -116,6 +116,11 @@ class ExcelImportController extends Controller
             $validationCheck = $arrayDiff = false;
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 $maxNonEmptyCount = 0;
+
+                if ($validationCheck == true) {
+                    break;
+                }
+
                 foreach ($spreadSheets->toArray() as $key=>$value) {
                     /** Remove empty key from the array of excel sheet column name */
                     $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
@@ -138,8 +143,12 @@ class ExcelImportController extends Controller
 
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
+                        
+                        if ($request->supplierselect == 7) {
+                            $supplierValues = array_slice($supplierValues, 0, 6, true);
+                        }
+
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
-    
                         if (empty($arrayDiff)) {
                             $maxNonEmptyvalue1 = $value;
                             $validationCheck = true;
@@ -148,11 +157,12 @@ class ExcelImportController extends Controller
                     }
                 }
 
-                if ($validationCheck == false) {
-                    $missingColumns = implode(', ', $arrayDiff);
-                    return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
-                }
             }
+
+            // if ($validationCheck == false) {
+            //     $missingColumns = implode(', ', $arrayDiff);
+            //     return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
+            // }
         } catch (\Exception $e) {
             // dd($e->getMessage());
             return redirect()->back()->with('error', $e->getMessage());

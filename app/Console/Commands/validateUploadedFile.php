@@ -66,25 +66,9 @@ class validateUploadedFile extends Command
             }
                 
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
-                $maxNonEmptyCount = 0;       
-                foreach ($spreadSheets->toArray() as $key=>$value) {
-                    // /** Checking not empty columns */
-                    // $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
-                    //     return !empty($item);
-                    // }));
-                    
-                    // /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
-                    // if ($nonEmptyCount > $maxNonEmptyCount) {
-                    //     $maxNonEmptyvalues = $maxNonEmptyvalue1 = $value;
-                    //     $startIndexValueArray = $key;
-                    //     $maxNonEmptyCount = $nonEmptyCount;
-                    // } 
-                    
-                    // /** Stop loop after reading 31 rows from excel file */
-                    // if($key > 30){
-                    //     break;
-                    // }
+                $maxNonEmptyCount = 0;
 
+                foreach ($spreadSheets->toArray() as $key=>$value) {
                     $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                         return !empty($item);
                     }, ARRAY_FILTER_USE_BOTH));
@@ -106,13 +90,17 @@ class validateUploadedFile extends Command
                     if (isset($suppliers[$fileValue->supplier_id])) {
                         $supplierValues = $suppliers[$fileValue->supplier_id];
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
-    
+
                         if (empty($arrayDiff)) {
                             $maxNonEmptyvalue1 = $value;
                             $startIndexValueArray = $key;
                             break;
                         }
                     }
+                }
+
+                if (!isset($maxNonEmptyvalue1)) {
+                    continue;
                 }
 
                 /** Remove empty key from the array of excel sheet column name */
