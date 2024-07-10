@@ -253,8 +253,13 @@ class ProcessUploadedFiles extends Command
         
                                 if (isset($suppliers[$fileValue->supplier_id])) {
                                     $supplierValues = $suppliers[$fileValue->supplier_id];
+
+                                    if ($fileValue->supplier_id == 7) {
+                                        $supplierValues = array_slice($supplierValues, 0, 6, true);
+                                    }
+
                                     $arrayDiff = array_diff($supplierValues, $cleanedArray);
-                
+
                                     if (empty($arrayDiff)) {
                                         $maxNonEmptyValue = $value;
                                         $startIndexValueArray = $key;
@@ -262,7 +267,12 @@ class ProcessUploadedFiles extends Command
                                     }
                                 }
                             }
-
+                            
+                            
+                            if (!isset($maxNonEmptyValue)) {
+                                continue;
+                            }
+                            
                             if ($fileValue->supplier_id == 7) {
                                 $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
                             }
@@ -576,7 +586,8 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
 
-                            unset($workSheetArray1, $count, $maxNonEmptyValue);
+                            unset($workSheetArray1, $count);
+                            
                             if (isset($finalInsertArray) && !empty($finalInsertArray)) {
                                 try {
                                     DB::table('uploaded_files')
