@@ -482,6 +482,7 @@ class Order extends Model
             
 
             if ($filter['supplier'] == 4) {
+                dd('bb');
                 $query->where(function ($query) {
                     $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
                          
