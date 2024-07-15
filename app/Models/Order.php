@@ -432,7 +432,7 @@ class Order extends Model
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
             $query = self::query()->selectRaw(
                 "SUM(`orders`.`amount`) AS `amount`, 
-                `m2`.`account_name` AS `account_name`,`key`,`value`,`order_product_details`.`id`,
+                `m2`.`account_name` AS `account_name`,
                 ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
                 `rebate`.`volume_rebate` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
