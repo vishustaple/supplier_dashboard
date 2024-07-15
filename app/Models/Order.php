@@ -474,18 +474,18 @@ class Order extends Model
             
             $query->where('orders.supplier_id', $filter['supplier']);
 
-            // if ($filter['supplier'] == 4) {
-            //     $query->when(
-            //         DB::table('order_product_details')
-            //             ->where('order_product_details.key', 'Transaction Source System DESC')
-            //             ->exists(),
-            //         function ($query) {
-            //             $query->whereNotIn('order_product_details.value', [
-            //                 'Staples Technology Solutions', 'Staples Promotional Products USA'
-            //             ]);
-            //         }
-            //     );
-            // }
+            if ($filter['supplier'] == 4) {
+                $query->when(
+                    DB::table('order_product_details')
+                        ->where('order_product_details.key', 'Transaction Source System DESC')
+                        ->exists(),
+                    function ($query) {
+                        $query->whereNotIn('order_product_details.value', [
+                            'Staples Technology Solutions', 'Staples Promotional Products USA'
+                        ]);
+                    }
+                );
+            }
         } else {
             if ($csv) {
                 $finalArray['heading'] = [
