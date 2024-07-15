@@ -491,7 +491,41 @@ class Order extends Model
                     $query->when(DB::raw("order_product_details.key = 'Transaction Source System DESC'"), function($query) {
                         $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
                     })->when(DB::raw("order_product_details.key != 'Transaction Source System DESC'"), function($query) {
-                        $query->whereNotIn('order_product_details.key', ['Transaction Source System DESC']);
+                        $query->whereNotIn('order_product_details.key', ['Div ID',
+'Master_Customer_Number ID',
+'Master Customer Name ID',
+'Bill To Number ID',
+'Bill To Name ID',
+'Ship To Number ID',
+'Ship To Name ID',
+'Ship To Line1 Address ID',
+'Ship To Line2 Address ID',
+'Ship To Line3 Address ID',
+'Ship To City ID',
+'Ship To State ID',
+'Ship To Zip ID',
+'Primary Product Hierarchy DESC',
+'SKU ID',
+'Item Description ID',
+'Vendor Name ID',
+'Vendor Part Number ID',
+'Sell UOM ID',
+'Selling Unit Measure Qty ID',
+'Order Date ID',
+'Shipped Date ID',
+'Order Number ID',
+'Order Contact ID',
+'Order Contact Phone Number ID',
+'Order Method Code ID',
+'Order Method Description ID',
+'Transaction Source System DESC',
+'SKU Type ID',
+'On Contract? ID',
+'Invoice Number ID',
+'Invoice Date ID',
+'Qty',
+'Adj Gross Sales',
+]);
                     });
                 });
 
