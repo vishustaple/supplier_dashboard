@@ -564,7 +564,7 @@ class Order extends Model
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
 
-        dd($query->limit(100)->get());
+        // dd($query->limit(100)->get());
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
