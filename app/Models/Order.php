@@ -473,12 +473,12 @@ class Order extends Model
             } 
             $query->where('orders.supplier_id', $filter['supplier']);
 
-            $query->whereExists(function($subquery) {
-                $subquery->select(DB::raw(1))
-                         ->from('order_product_details')
-                         ->whereColumn('order_product_details.key', 'Transaction Source System DESC')
-                         ->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
-            });
+            // $query->whereExists(function($subquery) {
+            //     $subquery->select(DB::raw(1))
+            //              ->from('order_product_details')
+            //              ->whereColumn('order_product_details.key', 'Transaction Source System DESC')
+            //              ->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
+            // });
             
 
             if ($filter['supplier'] == 4) {
