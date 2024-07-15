@@ -432,7 +432,7 @@ class Order extends Model
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
             $query = self::query()->selectRaw(
                 "SUM(`orders`.`amount`) AS `amount`, 
-                `m2`.`account_name` AS `account_name`,
+                `m2`.`account_name` AS `account_name`,`key`,`value`,`order_product_details`.`id`,
                 ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
                 `rebate`.`volume_rebate` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
@@ -476,19 +476,27 @@ class Order extends Model
             // if ($filter['supplier'] == 4) {
             //     $query->when(
             //         DB::table('order_product_details')
-            //             ->where('order_product_details.key', 'Transaction Source System DESC')
+            //             ->where('order_product_details.key', 'Div ID')
             //             ->exists(),
             //         function ($query) {
             //             $query->whereNotIn('order_product_details.value', [
-            //                 'Staples Technology Solutions', 'Staples Promotional Products USA'
+            //                 'Staples Technology Solutions', 'Staples Promotional Products USA','PHL'
             //             ]);
             //         }
             //     );
             // }
 
             if ($filter['supplier'] == 4) {
-                $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
-                $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
+                $query->where(function($query) {
+                    $query->when(DB::raw("order_product_details.key = 'Transaction Source System DESC'"), function($query) {
+                        $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
+                    })->when(DB::raw("order_product_details.key != 'Transaction Source System DESC'"), function($query) {
+                        $query->whereNotIn('order_product_details.key', ['Transaction Source System DESC']);
+                    });
+                });
+
+                // $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
+                // $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
             }
         } else {
             if ($csv) {
@@ -556,7 +564,7 @@ class Order extends Model
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
 
-        // dd($query->toSql(), $query->getBindings());
+        dd($query->limit(100)->get());
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
