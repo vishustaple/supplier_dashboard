@@ -468,36 +468,48 @@ class Order extends Model
                     $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
                     $query->where('order_product_details.key', 'DEPT');
                     // $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
-                    $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'custom bus essentials', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
+                    $query->whereNotIn(
+                        'order_product_details.value',
+                        [
+                            'NON CODE',
+                            'IMPULSE BUYS',
+                            'MANAGE PRINT SERVICE',
+                            'custom bus essentials',
+                            'CUSTOM OUTSOURC PRNT',
+                            'PRODUCT ASSEMBLY',
+                            'MARKETNG/VISUAL SRVC',
+                            'OD ADVERT. GIVEAWAYS'
+                        ]
+                    );
                 }
             } 
             $query->where('orders.supplier_id', $filter['supplier']);
 
-            // if ($filter['supplier'] == 4) {
-            //     $query->when(
-            //         DB::table('order_product_details')
-            //             ->where('order_product_details.key', 'Div ID')
-            //             ->exists(),
-            //         function ($query) {
-            //             $query->whereNotIn('order_product_details.value', [
-            //                 'Staples Technology Solutions', 'Staples Promotional Products USA','PHL'
-            //             ]);
-            //         }
-            //     );
-            // }
-
             if ($filter['supplier'] == 4) {
-                $query->where(function($query) {
-                    $query->when(DB::raw("order_product_details.key = 'Transaction Source System DESC'"), function($query) {
-                        $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
-                    })->when(DB::raw("order_product_details.key != 'Transaction Source System DESC'"), function($query) {
-                        $query->whereNotIn('order_product_details.key', ['Transaction Source System DESC']);
-                    });
-                });
+                $query->when(
+                    DB::table('order_product_details')
+                        ->where('order_product_details.key', 'Transaction Source System DESC')
+                        ->exists(),
+                    function ($query) {
+                        $query->whereNotIn('order_product_details.value', [
+                            'Staples Technology Solutions', 'Staples Promotional Products USA'
+                        ]);
+                    }
+                );
+            }
+
+            // if ($filter['supplier'] == 4) {
+                // $query->where(function($query) {
+                //     $query->when(DB::raw("order_product_details.key = 'Transaction Source System DESC'"), function($query) {
+                //         $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
+                //     })->when(DB::raw("order_product_details.key != 'Transaction Source System DESC'"), function($query) {
+                //         $query->whereNotIn('order_product_details.key', ['Transaction Source System DESC']);
+                //     });
+                // });
 
                 // $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
                 // $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
-            }
+            // }
         } else {
             if ($csv) {
                 $finalArray['heading'] = [
