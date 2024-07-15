@@ -482,11 +482,13 @@ class Order extends Model
             
 
             if ($filter['supplier'] == 4) {
-                dd('bb');
-                $query->where(function ($query) {
-                    $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
-                         
-                });
+                $exists = DB::table('order_product_details')
+                ->where('order_product_details.key', 'Transaction Source System DESC')
+                ->exists();
+            
+            if ($exists) {
+                $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
+            }
                 }
         } else {
             if ($csv) {
