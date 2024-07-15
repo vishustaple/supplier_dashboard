@@ -470,21 +470,25 @@ class Order extends Model
                     // $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                     $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'custom bus essentials', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                 }
-            }
-            
+            } 
             $query->where('orders.supplier_id', $filter['supplier']);
 
+            // if ($filter['supplier'] == 4) {
+            //     $query->when(
+            //         DB::table('order_product_details')
+            //             ->where('order_product_details.key', 'Transaction Source System DESC')
+            //             ->exists(),
+            //         function ($query) {
+            //             $query->whereNotIn('order_product_details.value', [
+            //                 'Staples Technology Solutions', 'Staples Promotional Products USA'
+            //             ]);
+            //         }
+            //     );
+            // }
+
             if ($filter['supplier'] == 4) {
-                $query->when(
-                    DB::table('order_product_details')
-                        ->where('order_product_details.key', 'Transaction Source System DESC')
-                        ->exists(),
-                    function ($query) {
-                        $query->whereNotIn('order_product_details.value', [
-                            'Staples Technology Solutions', 'Staples Promotional Products USA'
-                        ]);
-                    }
-                );
+                $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
+                $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
             }
         } else {
             if ($csv) {
