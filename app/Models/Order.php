@@ -483,6 +483,7 @@ class Order extends Model
 
             if ($filter['supplier'] == 4) {
                 if ($query->where('order_product_details.key', 'Transaction Source System DESC')->exists()) {
+                    dd('hjhg');
                     $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
                 }
                 }
