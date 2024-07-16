@@ -220,7 +220,7 @@ class Order extends Model
                 sell_uom AS uom,
                 SUM(qty) AS quantity_purchased,
                 item_description AS description,
-                primary_product_hierarchy_desc AS category,
+                primary_product_hierarchy AS category,
                 SUM(adj_gross_sales) as total_spend'
             )
             ->groupBy('sku');
