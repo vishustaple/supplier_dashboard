@@ -252,7 +252,7 @@ class Order extends Model
             $query = DB::table('wb_mason_order')
             ->selectRaw(
                 'category_umbrella AS category,
-                uom,
+                uo_m,
                 SUM(qty) AS quantity_purchased,
                 item_num AS sku,
                 item_name AS description,
