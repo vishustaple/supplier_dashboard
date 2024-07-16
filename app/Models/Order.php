@@ -485,17 +485,49 @@ class Order extends Model
             } 
             $query->where('orders.supplier_id', $filter['supplier']);
 
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
             if ($filter['supplier'] == 4) {
-                $query->when(
-                    DB::table('order_product_details')
-                        ->where('order_product_details.key', 'Transaction Source System DESC')
-                        ->exists(),
-                    function ($query) {
-                        $query->whereNotIn('order_product_details.value', [
-                            'Staples Technology Solutions', 'Staples Promotional Products USA'
-                        ]);
-                    }
-                );
+
+                // "CASE 
+                //     WHEN order_product_details.key = 'Transaction Source System DESC' 
+                //         THEN order_product_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') 
+                //     ELSE order_product_details.key NOT IN ('Transaction Source System DESC') 
+                // END"
+
+                // $query->havingRaw
+                $query->whereRaw("
+                    (
+                        CASE 
+                            WHEN order_product_details.key = 'Transaction Source System DESC' 
+                                THEN 
+                                    CASE 
+                                        WHEN order_product_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            WHEN order_product_details.key = 'Transaction Source System'
+                                THEN 
+                                    CASE 
+                                        WHEN order_product_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            ELSE 0
+                        END
+                    ) = 1
+                ");
+                // $query->when(
+                //     DB::table('order_product_details')
+                //         ->where('order_product_details.key', 'Transaction Source System DESC')
+                //         ->exists(),
+                //     function ($query) {
+                //         $query->whereNotIn('order_product_details.value', [
+                //             'Staples Technology Solutions', 'Staples Promotional Products USA'
+                //         ]);
+                //     }
+                // );
             }
 
             // if ($filter['supplier'] == 4) {
@@ -538,14 +570,9 @@ class Order extends Model
             }
         }
 
-        /** Year and quarter filter here */
-        if (isset($filter['end_date']) && isset($filter['start_date'])) {
-            $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
-        }
-    
-        /** Group by with account name */
-        $query->groupBy('m2.account_name');
-
+        
+/** Group by with account name */
+$query->groupBy('m2.account_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
