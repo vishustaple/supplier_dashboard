@@ -213,6 +213,37 @@ class Order extends Model
             $query->orderBy('total_spend', 'desc')->limit(100);
             $queryData2 = $query->get()->toArray();
             // dd($query->toSql(), $query->getBindings());
+
+            $query = DB::table('staples_orders_data')
+            ->selectRaw(
+               'sku AS sku,
+                sell_uom AS uom,
+                SUM(qty) AS quantity_purchased,
+                item_description AS description,
+                primary_product_hierarchy_desc AS category,
+                SUM(adj_gross_sales) as total_spend'
+            )
+            ->groupBy('sku');
+            $query->whereIn('master_customer_number', $accountNumber);
+
+            if (isset($filter['year'])) {
+                $query->whereYear('shipped_date', $filter['year']);
+            }
+
+            if ($filter['core'] == 1) {
+                $query->whereNotIn('transaction_source_system', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
+                    ->where('on_contract', 'N')
+                    ->whereNotIn('primary_product_hierarchy', ['STS Technology', 'Promo', 'Transactional Technology', 'Transactional Furniture', 'Install Labor']);
+            } else {
+                $query->where(function($query) {
+                    $query->orWhereIn('transaction_source_system', ['Staples Promotional Products USA', 'Staples Technology Solutions'])
+                        ->orWhere('on_contract', 'Y')
+                        ->orWhereIn('primary_product_hierarchy', ['STS Technology', 'Promo', 'Transactional Technology', 'Transactional Furniture', 'Install Labor']);
+                });
+            }
+
+            $query->orderBy('total_spend', 'desc')->limit(100);
+            $queryData6 = $query->get()->toArray();
         } else {
             $queryData2 = [];
         }
@@ -310,7 +341,7 @@ class Order extends Model
             $queryData5 = [];
         }
 
-        $queryData = array_merge($queryData1, $queryData2, $queryData3, $queryData4, $queryData5);
+        $queryData = array_merge($queryData1, $queryData2, $queryData3, $queryData4, $queryData5, $queryData6);
 
         /** Function to sort the array based on "total_spend" */
         usort($queryData, function($a, $b) {
