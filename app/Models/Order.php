@@ -246,6 +246,7 @@ class Order extends Model
             $queryData6 = $query->get()->toArray();
         } else {
             $queryData2 = [];
+            $queryData6 = [];
         }
 
         if (in_array(5, $filter['supplier'])) {
