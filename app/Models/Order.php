@@ -523,14 +523,6 @@ class Order extends Model
             }
 
             if ($filter['supplier'] == 4) {
-
-                // "CASE 
-                //     WHEN order_product_details.key = 'Transaction Source System DESC' 
-                //         THEN order_product_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') 
-                //     ELSE order_product_details.key NOT IN ('Transaction Source System DESC') 
-                // END"
-
-                // $query->havingRaw
                 $query->whereRaw("
                     (
                         CASE 
@@ -550,30 +542,10 @@ class Order extends Model
                         END
                     ) = 1
                 ");
-                // $query->when(
-                //     DB::table('order_product_details')
-                //         ->where('order_product_details.key', 'Transaction Source System DESC')
-                //         ->exists(),
-                //     function ($query) {
-                //         $query->whereNotIn('order_product_details.value', [
-                //             'Staples Technology Solutions', 'Staples Promotional Products USA'
-                //         ]);
-                //     }
-                // );
-            }
-
-            // if ($filter['supplier'] == 4) {
-                // $query->where(function($query) {
-                //     $query->when(DB::raw("order_product_details.key = 'Transaction Source System DESC'"), function($query) {
-                //         $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
-                //     })->when(DB::raw("order_product_details.key != 'Transaction Source System DESC'"), function($query) {
-                //         $query->whereNotIn('order_product_details.key', ['Transaction Source System DESC']);
-                //     });
-                // });
-
+               
                 // $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
                 // $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
-            // }
+            }
         } else {
             if ($csv) {
                 $finalArray['heading'] = [
@@ -603,8 +575,8 @@ class Order extends Model
         }
 
         
-/** Group by with account name */
-$query->groupBy('m2.account_name');
+        /** Group by with account name */
+        $query->groupBy('m2.account_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
@@ -1205,10 +1177,11 @@ $query->groupBy('m2.account_name');
 
         $query = self::query()
         ->selectRaw(
-            'suppliers.supplier_name as supplier_name,
+            "GROUP_CONCAT(CONCAT_WS('_', `orders`.`id`)) as `ids`,
+            suppliers.supplier_name as supplier_name,
             suppliers.id as supplier_id,
             master_account_detail.account_name as account_name,
-            SUM(`orders`.`amount`) as spend'
+            SUM(`orders`.`amount`) as spend"
         );
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
@@ -1312,6 +1285,7 @@ $query->groupBy('m2.account_name');
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] =  '$'.number_format($value->spend, 2);
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
+                $finalArray[$key]['download'] = "<a href='".route('consolidated-report.download', ['data' => $value->ids])."'>Download</a>";
             }
         }
         // dd($query->toSql(), $query->getBindings());
@@ -1337,5 +1311,68 @@ $query->groupBy('m2.account_name');
                 'recordsFiltered' => $filteredRecords,
             ];
         }
+    }
+
+    public static function getConsolidatedDownloadData($data = '') {
+        /** Define supplier categories array for categorizing the data */
+        $supplierColumnArray = [
+            1 => 'Office Supplies',
+            2 => 'MRO',
+            3 => 'Office Supplies',
+            4 => 'Office Supplies',
+            5 => 'Office Supplies',
+            6 => 'Office Supplies',
+            7 => 'Office Supplies',
+            8 => 'Car Rental',
+            9 => 'Energy Services',
+            10 => 'MRO',
+            11 => 'Wireless',
+            12 => 'Packaging',
+        ];
+
+        $query = self::query()
+        ->selectRaw(
+            "suppliers.supplier_name as supplier_name,
+            suppliers.id as supplier_id,
+            master_account_detail.account_name as account_name,
+            SUM(`orders`.`amount`) as spend"
+        );
+
+        $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+
+        /** Filter by orders id provided */
+        if (isset($data) && !empty($data)) {
+            $query->whereIn('orders.id', explode(',', $data));
+        }
+        
+        /** Group by the necessary columns */
+        $query->groupBy('orders.id');
+
+        /** Getting result */
+        $queryData = $query->get();
+
+        /** Creating new array */
+        $finalArray = [];
+        foreach ($queryData as $key => $value) {
+            /** Prepare the final array for CSV */
+            $finalArray[$key]['supplier_name'] = $value->supplier_name;
+            $finalArray[$key]['account_name'] = $value->account_name;
+            $finalArray[$key]['spend'] = $value->spend;
+            $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
+        }
+
+        // dd($query->toSql(), $query->getBindings());
+        // dd($finalArray);
+
+        /** CSV header definition */
+        $finalArray['heading'] = [
+            'Supplier Name',
+            'Account Name',
+            'Spend',
+            'Category',
+        ];
+
+        return $finalArray;
     }
 }
