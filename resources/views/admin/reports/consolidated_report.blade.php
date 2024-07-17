@@ -254,6 +254,7 @@
                     { data: 'account_name', name: 'account_name', title: 'Account Name' },
                     { data: 'spend', name: 'spend', title: 'Spend', 'searchable': false },
                     { data: 'category', name: 'category', title: 'Category', 'orderable': false, 'searchable': false },
+                    { data: 'download', name: 'download', title: 'Download', 'orderable': false, 'searchable': false },
                 ],
 
                 fnDrawCallback: function( oSettings ) {

@@ -812,4 +812,44 @@ class ReportController extends Controller
         /** return $csvResponse; */
         return $response;
     }
+
+    public function exportConsolidatedDownload($data) {
+        if (isset($data)) {
+            /** Fetch data using the parameters and transform it into CSV format */
+            /** Replace this with your actual data fetching logic */
+            $data = Order::getConsolidatedDownloadData($data);
+
+            /** Create a stream for output */
+            $stream = fopen('php://temp', 'w+');
+
+            /** Create a new CSV writer instance */
+            $csvWriter = Writer::createFromStream($stream);
+            
+            $heading = $data['heading'];
+            unset($data['heading']);
+
+            /** Add column headings */
+            $csvWriter->insertOne($heading);
+
+            /** Insert the data into the CSV */
+            $csvWriter->insertAll($data);
+
+            /** Rewind the stream pointer */
+            rewind($stream);
+
+            /** Create a streamed response with the CSV data */
+            $response = new StreamedResponse(function () use ($stream) {
+                fpassthru($stream);
+            });
+
+            /** Set headers for CSV download */
+            $response->headers->set('Content-Type', 'text/csv');
+            $response->headers->set('Content-Disposition', 'attachment; filename="Consolidated_Report_'.now()->format('YmdHis').'.csv"');
+        
+            /** return $csvResponse; */
+            return $response;
+        } else {
+            return redirect()->back();
+        }
+    }
 }
