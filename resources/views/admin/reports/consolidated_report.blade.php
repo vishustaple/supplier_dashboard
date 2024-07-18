@@ -105,6 +105,32 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+          function downloadFile(ids = '') {
+                $.ajax({
+                    url: '{{ route("consolidated-report.download") }}',
+                    type: 'POST',
+                    data: { ids: ids },
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    xhrFields: { responseType: 'blob' },
+                    success: function(data, status, xhr) {
+                        var blob = new Blob([data], { type: 'text/csv' });
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        var now = new Date();
+                        var dateStr = now.getFullYear() + "-" +
+                                      ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                      ("0" + now.getDate()).slice(-2) + "_" +
+                                      ("0" + now.getHours()).slice(-2) + "-" +
+                                      ("0" + now.getMinutes()).slice(-2) + "-" +
+                                      ("0" + now.getSeconds()).slice(-2);
+                        link.download = 'Consolidated_Account_Report_' + dateStr + '.csv';
+                        link.click();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('File download failed!');
+                    }
+                });
+            }
         $(document).ready(function() {
             $('#select_dates').on('change', function(){
                 var selectValue = $(this).val();
@@ -263,20 +289,20 @@
             });
 
             $('#consolidated_supplier_data_length').hide();
-            $('#consolidated_supplier_data tbody').on('click', 'button', function () {
-                var tr = $(this).closest('tr');
-                var row = businessdataTable.row(tr);
+            // $('#consolidated_supplier_data tbody').on('click', 'button', function () {
+            //     var tr = $(this).closest('tr');
+            //     var row = businessdataTable.row(tr);
 
-                if ( row.child.isShown() ) {
-                    // This row is already open - close it
-                    row.child.hide();
-                    tr.removeClass('shown');
-                } else {
-                    // Open this row
-                    row.child( format(row.data()) ).show();
-                    tr.addClass('shown');
-                }
-            });
+            //     if ( row.child.isShown() ) {
+            //         // This row is already open - close it
+            //         row.child.hide();
+            //         tr.removeClass('shown');
+            //     } else {
+            //         // Open this row
+            //         row.child( format(row.data()) ).show();
+            //         tr.addClass('shown');
+            //     }
+            // });
 
             $(document).on('change', '.checkboxMain', function() {
                 var checkedValues = [];

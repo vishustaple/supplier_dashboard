@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class Order extends Model
 {
@@ -1285,12 +1287,12 @@ class Order extends Model
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] =  '$'.number_format($value->spend, 2);
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
-                $finalArray[$key]['download'] = "<a href='".route('consolidated-report.download', ['data' => $value->ids])."'>Download</a>";
+                $finalArray[$key]['download'] = "<button class='btn btn-success' onClick='downloadFile([" . $value->ids . "])'>Download</button>";
             }
         }
         // dd($query->toSql(), $query->getBindings());
         // dd($finalArray);
-        if(!$csv) {
+        if(!$csv && isset($finalArray[0])) {
             $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
         }
         
@@ -1332,46 +1334,64 @@ class Order extends Model
 
         $query = self::query()
         ->selectRaw(
-            "suppliers.supplier_name as supplier_name,
-            suppliers.id as supplier_id,
-            master_account_detail.account_name as account_name,
-            SUM(`orders`.`amount`) as spend"
+            "orders.supplier_id as supplier_id,
+            orders.id as id,
+            `order_product_details`.`key` as `key`,
+            `order_product_details`.`value` as `value`"
         );
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+        ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
 
         /** Filter by orders id provided */
         if (isset($data) && !empty($data)) {
-            $query->whereIn('orders.id', explode(',', $data));
+            $query->whereIn('orders.id', $data);
         }
         
-        /** Group by the necessary columns */
-        $query->groupBy('orders.id');
-
         /** Getting result */
         $queryData = $query->get();
+        
+        $columnValues = DB::table('manage_columns')
+        ->select(
+            'manage_columns.id as id',
+            'manage_columns.field_name as field_name',
+            'manage_columns.supplier_id as supplier_id',
+            'requird_fields.id as required_field_id',
+            'requird_fields.field_name as required_field_column',
+        )
+        ->leftJoin('requird_fields', 'manage_columns.required_field_id', '=', 'requird_fields.id')
+        ->where('supplier_id', $queryData[0]->supplier_id)
+        ->get();
+
+        foreach ($columnValues as $key => $value) {
+            if (!empty($value->required_field_column) && $value->required_field_id == 9) {
+                $dateColumn = $value->field_name;
+            }
+        }
 
         /** Creating new array */
+        $id = $a = 0;
         $finalArray = [];
         foreach ($queryData as $key => $value) {
             /** Prepare the final array for CSV */
-            $finalArray[$key]['supplier_name'] = $value->supplier_name;
-            $finalArray[$key]['account_name'] = $value->account_name;
-            $finalArray[$key]['spend'] = $value->spend;
-            $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
+            if ($value->id != $id) {
+                $id = $value->id;
+                $a++;
+            }
+            
+            if ($dateColumn == $value->key) {
+                $finalArray[$a][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+            } else {
+                $finalArray[$a][$value->key] = $value->value;
+            }
         }
 
         // dd($query->toSql(), $query->getBindings());
-        // dd($finalArray);
+        //  dd($finalArray);
 
         /** CSV header definition */
-        $finalArray['heading'] = [
-            'Supplier Name',
-            'Account Name',
-            'Spend',
-            'Category',
-        ];
+        $finalArray['heading'] = array_keys($finalArray[1]);
 
         return $finalArray;
     }

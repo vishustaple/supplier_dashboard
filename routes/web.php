@@ -104,7 +104,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/reports/commissions-report-filter', [ReportController::class, 'getCommissionsWithAjax'])->name('report.commission_report_filter_secound');
         Route::post('/report/consolidated/filter', [ReportController::class, 'consolidatedReportFilter'])->name('consolidated-report.filter');
         Route::get('/reports/consolidated/csv', [ReportController::class, 'exportConsolidatedCsv'])->name('consolidated-report.export-csv');        
-        Route::get('/reports/consolidated/download/{data}', [ReportController::class, 'exportConsolidatedDownload'])->name('consolidated-report.download');        
+        Route::post('/reports/consolidated/download', [ReportController::class, 'exportConsolidatedDownload'])->name('consolidated-report.download');        
         /** Report Section End */
     
         //not in use now this route     
