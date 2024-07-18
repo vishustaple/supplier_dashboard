@@ -813,11 +813,11 @@ class ReportController extends Controller
         return $response;
     }
 
-    public function exportConsolidatedDownload($data) {
-        if (isset($data)) {
+    public function exportConsolidatedDownload(Request $request) {
+        if ($request->input('ids') != null) {
             /** Fetch data using the parameters and transform it into CSV format */
             /** Replace this with your actual data fetching logic */
-            $data = Order::getConsolidatedDownloadData($data);
+            $data = Order::getConsolidatedDownloadData($request->input('ids'));
 
             /** Create a stream for output */
             $stream = fopen('php://temp', 'w+');
