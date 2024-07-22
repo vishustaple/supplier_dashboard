@@ -111,7 +111,7 @@ class validateUploadedFile extends Command
                 /** Clean up the values */
                 $cleanedArray = array_map(function ($value) {
                     /** Remove line breaks and trim whitespace */
-                    return str_replace(["\r", "\n"], '', $value);
+                    return trim(str_replace(["\r", "\n"], '', $value));
                 }, $finalExcelKeyArray1);
 
                 if ($fileValue->supplier_id == 2) {

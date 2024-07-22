@@ -240,7 +240,7 @@ class ProcessUploadedFiles extends Command
                                 /** Clean up the values */
                                 $cleanedArray = array_map(function ($values) {
                                     /** Remove line breaks and trim whitespace */
-                                    return str_replace(["\r", "\n"], '', $values);
+                                    return trim(str_replace(["\r", "\n"], '', $values));
                                 }, $finalExcelKeyArray1);
         
                                 if ($fileValue->supplier_id == 7) {

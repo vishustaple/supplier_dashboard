@@ -130,7 +130,7 @@ class ExcelImportController extends Controller
                     /** Clean up the values */
                     $cleanedArray = array_map(function ($values) {
                         /** Remove line breaks and trim whitespace */
-                        return str_replace(["\r", "\n"], '', $values);
+                        return trim(str_replace(["\r", "\n"], '', $values));
                     }, $finalExcelKeyArray1);
 
                     if ($request->supplierselect == 7) {
@@ -143,11 +143,12 @@ class ExcelImportController extends Controller
 
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
-                        
+                       
+
                         if ($request->supplierselect == 7) {
                             $supplierValues = array_slice($supplierValues, 0, 6, true);
                         }
-
+                        
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
                         if (empty($arrayDiff)) {
                             $maxNonEmptyvalue1 = $value;
@@ -156,9 +157,7 @@ class ExcelImportController extends Controller
                         }
                     }
                 }
-
             }
-
             // if ($validationCheck == false) {
             //     $missingColumns = implode(', ', $arrayDiff);
             //     return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
@@ -616,7 +615,7 @@ class ExcelImportController extends Controller
                     /** Clean up the values */
                     $cleanedArray = array_map(function ($value) {
                         /** Remove line breaks and trim whitespace */
-                        return str_replace(["\r", "\n"], '', $value);
+                        return trim(str_replace(["\r", "\n"], '', $value));
                     }, $finalExcelKeyArray1);
     
                     $finalArray = [];
