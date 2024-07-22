@@ -1363,7 +1363,7 @@ class Order extends Model
         ->leftJoin('requird_fields', 'manage_columns.required_field_id', '=', 'requird_fields.id')
         ->where('supplier_id', $queryData[0]->supplier_id)
         ->get();
-        dd($queryData[0]->supplier_id);
+        dd($columnValues);
         foreach ($columnValues as $key => $value) {
             if (!empty($value->required_field_column) && $value->required_field_id == 9) {
                 $dateColumn = $value->field_name;
