@@ -1380,7 +1380,7 @@ class Order extends Model
                 $a++;
             }
             
-            if ($dateColumn == $value->key) {
+            if (isset($dateColumn) && $dateColumn == $value->key) {
                 $finalArray[$a][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
             } else {
                 $finalArray[$a][$value->key] = $value->value;
