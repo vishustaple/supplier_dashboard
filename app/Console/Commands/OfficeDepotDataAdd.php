@@ -37,7 +37,7 @@ class OfficeDepotDataAdd extends Command
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
 
-        $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/test.xlsx');
+        $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/test55.xlsx');
 
         if ($inputFileType === 'Xlsx') {
             $reader = new Xlsx();
@@ -48,7 +48,7 @@ class OfficeDepotDataAdd extends Command
         }
 
         /** Loading excel file using path and name of file from table "uploaded_file" */
-        $spreadSheet = $reader->load($destinationPath . '/test2.xlsx', 2);
+        $spreadSheet = $reader->load($destinationPath . '/test55.xlsx', 2);
         $spreadSheet = $spreadSheet->getSheet(0)->toArray();
 
         foreach ($spreadSheet as $key => $value) {
@@ -56,15 +56,16 @@ class OfficeDepotDataAdd extends Command
                 continue;
             }
 
-            DB::table('wb_check_data')
+            DB::table('check_orders')
             ->insert([
-                'account' => $value[0],
-                'account_name' => $value[1],
-                'item_order' => $value[2],
-                'item_name' => $value[3],
-                'uom' => $value[4],
-                'qty' => $value[5],
-                'sum_of_sales' => $value[6],
+                'master_customer_number' => $value[1],
+                'master_customer_name' => $value[2],
+                'bill_to_number' => $value[3],
+                'bill_to_name' => $value[4],
+                'ship_to_number' => $value[5],
+                'order_number' => $value[6],
+                'ordering_platform' => $value[7],
+                'fixed_rate_sales_volume' => $value[13],
             ]);
         }
     }
