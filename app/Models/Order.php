@@ -1358,7 +1358,7 @@ class Order extends Model
         }
 
         // dd($query->toSql(), $query->getBindings());
-        //  dd($finalArray);
+         dd($finalArray);
 
         /** CSV header definition */
         // $finalArray['heading'] = array_keys($finalArray[1]);
