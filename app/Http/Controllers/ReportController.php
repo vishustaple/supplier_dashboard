@@ -817,6 +817,7 @@ class ReportController extends Controller
         if ($request->input('ids') != null) {
             /** Fetch data using the parameters and transform it into CSV format */
             /** Replace this with your actual data fetching logic */
+            echo count($request->input('ids'));
             $data = Order::getConsolidatedDownloadData($request->input('ids'));
 
             /** Create a stream for output */

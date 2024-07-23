@@ -1307,7 +1307,7 @@ class Order extends Model
         }
     }
 
-    public static function getConsolidatedDownloadData($data = '') {
+    public static function getConsolidatedDownloadData($data=[]) {
         /** Define supplier categories array for categorizing the data */
         $supplierColumnArray = [
             1 => 'Office Supplies',
