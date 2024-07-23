@@ -1331,7 +1331,9 @@ class Order extends Model
             `value` as `value`"
         );
 
-
+        echo"<pre>";
+        print_r($data);
+die;
         /** Filter by orders id provided */
         if (isset($data) && !empty($data)) {
             $query->whereIn('order_id', $data);
