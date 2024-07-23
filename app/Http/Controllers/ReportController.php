@@ -825,22 +825,40 @@ class ReportController extends Controller
             /** Create a new CSV writer instance */
             $csvWriter = Writer::createFromStream($stream);
             
-            $heading = $data['heading'];
-            unset($data['heading']);
+            // $heading = $data['heading'];
+            // unset($data['heading']);
 
             /** Add column headings */
-            $csvWriter->insertOne($heading);
+            // $csvWriter->insertOne($heading);
+            $previousKeys = [];
+           /** Loop through data */
+        foreach ($data as $row) {
+            $currentKeys = array_keys($row);
 
-            /** Insert the data into the CSV */
-            $csvWriter->insertAll($data);
+            /** Check if the keys have changed */
+            if ($currentKeys !== $previousKeys) {
+                /** If keys have changed, insert the new heading row */
+                $csvWriter->insertOne($currentKeys);
+                $previousKeys = $currentKeys;
+            }
 
-            /** Rewind the stream pointer */
-            rewind($stream);
+            /** Reorder the current row according to the current keys */
+            $orderedRow = [];
+            foreach ($currentKeys as $key) {
+                $orderedRow[] = $row[$key] ?? '';
+            }
 
-            /** Create a streamed response with the CSV data */
-            $response = new StreamedResponse(function () use ($stream) {
-                fpassthru($stream);
-            });
+            /** Insert the data row */
+            $csvWriter->insertOne($orderedRow);
+        }
+
+        /** Rewind the stream pointer */
+        rewind($stream);
+
+        /** Create a streamed response with the CSV data */
+        $response = new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+        });
 
             /** Set headers for CSV download */
             $response->headers->set('Content-Type', 'text/csv');

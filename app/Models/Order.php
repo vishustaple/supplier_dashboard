@@ -1203,7 +1203,7 @@ class Order extends Model
             $query->where('master_account_detail.account_name', $filter['account_name']);
         }
 
-        $query->groupBy('orders.supplier_id', 'master_account_detail.account_name');
+        // $query->groupBy('orders.supplier_id', 'master_account_detail.account_name');
 
         $totalRecords = $query->getQuery()->getCountForPagination();
         
@@ -1212,9 +1212,16 @@ class Order extends Model
             /** Filter for specific supplier IDs */
             $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
         } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
+            if (isset($filter['supplier_id'][1])) {
+
+                /** Filter for specified supplier IDs */
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+            } else {
+
+                /** Filter for specified supplier IDs */
+                $query->where('orders.supplier_id', $filter['supplier_id'][0]);
+            }
             
-            /** Filter for specified supplier IDs */
-            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
         } else {
             if ($csv == true) {
                 $finalArray['heading'] = [
@@ -1235,21 +1242,6 @@ class Order extends Model
             }
         }
 
-        /** Search functionality */
-        if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
-            $searchTerm = $filter['search']['value'];
-
-            /** Implementing search across specified columns */
-            $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
-                foreach ($orderColumnArray as $column) {
-                    if (in_array($column, ['spend'])) {
-                        $q->having('spend', 'LIKE', '%' . $searchTerm . '%');
-                    } else {
-                        $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
-                    }
-                }
-            });            
-        }
         
         /** Order by specified column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
@@ -1351,24 +1343,6 @@ class Order extends Model
         
         /** Getting result */
         $queryData = $query->get();
-        
-        $columnValues = DB::table('manage_columns')
-        ->select(
-            'manage_columns.id as id',
-            'manage_columns.field_name as field_name',
-            'manage_columns.supplier_id as supplier_id',
-            'requird_fields.id as required_field_id',
-            'requird_fields.field_name as required_field_column',
-        )
-        ->leftJoin('requird_fields', 'manage_columns.required_field_id', '=', 'requird_fields.id')
-        ->where('supplier_id', $queryData[0]->supplier_id)
-        ->get();
-        // dd($columnValues);
-        foreach ($columnValues as $key => $value) {
-            if (!empty($value->required_field_column) && $value->required_field_id == 9) {
-                $dateColumn = $value->field_name;
-            }
-        }
 
         /** Creating new array */
         $id = $a = 0;
@@ -1380,7 +1354,7 @@ class Order extends Model
                 $a++;
             }
             
-            if (isset($dateColumn) && $dateColumn == $value->key) {
+            if (preg_match('/\bdate\b/i', $value->key)) {
                 $finalArray[$a][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
             } else {
                 $finalArray[$a][$value->key] = $value->value;
@@ -1391,7 +1365,7 @@ class Order extends Model
         //  dd($finalArray);
 
         /** CSV header definition */
-        $finalArray['heading'] = array_keys($finalArray[1]);
+        // $finalArray['heading'] = array_keys($finalArray[1]);
 
         return $finalArray;
     }
