@@ -1324,11 +1324,11 @@ class Order extends Model
             12 => 'Packaging',
         ];
 
-        $query = self::query()
+        $query = DB::table('order_product_details')
         ->selectRaw(
             "`order_id` as `id`,
-            `order_product_details`.`key` as `key`,
-            `order_product_details`.`value` as `value`"
+            `key` as `key`,
+            `value` as `value`"
         );
 
 
