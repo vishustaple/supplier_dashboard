@@ -1336,7 +1336,7 @@ class Order extends Model
         if (isset($data) && !empty($data)) {
             $query->whereIn('order_id', $data);
         }
-        
+        dd($query->count());
         /** Getting result */
         $queryData = $query->get();
 
