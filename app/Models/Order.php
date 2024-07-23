@@ -1193,7 +1193,7 @@ class Order extends Model
         if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
             $endDate = $filter['end_date'];
             $startDate = $filter['start_date'];
-
+      
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
@@ -1242,7 +1242,7 @@ class Order extends Model
             }
         }
 
-        
+
         /** Order by specified column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -1326,15 +1326,12 @@ class Order extends Model
 
         $query = self::query()
         ->selectRaw(
-            "orders.supplier_id as supplier_id,
-            orders.id as id,
+            "`orders`.`id` as `id`,
             `order_product_details`.`key` as `key`,
             `order_product_details`.`value` as `value`"
         );
 
-        $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-        ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+        $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
 
         /** Filter by orders id provided */
         if (isset($data) && !empty($data)) {
