@@ -1351,14 +1351,15 @@ class Order extends Model
             }
             
             if (preg_match('/\bdate\b/i', $value->key)) {
-                $finalArray[$a][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
             } else {
-                $finalArray[$a][$value->key] = $value->value;
+                $finalArray[$value->id][$value->key] = $value->value;
             }
         }
 
+        dd(count($finalArray));
+
         // dd($query->toSql(), $query->getBindings());
-         dd(count($finalArray));
 
         /** CSV header definition */
         // $finalArray['heading'] = array_keys($finalArray[1]);
