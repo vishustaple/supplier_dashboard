@@ -1326,16 +1326,15 @@ class Order extends Model
 
         $query = self::query()
         ->selectRaw(
-            "`orders`.`id` as `id`,
+            "`order_id` as `id`,
             `order_product_details`.`key` as `key`,
             `order_product_details`.`value` as `value`"
         );
 
-        $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
 
         /** Filter by orders id provided */
         if (isset($data) && !empty($data)) {
-            $query->whereIn('orders.id', $data);
+            $query->whereIn('order_id', $data);
         }
         
         /** Getting result */
