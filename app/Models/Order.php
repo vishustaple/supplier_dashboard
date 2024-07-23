@@ -1338,7 +1338,7 @@ class Order extends Model
         }
         // dd($query->count());
         /** Getting result */
-        $queryData = $query->get();
+        $queryData = $query->orderBy('order_id', 'desc')->limit(20)->get();
 
         /** Creating new array */
         $id = $a = 0;
@@ -1357,7 +1357,7 @@ class Order extends Model
             }
         }
 
-        dd(count($finalArray));
+        dd($finalArray);
 
         // dd($query->toSql(), $query->getBindings());
 
