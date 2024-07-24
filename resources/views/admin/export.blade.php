@@ -8,17 +8,20 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
+    
         <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
                 <h3 class="mb-0 ps-2">Data Management</h3>
         </div>
+        <div class="card mx-2 shadow p-3 my-3 alert alert-warning">
+        <h4 class="alert-heading"><i class="fa fa-info-circle" aria-hidden="true"></i> Important</h4>    
+        <div class="border-top border-warning py-2"></div>
+            Before uploading, please make sure to add the keyword  "date" in the column names that have data values.
+        </div>
         <div class="alert alert-success m-3" id="user_del_success" style="display:none;"></div>
         <div class="container">
-            <div class="" id="successMessages">
-            </div>
+            <div class="" id="successMessages"></div>
+            <div class="" id="errorMessage"></div>
 
-            <div class="" id="errorMessage">    
-            </div>
-        
             @if(session('error'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session('error') }}
