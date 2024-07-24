@@ -821,6 +821,9 @@ class ReportController extends Controller
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date')
         ];
+
+        /** Increasing the memory limit becouse memory limit issue */
+        ini_set('memory_limit', '1024M');
         
         $data = Order::getConsolidatedDownloadData($filter);
 

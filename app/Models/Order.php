@@ -1307,6 +1307,8 @@ class Order extends Model
     }
 
     public static function getConsolidatedDownloadData($filter=[]) {
+        /** Increasing the memory limit becouse memory limit issue */
+        ini_set('memory_limit', '1024M');
         $query = self::query()
         ->selectRaw(
             "`order_product_details`.`order_id` as `id`,
