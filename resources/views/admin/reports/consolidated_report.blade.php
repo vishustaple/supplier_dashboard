@@ -105,11 +105,11 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-          function downloadFile(ids = '') {
+          function downloadFile(account_name = '', supplier_id='', start_date='', end_date='') {
                 $.ajax({
                     url: '{{ route("consolidated-report.download") }}',
                     type: 'POST',
-                    data: { ids: ids },
+                    data: { account_name: account_name,  supplier_id: supplier_id, start_date: start_date, end_date: end_date },
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     xhrFields: { responseType: 'blob' },
                     success: function(data, status, xhr) {
