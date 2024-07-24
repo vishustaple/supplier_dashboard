@@ -72,19 +72,19 @@ class OfficeDepotDataAdd extends Command
         /** Increasing the memory limit becouse memory limit issue */
         ini_set('memory_limit', '1024M');
 
-        $data = DB::table('staples_orders_data')->select('id', 'order_date', 'invoice_date')->get();
+        $data = DB::table('staples_orders_data_old_1719496835')->select('id', 'order_date', 'invoice_date')->get();
 
         foreach ($data as $key => $value) {
             print($value->id);
-            
+
             if (!empty($value->order_date)) {
-                DB::table('staples_orders_data')
+                DB::table('staples_orders_data_old_1719496835')
                 ->where(['id' => $value->id])
                 ->update(['order_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->order_date))->format('Y-m-d H:i:s')]);
             }
 
             if (!empty($value->invoice_date)) {
-                DB::table('staples_orders_data')
+                DB::table('staples_orders_data_old_1719496835')
                 ->where(['id' => $value->id])
                 ->update(['invoice_date' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->invoice_date))->format('Y-m-d H:i:s')]); 
             }
