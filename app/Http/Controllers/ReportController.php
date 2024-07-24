@@ -814,25 +814,25 @@ class ReportController extends Controller
     }
 
     public function exportConsolidatedDownload(Request $request) {
-        if ($request->input('ids') != null) {
-            /** Fetch data using the parameters and transform it into CSV format */
-            /** Replace this with your actual data fetching logic */
-            echo count($request->input('ids'));
-            $data = Order::getConsolidatedDownloadData($request->input('ids'));
+        /** Fetch data using the parameters and transform it into CSV format */
+        $filter = [
+            'account_name' => $request->input('account_name'),
+            'supplier_id' => $request->input('supplier_id'),
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date')
+        ];
+        
+        $data = Order::getConsolidatedDownloadData($filter);
 
-            /** Create a stream for output */
-            $stream = fopen('php://temp', 'w+');
+        /** Create a stream for output */
+        $stream = fopen('php://temp', 'w+');
 
-            /** Create a new CSV writer instance */
-            $csvWriter = Writer::createFromStream($stream);
-            
-            // $heading = $data['heading'];
-            // unset($data['heading']);
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+        
+        $previousKeys = [];
 
-            /** Add column headings */
-            // $csvWriter->insertOne($heading);
-            $previousKeys = [];
-           /** Loop through data */
+        /** Loop through data */
         foreach ($data as $row) {
             $currentKeys = array_keys($row);
 
@@ -861,14 +861,11 @@ class ReportController extends Controller
             fpassthru($stream);
         });
 
-            /** Set headers for CSV download */
-            $response->headers->set('Content-Type', 'text/csv');
-            $response->headers->set('Content-Disposition', 'attachment; filename="Consolidated_Report_'.now()->format('YmdHis').'.csv"');
-        
-            /** return $csvResponse; */
-            return $response;
-        } else {
-            return redirect()->back();
-        }
+        /** Set headers for CSV download */
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="Consolidated_Report_'.now()->format('YmdHis').'.csv"');
+    
+        /** return $csvResponse; */
+        return $response;
     }
 }

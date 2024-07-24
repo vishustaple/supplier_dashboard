@@ -1179,8 +1179,7 @@ class Order extends Model
 
         $query = self::query()
         ->selectRaw(
-            "GROUP_CONCAT(CONCAT_WS('_', `orders`.`id`)) as `ids`,
-            suppliers.supplier_name as supplier_name,
+            "suppliers.supplier_name as supplier_name,
             suppliers.id as supplier_id,
             master_account_detail.account_name as account_name,
             SUM(`orders`.`amount`) as spend"
@@ -1279,7 +1278,7 @@ class Order extends Model
                 $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] =  '$'.number_format($value->spend, 2);
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
-                $finalArray[$key]['download'] = "<button class='btn btn-success' onClick='downloadFile([" . $value->ids . "])'>Download</button>";
+                $finalArray[$key]['download'] = "<button class='btn btn-success' onClick='downloadFile(\"" . $value->account_name . "\", \"" . $value->supplier_id . "\", \"" . $startDate . "\", \"" . $endDate . "\")'>Download</button>";
             }
         }
         // dd($query->toSql(), $query->getBindings());
@@ -1307,51 +1306,42 @@ class Order extends Model
         }
     }
 
-    public static function getConsolidatedDownloadData($data=[]) {
-        /** Define supplier categories array for categorizing the data */
-        $supplierColumnArray = [
-            1 => 'Office Supplies',
-            2 => 'MRO',
-            3 => 'Office Supplies',
-            4 => 'Office Supplies',
-            5 => 'Office Supplies',
-            6 => 'Office Supplies',
-            7 => 'Office Supplies',
-            8 => 'Car Rental',
-            9 => 'Energy Services',
-            10 => 'MRO',
-            11 => 'Wireless',
-            12 => 'Packaging',
-        ];
-
-        $query = DB::table('order_product_details')
+    public static function getConsolidatedDownloadData($filter=[]) {
+        $query = self::query()
         ->selectRaw(
-            "`order_id` as `id`,
-            `key` as `key`,
-            `value` as `value`"
+            "`order_product_details`.`order_id` as `id`,
+            `order_product_details`.`key` as `key`,
+            `order_product_details`.`value` as `value`"
         );
 
-        echo"<pre>";
-        print_r($data);
-die;
-        /** Filter by orders id provided */
-        if (isset($data) && !empty($data)) {
-            $query->whereIn('order_id', $data);
-        }
-        // dd($query->count());
-        /** Getting result */
-        $queryData = $query->orderBy('order_id', 'desc')->limit(20)->get();
+        $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+        ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
 
+        /** Year and quarter filter here */
+        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+            $endDate = $filter['end_date'];
+            $startDate = $filter['start_date'];
+      
+            $query->whereBetween('orders.date', [$startDate, $endDate]);
+        }
+
+        /** Filter by account name if provided */
+        if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+            $query->where('master_account_detail.account_name', $filter['account_name']);
+        }
+
+        /** Filter for specified supplier IDs */
+        if (isset($filter['supplier_id']) && !empty($filter['supplier_id'])) {
+            $query->where('orders.supplier_id', $filter['supplier_id']);
+        } 
+
+        /** Getting result */
+        $queryData = $query->get();
+        // dd($queryData);
         /** Creating new array */
-        $id = $a = 0;
         $finalArray = [];
         foreach ($queryData as $key => $value) {
             /** Prepare the final array for CSV */
-            if ($value->id != $id) {
-                $id = $value->id;
-                $a++;
-            }
-            
             if (preg_match('/\bdate\b/i', $value->key)) {
                 $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
             } else {
@@ -1359,7 +1349,7 @@ die;
             }
         }
 
-        dd($finalArray);
+        // dd($finalArray);
 
         // dd($query->toSql(), $query->getBindings());
 
