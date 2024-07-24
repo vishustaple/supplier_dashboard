@@ -69,9 +69,13 @@ class OfficeDepotDataAdd extends Command
         //     ]);
         // }
 
-        $data = DB::table('staples_orders')->select('id', 'order_date_id', 'invoice_date_id');
+        /** Increasing the memory limit becouse memory limit issue */
+        ini_set('memory_limit', '1024M');
+
+        $data = DB::table('staples_order')->select('id', 'order_date_id', 'invoice_date_id')->get();
+
         foreach ($data as $key => $value) {
-            
+            DB::table('staples_order')->where(['id' => $value->id])->update(['order_date_id' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->order_date_id))->format('Y-m-d H:i:s'), 'invoice_date_id' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->invoice_date_id))->format('Y-m-d H:i:s')]);    
         }
     }
 }
