@@ -752,9 +752,9 @@ class ReportController extends Controller
 
             unset($datas1['month']);
             $datas1['commission_data'] = $result1;
-            // echo"<pre>";
-            // print_r($datas1['commission_data']);
-            // die;
+            echo"<pre>";
+            print_r($datas1['anual']);
+            die;
             $pdf = new Mpdf();
             $pdf->WriteHTML(view('admin.pdf.commission_pdf', $datas1));
             return $pdf->Output('pdf_commission_report.pdf', 'I');
@@ -824,7 +824,7 @@ class ReportController extends Controller
 
         /** Increasing the memory limit becouse memory limit issue */
         ini_set('memory_limit', '1024M');
-        
+
         $data = Order::getConsolidatedDownloadData($filter);
 
         /** Create a stream for output */
