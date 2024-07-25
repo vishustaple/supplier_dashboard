@@ -431,7 +431,11 @@ class ProcessUploadedFiles extends Command
                                                         if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == $date) {
                                                             $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] =  (!empty($value)) ? Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s') : ('');
                                                         } else {
-                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
+                                                            if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1])  && !empty($value)) { 
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
+                                                            } else {
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
+                                                            }
                                                         }
                                                     } else {
                                                         if ($key1 < 6) {
@@ -449,14 +453,26 @@ class ProcessUploadedFiles extends Command
                                                     $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                                                     $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
 
-                                                    $finalInsertArray[] = [
-                                                        'data_id' => $fileValue->id,
-                                                        'value' => $value,
-                                                        'key' => $maxNonEmptyValue[$key1],
-                                                        'file_name' => $fileValue->file_name,
-                                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                    ];  
+                                                    if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1]) && !empty($value)) {
+                                                        $finalInsertArray[] = [
+                                                            'data_id' => $fileValue->id,
+                                                            'value' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s'),
+                                                            'key' => $maxNonEmptyValue[$key1],
+                                                            'file_name' => $fileValue->file_name,
+                                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                        ];  
+                                                    } else {
+                                                        $finalInsertArray[] = [
+                                                            'data_id' => $fileValue->id,
+                                                            'value' => $value,
+                                                            'key' => $maxNonEmptyValue[$key1],
+                                                            'file_name' => $fileValue->file_name,
+                                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                        ];  
+                                                    }
+                                                    
                                                 }
                                             }
                                             
