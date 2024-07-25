@@ -122,6 +122,7 @@
                     </thead>
                     <tbody>
                         @if(isset($commission_data))
+                        @php $commission_total1 = 0; @endphp
                             @foreach($commission_data as $key1 => $commissions)
                                 <tr class="subtotal" style="background-color: #d0d0d0;">
                                     <th colspan="2" class="border-bottom border-top" style="text-align: center;background-color: #d0d0d0;">{{ $key1 }}</th>
@@ -133,6 +134,7 @@
                                         $amount += (float)str_replace(',', '', $commission['total_amount']);
                                         $rebate += (float)str_replace(',', '', $commission['total_volume_rebate']);
                                         $commission_total += (float)str_replace(',', '', $commission['total_commissions']);
+                                        $commission_total1 += (float)str_replace(',', '', $commission['total_commissions']);
                                         // Remove 'YTD' key from the array
                                         $filteredArray = array_filter($commission['month'], function($value, $key) {
                                             return $key !== 'YTD';
@@ -176,7 +178,7 @@
                         @endif
                         <tr class="grand_total">
                             <th colspan="4" style="padding: 5px 10px; background-color: #000; color: #fff;">Grand Total</th>
-                            <th style="padding: 5px 10px; background-color: #000; color: #fff;">$ {{ $commission_total }}</th>
+                            <th style="padding: 5px 10px; background-color: #000; color: #fff;">$ {{ $commission_total1 }}</th>
                         </tr>
                     </tbody>
                 </table>
