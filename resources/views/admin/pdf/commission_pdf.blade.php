@@ -178,7 +178,7 @@
                         @endif
                         <tr class="grand_total">
                             <th colspan="4" style="padding: 5px 10px; background-color: #000; color: #fff;">Grand Total</th>
-                            <th style="padding: 5px 10px; background-color: #000; color: #fff;">$ {{ $commission_total1 }}</th>
+                            <th style="padding: 5px 10px; background-color: #000; color: #fff;">$ {{ number_format($commission_total1, 2) }}</th>
                         </tr>
                     </tbody>
                 </table>
