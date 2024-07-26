@@ -1338,7 +1338,7 @@ class Order extends Model
         } 
 
         /** Getting result */
-        $queryData = $query->limit(1000)->get();
+        $queryData = $query->get();
         // dd($queryData);
         /** Creating new array */
         if ($filter['supplier_id'] == 4) {
