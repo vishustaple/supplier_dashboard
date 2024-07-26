@@ -1338,20 +1338,89 @@ class Order extends Model
         } 
 
         /** Getting result */
-        $queryData = $query->get();
+        $queryData = $query->limit(1000)->get();
         // dd($queryData);
         /** Creating new array */
-        $finalArray = [];
-        foreach ($queryData as $key => $value) {
-            /** Prepare the final array for CSV */
-            if (preg_match('/\bdate\b/i', $value->key)) {
-                $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-            } else {
-                $finalArray[$value->id][$value->key] = $value->value;
+        if ($filter['supplier_id'] == 4) {
+            $finalArray = ["Div",
+            "Master_Customer_Number",
+            "Master Customer Name",
+            "Bill To Number",
+            "Bill To Name",
+            "Ship To Number",
+            "Ship To Name",
+            "Ship To Line1 Address",
+            "Ship To Line2 Address",
+            "Ship To Line3 Address",
+            "Ship To City",
+            "Ship To State",
+            "Ship To Zip",
+            "Vendor Part Number",
+            "Item Description",
+            "Primary Product Hierarchy",
+            "Diversity",
+            "Diversity Code",
+            "Diversity Sub Type Cd",
+            "Selling Unit Measure Qty",
+            "Vendor Name",
+            "Recycled Flag",
+            "Recycled %",
+            "Product Post Consumer Content %",
+            "Remanufactured/Refurbished Flag",
+            "ECO Feature",
+            "ECO Sub Feature",
+            "ECO ID",
+            "Budget Center Name",
+            "Invoice Date",
+            "Invoice Number",
+            "On Contract?",
+            "Order Contact",
+            "Order Contact Phone Number",
+            "Order Date",
+            "Order Method Description",
+            "Order Number",
+            "Payment Method Code1",
+            "Payment Method Code",
+            "Sell UOM",
+            "Ship To Contact",
+            "Shipped Date",
+            "SKU",
+            "Transaction Source System1",
+            "Transaction Source System",
+            "Group ID1",
+            "Group ID",
+            "Qty",
+            "Adj Gross Sales",
+            "Avg Sell Price"];
+
+            $outputArray = [];
+            foreach ($finalArray as $index => $key) {
+                $trimmedKey = rtrim($key, " ID");
+                foreach ($queryData as $pair) {
+                    if (rtrim($pair->key, " ID") === $trimmedKey) {
+                        if (preg_match('/\bdate\b/i', $pair->key)) {
+                            $outputArray[$pair->id][$pair->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($pair->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $outputArray[$pair->id][$pair->key] = $pair->value;
+                        }
+                    }
+                }
+            }
+
+            $finalArray = $outputArray;
+        } else {
+            $finalArray = [];
+            foreach ($queryData as $key => $value) {         
+                /** Prepare the final array for CSV */
+                if (preg_match('/\bdate\b/i', $value->key)) {
+                    $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                } else {
+                    $finalArray[$value->id][$value->key] = $value->value;
+                }
             }
         }
 
-        // dd($finalArray);
+        // dd($outputArray);
 
         // dd($query->toSql(), $query->getBindings());
 
