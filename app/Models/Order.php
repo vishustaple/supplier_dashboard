@@ -1399,9 +1399,9 @@ class Order extends Model
                 foreach ($queryData as $pair) {
                     if (rtrim($pair->key, " ID") === $trimmedKey) {
                         if (preg_match('/\bdate\b/i', $pair->key)) {
-                            $outputArray[$pair->id][$pair->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($pair->value))->format('Y-m-d H:i:s');
+                            $outputArray[$pair->id][rtrim($pair->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($pair->value))->format('Y-m-d H:i:s');
                         } else {
-                            $outputArray[$pair->id][$pair->key] = $pair->value;
+                            $outputArray[$pair->id][rtrim($pair->key, " ID")] = $pair->value;
                         }
                     }
                 }
