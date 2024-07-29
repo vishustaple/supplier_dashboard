@@ -1422,7 +1422,7 @@ class Order extends Model
             }
         }
 
-        dd($finalArray);
+        // dd($finalArray);
 
         // dd($query->toSql(), $query->getBindings());
 
