@@ -1338,8 +1338,8 @@ class Order extends Model
         } 
 
         /** Getting result */
-        $queryData = $query->limit(100)->toArray();
-        dd($queryData);
+        $queryData = $query->get();
+        // dd($queryData);
         /** Creating new array */
         if ($filter['supplier_id'] == 4) {
             $finalArray = [];
@@ -1371,6 +1371,7 @@ class Order extends Model
                    }
                    
                    if ("Master Customer Name" == rtrim($value->key, " ID")) {
+                    dd(rtrim($value->key, " ID"));
                         /** Prepare the final array for CSV */
                         if (preg_match('/\bdate\b/i', $value->key)) {
                             $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
