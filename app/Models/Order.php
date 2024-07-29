@@ -1339,7 +1339,7 @@ class Order extends Model
 
         /** Getting result */
         $queryData = $query->get();
-        // dd($queryData);
+        dd($queryData);
         /** Creating new array */
         if ($filter['supplier_id'] == 4) {
             $finalArray = [];
