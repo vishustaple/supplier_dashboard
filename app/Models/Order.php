@@ -1340,7 +1340,7 @@ class Order extends Model
         $queryData = $query->get();
 
         $stapleColumnArray = [
-            "Div ID",
+            "Div",
             "Master_Customer_Number",
             "Master Customer Name",
             "Bill To Number",
@@ -1383,7 +1383,9 @@ class Order extends Model
             "Ship To Contact",
             "Shipped Date",
             "SKU",
+            "Transaction Source System1",
             "Transaction Source System",
+            "Group ID1",
             "Group ID",
             "Qty",
             "Adj Gross Sales",
@@ -1420,7 +1422,7 @@ class Order extends Model
             }
         }
 
-        // dd($finalArray);
+        dd($finalArray);
 
         // dd($query->toSql(), $query->getBindings());
 
