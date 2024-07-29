@@ -1339,7 +1339,7 @@ class Order extends Model
 
         $queryData = $query->get();
 
-        $testArray = [
+        $stapleColumnArray = [
             "Div ID",
             "Master_Customer_Number",
             "Master Customer Name",
@@ -1394,7 +1394,7 @@ class Order extends Model
 
         if ($filter['supplier_id'] == 4) {
             $finalArray = [];
-            foreach ($testArray as $keys => $values) {
+            foreach ($stapleColumnArray as $keys => $values) {
                 foreach ($queryData as $key => $value) {
                     if ($values == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
@@ -1406,7 +1406,7 @@ class Order extends Model
                     } else if (empty($finalArray[$value->id][$values])) {
                         $finalArray[$value->id][$values] = '';
                     } else {
-                        
+
                     }
                 }
             } 
@@ -1422,7 +1422,7 @@ class Order extends Model
             }
         }
 
-        dd($finalArray);
+        // dd($finalArray);
 
         // dd($query->toSql(), $query->getBindings());
 
