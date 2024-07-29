@@ -1349,501 +1349,501 @@ class Order extends Model
                 foreach ($queryData as $key => $value) {
                     if ("Div ID" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Div ID"] = '';
                    }
                    if ("Master_Customer_Number" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Master_Customer_Number"] = '';
                    }
                    if ("Master Customer Name" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Master Customer Name"] = '';
                    }
                    if ("Bill To Number" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Bill To Number"] = '';
                    }
                    if ("Bill To Name" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Bill To Name"] = '';
                    }
                    if ("Ship To Number" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To Number"] = '';
                    }
                    if ("Ship To Name" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To Name"] = '';
                    }
                    if ("Ship To Line1 Address" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To Line1 Address"] = '';
                    }
                    if ("Ship To Line2 Address" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To Line2 Address"] = '';
                    }
                    if ("Ship To Line3 Address" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To Line3 Address"] = '';
                    }
                    if ("Ship To City" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To City"] = '';
                    }
                    if ("Ship To State" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To State"] = '';
                    }
                    if ("Ship To Zip" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To Zip"] = '';
                    }
                    if ("Vendor Part Number" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Vendor Part Number"] = '';
                    }
                    if ("Item Description" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Item Description"] = '';
                    }
                    if ("Primary Product Hierarchy" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Primary Product Hierarchy"] = '';
                    }
                    if ("Diversity" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Diversity"] = '';
                    }
                    if ("Diversity Code" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Diversity Code"] = '';
                    }
                    if ("Diversity Sub Type Cd" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Diversity Sub Type Cd"] = '';
                    }
                    if ("Selling Unit Measure Qty" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Selling Unit Measure Qty"] = '';
                    }
                    if ("Vendor Name" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Vendor Name"] = '';
                    }
                    if ("Recycled Flag" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Recycled Flag"] = '';
                    }
                    if ("Recycled %" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Recycled %"] = '';
                    }
                    if ("Product Post Consumer Content %" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Product Post Consumer Content %"] = '';
                    }
                    if ("Remanufactured/Refurbished Flag" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Remanufactured/Refurbished Flag"] = '';
                    }
                    if ("ECO Feature" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["ECO Feature"] = '';
                    }
                    if ("ECO Sub Feature" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["ECO Sub Feature"] = '';
                    }
                    if ("ECO ID" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["ECO ID"] = '';
                    }
                    if ("Budget Center Name" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Budget Center Name"] = '';
                    }
                    if ("Invoice Date" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Invoice Date"] = '';
                    }
                    if ("Invoice Number" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Invoice Number"] = '';
                    }
                    if ("On Contract?" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["On Contract?"] = '';
                    }
                    if ("Order Contact" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Order Contact"] = '';
                    }
                    if ("Order Contact Phone Number" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Order Contact Phone Number"] = '';
                    }
                    if ("Order Date" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Order Date"] = '';
                    }
                    if ("Order Method Description" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Order Method Description"] = '';
                    }
                    if ("Order Number" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Order Number"] = '';
                    }
                    if ("Payment Method Code1" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Payment Method Code1"] = '';
                    }
                    if ("Payment Method Code" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Payment Method Code"] = '';
                    }
                    if ("Sell UOM" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Sell UOM"] = '';
                    }
                    if ("Ship To Contact" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Ship To Contact"] = '';
                    }
                    if ("Shipped Date" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Shipped Date"] = '';
                    }
                    if ("SKU" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["SKU"] = '';
                    }
                    if ("Transaction Source System1" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Transaction Source System1"] = '';
                    }
                    if ("Transaction Source System" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Transaction Source System"] = '';
                    }
                    if ("Group ID1" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Group ID1"] = '';
                    }
                    if ("Group ID" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Group ID"] = '';
                    }
                    if ("Qty" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Qty"] = '';
                    }
                    if ("Adj Gross Sales" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Adj Gross Sales"] = '';
                    }
                    if ("Avg Sell Price" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
-                                   if (preg_match('/\bdate\b/i', $value->key)) {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
-                                   } else {
-                                       $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
-                                   }
+                        if (preg_match('/\bdate\b/i', $value->key)) {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                        } else {
+                            $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                        }
                    } else {
                      $finalArray[$value->id]["Avg Sell Price"] = '';
                    }
@@ -1863,7 +1863,7 @@ class Order extends Model
             }
         }
 
-        // dd($outputArray);
+        dd($finalArray);
 
         // dd($query->toSql(), $query->getBindings());
 
