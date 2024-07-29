@@ -1375,8 +1375,8 @@ class Order extends Model
                         if (preg_match('/\bdate\b/i', $value->key)) {
                             $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                         } else {
-                            dd(rtrim($value->key, " ID"));
                             $finalArray[$value->id][rtrim($value->key, " ID")] = $value->value;
+                            dd($finalArray);
                         }
                    } else {
                      $finalArray[$value->id]["Master Customer Name"] = '';
