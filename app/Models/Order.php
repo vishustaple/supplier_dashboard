@@ -1345,9 +1345,10 @@ class Order extends Model
             $finalArray = [];
 
             // $outputArray = [];
-            
+            echo"<pre>";
                 foreach ($queryData as $key => $value) {
-                    dd(rtrim($value->key, " ID"));
+                    
+                    print_r(rtrim($value->key, " ID"));
                     if ("Div ID" == $value->key) {
                         /** Prepare the final array for CSV */
                         if (preg_match('/\bdate\b/i', $value->key)) {
