@@ -1347,7 +1347,8 @@ class Order extends Model
             // $outputArray = [];
             
                 foreach ($queryData as $key => $value) {
-                    if ("Div ID" == rtrim($value->key, " ID")) {
+                    dd(rtrim($value->key, " ID"));
+                    if ("Div ID" == $value->key) {
                         /** Prepare the final array for CSV */
                         if (preg_match('/\bdate\b/i', $value->key)) {
                             $finalArray[$value->id][rtrim($value->key, " ID")] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
@@ -1367,6 +1368,7 @@ class Order extends Model
                    } else {
                      $finalArray[$value->id]["Master_Customer_Number"] = '';
                    }
+                   
                    if ("Master Customer Name" == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
                         if (preg_match('/\bdate\b/i', $value->key)) {
