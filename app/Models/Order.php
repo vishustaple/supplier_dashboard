@@ -1367,7 +1367,7 @@ class Order extends Model
             "Remanufactured/Refurbished Flag",
             "ECO Feature",
             "ECO Sub Feature",
-            "ECO ID",
+            "ECO",
             "Budget Center Name",
             "Invoice Date",
             "Invoice Number",
@@ -1385,8 +1385,8 @@ class Order extends Model
             "SKU",
             "Transaction Source System1",
             "Transaction Source System",
-            "Group ID1",
-            "Group ID",
+            "Group1",
+            "Group",
             "Qty",
             "Adj Gross Sales",
             "Avg Sell Price"
@@ -1396,7 +1396,7 @@ class Order extends Model
             $finalArray = [];
             foreach ($stapleColumnArray as $keys => $values) {
                 foreach ($queryData as $key => $value) {
-                    if ($values == rtrim($value->key, " ID") || $value->key == "Group") {
+                    if ($values == rtrim($value->key, " ID")) {
                         /** Prepare the final array for CSV */
                         if (preg_match('/\bdate\b/i', $value->key)) {
                             $finalArray[$value->id][$values] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
