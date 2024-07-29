@@ -1396,7 +1396,7 @@ class Order extends Model
             $finalArray = [];
             foreach ($stapleColumnArray as $keys => $values) {
                 foreach ($queryData as $key => $value) {
-                    if ($values == rtrim($value->key, " ID") || $values == "Group ID1") {
+                    if ($values == rtrim($value->key, " ID") || $value->key == "Group") {
                         /** Prepare the final array for CSV */
                         if (preg_match('/\bdate\b/i', $value->key)) {
                             $finalArray[$value->id][$values] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
