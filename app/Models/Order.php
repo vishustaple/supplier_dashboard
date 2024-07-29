@@ -1348,7 +1348,7 @@ class Order extends Model
             echo"<pre>";
                 foreach ($queryData as $key => $value) {
                     
-                    var_dump(("Master Customer Name" == rtrim($value->key, " ID")));
+                    
                     if ("Div ID" == $value->key) {
                         /** Prepare the final array for CSV */
                         if (preg_match('/\bdate\b/i', $value->key)) {
