@@ -75,7 +75,7 @@ class DeleteUploadedFilesData extends Command
                 if (File::exists($filePath)) {
                     try {
                         // unlink($fileToDelete);
-                        File::delete($filePath);
+                        // File::delete($filePath);
                     } catch (\Exception $e) {
                         /** Log or handle the error */
                         Log::error('Error deleting file: ' . $e->getMessage());

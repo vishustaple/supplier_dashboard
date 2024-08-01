@@ -159,6 +159,8 @@ class ProcessUploadedFiles extends Command
                             $columnArray1['255'] => 'year_50',
                             $columnArray1['256'] => 'year_51',
                             $columnArray1['257'] => 'year_52',
+                            // $columnArray1['611'] => 'year_53',
+                            $columnArray1['537'] => 'year_53',
                         ]
                     ];
                 } else {
