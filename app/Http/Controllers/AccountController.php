@@ -286,27 +286,34 @@ class AccountController extends Controller
     public function editAccountName(Request $request){
         $accoundid = $request->account_id;
         $accountname =$request->account_name;
-        $validator = Validator::make(
+        $parentName = $request->parent_name;
+        $parentNumber =$request->parent_number;
+        $categoryName = $request->catagory_name;
+        $customerName =$request->customer_name;
+        $validator = Validator::make($request->all(),
             [
-                'account_name'=>$request->account_name,
-               
-            ],
-            [
+                // 'parent_name'=>'required|string|max:255',
                 'account_name'=>'required|string|max:255',
-
+                // 'parent_number'=>'required|string|max:255',
+                // 'customer_name'=>'required|string|max:255',
+                // 'category_name'=>'required|string|max:255',
             ]
         );
-        if( $validator->fails() )
-        {  
-           
+
+        if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 200);
-    
-        }
-        else{
+        } else {
             try {
-                $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname]);
-                if($updateAccountName){
-                    return response()->json(['success' => 'Account Name Update Successfully!'], 200);
+                $updateAccountName = Account::where('id', $accoundid)->update([
+                    'account_name' => $accountname,
+                    'parent_name' => $parentName,
+                    'parent_id' => $parentNumber,
+                    'record_type' => $categoryName,
+                    'customer_name' => $customerName,
+                ]);
+
+                if ($updateAccountName) {
+                    return response()->json(['success' => 'Account Data Update Successfully!'], 200);
                 }
             } catch (\Throwable $e) {
                 return response()->json(['error' => $e->getMessage()], 200);

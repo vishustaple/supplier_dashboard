@@ -76,11 +76,31 @@
                                     @csrf
                                     <div class="modal_input_wrap">
                                         <input type="hidden" name="account_id" id="account_id" value="">
-                                        <label>Account Name</label>
                                     </div>
                                     <div class="modal_input_wrap pb-3">
+                                        <label>Account Name</label>
                                         <input type="text" placeholder="Enter Account Name" class="form-control" name="account_name" id="account_name" value="">
                                         <div id="account_name_error"></div>
+                                    </div>
+                                    <div class="modal_input_wrap pb-3">
+                                        <label>Customer Name</label>
+                                        <input type="text" placeholder="Enter Customer Name" class="form-control" name="customer_name" id="customer_name" value="">
+                                        <div id="customer_name_error"></div>
+                                    </div>
+                                    <div class="modal_input_wrap pb-3">
+                                        <label>Category Name</label>
+                                        <input type="text" placeholder="Enter Category Name" class="form-control" name="category_name" id="category_name" value="">
+                                        <div id="category_name_error"></div>
+                                    </div>
+                                    <div class="modal_input_wrap pb-3">
+                                        <label>Parent Name</label>
+                                        <input type="text" placeholder="Enter Parent Name" class="form-control" name="parent_name" id="parent_name" value="">
+                                        <div id="parent_name_error"></div>
+                                    </div>
+                                    <div class="modal_input_wrap pb-3">
+                                        <label>Parent Number</label>
+                                        <input type="text" placeholder="Enter Parent Number" class="form-control" name="parent_number" id="parent_number" value="">
+                                        <div id="parent_number_error"></div>
                                     </div>
                                 </div>
                             </div>
@@ -95,16 +115,13 @@
     </div>
     <script>
         //set modal value 
-        var myModal = document.getElementById('editAccountModal');
-        myModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget, // Button that triggered the modal
-            recipient = button.getAttribute('data-name'), // Extract value from data-* attributes
-            id = button.getAttribute('data-id'),
-            accountNameInput = document.getElementById('account_name'),
-            accountIdInput = document.getElementById('account_id');
-            // Set the value of the input element
-            accountNameInput.value = recipient;
-            accountIdInput.value = id;
+        document.getElementById('editAccountModal').addEventListener('show.bs.modal', function (event) {
+            document.getElementById('account_name').value = event.relatedTarget.getAttribute('data-name');
+            document.getElementById('account_id').value = event.relatedTarget.getAttribute('data-id');
+            document.getElementById('parent_name').value = event.relatedTarget.getAttribute('data-parent_name');
+            document.getElementById('parent_number').value = event.relatedTarget.getAttribute('data-parent_number');
+            document.getElementById('category_name').value = event.relatedTarget.getAttribute('data-category_name');
+            document.getElementById('customer_name').value = event.relatedTarget.getAttribute('data-customer_name');
         });
 
         function selectCustomer (count='') {
