@@ -220,7 +220,7 @@ class ProcessUploadedFiles extends Command
                             // if ($fileValue->supplier_id == 5 && $i == 1) {
                             //     continue;
                             // }
-                            if (($sheetCount == 1 && $i == 1 && $fileValue->supplier_id != 5) || ($fileValue->supplier_id == 5 && $i == 0) || ($fileValue->supplier_id == 7 && in_array($i, [0, 1, 3, 4, 5, 6, 7]))) {
+                            if (($sheetCount == 1 && $i == 1 && $fileValue->supplier_id != 5) || ($fileValue->supplier_id == 5 && $i == 0) || ($fileValue->supplier_id == 7 && $i != 2)) {
                                 continue;
                             }
 
@@ -270,13 +270,19 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
                             
-                            
                             if (!isset($maxNonEmptyValue)) {
                                 continue;
                             }
                             
                             if ($fileValue->supplier_id == 7) {
                                 $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
+                                if (!empty($supplierYear)) {
+                                    $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('data_id')->first();
+                                    DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
+                                    DB::table('order_product_details')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
+                                    DB::table('order_details')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
+                                    DB::table('orders')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
+                                }
                             }
 
                             if ($fileValue->supplier_id == 4) {
@@ -349,7 +355,7 @@ class ProcessUploadedFiles extends Command
                                         if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
-                                                if (strpos($row[$keyParentName], "CenterPoint") !== false) {
+                                                if (strpos($row[$keyParentName], "CenterPoint") !== false || strpos($row[$keyParentName], "centerpoint") !== false) {
                                                     Account::create([
                                                         'parent_id' => $row[$keyParent],
                                                         'parent_name' => $row[$keyParentName],
@@ -365,6 +371,7 @@ class ProcessUploadedFiles extends Command
                                                         'parent_id' => $row[$keyParent],
                                                         'parent_name' => $row[$keyParentName],
                                                         'account_number' => $row[$keyCustomer],
+                                                        'account_name' => $row[$keyParentName],
                                                         'customer_name' => $row[$keyCustomerName],
                                                         'grandparent_id' => $row[$keyGrandParent],
                                                         'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
@@ -615,7 +622,7 @@ class ProcessUploadedFiles extends Command
                                     ]);
 
                                     DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->insert($excelInsertArray);
-
+                                    
                                     if ($fileValue->supplier_id != 7) {
                                         if (isset($orderDetailsArray) && !empty($orderDetailsArray)) {
                                             DB::table('order_details')->insert($orderDetailsArray);
@@ -627,7 +634,6 @@ class ProcessUploadedFiles extends Command
                                     echo "Database insertion failed: " . $e->getMessage();
                                 }
                             }
-
                             unset($finalInsertArray, $finalOrderInsertArray, $excelInsertArray);
                         }
                     try {
