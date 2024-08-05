@@ -278,10 +278,12 @@ class ProcessUploadedFiles extends Command
                                 $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
                                 if (!empty($supplierYear)) {
                                     $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('data_id')->first();
-                                    DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
-                                    DB::table('order_product_details')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
-                                    DB::table('order_details')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
-                                    DB::table('orders')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
+                                    if (isset($dataIdForDeleteDuplicateData->data_id) && !empty($dataIdForDeleteDuplicateData->data_id)) {
+                                        DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
+                                        DB::table('order_product_details')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
+                                        DB::table('order_details')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
+                                        DB::table('orders')->where('data_id', $dataIdForDeleteDuplicateData->data_id)->delete();
+                                    }
                                 }
                             }
 
