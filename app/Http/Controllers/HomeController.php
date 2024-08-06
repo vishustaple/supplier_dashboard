@@ -245,6 +245,7 @@
                     return redirect()->back()->with('success', 'Your Password updated successfully.');
                 }
                 /** Verify the token */
+                
                 if ($user->remember_token === $request->token) {
                     /** Update the user's password */
                     $user->password = bcrypt($request->password);
@@ -265,4 +266,55 @@
             $adminUser= User::where('user_type',User::USER_TYPE_SUPERADMIN)->first();
             return view('admin.profile',compact('adminUser'));
         }  
+
+        public function userForgetPassword(Request $request){
+            return view('auth.forget_password'); 
+        }
+
+        public function userResetPassword(Request $request){
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email|max:255',
+            ]);
+
+            if ($validator->fails()) {  
+                return response()->json(['error' => $validator->errors()], 200);
+            } else {
+                try {
+                    $user = DB::table('users')->where('email', trim($request->input('email')))->first();
+                    if (isset($user->email) && !empty($user->email)) {
+                        $token = Str::random(40);
+                        $a = DB::table('users')
+                        ->where('id', $user->id)
+                        ->update(['remember_token' => $token]);
+
+                        $email = $request->email;
+                        $key = env('APP_KEY');
+                        $salt = openssl_random_pseudo_bytes(16); /** Generate salt */
+                        $data = ''.$user->id . '|' . $token.'';
+                    
+                        try{
+                            Log::info('Attempting to send email...');
+                            Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function($message) use ($email) {
+                                    $message->to($email)
+                                            ->subject('Forget Password Form');
+                                });
+                            
+                            Log::info('Email sent successfully');
+                        } catch (\Exception $e) {
+                            /** Handle the exception here */
+                            Log::error('Email sending failed: ' . $e->getMessage());
+                        }
+
+                        /** Set the success message here */
+                        session()->flash('success', 'Password reset link sended on your email.');
+                    } else {
+                        session()->flash('error', 'Please enter valid account email.');
+                    }
+                } catch (\Exception $e) {
+                    session()->flash('error', $e->getMessage());
+                }
+            }
+
+            return redirect()->route('user.forget');
+        }
     }
