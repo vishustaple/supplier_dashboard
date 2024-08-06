@@ -9,8 +9,10 @@
      
    <div id="main" class=""> 
   
-      @if(Route::currentRouteName() != 'user.forget' && Route::currentRouteName() != 'login' )
+      @if(Route::currentRouteName() != 'user.forget')
+      @if(Route::currentRouteName() != 'login')
          @include('layout.sidenav')
+         @endif
       @endif
     
       @yield('content')
