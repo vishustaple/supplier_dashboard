@@ -26,6 +26,8 @@ Route::get('/', function () {
 Route::get('/register', [HomeController::class, 'register'])->name('register');
 Route::post('/user-login', [HomeController::class, 'userLogin'])->name('user.login');
 Route::get('/user-logout', [HomeController::class, 'userLogout'])->name('user.logout');
+Route::get('/user-forget', [HomeController::class, 'userForgetPassword'])->name('user.forget');
+Route::post('/user-reset', [HomeController::class, 'userResetPassword'])->name('user.reset');
 Route::post('/user-register', [HomeController::class, 'userRegister'])->name('user.register');
   
 
