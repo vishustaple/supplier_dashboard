@@ -211,7 +211,11 @@
         public function createPassword(Request $request){
             $key = env('APP_KEY');
             $data = $request->input('data');
-            $decryptedData=decryptData($data, $key);
+            if ($data === null) {
+                return view('admin.linkexpire');
+            }
+
+            $decryptedData = decryptData($data, $key);
             [$userid, $token] = explode('|', $decryptedData);
             $dbtoken = User::select('remember_token')->where('id',$userid)->first();
             if ($dbtoken->remember_token === null) {
