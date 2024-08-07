@@ -4,28 +4,24 @@
         <div id="layoutAuthentication">
             <div id="layoutAuthentication_content">
                 <main>
-                    <div class="container">
+                    <div class="container login_container">
                         <div class="row justify-content-center">
-                            <div class="col-lg-5">
+                            <div class="col-lg-4">
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                <!-- <div class="brand_logo">
+                                <div class="brand_logo">
                                     <a class="logo_link" href="#">
                                         <img src="{{ asset('images/logo-1.webp') }}">
                                     </a>
-                                </div> -->
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Password Reset</h3></div>
+                                </div>
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Reset Password</h3></div>
                                         @if(session('success'))
                                         <div class="alert alert-success" id="successMessage">
                                         {{ session('success') }}
                                         </div>
                                         @endif
-                                        @if ($errors->any())
+                                        @if (session('error'))
                                         <div class="alert alert-danger">
-                                        <ul>
-                                        @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                        @endforeach
-                                        </ul>
+                                        {{session('error')}}
                                         </div>
                                         @endif 
                                     <div class="card-body">
@@ -36,7 +32,10 @@
                                                 <label for="inputEmail">Email address</label>
                                             </div>
                                             <div class="text-center">
-                                                <button type="submit" class="btn blue col-3">Login</button>
+                                                <button type="submit" class="btn blue ">Send Email</button>
+                                            </div>
+                                            <div class="text-center mt-2">
+                                                <a href="{{route('login')}}" class="forgot-password-link">Back to Login</a>
                                             </div>
                                         </form>
                                     </div>

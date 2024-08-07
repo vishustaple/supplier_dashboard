@@ -277,7 +277,8 @@
             ]);
 
             if ($validator->fails()) {  
-                return response()->json(['error' => $validator->errors()], 200);
+                session()->flash('error', 'The email field is required.');
+                return redirect()->route('user.forget');
             } else {
                 try {
                     $user = DB::table('users')->where('email', trim($request->input('email')))->first();

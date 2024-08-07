@@ -452,6 +452,15 @@ div#layoutSidenav_content.collapsedfull{
 .container{
   max-width: 100% !important;
 }
+@media (min-width:1200px) {
+  .login_container.container{
+    max-width: 1140px !important;
+  }
+}
+.login_container button.blue{
+   padding: 8px 35px;
+   width: 200px !important;
+}
 #example_wrapper #example {
   display: inline-table !important;
 }

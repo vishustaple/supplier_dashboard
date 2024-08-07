@@ -1,7 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{SavedQueryController, ExcelImportController, SalesTeamController, RebateController, CommissionController,  CatalogController, ReportController, HomeController, CategorySupplierController, AccountController};
+use App\Http\Controllers\{
+    SavedQueryController,
+    ExcelImportController,
+    SalesTeamController,
+    RebateController,
+    CommissionController,
+    CatalogController,
+    ReportController,
+    HomeController,
+    CategorySupplierController,
+    AccountController
+};
+
 use Illuminate\Support\Facades\Auth; 
 /*
 |--------------------------------------------------------------------------
