@@ -24,7 +24,7 @@
         <div class="row justify-content-center mt-5">
             @if(isset($message))
                 <h2>{{$message}}</h2>    
-            @ifelse
+            @else
                 <h2>Create Password link has been Expired.</h2>
             @endif
         </div>
