@@ -212,13 +212,15 @@
             $key = env('APP_KEY');
             $data = $request->input('data');
             if ($data === null) {
-                return view('admin.linkexpire');
+                $message = 'Create Password link is invalid';
+                return view('admin.linkexpire',compact('message'));
             }
 
             $decryptedData = decryptData($data, $key);
 
             if (count(explode('|', $decryptedData)) <= 1) {
-                return view('admin.linkexpire');
+                $message = 'Create Password link is invalid';
+                return view('admin.linkexpire',compact('message'));
             }
 
             [$userid, $token] = explode('|', $decryptedData);
