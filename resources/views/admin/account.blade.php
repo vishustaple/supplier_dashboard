@@ -84,7 +84,7 @@
                                     </div>
                                     <div class="modal_input_wrap pb-3">
                                         <label>Customer Name</label>
-                                        <input type="text" placeholder="Enter Customer Name" class="form-control" name="customer_name" id="customer_name" value="">
+                                        <input type="text" placeholder="Enter Customer Name" class="form-control" name="customer_name" id="customers_name" value="">
                                         <div id="customer_name_error"></div>
                                     </div>
                                     <div class="modal_input_wrap pb-3">
@@ -121,7 +121,7 @@
             document.getElementById('parent_name').value = event.relatedTarget.getAttribute('data-parent_name');
             document.getElementById('parent_number').value = event.relatedTarget.getAttribute('data-parent_number');
             document.getElementById('category_name').value = event.relatedTarget.getAttribute('data-category_name');
-            document.getElementById('customer_name').value = event.relatedTarget.getAttribute('data-customer_name');
+            document.getElementById('customers_name').value = event.relatedTarget.getAttribute('data-customer_name');
         });
 
         function selectCustomer (count='') {
