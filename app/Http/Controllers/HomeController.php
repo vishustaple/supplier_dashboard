@@ -216,8 +216,8 @@
             }
 
             $decryptedData = decryptData($data, $key);
-            
-            if (count(explode('|', $decryptedData)) < 1) {
+
+            if (count(explode('|', $decryptedData)) <= 1) {
                 return view('admin.linkexpire');
             }
 
