@@ -19,6 +19,35 @@ use App\Models\{
 
 class ReportController extends Controller
 {
+    public function __construct(Request $request){
+        $setPageTitleArray = [
+            'business_report' => 'Business Report',
+            'commission_report' => 'Commission Report',
+            'supplier_report' => 'Supplier Rebate Report',
+            'optimization_report' => 'Quarter Report',
+            'consolidated_report' => 'Consolidated Supplier Report',
+            'validation_rebate_report' => 'Validation Rebate Report',
+        ];
+
+        // $setPageTitleArray1 = [
+        //     'business_report' => ['dataFilter', 'exportCsv'],
+        //     'commission_report' => ['getCommissionsWithAjax', 'commissionReportFilter', 'commissionReportExportCsv', 'approvedUpdate', 'paidUpdate', 'downloadSampleCommissionFile'],
+        //     'supplier_report' => ['supplierReportFilter', 'supplierReportExportCsv'],
+        //     'consolidated_report' => ['consolidatedReportFilter', 'exportConsolidatedCsv', 'exportConsolidatedDownload'],
+        //     'optimization_report' => '',
+        //     'validation_rebate_report' => '',
+        // ];
+        $reportType = $request->route('reportType');
+        if (isset($reportType)) {
+            $this->middleware('permission:'.$setPageTitleArray[$request->route('reportType')])->only(['index']);
+        }
+
+        $this->middleware('permission:Business Report')->only(['dataFilter', 'exportCsv']);
+        $this->middleware('permission:Commission Report')->only(['getCommissionsWithAjax', 'commissionReportFilter', 'commissionReportExportCsv', 'approvedUpdate', 'paidUpdate', 'downloadSampleCommissionFile']);
+        $this->middleware('permission:Supplier Rebate Report')->only(['supplierReportFilter', 'supplierReportExportCsv']);
+        $this->middleware('permission:Consolidated Supplier Report')->only(['consolidatedReportFilter', 'exportConsolidatedCsv', 'exportConsolidatedDownload']);
+    }
+
     public function index(Request $request, $reportType, $id=null){
         if (!isset($id)) {
             $id = $request->query('id');
