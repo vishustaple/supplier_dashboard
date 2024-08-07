@@ -15,7 +15,7 @@
         <div class="card mx-2 shadow p-3 my-3 alert alert-warning">
         <h4 class="alert-heading"><i class="fa fa-info-circle" aria-hidden="true"></i> Important</h4>    
         <div class="border-top border-warning py-2"></div>
-            Before uploading, please make sure to add the keyword  "date" in the column names that have data values.
+        Before uploading, please make sure to add the keyword "date" in the column names that have date values.
         </div>
         <div class="alert alert-success m-3" id="user_del_success" style="display:none;"></div>
         <div class="container">
