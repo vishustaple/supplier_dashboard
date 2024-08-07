@@ -4,10 +4,9 @@
         <div id="layoutAuthentication">
             <div id="layoutAuthentication_content">
                 <main>
-                    <div class="container">
+                    <div class="container login_container">
                         <div class="row justify-content-center">
-                            <div class="col-lg-5">
-                               
+                            <div class="col-lg-4">
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                                 <div class="brand_logo">
                                     <a class="logo_link" href="#">
@@ -40,35 +39,22 @@
                                                 <input class="form-control" id="inputPassword" name="password" type="password" placeholder="Password" />
                                                 <label for="inputPassword">Password</label>
                                             </div>
-                                            <!-- <div class="form-check mb-3">
-                                                <input class="form-check-input" id="inputRememberPassword" name="remember" type="checkbox" value="1" />
-                                                <label class="form-check-label" for="inputRememberPassword">Remember Password</label>
-                                            </div> -->
                                             <div class="text-center">
-                                                <!-- <a class="small" href="password.html">Forgot Password?</a> -->
-                                                <!-- <a class="btn btn-primary" href="index.html">Login</a> -->
-                                                <button type="submit" class="btn blue col-3">Login</button>
+                                                <button type="submit" class="btn blue ">Login</button>
                                             </div>
                                             <div class="text-center mt-2">
                                                 <a href="{{route('user.forget')}}" class="forgot-password-link">Forgot Password?</a>
                                             </div>
                                         </form>
                                     </div>
-                                    <!-- <div class="card-footer text-center py-3">
-                                        <div class="small"><a href="{{route('register')}}">Need an account? Sign up!</a></div>
-                                    </div> -->
                                 </div>
                             </div>
                         </div>
                     </div>
                 </main>
             </div>
-           
         </div>
-   
-        
-             @include('layout.footer')
-        
+        @include('layout.footer')
     </body>
 </html>
 @endsection
