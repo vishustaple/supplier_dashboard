@@ -216,6 +216,11 @@
             }
 
             $decryptedData = decryptData($data, $key);
+            
+            if (count(explode('|', $decryptedData)) < 1) {
+                return view('admin.linkexpire');
+            }
+
             [$userid, $token] = explode('|', $decryptedData);
             $dbtoken = User::select('remember_token')->where('id',$userid)->first();
             if ($dbtoken->remember_token === null) {
