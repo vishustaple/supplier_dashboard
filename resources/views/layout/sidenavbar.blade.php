@@ -69,7 +69,7 @@
                     $hasPermission = !empty(array_intersect($userPermissions, $requiredPermissions));
                 @endphp
 
-                @if($hasPermission)
+                @if($hasPermission || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                 <a class="nav-link {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Business Report', 'Quarter Report', 'Consolidated Supplier Report', 'Supplier Rebate Report', 'Validation Rebate Report', 'Commission Report'])) ? 'active' : '' }}" data-toggle="collapse" href="#submenuSupplier">
                     <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
                     Reports
