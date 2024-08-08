@@ -123,6 +123,7 @@ Route::group(['prefix' => 'admin'], function () {
     
         //not in use now this route     
         Route::get('/userlist', [HomeController::class, 'userview'])->name('user.show');
+        Route::get('/powerbi', [HomeController::class, 'showPowerBi'])->name('power_bi.show');
         Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
         Route::get('/updateuser', [HomeController::class, 'UpdateUser'])->name('user.updateuser');
         Route::post('/updateuserdata', [HomeController::class, 'UpdateUserData'])->name('user.updateuserdata');
