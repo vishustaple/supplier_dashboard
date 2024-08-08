@@ -57,6 +57,10 @@
                     </a>
                 </div>
                 @endif
+                <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Power Bi') ? 'active' : '' }}" href="{{route('power_bi.show')}}">
+                    <div class="sb-nav-link-icon"><i class="fa fa-window-maximize" aria-hidden="true"></i></div>
+                    Power BI
+                </a>
                 @if(in_array('Manage Users', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                 <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'User Data') ? 'active' : '' }}" href="{{route('user.show')}}">
                      <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>

@@ -31,6 +31,11 @@
             return view('auth.register');
         }
 
+        public function showPowerBi(){
+            $pageTitle = 'Power Bi';
+            return view('admin.power_bi', compact('pageTitle'));
+        }
+
         public function userview(){    
             $userdata=User::where('user_type', '!=', User::USER_TYPE_SUPERADMIN)->orderBy('id','desc')->get();
             $formatuserdata=[];
