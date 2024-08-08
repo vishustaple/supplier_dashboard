@@ -59,7 +59,7 @@
                 @endif
                 @if(in_array('Manage Users', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                 <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'User Data') ? 'active' : '' }}" href="{{route('user.show')}}">
-                    <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
+                     <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
                     Manage Users
                 </a>
                 @endif
