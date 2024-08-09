@@ -100,6 +100,9 @@
                     @if(in_array('Commission Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                         <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'commission_report'])}}">Commission Report</a>
                     @endif
+                    @if(in_array('Operational Anomaly Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
+                        <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Operational Anomaly Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'operational_anomaly_report'])}}">Operational Anomaly Report</a>
+                    @endif
                 </div>
                 @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || !in_array(auth()->user()->user_type, [\App\Models\User::USER_TYPE_USER, \App\Models\User::USER_TYPE_ADMIN]))
                 <a class="nav-link" target="_blank" href="http://3.95.106.180:7080/phpMyAdmin2025/">

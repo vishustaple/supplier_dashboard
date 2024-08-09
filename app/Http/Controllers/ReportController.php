@@ -27,6 +27,7 @@ class ReportController extends Controller
             'optimization_report' => 'Quarter Report',
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
+            'operational_anomaly_report' => 'Operational Anomaly Report',
         ];
 
         // $setPageTitleArray1 = [
@@ -60,6 +61,7 @@ class ReportController extends Controller
             'optimization_report' => 'Quarter Report',
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
+            'operational_anomaly_report' => 'Operational Anomaly Report',
         ];
 
         if(isset($id) && isset($reportType)){
@@ -899,5 +901,12 @@ class ReportController extends Controller
     
         /** return $csvResponse; */
         return $response;
+    }
+
+    public function operationalAnomalyReportFilter(Request $request) {
+        if ($request->ajax()) {
+            $formatuserdata = Order::operationalAnomalyReportFilterdData($request->all());
+            return response()->json($formatuserdata);
+        }
     }
 }
