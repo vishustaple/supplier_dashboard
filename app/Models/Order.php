@@ -1477,9 +1477,11 @@ class Order extends Model
                         NULL
                 END AS gap_percentage
             ')
+            ->whereYear('orders.date', '<=', 2024)
+            ->whereYear('orders.date', '>=', 2023)
             ->groupBy('year', 'mad.account_name')
-            ->having('year', '>=', 2024)
-            ->having('year', '<=', 2023)
+            // ->having('year', '>=', 2024)
+            // ->having('year', '<=', 2023)
             ->havingRaw('gap_percentage >= 20');
             // ->get();
 
