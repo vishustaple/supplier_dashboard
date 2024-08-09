@@ -174,6 +174,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/commissions/supplier-search', [CommissionController::class, 'commissionAjaxSupplierSearch'])->name('commission.supplierSearch');
       
         /** Commission Section End */
+
+        Route::post('/report/operational-anomaly/filter', [ReportController::class, 'operationalAnomalyReportFilter'])->name('report.operational_anomaly_report');
     });
 });
 
