@@ -1432,66 +1432,23 @@ class Order extends Model
     }
 
     public static function operationalAnomalyReportFilterdData($filter=[]) {
-        // /** Define column array for ordering the rows and searching the rows */
-        // $orderColumnArray = [
-        // ];
+        /** Define column array for ordering the rows and searching the rows */
+        $orderColumnArray = [
+            'account_name',
+            'supplier_name',
+            'fifty_two_wk_avg',
+            'ten_week_avg',
+            'two_wk_avg_percentage',
+            'drop',
+            'median',
+        ];
 
-        $query = self::query()
-            ->join('master_account_detail as mad', 'orders.customer_number', '=', 'mad.account_number')
-            ->selectRaw('YEAR(orders.date) AS year,
-                mad.account_name,
-                CASE
-                    WHEN MAX(WEEKOFYEAR(orders.date)) = 52 THEN
-                        FORMAT(SUM(COALESCE(orders.amount, 0)) / 52, 2)
-                    ELSE
-                        FORMAT(SUM(COALESCE(orders.amount, 0)) / 53, 2)
-                END AS average_week_52,
-                FORMAT(SUM(CASE WHEN WEEKOFYEAR(orders.date) <= 10 THEN COALESCE(orders.amount, 0) ELSE 0 END) / 10, 2) AS average_week_10,
-                FORMAT(SUM(CASE WHEN WEEKOFYEAR(orders.date) <= 2 THEN COALESCE(orders.amount, 0) ELSE 0 END) / 2, 2) AS average_week_2,
-                CASE
-                    WHEN MAX(WEEKOFYEAR(orders.date)) = 52 THEN
-                        CASE
-                            WHEN SUM(CASE WHEN WEEKOFYEAR(orders.date) = 52 THEN COALESCE(orders.amount, 0) ELSE 0 END) <> 0 THEN
-                                FORMAT(
-                                    ABS(
-                                        (SUM(CASE WHEN WEEKOFYEAR(orders.date) <= 10 THEN COALESCE(orders.amount, 0) ELSE 0 END) / 10) -
-                                        (SUM(COALESCE(orders.amount, 0)) / 52)
-                                    ) / (SUM(COALESCE(orders.amount, 0)) / 52) * 100, 2
-                                )
-                            ELSE
-                                NULL
-                        END
-                    WHEN MAX(WEEKOFYEAR(orders.date)) = 53 THEN
-                        CASE
-                            WHEN SUM(CASE WHEN WEEKOFYEAR(orders.date) = 53 THEN COALESCE(orders.amount, 0) ELSE 0 END) <> 0 THEN
-                                FORMAT(
-                                    ABS(
-                                        (SUM(CASE WHEN WEEKOFYEAR(orders.date) <= 10 THEN COALESCE(orders.amount, 0) ELSE 0 END) / 10) -
-                                        (SUM(COALESCE(orders.amount, 0)) / 53)
-                                    ) / (SUM(COALESCE(orders.amount, 0)) / 53) * 100, 2
-                                )
-                            ELSE
-                                NULL
-                        END
-                    ELSE
-                        NULL
-                END AS gap_percentage
-            ')
-            ->whereYear('orders.date', '<=', 2024)
-            ->whereYear('orders.date', '>=', 2023)
-            ->groupBy('year', 'mad.account_name')
-            // ->having('year', '>=', 2024)
-            // ->having('year', '<=', 2023)
-            ->havingRaw('gap_percentage >= 20');
-            // ->get();
-
+        $query = DB::table('operational_anomaly_report');
+        
         /** Year and quarter filter here */
-        // if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
-        //     $endDate = $filter['end_date'];
-        //     $startDate = $filter['start_date'];
-      
-        //     $query->whereBetween('orders.date', [$startDate, $endDate]);
-        // }
+        if (isset($filter['year']) && !empty($filter['year'])) {
+            $query->where('year', $filter['year']);
+        }
 
         $totalRecords = 0;
         /** Filter by account name if provided */
@@ -1499,9 +1456,8 @@ class Order extends Model
         //     $query->where('master_account_detail.account_name', $filter['account_name']);
         // }
 
-        // $query->groupBy('orders.supplier_id', 'master_account_detail.account_name');
-
-        $totalRecords = $query->getQuery()->getCountForPagination();
+        // $totalRecords = $query->getQuery()->getCountForPagination();
+        $totalRecords = $query->count();
         
         // if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
 
@@ -1540,17 +1496,18 @@ class Order extends Model
 
 
         /** Order by specified column and direction */
-        // if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-        //     $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
-        // } else {
-        //     $query->orderBy($orderColumnArray[0], 'asc');
-        // }
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
+        } else {
+            $query->orderBy($orderColumnArray[0], 'asc');
+        }
 
         // /** Group by with order supplier id */
         // $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
 
         /** Get the filtered records count */
-        $filteredRecords = $query->getQuery()->getCountForPagination();
+        // $filteredRecords = $query->getQuery()->getCountForPagination();
+        $filteredRecords = $query->count();
 
         /** Paginate the results if pagination filters are provided */
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
@@ -1562,18 +1519,16 @@ class Order extends Model
         foreach ($queryData as $key => $value) {
             /** Prepare the final array for non-CSV */
             $finalArray[$key]['account_name'] = $value->account_name;
-            $finalArray[$key]['fifty_two_wk_avg'] = '$'.$value->average_week_52;
-            $finalArray[$key]['ten_week_avg'] =  '$'.$value->average_week_10;
-            $finalArray[$key]['two_wk_avg_percentage'] = '$'.$value->average_week_2;
-            $finalArray[$key]['drop'] = $value->gap_percentage.'%';
-            $finalArray[$key]['median'] = ''; 
+            $finalArray[$key]['supplier_name'] = $value->supplier_name;
+            $finalArray[$key]['fifty_two_wk_avg'] = '$'.$value->fifty_two_wk_avg;
+            $finalArray[$key]['ten_week_avg'] =  '$'.$value->ten_week_avg;
+            $finalArray[$key]['two_wk_avg_percentage'] = '$'.$value->two_wk_avg_percentage;
+            $finalArray[$key]['drop'] = $value->drop.'%';
+            $finalArray[$key]['median'] = '$'.$value->median;
         }
+
         // dd($query->toSql(), $query->getBindings());
         // dd($finalArray);
-        // if(!$csv && isset($finalArray[0])) {
-        //     $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
-        // }
-        
 
         /** Return the result along with total and filtered counts */
         return [
@@ -1581,6 +1536,5 @@ class Order extends Model
             'recordsTotal' => $totalRecords,
             'recordsFiltered' => $filteredRecords,
         ];
-        
     }
 }
