@@ -1443,7 +1443,14 @@ class Order extends Model
             'median',
         ];
 
-        $query = DB::table('operational_anomaly_report');
+        $query = DB::table('operational_anomaly_report')
+        ->selectRaw('account_name,
+        supplier_name,
+        FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
+        FORMAT(ten_week_avg, 2) AS ten_week_avg,
+        FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
+        FORMAT(`drop`, 2) AS `drop`,
+        FORMAT(median, 2) AS median');
         
         /** Year and quarter filter here */
         if (isset($filter['year']) && !empty($filter['year'])) {
