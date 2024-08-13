@@ -19,11 +19,11 @@
                             @endfor
                         </select>
                     </div> -->
-                    <div class="form-group relative  mb-3">  
+                    <div class="form-group col-md-3 relative  mb-3">  
                             <label for="enddate">Select Date:</label>
                             <input class="form-control" id="date" type="date" name="date" placeholder="Enter Your End Date " >
                         </div>
-                    <div class="col-md-4 mb-0">
+                    <div class="col-md-12 mb-0">
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                     <!-- Button trigger modal -->
