@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use datetime;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
@@ -1443,95 +1444,122 @@ class Order extends Model
             'median',
         ];
 
-        $query = DB::table('operational_anomaly_report')
-        ->selectRaw('account_name,
-        supplier_name,
-        FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
-        FORMAT(ten_week_avg, 2) AS ten_week_avg,
-        FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
-        FORMAT(`drop`, 2) AS `drop`,
-        FORMAT(median, 2) AS median');
-        
-        /** Year and quarter filter here */
-        if (isset($filter['year']) && !empty($filter['year'])) {
-            $query->where('year', $filter['year']);
+        $originalDate = $end_date_2 = $end_date_10 = $end_date = $filter['date'];
+        if (!isset($filter['date']) && empty($filter['date'])) {
+            $finalArray = [
+                'account_name'=> '',
+                'supplier_name'=> '',
+                'fifty_two_wk_avg'=> '',
+                'ten_week_avg'=> '',
+                'two_wk_avg_percentage'=> '',
+                'drop'=> '',
+                'median'=> ''
+            ];
+
+            return [
+                'data' => $finalArray,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
         }
+
+        /** Create a DateTime object from the original date */
+        $date = new DateTime($originalDate);
+
+        /** Subtract 52 weeks from the original date */
+        $start_date_2 = (clone $date)->modify('-2 weeks')->format('Y-m-d');
+        $start_date_10 = (clone $date)->modify('-10 weeks')->format('Y-m-d');
+        $start_date = (clone $date)->modify('-52 weeks')->format('Y-m-d');
+
+        $weeklyAmountsQuery = self::query()
+            ->join('master_account_detail as mad', 'orders.customer_number', '=', 'mad.account_number')
+            ->join('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
+            ->selectRaw('YEAR(orders.date) as year, mad.account_name, orders.date, COALESCE(SUM(orders.amount), 0) as weekly_amount, suppliers.supplier_name as supplier_name, orders.supplier_id as supplier_id')
+            ->whereBetween('orders.date', [$start_date, $end_date])
+            ->groupBy(DB::raw('YEAR(orders.date)'), 'mad.account_name', 'orders.date', 'suppliers.supplier_name');
+
+        $rankedAmountsQuery = self::from(DB::raw("(".$weeklyAmountsQuery->toSql().") as WeeklyAmounts"))
+            ->selectRaw("
+                year,
+                account_name,
+                supplier_name,
+                weekly_amount,
+                ROW_NUMBER() OVER (PARTITION BY year, account_name ORDER BY weekly_amount) as row_num,
+                COUNT(*) OVER (PARTITION BY year, account_name) as total_count
+            ")
+            ->whereBetween('date', [$start_date, $end_date])
+            ->mergeBindings($weeklyAmountsQuery->getQuery()) ;
+        $mediansQuery = self::from(DB::raw("(".$rankedAmountsQuery->toSql().") as RankedAmounts"))
+            ->selectRaw("
+                year,
+                account_name,
+                supplier_name,
+                AVG(weekly_amount) as median_52_weeks
+            ")
+            ->whereIn('row_num', [
+                DB::raw("FLOOR((total_count + 1) / 2)"), 
+                DB::raw("CEIL((total_count + 1) / 2)")
+            ])
+            ->groupBy('year', 'account_name', 'supplier_name')
+            ->mergeBindings($rankedAmountsQuery->getQuery());
+
+        $query = self::from(DB::raw("(".$weeklyAmountsQuery->toSql().") as wa"))
+            ->join('master_account_detail as mad', 'wa.account_name', '=', 'mad.account_name')
+            ->join('suppliers', 'suppliers.id', '=', 'wa.supplier_id')
+            ->join(DB::raw("(".$mediansQuery->toSql().") as m"), function($join) {
+                $join->on('m.year', '=', 'wa.year')
+                    ->on('m.account_name', '=', 'wa.account_name');
+            })
+            ->selectRaw("
+                wa.year,
+                wa.account_name,
+                suppliers.supplier_name as supplier_name,
+                COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52, 0) as average_week_52,
+                COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10, 0) as average_week_10,
+                FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 2, 0), 2) as average_week_2,
+                FORMAT(
+                    (
+                        (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) -
+                        (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10) 
+                    ) / 
+                    (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) * 100, 2
+                ) as gap_percentage,
+                m.median_52_weeks
+            ", [
+                $start_date, $end_date,
+                $start_date_10, $end_date_10,
+                $start_date_2, $end_date_2,
+                $start_date, $end_date,
+                $start_date_10, $end_date_10,
+                $start_date, $end_date
+            ])
+            ->groupBy('wa.year', 'wa.account_name', 'suppliers.supplier_name')
+            ->havingRaw('CAST(average_week_52 AS DECIMAL(10, 2)) > CAST(average_week_10 AS DECIMAL(10, 2))')
+            ->havingRaw('CAST(average_week_10 AS DECIMAL(10, 2)) != 0.00')
+            ->mergeBindings($weeklyAmountsQuery->getQuery())
+            ->mergeBindings($mediansQuery->getQuery());
 
         $totalRecords = 0;
-        /** Filter by account name if provided */
-        // if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
-        //     $query->where('master_account_detail.account_name', $filter['account_name']);
-        // }
-
-        // $totalRecords = $query->getQuery()->getCountForPagination();
-        $totalRecords = $query->count();
-        
-        // if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-
-        //     /** Filter for specific supplier IDs */
-        //     $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
-        // } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
-        //     if (isset($filter['supplier_id'][1])) {
-
-        //         /** Filter for specified supplier IDs */
-        //         $query->whereIn('orders.supplier_id', $filter['supplier_id']);
-        //     } else {
-
-        //         /** Filter for specified supplier IDs */
-        //         $query->where('orders.supplier_id', $filter['supplier_id'][0]);
-        //     }
-            
-        // } else {
-        //     if ($csv == true) {
-        //         $finalArray['heading'] = [
-        //             'Supplier Name',
-        //             'Account Name',
-        //             'Spend',
-        //             'Category',
-        //         ];
-
-        //         return $finalArray;
-        //     } else {
-        //         /** Return empty data if no filters match */
-        //         return [
-        //             'data' => [],
-        //             'recordsTotal' => $totalRecords,
-        //             'recordsFiltered' => 0,
-        //         ];
-        //     }
-        // }
-
-
-        /** Order by specified column and direction */
-        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
-        } else {
-            $query->orderBy($orderColumnArray[0], 'asc');
-        }
-
-        // /** Group by with order supplier id */
-        // $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
+        $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get the filtered records count */
-        // $filteredRecords = $query->getQuery()->getCountForPagination();
-        $filteredRecords = $query->count();
+        $filteredRecords = $query->getQuery()->getCountForPagination();
 
         /** Paginate the results if pagination filters are provided */
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
 
-        $totalAmount = 0;
         $finalArray = [];
         foreach ($queryData as $key => $value) {
             /** Prepare the final array for non-CSV */
             $finalArray[$key]['account_name'] = $value->account_name;
             $finalArray[$key]['supplier_name'] = $value->supplier_name;
-            $finalArray[$key]['fifty_two_wk_avg'] = '$'.$value->fifty_two_wk_avg;
-            $finalArray[$key]['ten_week_avg'] =  '$'.$value->ten_week_avg;
-            $finalArray[$key]['two_wk_avg_percentage'] = '$'.$value->two_wk_avg_percentage;
-            $finalArray[$key]['drop'] = $value->drop.'%';
-            $finalArray[$key]['median'] = '$'.$value->median;
+            $finalArray[$key]['fifty_two_wk_avg'] = '$'.number_format($value->average_week_52, 2, '.', ',');
+            $finalArray[$key]['ten_week_avg'] =  '$'.number_format($value->average_week_10, 2, '.', ',');
+            $finalArray[$key]['two_wk_avg_percentage'] = '$'.$value->average_week_2;
+            $finalArray[$key]['drop'] = $value->gap_percentage.'%';
+            $finalArray[$key]['median'] = '$'.number_format($value->median_52_weeks, 2, '.', ',');
         }
 
         // dd($query->toSql(), $query->getBindings());

@@ -1,10 +1,6 @@
-<!-- resources/views/excel-import.blade.php -->
-
-
 @extends('layout.app', ['pageTitleCheck' => $pageTitle])
-
- @section('content')
- <div id="layoutSidenav">
+@section('content')
+<div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
         <div class="container">
@@ -14,7 +10,7 @@
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
                 <div class="row align-items-end py-3 border-top border-bottom mb-3">
-                    <div class="form-group relative col-md-3 mb-0">  
+                    <!-- <div class="form-group relative col-md-3 mb-0">  
                         <label for="enddate">Select Year:</label>
                         <select class="form-control" name="year" id="year" required>
                             <option value="">--Select--</option>
@@ -22,7 +18,11 @@
                                 <option value="{{$year}}">{{$year}}</option>
                             @endfor
                         </select>
-                    </div>
+                    </div> -->
+                    <div class="form-group relative  mb-3">  
+                            <label for="enddate">Select Date:</label>
+                            <input class="form-control" id="date" type="date" name="date" placeholder="Enter Your End Date " >
+                        </div>
                     <div class="col-md-4 mb-0">
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
@@ -40,7 +40,6 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
 <script>
     $(document).ready(function() {
-        
         // DataTable initialization
         var accountsData = $('#accounts_data').DataTable({
             oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
@@ -57,7 +56,7 @@
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    d.year = $('#year').val();
+                    d.date = $('#date').val();
                     // d.quarter = $('#quarter').val();
                     // d.supplier = $('#supplier').val();
                     // d.sales_reps = $('#sales_rep').val();

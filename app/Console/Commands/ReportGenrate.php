@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
+use datetime;
 use Illuminate\Support\Facades\DB;
 
 class ReportGenrate extends Command
@@ -27,6 +28,17 @@ class ReportGenrate extends Command
      */
     public function handle()
     {
+        $originalDate = '2024-08-13';
+        // Create a DateTime object from the original date
+        $date = new DateTime($originalDate);
+
+        // Subtract 52 weeks from the original date
+        $date->modify('-2 weeks');
+
+        // Format the date to your desired format
+        $previousDate = $date->format('Y-m-d');
+        dd($previousDate);
+
         DB::table('operational_anomaly_report')->delete();
         
         $weeklyAmounts = DB::table('orders')
