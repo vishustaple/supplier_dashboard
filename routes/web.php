@@ -176,6 +176,7 @@ Route::group(['prefix' => 'admin'], function () {
         /** Commission Section End */
 
         Route::post('/report/operational-anomaly/filter', [ReportController::class, 'operationalAnomalyReportFilter'])->name('report.operational_anomaly_report');
+        Route::get('/reports/operational-anomaly/csv', [ReportController::class, 'operationalAnomalyReportExportCsv'])->name('operational-anomaly-report.export-csv');
     });
 });
 
