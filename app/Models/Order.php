@@ -1538,7 +1538,7 @@ class Order extends Model
         $a = 0;
         foreach ($queryData as $key => $value) {
             /** Prepare the final array for CSV */
-            // if ($value->gap_percentage >= 20 && ($filter['supplier'] == '--Select--' || $filter['supplier'] == $value->supplier_name)) {
+            if ($value->gap_percentage >= 20 && ($filter['supplier'] == '--Select--' || $filter['supplier'] == $value->supplier_name)) {
                 if ($csv) {
                     $finalArray[] = [
                         'account_name' => $value->account_name,
@@ -1559,9 +1559,9 @@ class Order extends Model
                         $finalArray[$a]['two_wk_avg_percentage'] = '$'.$value->average_week_2;
                         $finalArray[$a]['drop'] = $value->gap_percentage.'%';
                         $finalArray[$a]['median'] = '$'.number_format($value->median_52_weeks, 2, '.', ',');
-                   
+                        $a++;
                 }
-            // }
+            }
         }
 
         // dd($query->toSql(), $query->getBindings());
