@@ -1535,6 +1535,7 @@ class Order extends Model
         $queryData = $query->get();
 
         $finalArray = [];
+        $a = 0;
         foreach ($queryData as $key => $value) {
             /** Prepare the final array for CSV */
             if ($value->gap_percentage >= 20 && ($filter['supplier'] == '--Select--' || $filter['supplier'] == $value->supplier_name)) {
@@ -1550,15 +1551,15 @@ class Order extends Model
                     ];
                 } else {
                     /** Prepare the final array for non-CSV */
-                    $finalArray[] = [
-                        'account_name' => $value->account_name,
-                        'supplier_name' => $value->supplier_name,
-                        'fifty_two_wk_avg' => '$'.number_format($value->average_week_52, 2, '.', ','),
-                        'ten_week_avg' =>  '$'.number_format($value->average_week_10, 2, '.', ','),
-                        'two_wk_avg_percentage' => '$'.number_format($value->average_week_2, 2, '.', ','),
-                        'drop' => $value->gap_percentage.'%',
-                        'median' => '$'.number_format($value->median_52_weeks, 2, '.', ','),
-                    ];
+                   
+                        $finalArray[$a]['account_name'] = $value->account_name;
+                        $finalArray[$a]['supplier_name'] = $value->supplier_name;
+                        $finalArray[$a]['fifty_two_wk_avg'] = '$'.number_format($value->average_week_52, 2, '.', ',');
+                        $finalArray[$a]['ten_week_avg'] =  '$'.$value->average_week_10;
+                        $finalArray[$a]['two_wk_avg_percentage'] = '$'.$value->average_week_2;
+                        $finalArray[$a]['drop'] = $value->gap_percentage.'%';
+                        $finalArray[$a]['median'] = '$'.number_format($value->median_52_weeks, 2, '.', ',');
+                   
                 }
             }
         }
