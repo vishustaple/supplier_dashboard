@@ -10,21 +10,26 @@
             <form  id="import_form"  enctype="multipart/form-data">
                 @csrf
                 <div class="row align-items-end py-3 border-top border-bottom mb-3">
-                    <!-- <div class="form-group relative col-md-3 mb-0">  
-                        <label for="enddate">Select Year:</label>
-                        <select class="form-control" name="year" id="year" required>
-                            <option value="">--Select--</option>
-                            @for ($year = 2018; $year <= date('Y'); $year++)
-                                <option value="{{$year}}">{{$year}}</option>
-                            @endfor
+                    <div class="form-group col-md-3 relative  mb-3">
+                        <label for="supplier">Select Supplier:</label>
+                        <select id="supplier" name="supplier" class="form-control"> 
+                            <option value="" selected>--Select--</option>
+                            @if(isset($categorySuppliers))
+                                @foreach($categorySuppliers as $categorySupplier)
+                                    @if($categorySupplier->id != 7)
+                                        <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                                    @endif
+                                @endforeach
+                            @endif
                         </select>
-                    </div> -->
+                    </div>
                     <div class="form-group col-md-3 relative  mb-3">  
-                            <label for="enddate">Select Date:</label>
-                            <input class="form-control" id="date" type="date" name="date" placeholder="Enter Your End Date " >
-                        </div>
+                        <label for="enddate">Select Date:</label>
+                        <input class="form-control" id="date" type="date" name="date" placeholder="Enter Your End Date " >
+                    </div>
                     <div class="col-md-12 mb-0">
                         <button type="submit" class="btn btn-primary">Submit</button>
+                        <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                     </div>
                     <!-- Button trigger modal -->
                 </div>
@@ -44,7 +49,7 @@
         var accountsData = $('#accounts_data').DataTable({
             oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
             processing: true,
-            serverSide: true,
+            serverSide: false,
             lengthMenu: [40], // Specify the options you want to show
             lengthChange: false, // Hide the "Show X entries" dropdown
             searching:false, 
@@ -57,8 +62,8 @@
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
                     d.date = $('#date').val();
+                    d.supplier = $('#supplier option:selected').text();
                     // d.quarter = $('#quarter').val();
-                    // d.supplier = $('#supplier').val();
                     // d.sales_reps = $('#sales_rep').val();
                     // d.commission_rebate_id = $('#commission_table_id').val();
                 },
@@ -82,13 +87,13 @@
             },
 
             columns: [
-                { data: 'account_name', name: 'account_name', title: 'Account Name', 'orderable': false, 'searchable': false },
-                { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name', 'orderable': false, 'searchable': false },
-                { data: 'fifty_two_wk_avg', name: 'fifty_two_wk_avg', title: '52wk AVG', 'orderable': false, 'searchable': false },
-                { data: 'ten_week_avg', name: 'ten_wk_avg', title: '10wk AVG', 'orderable': false, 'searchable': false },
-                { data: 'two_wk_avg_percentage', name: 'two_wk_avg_percentage', title: '2wk AVG.', 'orderable': false, 'searchable': false },
-                { data: 'drop', name: 'drop', title: '20% Drop', 'orderable': false, 'searchable': false },
-                { data: 'median', name: 'median', title: '52wk Median', 'orderable': false, 'searchable': false },
+                { data: 'account_name', name: 'account_name', title: 'Account Name', 'orderable': true, 'searchable': false },
+                { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name', 'orderable': true, 'searchable': false },
+                { data: 'fifty_two_wk_avg', name: 'fifty_two_wk_avg', title: '52wk AVG', 'orderable': true, 'searchable': false },
+                { data: 'ten_week_avg', name: 'ten_wk_avg', title: '10wk AVG', 'orderable': true, 'searchable': false },
+                { data: 'two_wk_avg_percentage', name: 'two_wk_avg_percentage', title: '2wk AVG.', 'orderable': true, 'searchable': false },
+                { data: 'drop', name: 'drop', title: '20% Drop', 'orderable': true, 'searchable': false },
+                { data: 'median', name: 'median', title: '52wk Median', 'orderable': true, 'searchable': false },
             ],
         });
 
@@ -96,6 +101,22 @@
             e.preventDefault();
             $('#accounts_data').DataTable().ajax.reload();
         });
+
+        $('#downloadCsvBtn').on('click', function () {
+            // Trigger CSV download
+            downloadCsv();
+        });
+
+        function downloadCsv() {
+            // You can customize this URL to match your backend route for CSV download
+            var csvUrl = '{{ route("operational-anomaly-report.export-csv") }}';
+
+            // Add query parameters for date range and supplier ID
+            csvUrl += '?date=' + $('#date').val() + '&supplier=' + $('#supplier option:selected').text();
+
+            // Open a new window to download the CSV file
+            window.open(csvUrl, '_blank');
+        }
     });
 </script>
 @endsection

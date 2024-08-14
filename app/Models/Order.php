@@ -1432,18 +1432,7 @@ class Order extends Model
         return $finalArray;
     }
 
-    public static function operationalAnomalyReportFilterdData($filter=[]) {
-        /** Define column array for ordering the rows and searching the rows */
-        $orderColumnArray = [
-            'account_name',
-            'supplier_name',
-            'fifty_two_wk_avg',
-            'ten_week_avg',
-            'two_wk_avg_percentage',
-            'drop',
-            'median',
-        ];
-
+    public static function operationalAnomalyReportFilterdData($filter=[], $csv=false) {
         $originalDate = $end_date_2 = $end_date_10 = $end_date = $filter['date'];
         if (!isset($filter['date']) && empty($filter['date'])) {
             $finalArray = [
@@ -1542,28 +1531,56 @@ class Order extends Model
         $totalRecords = 0;
         $totalRecords = $query->getQuery()->getCountForPagination();
 
-        /** Get the filtered records count */
-        $filteredRecords = $query->getQuery()->getCountForPagination();
-
-        /** Paginate the results if pagination filters are provided */
-        $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
-            return $query->skip($filter['start'])->take($filter['length']);
-        })->get();
+        /** Getting the query data using method get */
+        $queryData = $query->get();
 
         $finalArray = [];
         foreach ($queryData as $key => $value) {
-            /** Prepare the final array for non-CSV */
-            $finalArray[$key]['account_name'] = $value->account_name;
-            $finalArray[$key]['supplier_name'] = $value->supplier_name;
-            $finalArray[$key]['fifty_two_wk_avg'] = '$'.number_format($value->average_week_52, 2, '.', ',');
-            $finalArray[$key]['ten_week_avg'] =  '$'.number_format($value->average_week_10, 2, '.', ',');
-            $finalArray[$key]['two_wk_avg_percentage'] = '$'.$value->average_week_2;
-            $finalArray[$key]['drop'] = $value->gap_percentage.'%';
-            $finalArray[$key]['median'] = '$'.number_format($value->median_52_weeks, 2, '.', ',');
+            /** Prepare the final array for CSV */
+            if ($value->gap_percentage >= 20 && ($filter['supplier'] == '--Select--' || $filter['supplier'] == $value->supplier_name)) {
+                if ($csv) {
+                    $finalArray[] = [
+                        'account_name' => $value->account_name,
+                        'supplier_name' => $value->supplier_name,
+                        'fifty_two_wk_avg' => $value->average_week_52,
+                        'ten_week_avg' => $value->average_week_10,
+                        'two_wk_avg_percentage' => $value->average_week_2,
+                        'drop' => $value->gap_percentage,
+                        'median' => $value->median_52_weeks,
+                    ];
+                } else {
+                    /** Prepare the final array for non-CSV */
+                    $finalArray[] = [
+                        'account_name' => $value->account_name,
+                        'supplier_name' => $value->supplier_name,
+                        'fifty_two_wk_avg' => '$'.number_format($value->average_week_52, 2, '.', ','),
+                        'ten_week_avg' =>  '$'.number_format($value->average_week_10, 2, '.', ','),
+                        'two_wk_avg_percentage' => '$'.number_format($value->average_week_2, 2, '.', ','),
+                        'drop' => $value->gap_percentage.'%',
+                        'median' => '$'.number_format($value->median_52_weeks, 2, '.', ','),
+                    ];
+                }
+            }
         }
 
         // dd($query->toSql(), $query->getBindings());
         // dd($finalArray);
+        
+        $filteredRecords = count($finalArray);
+
+        if ($csv) {
+            $finalArray['heading'] = [
+                'Account Name',
+                'Supplier Name',
+                '52 Week Average',
+                '10 Week Average',
+                '2 Week average Percentage',
+                '20% Drop',
+                'Median'
+            ];
+            
+            return $finalArray;
+        }
 
         /** Return the result along with total and filtered counts */
         return [

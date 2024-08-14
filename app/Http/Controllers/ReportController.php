@@ -910,4 +910,47 @@ class ReportController extends Controller
             return response()->json($formatuserdata);
         }
     }
+
+    public function operationalAnomalyReportExportCsv(Request $request){
+        /** Retrieve data based on the provided parameters */
+        $filter['date'] = $request->input('date');
+        $filter['supplier'] = $request->input('supplier');
+
+        $csv = true;
+
+        /** Fetch data using the parameters and transform it into CSV format */
+        /** Replace this with your actual data fetching logic */
+        $data = Order::operationalAnomalyReportFilterdData($filter, $csv);
+
+        /** Create a stream for output */
+        $stream = fopen('php://temp', 'w+');
+
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+        
+        $heading = $data['heading'];
+        unset($data['heading']);
+
+        /** Add column headings */
+        $csvWriter->insertOne($heading);
+
+        /** Insert the data into the CSV */
+        $csvWriter->insertAll($data);
+
+        /** Rewind the stream pointer */
+        rewind($stream);
+  
+        /** Create a streamed response with the CSV data */
+        $response = new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+        });
+
+        /** Set headers for CSV download */
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="operationalAnomalyReport_'.now()->format('YmdHis').'.csv"');
+
+        /** return $csvResponse; */
+        return $response;
+    }
+
 }
