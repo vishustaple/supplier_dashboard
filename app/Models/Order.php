@@ -1451,19 +1451,9 @@ class Order extends Model
         // dd($date->toSql(), $date->getBindings());
         // dd($date);
         $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
-        if (!isset($filter['date']) && empty($filter['date'])) {
-            $finalArray = [
-                'account_name'=> '',
-                'supplier_name'=> '',
-                'fifty_two_wk_avg'=> '',
-                'ten_week_avg'=> '',
-                'two_wk_avg_percentage'=> '',
-                'drop'=> '',
-                'median'=> ''
-            ];
-
+        if (!isset($date->formatted_date) && empty($date->formatted_date)) {
             return [
-                'data' => $finalArray,
+                'data' => '',
                 'recordsTotal' => 0,
                 'recordsFiltered' => 0,
             ];
