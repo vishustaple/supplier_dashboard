@@ -1449,7 +1449,7 @@ class Order extends Model
         ->first();
         // $filter['supplier']
         // dd($date->toSql(), $date->getBindings());
-        dd($date);
+        // dd($date);
         $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
         // if (!isset($filter['date']) && empty($filter['date'])) {
         //     $finalArray = [
