@@ -107,7 +107,7 @@
         });
 
         function setDate() {
-            if ($('.supplier_date').val() != null) {
+            if ($('#supplier_date').val() != null) {
                 $('.card-body').html('');
                 $('.card').show();
                 $('.card-body').html('<p class="card-text"><b>Start Date: </b> $' + $('#supplier_date').val() + '</p>');
