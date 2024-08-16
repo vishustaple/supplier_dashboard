@@ -915,6 +915,7 @@ class ReportController extends Controller
         /** Retrieve data based on the provided parameters */
         $filter['date'] = $request->input('date');
         $filter['supplier'] = $request->input('supplier');
+        $filter['supplier_id'] = $request->input('supplier_id');
 
         $csv = true;
 
