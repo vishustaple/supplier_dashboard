@@ -1547,7 +1547,7 @@ class Order extends Model
 
         /** Getting the query data using method get */
         $queryData = $query->get();
-
+dd($queryData);
         $finalArray = [];
         $a = 0;
         foreach ($queryData as $key => $value) {
