@@ -1443,12 +1443,12 @@ class Order extends Model
         }
 
         $date = self::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
-        ->where('supplier_id', $filter['supplier'])
-        // ->orderBy('date', 'desc')
-        // ->limit(1)
+        ->where('supplier_id', $filter['supplier_id'])
+        ->orderBy('date', 'desc')
+        ->limit(1)
         ->first();
         // $filter['supplier']
-        dd($date->toSql(), $date->getBindings());
+        // dd($date->toSql(), $date->getBindings());
         dd($date);
         $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
         // if (!isset($filter['date']) && empty($filter['date'])) {

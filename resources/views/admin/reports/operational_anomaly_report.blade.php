@@ -68,6 +68,7 @@
                     // Pass date range and supplier ID when making the request
                     // d.date = $('#date').val();
                     d.supplier = $('#supplier option:selected').text();
+                    d.supplier_id = $('#supplier').val();
                     // d.quarter = $('#quarter').val();
                     // d.sales_reps = $('#sales_rep').val();
                     // d.commission_rebate_id = $('#commission_table_id').val();
