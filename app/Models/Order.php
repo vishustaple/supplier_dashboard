@@ -1433,6 +1433,15 @@ class Order extends Model
     }
 
     public static function operationalAnomalyReportFilterdData($filter=[], $csv=false) {
+        if ($filter['supplier'] != '--Select--') {
+            /** Return the result along with total and filtered counts */
+            return [
+                'data' => '',
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
+
         $date = self::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
         ->orderBy('date', 'desc')
         ->limit(1)

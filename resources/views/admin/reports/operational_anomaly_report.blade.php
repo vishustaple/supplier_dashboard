@@ -23,6 +23,11 @@
                             @endif
                         </select>
                     </div>
+                    <div class="card bg-light mb-3" style="width: 18rem; display: none;">
+                                    <div class="card-body">
+                                        <p class="card-text"><b>Test: </b></p>
+                                    </div>
+                                </div>
                     <!-- <div class="form-group col-md-3 relative  mb-3">  
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="date" type="date" name="date" placeholder="Enter Your End Date " >
@@ -102,7 +107,7 @@
         });
 
         function setDate() {
-            if ($('.total_amount').val() != null) {
+            if ($('.supplier_date').val() != null) {
                 $('.card-body').html('');
                 $('.card').show();
                 $('.card-body').html('<p class="card-text"><b>Start Date: </b> $' + $('#supplier_date').val() + '</p>');
