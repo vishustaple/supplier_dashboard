@@ -1595,7 +1595,9 @@ class Order extends Model
             
             return $finalArray;
         } else {
-            $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $originalDate . '" id="supplier_date">';
+            if (count($finalArray) > 0) {
+                $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $originalDate . '" id="supplier_date">';
+            }
             // dd($finalArray);
         }
 
