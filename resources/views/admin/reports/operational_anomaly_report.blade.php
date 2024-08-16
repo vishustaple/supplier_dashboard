@@ -92,7 +92,7 @@
                 { data: 'fifty_two_wk_avg', name: 'fifty_two_wk_avg', title: '52wk AVG', 'orderable': true, 'searchable': false },
                 { data: 'ten_week_avg', name: 'ten_wk_avg', title: '10wk AVG', 'orderable': true, 'searchable': false },
                 { data: 'two_wk_avg_percentage', name: 'two_wk_avg_percentage', title: '2wk AVG.', 'orderable': true, 'searchable': false },
-                { data: 'drop', name: 'drop', title: '20% Drop', 'orderable': true, 'searchable': false },
+                { data: 'drop', name: 'drop', title: 'Percentage Drop', 'orderable': true, 'searchable': false },
                 { data: 'median', name: 'median', title: '52wk Median', 'orderable': true, 'searchable': false },
             ],
             
