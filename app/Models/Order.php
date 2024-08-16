@@ -1450,13 +1450,14 @@ class Order extends Model
         // $filter['supplier']
         // dd($date->toSql(), $date->getBindings());
         // dd($date);
-        $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
-        if (!isset($date->formatted_date) && empty($date->formatted_date)) {
+        if (!isset($date) && empty($date)) {
             return [
                 'data' => '',
                 'recordsTotal' => 0,
                 'recordsFiltered' => 0,
             ];
+        } else {
+            $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
         }
 
         /** Create a DateTime object from the original date */
