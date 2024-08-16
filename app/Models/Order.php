@@ -1438,7 +1438,6 @@ class Order extends Model
         ->limit(1)
         ->first();
         // $filter['supplier']
-// dd($date->formatted_date);
         $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
         // if (!isset($filter['date']) && empty($filter['date'])) {
         //     $finalArray = [
@@ -1587,8 +1586,8 @@ class Order extends Model
             
             return $finalArray;
         } else {
-            dd($finalArray);
             $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $originalDate . '" id="supplier_date">';
+            dd($finalArray);
         }
 
         /** Return the result along with total and filtered counts */
