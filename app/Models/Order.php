@@ -1433,7 +1433,7 @@ class Order extends Model
     }
 
     public static function operationalAnomalyReportFilterdData($filter=[], $csv=false) {
-        if ($filter['supplier'] != '--Select--') {
+        if ($filter['supplier'] == '--Select--') {
             /** Return the result along with total and filtered counts */
             return [
                 'data' => '',
