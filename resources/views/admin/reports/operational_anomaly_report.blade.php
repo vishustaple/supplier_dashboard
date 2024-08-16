@@ -86,10 +86,6 @@
                 }
             },
 
-            fnDrawCallback: function( oSettings ) {
-                setDate();
-            },
-
             columns: [
                 { data: 'account_name', name: 'account_name', title: 'Account Name', 'orderable': true, 'searchable': false },
                 { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name', 'orderable': true, 'searchable': false },
@@ -99,9 +95,13 @@
                 { data: 'drop', name: 'drop', title: '20% Drop', 'orderable': true, 'searchable': false },
                 { data: 'median', name: 'median', title: '52wk Median', 'orderable': true, 'searchable': false },
             ],
+            
+            fnDrawCallback: function( oSettings ) {
+                setDate();
+            },
         });
 
-        function setTotalAmount() {
+        function setDate() {
             if ($('.total_amount').val() != null) {
                 $('.card-body').html('');
                 $('.card').show();
