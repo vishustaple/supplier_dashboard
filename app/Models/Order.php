@@ -1449,25 +1449,25 @@ class Order extends Model
         ->first();
         // $filter['supplier']
         // dd($date->toSql(), $date->getBindings());
-        // dd($date);
+        dd($date);
         $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
-        // if (!isset($filter['date']) && empty($filter['date'])) {
-        //     $finalArray = [
-        //         'account_name'=> '',
-        //         'supplier_name'=> '',
-        //         'fifty_two_wk_avg'=> '',
-        //         'ten_week_avg'=> '',
-        //         'two_wk_avg_percentage'=> '',
-        //         'drop'=> '',
-        //         'median'=> ''
-        //     ];
+        if (!isset($filter['date']) && empty($filter['date'])) {
+            $finalArray = [
+                'account_name'=> '',
+                'supplier_name'=> '',
+                'fifty_two_wk_avg'=> '',
+                'ten_week_avg'=> '',
+                'two_wk_avg_percentage'=> '',
+                'drop'=> '',
+                'median'=> ''
+            ];
 
-        //     return [
-        //         'data' => $finalArray,
-        //         'recordsTotal' => 0,
-        //         'recordsFiltered' => 0,
-        //     ];
-        // }
+            return [
+                'data' => $finalArray,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
 
         /** Create a DateTime object from the original date */
         $date = new DateTime($originalDate);
