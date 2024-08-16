@@ -132,7 +132,7 @@
             var csvUrl = '{{ route("operational-anomaly-report.export-csv") }}';
 
             // Add query parameters for date range and supplier ID
-            csvUrl += '?date=' + $('#date').val() + '&supplier=' + $('#supplier option:selected').text();
+            csvUrl += '?date=' + $('#date').val() + '&supplier=' + $('#supplier option:selected').text() + '&supplier_id=' + $('#supplier').val();
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
