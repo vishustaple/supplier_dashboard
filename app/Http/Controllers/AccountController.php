@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\{Account, CategorySupplier};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 // use App\Rules\AtLeastOneChecked;
-// v
 class AccountController extends Controller
 {
     public function editCustomerName(){
