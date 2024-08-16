@@ -1434,7 +1434,7 @@ class Order extends Model
 
     public static function operationalAnomalyReportFilterdData($filter=[], $csv=false) {
         $date = self::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
-        ->orderBy('date', 'asc')
+        ->orderBy('date', 'desc')
         ->limit(1)
         ->first();
         // $filter['supplier']
