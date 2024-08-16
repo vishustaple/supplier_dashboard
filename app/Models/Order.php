@@ -1557,7 +1557,6 @@ class Order extends Model
                     ];
                 } else {
                     /** Prepare the final array for non-CSV */
-                   
                         $finalArray[$a]['account_name'] = $value->account_name;
                         $finalArray[$a]['supplier_name'] = $value->supplier_name;
                         $finalArray[$a]['fifty_two_wk_avg'] = '$'.number_format($value->average_week_52, 2, '.', ',');
@@ -1588,6 +1587,7 @@ class Order extends Model
             
             return $finalArray;
         } else {
+            dd($finalArray);
             $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $originalDate . '" id="supplier_date">';
         }
 
