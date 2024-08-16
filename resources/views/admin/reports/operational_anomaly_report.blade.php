@@ -110,7 +110,7 @@
             if ($('#supplier_date').val() != null) {
                 $('.card-body').html('');
                 $('.card').show();
-                $('.card-body').html('<p class="card-text"><b>Start Date: </b> $' + $('#supplier_date').val() + '</p>');
+                $('.card-body').html('<p class="card-text"><b>Start Date: </b>' + $('#supplier_date').val() + '</p>');
             } else {
                 $('.card').hide();
             }
