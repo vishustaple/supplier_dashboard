@@ -1433,24 +1433,30 @@ class Order extends Model
     }
 
     public static function operationalAnomalyReportFilterdData($filter=[], $csv=false) {
-        $originalDate = $end_date_2 = $end_date_10 = $end_date = $filter['date'];
-        if (!isset($filter['date']) && empty($filter['date'])) {
-            $finalArray = [
-                'account_name'=> '',
-                'supplier_name'=> '',
-                'fifty_two_wk_avg'=> '',
-                'ten_week_avg'=> '',
-                'two_wk_avg_percentage'=> '',
-                'drop'=> '',
-                'median'=> ''
-            ];
+        $date = self::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
+        ->orderBy('date', 'asc')
+        ->limit(1)
+        ->first();
+        // $filter['supplier']
 
-            return [
-                'data' => $finalArray,
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
-        }
+        $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
+        // if (!isset($filter['date']) && empty($filter['date'])) {
+        //     $finalArray = [
+        //         'account_name'=> '',
+        //         'supplier_name'=> '',
+        //         'fifty_two_wk_avg'=> '',
+        //         'ten_week_avg'=> '',
+        //         'two_wk_avg_percentage'=> '',
+        //         'drop'=> '',
+        //         'median'=> ''
+        //     ];
+
+        //     return [
+        //         'data' => $finalArray,
+        //         'recordsTotal' => 0,
+        //         'recordsFiltered' => 0,
+        //     ];
+        // }
 
         /** Create a DateTime object from the original date */
         $date = new DateTime($originalDate);
@@ -1563,7 +1569,7 @@ class Order extends Model
                 }
             }
         }
-
+        
         // dd($query->toSql(), $query->getBindings());
         // dd($finalArray);
         
@@ -1581,6 +1587,8 @@ class Order extends Model
             ];
             
             return $finalArray;
+        } else {
+            $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $originalDate . '" id="supplier_date">';
         }
 
         /** Return the result along with total and filtered counts */

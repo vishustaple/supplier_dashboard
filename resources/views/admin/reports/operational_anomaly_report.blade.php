@@ -23,10 +23,10 @@
                             @endif
                         </select>
                     </div>
-                    <div class="form-group col-md-3 relative  mb-3">  
+                    <!-- <div class="form-group col-md-3 relative  mb-3">  
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="date" type="date" name="date" placeholder="Enter Your End Date " >
-                    </div>
+                    </div> -->
                     <div class="col-md-12 mb-0">
                         <button type="submit" class="btn btn-primary">Submit</button>
                         <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
@@ -61,7 +61,7 @@
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    d.date = $('#date').val();
+                    // d.date = $('#date').val();
                     d.supplier = $('#supplier option:selected').text();
                     // d.quarter = $('#quarter').val();
                     // d.sales_reps = $('#sales_rep').val();
@@ -86,6 +86,10 @@
                 }
             },
 
+            fnDrawCallback: function( oSettings ) {
+                setDate();
+            },
+
             columns: [
                 { data: 'account_name', name: 'account_name', title: 'Account Name', 'orderable': true, 'searchable': false },
                 { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name', 'orderable': true, 'searchable': false },
@@ -96,6 +100,16 @@
                 { data: 'median', name: 'median', title: '52wk Median', 'orderable': true, 'searchable': false },
             ],
         });
+
+        function setTotalAmount() {
+            if ($('.total_amount').val() != null) {
+                $('.card-body').html('');
+                $('.card').show();
+                $('.card-body').html('<p class="card-text"><b>Start Date: </b> $' + $('#supplier_date').val() + '</p>');
+            } else {
+                $('.card').hide();
+            }
+        }
 
         $("#import_form").on('submit', function (e){
             e.preventDefault();
