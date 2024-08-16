@@ -1443,6 +1443,7 @@ class Order extends Model
         }
 
         $date = self::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
+        ->where('supplier_id', $filter['supplier'])
         ->orderBy('date', 'desc')
         ->limit(1)
         ->first();
