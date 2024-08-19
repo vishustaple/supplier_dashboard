@@ -1572,8 +1572,8 @@ class Order extends Model
         /** Return the result along with total and filtered counts */
         return [
             'data' => $finalArray,
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $filteredRecords,
+            'recordsTotal' => count($finalArray),
+            'recordsFiltered' => count($finalArray),
         ];
     }
 }
