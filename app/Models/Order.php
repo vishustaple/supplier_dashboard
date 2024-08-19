@@ -1566,7 +1566,7 @@ class Order extends Model
             if (count($finalArray) > 0) {
                 $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $supplierDate . '" id="supplier_date">';
             }
-            dd($finalArray);
+            // dd($finalArray);
         }
 
         /** Return the result along with total and filtered counts */
