@@ -1564,7 +1564,7 @@ class Order extends Model
             return $finalArray;
         } else {
             if (count($finalArray) > 0) {
-                $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $supplierDate . '" id="supplier_date">';
+                $finalArray[0]['account_name'] .= '<input type="hidden" value="' . htmlspecialchars($supplierDate, ENT_QUOTES, 'UTF-8') . '" id="supplier_date">';
             }
             // dd($finalArray);
         }
