@@ -37,7 +37,8 @@ class ReportGenrate extends Command
         /** Using foreach loop insert multiple supplier data */
         foreach ($supplier as $filter) {
             /** Create a DateTime object from the original date */
-            $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
+            // $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
+            $date = Order::selectRaw("date as formatted_date")
             ->where('supplier_id', $filter)
             ->orderBy('date', 'desc')
             ->limit(1)
