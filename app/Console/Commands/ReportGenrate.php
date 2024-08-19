@@ -32,10 +32,10 @@ class ReportGenrate extends Command
     public function handle()
     {
         /** Supplier ids array */
-        $supplier = [1, 2, 3, 4, 5, 6, 7];
+        $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
 
         /** Using foreach loop insert multiple supplier data */
-        foreach ($supplier as $filter) {
+        foreach ($supplier as $filter => $value) {
             /** Create a DateTime object from the original date */
             // $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
             $date = Order::selectRaw("date as formatted_date")
@@ -164,19 +164,21 @@ class ReportGenrate extends Command
 
             $finalArray = [];
             foreach ($queryData as $key => $value) {
-                /** Prepare the final array for non-CSV */
-                $finalArray[] = [
-                    'account_name' => $value->account_name,
-                    'supplier_name' => $value->supplier_name,
-                    'fifty_two_wk_avg' => $value->average_week_52,
-                    'ten_week_avg' => $value->average_week_10,
-                    'two_wk_avg_percentage' => $value->average_week_2,
-                    'drop' => $value->gap_percentage,
-                    'median' => $value->median_52_weeks,
-                    'date' => $value->$originalDate,
-                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                ];
+                if ($value->gap_percentage >= 20 && ($filter == $value)) {
+                    /** Prepare the final array for non-CSV */
+                    $finalArray[] = [
+                        'account_name' => $value->account_name,
+                        'supplier_name' => $value->supplier_name,
+                        'fifty_two_wk_avg' => $value->average_week_52,
+                        'ten_week_avg' => $value->average_week_10,
+                        'two_wk_avg_percentage' => $value->average_week_2,
+                        'drop' => $value->gap_percentage,
+                        'median' => $value->median_52_weeks,
+                        'date' => $value->$originalDate,
+                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    ];
+                }
             }
     
             DB::table('operational_anomaly_report')->insert($finalArray);
