@@ -34,7 +34,7 @@ class ReportGenrate extends Command
         /** Using foreach loop insert multiple supplier data */
         foreach ($supplier as $filter) {
             /** Create a DateTime object from the original date */
-            $date = self::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
+            $date = DB::table('orders')->selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
             ->where('supplier_id', $filter)
             ->orderBy('date', 'desc')
             ->limit(1)
@@ -56,14 +56,14 @@ class ReportGenrate extends Command
             $start_date_10 = (clone $date)->modify('-10 weeks')->format('Y-m-d');
             $start_date = (clone $date)->modify('-52 weeks')->format('Y-m-d');
     
-            $weeklyAmountsQuery = self::query()
+            $weeklyAmountsQuery = DB::table('orders')
                 ->join('master_account_detail as mad', 'orders.customer_number', '=', 'mad.account_number')
                 ->join('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
                 ->selectRaw('YEAR(orders.date) as year, mad.account_name, orders.date, COALESCE(SUM(orders.amount), 0) as weekly_amount, suppliers.supplier_name as supplier_name, orders.supplier_id as supplier_id')
                 ->whereBetween('orders.date', [$start_date, $end_date])
                 ->groupBy(DB::raw('YEAR(orders.date)'), 'mad.account_name', 'orders.date', 'suppliers.supplier_name');
     
-            $rankedAmountsQuery = self::from(DB::raw("(".$weeklyAmountsQuery->toSql().") as WeeklyAmounts"))
+            $rankedAmountsQuery = DB::table('orders')->from(DB::raw("(".$weeklyAmountsQuery->toSql().") as WeeklyAmounts"))
                 ->selectRaw("
                     year,
                     account_name,
@@ -74,7 +74,7 @@ class ReportGenrate extends Command
                 ")
                 ->whereBetween('date', [$start_date, $end_date])
                 ->mergeBindings($weeklyAmountsQuery->getQuery()) ;
-            $mediansQuery = self::from(DB::raw("(".$rankedAmountsQuery->toSql().") as RankedAmounts"))
+            $mediansQuery = DB::table('orders')->from(DB::raw("(".$rankedAmountsQuery->toSql().") as RankedAmounts"))
                 ->selectRaw("
                     year,
                     account_name,
@@ -88,7 +88,7 @@ class ReportGenrate extends Command
                 ->groupBy('year', 'account_name', 'supplier_name')
                 ->mergeBindings($rankedAmountsQuery->getQuery());
     
-            $query = self::from(DB::raw("(".$weeklyAmountsQuery->toSql().") as wa"))
+            $query = DB::table('orders')->from(DB::raw("(".$weeklyAmountsQuery->toSql().") as wa"))
                 ->join('master_account_detail as mad', 'wa.account_name', '=', 'mad.account_name')
                 ->join('suppliers', 'suppliers.id', '=', 'wa.supplier_id')
                 ->join(DB::raw("(".$mediansQuery->toSql().") as m"), function($join) {
