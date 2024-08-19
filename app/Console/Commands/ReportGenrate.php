@@ -164,7 +164,7 @@ class ReportGenrate extends Command
 
             $finalArray = [];
             foreach ($queryData as $key => $value) {
-                if ($value->gap_percentage >= 20 && ($filter == $values)) {
+                if ($value->gap_percentage >= 20 && ($value->supplier_name == $values)) {
                     /** Prepare the final array for non-CSV */
                     $finalArray[] = [
                         'account_name' => $value->account_name,
