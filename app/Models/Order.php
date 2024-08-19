@@ -1466,12 +1466,11 @@ class Order extends Model
                 ->selectRaw("
                     account_name,
                     supplier_name,
-                    FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
-                    FORMAT(ten_week_avg, 2) AS ten_week_avg,
-                    FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
-                    FORMAT(drop, 2) AS drop,
-                    FORMAT(median, 2) AS median,
-                    DATE_FORMAT(date, '%Y-%m-%d') as date
+                    FORMAT(`fifty_two_wk_avg`, 2) AS fifty_two_wk_avg,
+                    FORMAT(`ten_week_avg`, 2) AS ten_week_avg,
+                    FORMAT(`two_wk_avg_percentage`, 2) AS two_wk_avg_percentage,
+                    FORMAT(`drop`, 2) AS drop,
+                    FORMAT(`median`, 2) AS median,
                 ")
                 ->get();
             }
@@ -1494,7 +1493,7 @@ class Order extends Model
                 $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
                 $supplierDate = ''; 
                 foreach ($supplier as $key => $value) {
-                    $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
+                    $date = Order::selectRaw("DATE_FORMAT(`date`, '%Y-%m-%d') as formatted_date")
                     ->where('supplier_id', $key)
                     ->orderBy('date', 'desc')
                     ->limit(1)
@@ -1508,12 +1507,11 @@ class Order extends Model
                 ->selectRaw("
                     account_name,
                     supplier_name,
-                    FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
-                    FORMAT(ten_week_avg, 2) AS ten_week_avg,
-                    FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
-                    FORMAT(drop, 2) AS drop,
-                    FORMAT(median, 2) AS median,
-                    DATE_FORMAT(date, '%Y-%m-%d') as date
+                    FORMAT(`fifty_two_wk_avg`, 2) AS fifty_two_wk_avg,
+                    FORMAT(`ten_week_avg`, 2) AS ten_week_avg,
+                    FORMAT(`two_wk_avg_percentage`, 2) AS two_wk_avg_percentage,
+                    FORMAT(`drop`, 2) AS drop,
+                    FORMAT(`median`, 2) AS median,
                 ")
                 ->where('supplier_name', $filter['supplier'])
                 ->get();
