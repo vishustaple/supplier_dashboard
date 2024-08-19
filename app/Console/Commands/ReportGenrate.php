@@ -99,7 +99,7 @@ class ReportGenrate extends Command
                         ->on('m.account_name', '=', 'wa.account_name');
                 });
     
-                if ($csv) {
+                // if ($csv) {
                     $query->selectRaw("
                     wa.year,
                     wa.account_name,
@@ -123,31 +123,31 @@ class ReportGenrate extends Command
                         $start_date_10, $end_date_10,
                         $start_date, $end_date
                     ]);
-                } else {
-                    $query->selectRaw("
-                    wa.year,
-                    wa.account_name,
-                    suppliers.supplier_name as supplier_name,
-                    FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52, 0), 2) as average_week_52,
-                    FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10, 0), 2) as average_week_10,
-                    FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 2, 0), 2) as average_week_2,
-                    FORMAT(
-                        (
-                            (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) -
-                            (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10) 
-                        ) / 
-                        (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) * 100, 2
-                    ) as gap_percentage,
-                    m.median_52_weeks
-                    ", [
-                        $start_date, $end_date,
-                        $start_date_10, $end_date_10,
-                        $start_date_2, $end_date_2,
-                        $start_date, $end_date,
-                        $start_date_10, $end_date_10,
-                        $start_date, $end_date
-                    ]);
-                }
+                // } else {
+                //     $query->selectRaw("
+                //     wa.year,
+                //     wa.account_name,
+                //     suppliers.supplier_name as supplier_name,
+                //     FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52, 0), 2) as average_week_52,
+                //     FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10, 0), 2) as average_week_10,
+                //     FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 2, 0), 2) as average_week_2,
+                //     FORMAT(
+                //         (
+                //             (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) -
+                //             (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10) 
+                //         ) / 
+                //         (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) * 100, 2
+                //     ) as gap_percentage,
+                //     m.median_52_weeks
+                //     ", [
+                //         $start_date, $end_date,
+                //         $start_date_10, $end_date_10,
+                //         $start_date_2, $end_date_2,
+                //         $start_date, $end_date,
+                //         $start_date_10, $end_date_10,
+                //         $start_date, $end_date
+                //     ]);
+                // }
                 
                 $query->groupBy('wa.year', 'wa.account_name', 'suppliers.supplier_name')
                 ->havingRaw('CAST(average_week_52 AS DECIMAL(10, 2)) > CAST(average_week_10 AS DECIMAL(10, 2))')
