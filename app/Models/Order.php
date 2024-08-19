@@ -1540,7 +1540,7 @@ class Order extends Model
                 $finalArray[$a]['ten_week_avg'] =  '$'.$value->ten_week_avg;
                 $finalArray[$a]['two_wk_avg_percentage'] = '$'.$value->two_wk_avg_percentage;
                 $finalArray[$a]['drop'] = $value->drop.'%';
-                $finalArray[$a]['median'] = '$'.number_format($value->median, 2, '.', ',');
+                $finalArray[$a]['median'] = '$'.$value->median;
                 $a++;
             }
         }
