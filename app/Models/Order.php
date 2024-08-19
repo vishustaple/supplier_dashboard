@@ -1466,11 +1466,11 @@ class Order extends Model
                 ->selectRaw("
                     account_name,
                     supplier_name,
-                    FORMAT(`fifty_two_wk_avg`, 2) AS fifty_two_wk_avg,
-                    FORMAT(`ten_week_avg`, 2) AS ten_week_avg,
-                    FORMAT(`two_wk_avg_percentage`, 2) AS two_wk_avg_percentage,
-                    FORMAT(`drop`, 2) AS drop,
-                    FORMAT(`median`, 2) AS median,
+                    FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
+                    FORMAT(ten_week_avg, 2) AS ten_week_avg,
+                    FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
+                    FORMAT(`drop`, 2) AS `drop`,
+                    FORMAT(median, 2) AS median
                 ")
                 ->get();
             }
@@ -1507,11 +1507,11 @@ class Order extends Model
                 ->selectRaw("
                     account_name,
                     supplier_name,
-                    FORMAT(`fifty_two_wk_avg`, 2) AS fifty_two_wk_avg,
-                    FORMAT(`ten_week_avg`, 2) AS ten_week_avg,
-                    FORMAT(`two_wk_avg_percentage`, 2) AS two_wk_avg_percentage,
-                    FORMAT(`drop`, 2) AS drop,
-                    FORMAT(`median`, 2) AS median,
+                    FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
+                    FORMAT(ten_week_avg, 2) AS ten_week_avg,
+                    FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
+                    FORMAT(`drop`, 2) AS `drop`,
+                    FORMAT(median, 2) AS median
                 ")
                 ->where('supplier_name', $filter['supplier'])
                 ->get();
