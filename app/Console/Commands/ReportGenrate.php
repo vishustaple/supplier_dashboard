@@ -35,7 +35,7 @@ class ReportGenrate extends Command
         $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
 
         /** Using foreach loop insert multiple supplier data */
-        foreach ($supplier as $filter => $value) {
+        foreach ($supplier as $filter => $values) {
             /** Create a DateTime object from the original date */
             // $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
             $date = Order::selectRaw("date as formatted_date")
@@ -164,7 +164,7 @@ class ReportGenrate extends Command
 
             $finalArray = [];
             foreach ($queryData as $key => $value) {
-                if ($value->gap_percentage >= 20 && ($filter == $value)) {
+                if ($value->gap_percentage >= 20 && ($filter == $values)) {
                     /** Prepare the final array for non-CSV */
                     $finalArray[] = [
                         'account_name' => $value->account_name,
