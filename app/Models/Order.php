@@ -1435,167 +1435,115 @@ class Order extends Model
     public static function operationalAnomalyReportFilterdData($filter=[], $csv=false) {
         if ($filter['supplier'] == '--Select--') {
             /** Return the result along with total and filtered counts */
-            return [
-                'data' => '',
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
-        }
-
-        $date = self::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
-        ->where('supplier_id', $filter['supplier_id'])
-        ->orderBy('date', 'desc')
-        ->limit(1)
-        ->first();
-        // $filter['supplier']
-        // dd($date->toSql(), $date->getBindings());
-        // dd($date);
-        if (!isset($date) && empty($date)) {
-            return [
-                'data' => '',
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-            ];
-        } else {
-            $originalDate = $end_date_2 = $end_date_10 = $end_date = $date->formatted_date;
-        }
-
-        /** Create a DateTime object from the original date */
-        $date = new DateTime($originalDate);
-
-        /** Subtract 52 weeks from the original date */
-        $start_date_2 = (clone $date)->modify('-2 weeks')->format('Y-m-d');
-        $start_date_10 = (clone $date)->modify('-10 weeks')->format('Y-m-d');
-        $start_date = (clone $date)->modify('-52 weeks')->format('Y-m-d');
-
-        $weeklyAmountsQuery = self::query()
-            ->join('master_account_detail as mad', 'orders.customer_number', '=', 'mad.account_number')
-            ->join('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-            ->selectRaw('YEAR(orders.date) as year, mad.account_name, orders.date, COALESCE(SUM(orders.amount), 0) as weekly_amount, suppliers.supplier_name as supplier_name, orders.supplier_id as supplier_id')
-            ->whereBetween('orders.date', [$start_date, $end_date])
-            ->groupBy(DB::raw('YEAR(orders.date)'), 'mad.account_name', 'orders.date', 'suppliers.supplier_name');
-
-        $rankedAmountsQuery = self::from(DB::raw("(".$weeklyAmountsQuery->toSql().") as WeeklyAmounts"))
-            ->selectRaw("
-                year,
-                account_name,
-                supplier_name,
-                weekly_amount,
-                ROW_NUMBER() OVER (PARTITION BY year, account_name ORDER BY weekly_amount) as row_num,
-                COUNT(*) OVER (PARTITION BY year, account_name) as total_count
-            ")
-            ->whereBetween('date', [$start_date, $end_date])
-            ->mergeBindings($weeklyAmountsQuery->getQuery()) ;
-        $mediansQuery = self::from(DB::raw("(".$rankedAmountsQuery->toSql().") as RankedAmounts"))
-            ->selectRaw("
-                year,
-                account_name,
-                supplier_name,
-                AVG(weekly_amount) as median_52_weeks
-            ")
-            ->whereIn('row_num', [
-                DB::raw("FLOOR((total_count + 1) / 2)"), 
-                DB::raw("CEIL((total_count + 1) / 2)")
-            ])
-            ->groupBy('year', 'account_name', 'supplier_name')
-            ->mergeBindings($rankedAmountsQuery->getQuery());
-
-        $query = self::from(DB::raw("(".$weeklyAmountsQuery->toSql().") as wa"))
-            ->join('master_account_detail as mad', 'wa.account_name', '=', 'mad.account_name')
-            ->join('suppliers', 'suppliers.id', '=', 'wa.supplier_id')
-            ->join(DB::raw("(".$mediansQuery->toSql().") as m"), function($join) {
-                $join->on('m.year', '=', 'wa.year')
-                    ->on('m.account_name', '=', 'wa.account_name');
-            });
-
             if ($csv) {
-                $query->selectRaw("
-                wa.year,
-                wa.account_name,
-                suppliers.supplier_name as supplier_name,
-                COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52, 0) as average_week_52,
-                COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10, 0) as average_week_10,
-                COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 2, 0) as average_week_2,
-                FORMAT(
-                    (
-                        (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) -
-                        (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10) 
-                    ) / 
-                    (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) * 100, 2
-                ) as gap_percentage,
-                m.median_52_weeks
-                ", [
-                    $start_date, $end_date,
-                    $start_date_10, $end_date_10,
-                    $start_date_2, $end_date_2,
-                    $start_date, $end_date,
-                    $start_date_10, $end_date_10,
-                    $start_date, $end_date
-                ]);
+                $queryData = DB::table("operational_anomaly_report")
+                ->select(
+                    'account_name',
+                    'supplier_name',
+                    'fifty_two_wk_avg',
+                    'ten_week_avg',
+                    'two_wk_avg_percentage',
+                    'drop',
+                    'median',
+                    'date'
+                )
+                ->get();
             } else {
-                $query->selectRaw("
-                wa.year,
-                wa.account_name,
-                suppliers.supplier_name as supplier_name,
-                FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52, 0), 2) as average_week_52,
-                FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10, 0), 2) as average_week_10,
-                FORMAT(COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 2, 0), 2) as average_week_2,
-                FORMAT(
-                    (
-                        (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) -
-                        (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 10) 
-                    ) / 
-                    (SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52) * 100, 2
-                ) as gap_percentage,
-                m.median_52_weeks
-                ", [
-                    $start_date, $end_date,
-                    $start_date_10, $end_date_10,
-                    $start_date_2, $end_date_2,
-                    $start_date, $end_date,
-                    $start_date_10, $end_date_10,
-                    $start_date, $end_date
-                ]);
+                $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
+                $supplierDate = ''; 
+                foreach ($supplier as $key => $value) {
+                    $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
+                    ->where('supplier_id', $key)
+                    ->orderBy('date', 'desc')
+                    ->limit(1)
+                    ->first();
+                    if ($date) {
+                        $supplierDate .= '<p class="card-text"><b>'.$value.': </b> '.$date->formatted_date.'</p>';
+                    }
+                }
+                
+                $queryData = DB::table("operational_anomaly_report")
+                ->selectRaw("
+                    account_name,
+                    supplier_name,
+                    FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
+                    FORMAT(ten_week_avg, 2) AS ten_week_avg,
+                    FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
+                    FORMAT(drop, 2) AS drop,
+                    FORMAT(median, 2) AS median,
+                    DATE_FORMAT(date, '%Y-%m-%d') as date
+                ")
+                ->get();
             }
-            
-            $query->groupBy('wa.year', 'wa.account_name', 'suppliers.supplier_name')
-            ->havingRaw('CAST(average_week_52 AS DECIMAL(10, 2)) > CAST(average_week_10 AS DECIMAL(10, 2))')
-            ->havingRaw('CAST(average_week_10 AS DECIMAL(10, 2)) != 0.00')
-            ->mergeBindings($weeklyAmountsQuery->getQuery())
-            ->mergeBindings($mediansQuery->getQuery());
+        } else {
+            if ($csv) {
+                $queryData = DB::table("operational_anomaly_report")
+                ->select(
+                    'account_name',
+                    'supplier_name',
+                    'fifty_two_wk_avg',
+                    'ten_week_avg',
+                    'two_wk_avg_percentage',
+                    'drop',
+                    'median',
+                    'date'
+                )
+                ->where('supplier_name', $filter['supplier'])
+                ->get();
+            } else {
+                $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
+                $supplierDate = ''; 
+                foreach ($supplier as $key => $value) {
+                    $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
+                    ->where('supplier_id', $key)
+                    ->orderBy('date', 'desc')
+                    ->limit(1)
+                    ->first();
+                    if ($date) {
+                        $supplierDate .= '<p class="card-text"><b>'.$value.': </b> '.$date->formatted_date.'</p>';
+                    }
+                }
+                
+                $queryData = DB::table("operational_anomaly_report")
+                ->selectRaw("
+                    account_name,
+                    supplier_name,
+                    FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
+                    FORMAT(ten_week_avg, 2) AS ten_week_avg,
+                    FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
+                    FORMAT(drop, 2) AS drop,
+                    FORMAT(median, 2) AS median,
+                    DATE_FORMAT(date, '%Y-%m-%d') as date
+                ")
+                ->where('supplier_name', $filter['supplier'])
+                ->get();
+            }
+        }
 
-        $totalRecords = 0;
-        $totalRecords = $query->getQuery()->getCountForPagination();
-
-        /** Getting the query data using method get */
-        $queryData = $query->get();
-// dd($queryData);
         $finalArray = [];
         $a = 0;
         foreach ($queryData as $key => $value) {
             /** Prepare the final array for CSV */
-            if ($value->gap_percentage >= 20 && ($filter['supplier'] == '--Select--' || $filter['supplier'] == $value->supplier_name)) {
-                if ($csv) {
-                    $finalArray[] = [
-                        'account_name' => $value->account_name,
-                        'supplier_name' => $value->supplier_name,
-                        'fifty_two_wk_avg' => $value->average_week_52,
-                        'ten_week_avg' => $value->average_week_10,
-                        'two_wk_avg_percentage' => $value->average_week_2,
-                        'drop' => $value->gap_percentage,
-                        'median' => $value->median_52_weeks,
-                    ];
-                } else {
-                    /** Prepare the final array for non-CSV */
-                        $finalArray[$a]['account_name'] = $value->account_name;
-                        $finalArray[$a]['supplier_name'] = $value->supplier_name;
-                        $finalArray[$a]['fifty_two_wk_avg'] = '$'.$value->average_week_52;
-                        $finalArray[$a]['ten_week_avg'] =  '$'.$value->average_week_10;
-                        $finalArray[$a]['two_wk_avg_percentage'] = '$'.$value->average_week_2;
-                        $finalArray[$a]['drop'] = $value->gap_percentage.'%';
-                        $finalArray[$a]['median'] = '$'.number_format($value->median_52_weeks, 2, '.', ',');
-                        $a++;
-                }
+            if ($csv) {
+                $finalArray[] = [
+                    'account_name' => $value->account_name,
+                    'supplier_name' => $value->supplier_name,
+                    'fifty_two_wk_avg' => $value->fifty_two_wk_avg,
+                    'ten_week_avg' => $value->ten_week_avg,
+                    'two_wk_avg_percentage' => $value->two_wk_avg_percentage,
+                    'drop' => $value->drop,
+                    'median' => $value->median,
+                ];
+            } else {
+                /** Prepare the final array for non-CSV */
+                $finalArray[$a]['account_name'] = $value->account_name;
+                $finalArray[$a]['supplier_name'] = $value->supplier_name;
+                $finalArray[$a]['fifty_two_wk_avg'] = '$'.$value->fifty_two_wk_avg;
+                $finalArray[$a]['ten_week_avg'] =  '$'.$value->ten_week_avg;
+                $finalArray[$a]['two_wk_avg_percentage'] = '$'.$value->two_wk_avg_percentage;
+                $finalArray[$a]['drop'] = $value->drop.'%';
+                $finalArray[$a]['median'] = '$'.number_format($value->median, 2, '.', ',');
+                $a++;
             }
         }
         
@@ -1618,9 +1566,9 @@ class Order extends Model
             return $finalArray;
         } else {
             if (count($finalArray) > 0) {
-                $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $originalDate . '" id="supplier_date">';
+                $finalArray[0]['account_name'] .= '<input type="hidden" value="' . $supplierDate . '" id="supplier_date">';
             }
-            // dd($finalArray);
+            dd($finalArray);
         }
 
         /** Return the result along with total and filtered counts */
