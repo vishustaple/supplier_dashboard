@@ -84,7 +84,7 @@
                     $user1 = Auth::user();
                     $userType = ($request->user_role == USER::USER_TYPE_ADMIN) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
                     if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
-                        $token=Str::random(40);
+                        $token = Str::random(40);
                         $user = User::create([
                             'first_name' => $request->first_name,
                             'last_name' => $request->last_name,
