@@ -1241,7 +1241,6 @@ class Order extends Model
             }
         }
 
-
         /** Order by specified column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -1274,11 +1273,16 @@ class Order extends Model
                 $totalAmount += $value->spend;
 
                 /** Prepare the final array for non-CSV */
+                $finalArray[$key]['account_name'] = "
+                <div class='form-check'>
+                    <input class='form-check-input' type='checkbox'>
+                    <label class='form-check-label'>
+                        ".$value->account_name."
+                    </label>
+                </div>";
                 $finalArray[$key]['supplier_name'] = $value->supplier_name;
-                $finalArray[$key]['account_name'] = $value->account_name;
                 $finalArray[$key]['spend'] =  '$'.number_format($value->spend, 2);
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
-                $finalArray[$key]['download'] = "<button class='btn btn-success' onClick='downloadFile(\"" . $value->account_name . "\", \"" . $value->supplier_id . "\", \"" . $startDate . "\", \"" . $endDate . "\")'>Download</button>";
             }
         }
         // dd($query->toSql(), $query->getBindings());
@@ -1329,13 +1333,28 @@ class Order extends Model
 
         /** Filter by account name if provided */
         if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
-            $query->where('master_account_detail.account_name', $filter['account_name']);
+            $query->whereIn('master_account_detail.account_name', $filter['account_name']);
         }
 
         /** Filter for specified supplier IDs */
-        if (isset($filter['supplier_id']) && !empty($filter['supplier_id'])) {
-            $query->where('orders.supplier_id', $filter['supplier_id']);
-        } 
+        // if (isset($filter['supplier_id']) && !empty($filter['supplier_id'])) {
+        //     $query->where('orders.supplier_id', $filter['supplier_id']);
+        // } 
+
+        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            /** Filter for specific supplier IDs */
+            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+        } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
+            if (isset($filter['supplier_id'][1])) {
+                /** Filter for specified supplier IDs */
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+            } else {
+                /** Filter for specified supplier IDs */
+                $query->where('orders.supplier_id', $filter['supplier_id'][0]);
+            }
+        } else {
+
+        }
 
         $queryData = $query->get();
 
