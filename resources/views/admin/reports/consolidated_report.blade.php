@@ -155,11 +155,11 @@
                                 link.href = window.URL.createObjectURL(blob);
                                 var now = new Date();
                                 var dateStr = now.getFullYear() + "-" +
-                                              ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
-                                              ("0" + now.getDate()).slice(-2) + "_" +
-                                              ("0" + now.getHours()).slice(-2) + "-" +
-                                              ("0" + now.getMinutes()).slice(-2) + "-" +
-                                              ("0" + now.getSeconds()).slice(-2);
+                                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                ("0" + now.getDate()).slice(-2) + "_" +
+                                ("0" + now.getHours()).slice(-2) + "-" +
+                                ("0" + now.getMinutes()).slice(-2) + "-" +
+                                ("0" + now.getSeconds()).slice(-2);
                                 link.download = 'Consolidated_Account_Report_' + dateStr + '.csv';
                                 link.click();
                             },
@@ -240,7 +240,6 @@
                 showDropdowns: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
-                // maxDate: moment(),
                 ranges: {
                     'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
                     'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
