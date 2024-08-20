@@ -27,7 +27,7 @@
                             @endif
                         </div>
                         <div class="form-group relative col-md-9 mb-0">  
-                            <div class="row align-items-end">
+                            <div class="row">
                                 <div class="col-md-7">
                                     <div class="form-group relative  mb-3">  
                                         <label for="enddate">Select Date:</label>
@@ -38,15 +38,17 @@
                                         <select id="account_name" name="account_name" class="form-control"></select>
                                     </div>
                                 </div>
-                                <div class="card bg-light mb-3" style="width: 18rem; display: none;">
+                               
+                                <div class="col-md-5 mt-1 mb-0 ms-auto text-end">
+                                <div class="card bg-light mb-3 ms-3" style=" display: none;">
                                     <div class="card-body">
-                                        <p class="card-text"><b>Test: </b></p>
+                                        <p class="card-text d-flex justify-content-between"><b>Test: </b></p>
                                     </div>
                                 </div>
-                                <div class="col-md-5 mt-1 mb-0 ms-auto text-end">
                                     <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
-                                    <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                                    <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-2 fa-file-pdf"></i>PDF</button>
+                                    <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-1 fa-file-pdf"></i>PDF</button>
+                                    <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download</button>
+                                    <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
                                 </div>
                             </div>
                         </div>
@@ -105,11 +107,37 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-          function downloadFile(account_name = '', supplier_id='', start_date='', end_date='') {
+        $(document).ready(function() {
+            $('#downloadButton').on('click', function(e) {
+                e.preventDefault();
+                // Get all checked checkboxes within the DataTable
+                var checkedValues = [],
+                selectedAccounts = [],
+                selectedSuppliersId = [],
+                checkedValues = [];
+                
+                $('#consolidated_supplier_data tbody tr').each(function() {
+                    var checkbox = $(this).find('input[type="checkbox"]:checked');
+                    if (checkbox.length > 0) {
+                        var accountName = $(this).find('td').eq(0).text().trim(); // Assuming the Account Name is in the first column
+                
+                        selectedAccounts.push(accountName);
+                    }
+                });
+    
+                $('.checkboxs:checked').each(function() {
+                    checkedValues.push($(this).val());
+                });
+                
                 $.ajax({
                     url: '{{ route("consolidated-report.download") }}',
                     type: 'POST',
-                    data: { account_name: account_name,  supplier_id: supplier_id, start_date: start_date, end_date: end_date },
+                    data: { 
+                        account_name: selectedAccounts,
+                        supplier_id: checkedValues,
+                        start_date: $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
+                        end_date: $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD') 
+                    },
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     xhrFields: { responseType: 'blob' },
                     success: function(data, status, xhr) {
@@ -130,8 +158,8 @@
                         alert('File download failed!');
                     }
                 });
-            }
-        $(document).ready(function() {
+            });
+
             $('#select_dates').on('change', function(){
                 var selectValue = $(this).val();
 
@@ -229,7 +257,7 @@
                 if ($('.total_amount').val() != null) {
                     $('.card-body').html('');
                     $('.card').show();
-                    $('.card-body').html('<p class="card-text"><b>Total Amount: </b> $' + $('.total_amount').val() + '</p>');
+                    $('.card-body').html('<p class="card-text d-flex justify-content-start"><b>Total Amount: </b> $' + $('.total_amount').val() + '</p>');
                 } else {
                     $('.card').hide();
                 }
@@ -276,11 +304,10 @@
                 },
 
                 columns: [
-                    { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name' },
                     { data: 'account_name', name: 'account_name', title: 'Account Name' },
+                    { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name' },
                     { data: 'spend', name: 'spend', title: 'Spend', 'searchable': false },
                     { data: 'category', name: 'category', title: 'Category', 'orderable': false, 'searchable': false },
-                    { data: 'download', name: 'download', title: 'Download', 'orderable': false, 'searchable': false },
                 ],
 
                 fnDrawCallback: function( oSettings ) {
