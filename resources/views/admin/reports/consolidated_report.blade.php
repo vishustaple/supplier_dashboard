@@ -7,6 +7,7 @@
                 <div class="m-1 mb-2 d-md-flex border-bottom pb-3 mb-3 align-items-center justify-content-between">
                     <h3 class="mb-0 ">{{ $pageTitle }}</h3>
                 </div>
+                <div id="error"></div>
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
                     <div class="row align-items-start border-bottom pb-3 mb-4">
@@ -112,15 +113,13 @@
                 e.preventDefault();
                 // Get all checked checkboxes within the DataTable
                 var checkedValues = [],
-                selectedAccounts = [],
-                selectedSuppliersId = [],
-                checkedValues = [];
+                selectedAccounts = [];
                 
                 $('#consolidated_supplier_data tbody tr').each(function() {
                     var checkbox = $(this).find('input[type="checkbox"]:checked');
                     if (checkbox.length > 0) {
                         var accountName = $(this).find('td').eq(0).text().trim(); // Assuming the Account Name is in the first column
-                
+            
                         selectedAccounts.push(accountName);
                     }
                 });
@@ -128,36 +127,47 @@
                 $('.checkboxs:checked').each(function() {
                     checkedValues.push($(this).val());
                 });
-                
-                $.ajax({
-                    url: '{{ route("consolidated-report.download") }}',
-                    type: 'POST',
-                    data: { 
-                        account_name: selectedAccounts,
-                        supplier_id: checkedValues,
-                        start_date: $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
-                        end_date: $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD') 
-                    },
-                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                    xhrFields: { responseType: 'blob' },
-                    success: function(data, status, xhr) {
-                        var blob = new Blob([data], { type: 'text/csv' });
-                        var link = document.createElement('a');
-                        link.href = window.URL.createObjectURL(blob);
-                        var now = new Date();
-                        var dateStr = now.getFullYear() + "-" +
-                                      ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
-                                      ("0" + now.getDate()).slice(-2) + "_" +
-                                      ("0" + now.getHours()).slice(-2) + "-" +
-                                      ("0" + now.getMinutes()).slice(-2) + "-" +
-                                      ("0" + now.getSeconds()).slice(-2);
-                        link.download = 'Consolidated_Account_Report_' + dateStr + '.csv';
-                        link.click();
-                    },
-                    error: function(xhr, status, error) {
-                        alert('File download failed!');
+
+                console.log(selectedAccounts);
+                console.log(checkedValues);
+
+                if (checkedValues.length === 0) {
+                    $('#error').append('<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></symbol></svg><div class="alert alert-danger alert-dismissible fade show" role="alert">  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg><strong>Error</strong> Please the supplier.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                } else {
+                    if (selectedAccounts.length === 0) {
+                        $('#error').append('<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></symbol></svg><div class="alert alert-danger alert-dismissible fade show" role="alert">  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg><strong>Error</strong> Please check the account.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    } else {
+                        $.ajax({
+                            url: '{{ route("consolidated-report.download") }}',
+                            type: 'POST',
+                            data: { 
+                                account_name: selectedAccounts,
+                                supplier_id: checkedValues,
+                                start_date: $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
+                                end_date: $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD') 
+                            },
+                            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                            xhrFields: { responseType: 'blob' },
+                            success: function(data, status, xhr) {
+                                var blob = new Blob([data], { type: 'text/csv' });
+                                var link = document.createElement('a');
+                                link.href = window.URL.createObjectURL(blob);
+                                var now = new Date();
+                                var dateStr = now.getFullYear() + "-" +
+                                              ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                              ("0" + now.getDate()).slice(-2) + "_" +
+                                              ("0" + now.getHours()).slice(-2) + "-" +
+                                              ("0" + now.getMinutes()).slice(-2) + "-" +
+                                              ("0" + now.getSeconds()).slice(-2);
+                                link.download = 'Consolidated_Account_Report_' + dateStr + '.csv';
+                                link.click();
+                            },
+                            error: function(xhr, status, error) {
+                                alert('File download failed!');
+                            }
+                        });
                     }
-                });
+                }
             });
 
             $('#select_dates').on('change', function(){
@@ -316,27 +326,12 @@
             });
 
             $('#consolidated_supplier_data_length').hide();
-            // $('#consolidated_supplier_data tbody').on('click', 'button', function () {
-            //     var tr = $(this).closest('tr');
-            //     var row = businessdataTable.row(tr);
-
-            //     if ( row.child.isShown() ) {
-            //         // This row is already open - close it
-            //         row.child.hide();
-            //         tr.removeClass('shown');
-            //     } else {
-            //         // Open this row
-            //         row.child( format(row.data()) ).show();
-            //         tr.addClass('shown');
-            //     }
-            // });
 
             $(document).on('change', '.checkboxMain', function() {
                 var checkedValues = [];
                 $('.checkboxMain:checked').each(function() {
                     checkedValues.push($(this).val());
                 });
-                console.log(checkedValues);
             });
 
             $('#downloadCsvBtn').on('click', function () {
