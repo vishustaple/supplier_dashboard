@@ -5,9 +5,7 @@
             <div id="layoutSidenav_content">
                 <div class="container">
                     <div class="m-1 mb-2 d-md-flex border-bottom pb-3 mb-3 align-items-center justify-content-between">
-                        <div class="m-1 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
-                            <h3 class="mb-0 ps-2">Power BI</h3>
-                        </div>
+                        <h3 class="mb-0 ps-2">Power BI</h3>
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaticBackdrop"><i class="fa fa-plus" aria-hidden="true"></i> Add Report </button>  
                     </div>
@@ -74,8 +72,8 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th scope="col">Report Title</th>
-                            <th scope="col">Embeded Code</th>
+                            <th scope="col">Title</th>
+                            <th scope="col" style="width: 70%;">Embeded Code</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
@@ -86,18 +84,18 @@
                                     <td>{{ $value->title }}</td>
                                     <td>{{ $value->iframe }}</td>
                                     <td>
-                                    <div class="row justify-content-start">
-                                        <div class="col-auto">
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-id="{{ $value->id }}" data-title="{{ $value->title }}" data-iframe="{{ $value->iframe }}" data-bs-target="#editStaticBackdrop">
-                                                <i class="fa fa-pencil-square" aria-hidden="true"></i>
-                                            </button>
+                                        <div class="row justify-content-start">
+                                            <div class="col-auto px-0">
+                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-id="{{ $value->id }}" data-title="{{ $value->title }}" data-iframe="{{ $value->iframe }}" data-bs-target="#editStaticBackdrop">
+                                                    <i class="fa fa-pencil-square" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                            <div class="col-auto">
+                                                <a class="btn btn-danger" href="{{ route('powerbi.delete', ['id' => $value->id]) }}">
+                                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
                                         </div>
-                                        <div class="col-auto">
-                                            <a class="btn btn-danger" href="{{ route('powerbi.delete', ['id' => $value->id]) }}">
-                                                <i class="fa fa-trash" aria-hidden="true"></i>
-                                            </a>
-                                        </div>
-                                    </div>
                                     </td>
                                 </tr>
                             @endforeach
