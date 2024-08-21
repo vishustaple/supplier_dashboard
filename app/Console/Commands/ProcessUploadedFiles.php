@@ -54,6 +54,8 @@ class ProcessUploadedFiles extends Command
             $suppliers = ManageColumns::getRequiredColumns();
 
             if ($fileValue !== null) {
+                DB::table('operational_anomaly_report')->delete();
+
                 /** Update cron two means start processing data into excel */
                 DB::table('uploaded_files')
                 ->where('id', $fileValue->id)

@@ -5,6 +5,8 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\{
+    ReportGenrate,
+    SendReportEmail,
     ProcessUploadedFiles,
     validateUploadedFile,
     DeleteUploadedFilesData,
@@ -20,6 +22,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command(ReportGenrate::class)->hourly();
+        $schedule->command(SendReportEmail::class)->weeklyOn(1, '0:00');
         $schedule->command(ProcessDeleteCommissions::class)->weekends();
         $schedule->command(validateUploadedFile::class)->everyTenMinutes();
         $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes();
