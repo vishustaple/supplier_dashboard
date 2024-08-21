@@ -33,7 +33,8 @@
 
         public function showPowerBi(){
             $pageTitle = 'Power Bi';
-            return view('admin.power_bi', compact('pageTitle'));
+            $data = DB::table('show_power_bi')->select('id', 'title', 'iframe')->get();
+            return view('admin.power_bi', compact('pageTitle', 'data'));
         }
 
         public function userview(){    
@@ -333,5 +334,87 @@
             }
 
             return redirect()->route('user.forget');
+        }
+
+        public function powerBiAdd(Request $request){
+            try {
+                DB::table('show_power_bi')
+                ->insert([
+                    'title' => $request->input('title'),
+                    'iframe' => $request->input('iframe'),
+                ]);
+
+                return redirect()->route('power_bi.show');
+            } catch (\Exception $e) {
+                Log::error('error', $e->getMessage());
+            }
+        }
+
+        public function powerBiEdit(Request $request){
+            try {
+                DB::table('show_power_bi')
+                ->where('id', $request->input('id'))
+                ->update([
+                    'title' => $request->input('titles'),
+                    'iframe' => $request->input('iframes'),
+                ]);
+
+                return redirect()->route('power_bi.show');
+            } catch (\Exception $e) {
+                Log::error('error', $e->getMessage());
+            }
+        }
+
+        public function powerBiDelete($id){
+            try {
+                DB::table('show_power_bi')->where('id', $id)->delete();
+                return redirect()->route('power_bi.show');
+            } catch (\Exception $e) {
+                Log::error('error', $e->getMessage());
+            }
+        }
+
+        public function powerBiReport(Request $request){
+            if ($request->ajax()) {
+                $record =  DB::table('show_power_bi')->select('id', 'title')->get();
+                if ($record->isNotEmpty()) {
+                    $titles = $record->pluck('title')->toArray();
+
+                    $pageTitleCheck = $request->input('pageTitleCheck');
+    
+                    /** Generate the HTML content */
+                    $data = '
+                    <a class="nav-link ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'active' : '') . '" data-toggle="collapse" href="#subMenuPowerBi">
+                        <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
+                        PowerBi Reports<i class="fas fa-caret-down"></i>
+                    </a>
+                    <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'show' : '') . '" id="subMenuPowerBi">';
+    
+                    foreach ($record as $key => $value) {
+                        $data .= '
+                        <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == $value->title) ? 'active' : '') . '" href="' . route('powerbi_report.type', ['id' => $value->id, 'reportType' => $value->title]) . '">' . htmlspecialchars($value->title, ENT_QUOTES, 'UTF-8') . '</a>';
+                    }
+    
+                    $data .= '</div>';
+    
+                    return response()->json([
+                        'success' => true,
+                        'data' => $data,
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => true,
+                        'data' => '',
+                    ]);
+                }
+            }
+        }
+
+        public function powerBiReportViewRender($id, $reportType) {
+            $data = DB::table('show_power_bi')->select('title', 'iframe')->where('id', $id)->first();
+
+            if ($data) {
+                return view('admin.powerbi_report', ['pageTitle' => $reportType, 'data' => $data]);
+            }
         }
     }

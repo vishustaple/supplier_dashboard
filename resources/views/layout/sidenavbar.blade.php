@@ -120,6 +120,10 @@
                     <div class="sb-nav-link-icon"><i class="fa fa-sign-out" aria-hidden="true"></i></div>
                     Logout
                 </a>
+
+                <div id="powerbi_report">
+
+                </div>
             </div>
         </div>
         <div class="sb-sidenav-footer text-center">
@@ -134,6 +138,29 @@
 </div>
 <script>
     var token = "{{ csrf_token() }}";
+    $.ajax({
+        type: 'GET',
+        url: "{{ route('powerbi.report') }}",
+        dataType: 'json',
+        headers: {'X-CSRF-TOKEN': token},
+        data: {
+            pageTitleCheck: '{{$pageTitleCheck}}' // Send the page title check to the backend
+        },
+            
+        success: function(response) {
+            if(response.error){
+            }
+
+            if(response.success){
+                $('#powerbi_report').html(response.data);
+            }
+        },
+        error: function(xhr, status, error) {
+            // Handle error response
+            console.error(xhr.responseText);
+        }
+    });
+
     $.ajax({
         type: 'GET',
         url: "{{route('accounts.counts')}}",
