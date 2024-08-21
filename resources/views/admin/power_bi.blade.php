@@ -29,8 +29,8 @@
                                         <input class="form-control" type="text" placeholder="Title here" name="title">
                                     </div>
                                     <div class="form-group">
-                                        <label>Comments</label>
-                                        <textarea class="form-control" placeholder="Add iframe here" name="iframe" id="floatingTextarea2" style="height: 100px"></textarea>
+                                        <label>Embeded Code</label>
+                                        <textarea class="form-control" placeholder="Add your code here" name="iframe" id="floatingTextarea2" style="height: 100px"></textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -59,8 +59,8 @@
                                         <input class="form-control" type="text" placeholder="Title here" name="titles">
                                     </div>
                                     <div class="form-group">
-                                        <label>Comments</label>
-                                        <textarea class="form-control" placeholder="Add iframe here" name="iframes" id="floatingTextarea2" style="height: 100px"></textarea>
+                                        <label>Embeded Code</label>
+                                        <textarea class="form-control" placeholder="Add your code here" name="iframes" id="floatingTextarea2" style="height: 100px"></textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -75,7 +75,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Report Title</th>
-                            <th scope="col">Iframe</th>
+                            <th scope="col">Embeded Code</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
