@@ -24,11 +24,11 @@
                                 <div class="modal-body">
                                     <div class="form-group">
                                         <label>Reoprt Title</label>
-                                        <input class="form-control" type="text" placeholder="Title here" name="title">
+                                        <input class="form-control" required type="text" placeholder="Title here" name="title">
                                     </div>
                                     <div class="form-group">
                                         <label>Embeded Code</label>
-                                        <textarea class="form-control" placeholder="Add your code here" name="iframe" id="floatingTextarea2" style="height: 100px"></textarea>
+                                        <textarea class="form-control" required placeholder="Add your code here" name="iframe" id="floatingTextarea2" style="height: 100px"></textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -54,11 +54,11 @@
                                 <div class="modal-body">
                                     <div class="form-group">
                                         <label>Reoprt Title</label>
-                                        <input class="form-control" type="text" placeholder="Title here" name="titles">
+                                        <input class="form-control" required type="text" placeholder="Title here" name="titles">
                                     </div>
                                     <div class="form-group">
                                         <label>Embeded Code</label>
-                                        <textarea class="form-control" placeholder="Add your code here" name="iframes" id="floatingTextarea2" style="height: 100px"></textarea>
+                                        <textarea class="form-control" required placeholder="Add your code here" name="iframes" id="floatingTextarea2" style="height: 100px"></textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
