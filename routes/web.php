@@ -124,6 +124,12 @@ Route::group(['prefix' => 'admin'], function () {
         //not in use now this route     
         Route::get('/userlist', [HomeController::class, 'userview'])->name('user.show');
         Route::get('/powerbi', [HomeController::class, 'showPowerBi'])->name('power_bi.show');
+        Route::post('/powerbi/add', [HomeController::class, 'powerBiAdd'])->name('powerbi.add');
+        Route::post('/powerbi/edit', [HomeController::class, 'powerBiEdit'])->name('powerbi.update');
+        Route::get('/powerbi/report', [HomeController::class, 'powerBiReport'])->name('powerbi.report');
+        Route::get('/powerbi/delete/{id?}', [HomeController::class, 'powerBiDelete'])->name('powerbi.delete');
+        Route::get('/power-bi/reports/{id?}/{reportType?}', [HomeController::class, 'powerBiReportViewRender'])->name('powerbi_report.type');
+
         Route::get('/remove', [HomeController::class, 'UserRemove'])->name('user.remove');
         Route::get('/updateuser', [HomeController::class, 'UpdateUser'])->name('user.updateuser');
         Route::post('/updateuserdata', [HomeController::class, 'UpdateUserData'])->name('user.updateuserdata');
