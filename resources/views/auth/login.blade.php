@@ -42,6 +42,9 @@
                                             <div class="text-center">
                                                 <button type="submit" class="btn blue ">Login</button>
                                             </div>
+                                            <div class="text-center">
+                                            <a href="https://login.microsoftonline.com/75a14c1f-767b-41d8-a0cc-5407a688e3ef/oauth2/v2.0/authorize?client_id=253c00ee-f883-4a4a-b4d8-d419b3b13572&scope=Power Bi Login" class="forgot-password-link">Power Bi Login</a>
+                                            </div>
                                             <div class="text-center mt-2">
                                                 <a href="{{route('user.forget')}}" class="forgot-password-link">Forgot Password?</a>
                                             </div>
