@@ -169,12 +169,12 @@ class ReportGenrate extends Command
                 $rankedAmountsQuery = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as WeeklyAmounts"))
                 ->mergeBindings($weeklyAmounts->getBindings()) // Merge bindings from the first query
                 ->selectRaw("
-                    wa.year,
-                    wa.account_name,
-                    wa.supplier_name,
-                    wa.weekly_amount,
-                    ROW_NUMBER() OVER (PARTITION BY wa.year, wa.account_name ORDER BY wa.weekly_amount) as row_num,
-                    COUNT(*) OVER (PARTITION BY wa.year, wa.account_name) as total_count
+                    WeeklyAmounts.year,
+                    WeeklyAmounts.account_name,
+                    WeeklyAmounts.supplier_name,
+                    WeeklyAmounts.weekly_amount,
+                    ROW_NUMBER() OVER (PARTITION BY WeeklyAmounts.year, WeeklyAmounts.account_name ORDER BY WeeklyAmounts.weekly_amount) as row_num,
+                    COUNT(*) OVER (PARTITION BY WeeklyAmounts.year, WeeklyAmounts.account_name) as total_count
                 ")
                 ->whereBetween('order_date', [$start_date, $end_date]);
 
