@@ -226,15 +226,33 @@ class ReportGenrate extends Command
                 // ->get();
 
                 $finalArray = [];
+                // foreach ($queryData as $key => $value) {
+                //     // if ($value->percentage_drop >= 20 && ($value->supplier_name == $values)) {
+                //         /** Prepare the final array for non-CSV */
+                //         $finalArray[] = [
+                //             'account_name' => $value->account_name,
+                //             'supplier_name' => $value->supplier_name,
+                //             'fifty_two_wk_avg' => $value->avg_52_weeks,
+                //             'ten_week_avg' => $value->avg_10_weeks,
+                //             'two_wk_avg_percentage' => $value->avg_2_weeks,
+                //             'drop' => $value->percentage_drop,
+                //             'median' => $value->median_52_weeks,
+                //             'date' => $originalDate,
+                //             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                //             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                //         ];
+                //     // }
+                // }
+
                 foreach ($queryData as $key => $value) {
                     // if ($value->percentage_drop >= 20 && ($value->supplier_name == $values)) {
                         /** Prepare the final array for non-CSV */
                         $finalArray[] = [
                             'account_name' => $value->account_name,
                             'supplier_name' => $value->supplier_name,
-                            'fifty_two_wk_avg' => $value->avg_52_weeks,
-                            'ten_week_avg' => $value->avg_10_weeks,
-                            'two_wk_avg_percentage' => $value->avg_2_weeks,
+                            'fifty_two_wk_avg' => $value->average_week_52,
+                            'ten_week_avg' => $value->average_week_10,
+                            'two_wk_avg_percentage' => $value->average_week_2,
                             'drop' => $value->percentage_drop,
                             'median' => $value->median_52_weeks,
                             'date' => $originalDate,
