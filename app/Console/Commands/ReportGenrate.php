@@ -190,11 +190,12 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
+                    AVG(CASE WHEN wa.YYWW >= (MAX(wa.YYWW) - 100) THEN wa.weekly_amount ELSE NULL END) AS avg_53_weeks,
+                    
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_52_weeks,
 
-                    AVG(CASE WHEN wa.YYWW >= (MAX(wa.YYWW) - 100) THEN wa.weekly_amount ELSE NULL END) AS avg_53_weeks,
 
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
