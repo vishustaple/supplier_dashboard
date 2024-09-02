@@ -178,19 +178,19 @@ class ReportGenrate extends Command
                 ")
                 ->whereBetween('order_date', [$start_date, $end_date]);
 
-                $medians = Order::from(DB::raw("({$rankedAmountsQuery->toSql()}) as wa"))
+                $medians = Order::from(DB::raw("({$rankedAmountsQuery->toSql()}) as was"))
                 ->mergeBindings($rankedAmountsQuery->getBindings()) // Merge bindings from rankedAmountsQuery
                 ->selectRaw("
-                    wa.account_name,
-                    wa.supplier_name,
-                    wa.supplier_id,
+                    was.account_name,
+                    was.supplier_name,
+                    was.supplier_id,
                     AVG(weekly_amount) as median_52_weeks
                 ")
                 ->whereIn('row_num', [
                     DB::raw("FLOOR((total_count + 1) / 2)"),
                     DB::raw("CEIL((total_count + 1) / 2)")
                 ])
-                ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
+                ->groupBy('was.account_name', 'was.supplier_name', 'was.supplier_id');
 
                 $averages = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
                 ->mergeBindings($weeklyAmounts->getBindings()) // Merge bindings from weeklyAmounts
