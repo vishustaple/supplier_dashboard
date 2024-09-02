@@ -243,9 +243,9 @@ class ReportGenrate extends Command
                     $join->on('a.account_name', '=', 'm.account_name')
                     ->on('a.supplier_id', '=', 'm.supplier_id');
                 })
-                ->mergeBindings($medians->getQuery()); /** Merge bindings from the medians query */
+                ->mergeBindings($medians->getQuery()) /** Merge bindings from the medians query */
                 
-                $queryData->selectRaw('
+                ->selectRaw('
                     a.account_name,
                     a.supplier_name,
                     a.supplier_id,
@@ -258,7 +258,7 @@ class ReportGenrate extends Command
                 ->get();
                 // dd($queryData);
                 // ->having('a.avg_52_weeks', '<', DB::raw('a.avg_2_weeks'))
-                
+                // dd($queryData);
 
                 $finalArray = [];
                 foreach ($queryData as $key => $value) {
