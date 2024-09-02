@@ -209,8 +209,8 @@ class ReportGenrate extends Command
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
             
             $queryData = Order::from(DB::raw("({$averages->toSql()}) as a"))
-                ->mergeBindings($averages) // Merge bindings from averages
-                ->mergeBindings($medians) // Merge bindings from medians
+                ->mergeBindings($averages->getBindings()) // Merge bindings from averages
+                ->mergeBindings($medians->getBindings()) // Merge bindings from medians
                 ->leftJoin(DB::raw("({$medians->toSql()}) as m"), function ($join) {
                     $join->on('a.account_name', '=', 'm.account_name')
                          ->on('a.supplier_id', '=', 'm.supplier_id');
