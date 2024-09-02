@@ -69,7 +69,7 @@
                         </form>
                     </div>
                 </div>
-                <table class="table">
+                <table class="table power_bi_table">
                     <thead>
                         <tr>
                             <th scope="col">Title</th>
@@ -113,4 +113,14 @@
             $('textarea[name="iframes"]').val(event.relatedTarget.getAttribute('data-iframe'));
         });
     </script>
+    <style>
+        table.power_bi_table tbody tr td:nth-child(2) {
+    max-width: 795px  !important;
+    width: 795px  !important;
+    white-space: normal !important;
+    min-width: 795px  !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+    </style>
 @endsection   
