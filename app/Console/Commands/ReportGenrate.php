@@ -195,7 +195,7 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
- SUM(CASE WHEN wa.order_date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52 as average_week_52,
+ SUM(CASE WHEN wa.order_date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52 as avg_52_weeks,
 
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
