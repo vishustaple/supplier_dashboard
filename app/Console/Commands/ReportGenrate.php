@@ -55,20 +55,20 @@ class ReportGenrate extends Command
 
                 /** Convert the date to a DateTime object */
                 $dateTime = new DateTime($date);
-                // $dateTimes = new DateTime($date);
+                $dateTimes = new DateTime($date);
 
-                // /** Extract the year and week number */
-                // $year = $dateTimes->format('Y'); /** Full year (e.g., 2024) */
-                // $week = $dateTimes->format('W');  /** ISO-8601 week number (e.g., 35) */
+                /** Extract the year and week number */
+                $year = $dateTimes->format('Y'); /** Full year (e.g., 2024) */
+                $week = $dateTimes->format('W');  /** ISO-8601 week number (e.g., 35) */
 
-                // /** Convert the year to two digits (YY format) */
-                // $yearYY = substr($year, -2);
+                /** Convert the year to two digits (YY format) */
+                $yearYY = substr($year, -2);
 
-                // /** Format the week number to two digits */
-                // $weekWW = str_pad($week, 2, '0', STR_PAD_LEFT);
+                /** Format the week number to two digits */
+                $weekWW = str_pad($week, 2, '0', STR_PAD_LEFT);
 
-                // /** Combine to form YYWW */
-                // $yyww = $yearYY . $weekWW;
+                /** Combine to form YYWW */
+                $yyww = $yearYY . $weekWW;
 
                 /** Check if the given date is a Sunday */
                 if ($dateTime->format('w') != 0) {
@@ -213,6 +213,7 @@ class ReportGenrate extends Command
                         THEN wa.weekly_amount
                         ELSE NULL 
                     END) / 52 AS avg_52_weeks,
+                   
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
