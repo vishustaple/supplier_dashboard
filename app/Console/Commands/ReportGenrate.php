@@ -227,7 +227,7 @@ class ReportGenrate extends Command
 
                 $finalArray = [];
                 foreach ($queryData as $key => $value) {
-                    // if ($value->percentage_drop >= 20 && ($value->supplier_name == $values)) {
+                    if ($value->percentage_drop >= 20 && ($value->supplier_name == $values)) {
                         /** Prepare the final array for non-CSV */
                         $finalArray[] = [
                             'account_name' => $value->account_name,
@@ -241,7 +241,7 @@ class ReportGenrate extends Command
                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                         ];
-                    // }
+                    }
                 }
 
                 print_r($finalArray);
