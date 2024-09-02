@@ -151,81 +151,77 @@ class ReportGenrate extends Command
                 // $queryData = $query->get();
 
               /** WeeklyAmounts subquery */
-$weeklyAmounts = Order::query()
-->selectRaw('
-    mad.account_name,
-    s.supplier_name,
-    orders.supplier_id,
-    YEAR(orders.date) as year,
-    orders.date AS order_date,
-    YEAR(orders.date) * 100 + WEEK(orders.date) AS YYWW,
-    COALESCE(SUM(orders.amount), 0) AS weekly_amount
-')
-->leftJoin('master_account_detail as mad', 'orders.customer_number', '=', 'mad.account_number')
-->leftJoin('suppliers as s', 'orders.supplier_id', '=', 's.id')
-->whereBetween('orders.date', [$start_date, $end_date])
-->groupBy('mad.account_name', 's.supplier_name', 'orders.supplier_id', 'YYWW');
+                $weeklyAmounts = Order::query()
+                ->selectRaw('
+                    mad.account_name,
+                    s.supplier_name,
+                    orders.supplier_id,
+                    YEAR(orders.date) as year,
+                    orders.date AS order_date,
+                    YEAR(orders.date) * 100 + WEEK(orders.date) AS YYWW,
+                    COALESCE(SUM(orders.amount), 0) AS weekly_amount
+                ')
+                ->leftJoin('master_account_detail as mad', 'orders.customer_number', '=', 'mad.account_number')
+                ->leftJoin('suppliers as s', 'orders.supplier_id', '=', 's.id')
+                ->whereBetween('orders.date', [$start_date, $end_date])
+                ->groupBy('mad.account_name', 's.supplier_name', 'orders.supplier_id', 'YYWW');
 
-// Convert to Raw SQL without bindings
-$weeklyAmountsSql = $weeklyAmounts->toSql();
-$weeklyAmountsBindings = $weeklyAmounts->getBindings();
+                $rankedAmountsQuery = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as WeeklyAmounts"))
+                ->mergeBindings($weeklyAmounts->getBindings()) // Merge bindings from the first query
+                ->selectRaw("
+                    wa.year,
+                    wa.account_name,
+                    wa.supplier_name,
+                    wa.weekly_amount,
+                    ROW_NUMBER() OVER (PARTITION BY wa.year, wa.account_name ORDER BY wa.weekly_amount) as row_num,
+                    COUNT(*) OVER (PARTITION BY wa.year, wa.account_name) as total_count
+                ")
+                ->whereBetween('order_date', [$start_date, $end_date]);
 
-$rankedAmountsQuery = Order::from(DB::raw("($weeklyAmountsSql) as WeeklyAmounts"))
-->mergeBindings($weeklyAmounts->getBindings()) // Merge bindings from the first query
-->selectRaw("
-    year,
-    account_name,
-    supplier_name,
-    weekly_amount,
-    ROW_NUMBER() OVER (PARTITION BY year, account_name ORDER BY weekly_amount) as row_num,
-    COUNT(*) OVER (PARTITION BY year, account_name) as total_count
-")
-->whereBetween('order_date', [$start_date, $end_date]);
+                $medians = Order::from(DB::raw("({$rankedAmountsQuery->toSql()}) as wa"))
+                ->mergeBindings($rankedAmountsQuery->getBindings()) // Merge bindings from rankedAmountsQuery
+                ->selectRaw("
+                    wa.account_name,
+                    wa.supplier_name,
+                    wa.supplier_id,
+                    AVG(weekly_amount) as median_52_weeks
+                ")
+                ->whereIn('row_num', [
+                    DB::raw("FLOOR((total_count + 1) / 2)"),
+                    DB::raw("CEIL((total_count + 1) / 2)")
+                ])
+                ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
 
-$medians = Order::from(DB::raw("({$rankedAmountsQuery->toSql()}) as wa"))
-->mergeBindings($rankedAmountsQuery->getBindings()) // Merge bindings from rankedAmountsQuery
-->selectRaw("
-    wa.account_name,
-    wa.supplier_name,
-    wa.supplier_id,
-    AVG(weekly_amount) as median_52_weeks
-")
-->whereIn('row_num', [
-    DB::raw("FLOOR((total_count + 1) / 2)"),
-    DB::raw("CEIL((total_count + 1) / 2)")
-])
-->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
+                $averages = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
+                ->mergeBindings($weeklyAmounts->getBindings()) // Merge bindings from weeklyAmounts
+                ->selectRaw('
+                    wa.account_name,
+                    wa.supplier_name,
+                    wa.supplier_id,
+                    SUM(CASE WHEN wa.order_date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52 as avg_52_weeks,
+                    AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) AND (YEAR(?) * 100 + WEEK(?)) THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
+                    AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) AND (YEAR(?) * 100 + WEEK(?)) THEN wa.weekly_amount ELSE NULL END) AS avg_2_weeks
+                ', [$start_date, $end_date, $start_date_10, $start_date_10, $end_date_10, $end_date_10, $start_date_2, $start_date_2, $end_date_2, $end_date_2])
+                ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
 
-$averages = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
-->mergeBindings($weeklyAmounts->getBindings()) // Merge bindings from weeklyAmounts
-->selectRaw('
-    wa.account_name,
-    wa.supplier_name,
-    wa.supplier_id,
-    SUM(CASE WHEN wa.order_date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52 as avg_52_weeks,
-    AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) AND (YEAR(?) * 100 + WEEK(?)) THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
-    AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) AND (YEAR(?) * 100 + WEEK(?)) THEN wa.weekly_amount ELSE NULL END) AS avg_2_weeks
-', [$start_date, $end_date, $start_date_10, $start_date_10, $end_date_10, $end_date_10, $start_date_2, $start_date_2, $end_date_2, $end_date_2])
-->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
-
-$queryData = Order::from(DB::raw("({$averages->toSql()}) as a"))
-->mergeBindings($averages->getBindings()) // Merge bindings from averages
-->mergeBindings($medians->getBindings()) // Merge bindings from medians
-->leftJoin(DB::raw("({$medians->toSql()}) as m"), function ($join) {
-    $join->on('a.account_name', '=', 'm.account_name')
-         ->on('a.supplier_id', '=', 'm.supplier_id');
-})
-->selectRaw('
-    a.account_name,
-    a.supplier_name,
-    a.supplier_id,
-    a.avg_52_weeks,
-    a.avg_10_weeks,
-    a.avg_2_weeks,
-    m.median_52_weeks,
-    ROUND(((m.median_52_weeks - a.avg_2_weeks) / m.median_52_weeks) * 100, 2) AS percentage_drop
-')
-->get();
+                $queryData = Order::from(DB::raw("({$averages->toSql()}) as a"))
+                ->mergeBindings($averages->getBindings()) // Merge bindings from averages
+                ->mergeBindings($medians->getBindings()) // Merge bindings from medians
+                ->leftJoin(DB::raw("({$medians->toSql()}) as m"), function ($join) {
+                    $join->on('a.account_name', '=', 'm.account_name')
+                        ->on('a.supplier_id', '=', 'm.supplier_id');
+                })
+                ->selectRaw('
+                    a.account_name,
+                    a.supplier_name,
+                    a.supplier_id,
+                    a.avg_52_weeks,
+                    a.avg_10_weeks,
+                    a.avg_2_weeks,
+                    m.median_52_weeks,
+                    ROUND(((m.median_52_weeks - a.avg_2_weeks) / m.median_52_weeks) * 100, 2) AS percentage_drop
+                ')
+                ->get();
 
                 $finalArray = [];
                 foreach ($queryData as $key => $value) {
