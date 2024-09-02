@@ -298,7 +298,7 @@ class ReportGenrate extends Command
                 // }
 
                 print_r($finalArray);
-                // DB::table('operational_anomaly_report')->insert($finalArray);
+                DB::table('operational_anomaly_report')->insert($finalArray);
             }
         // }
     }
