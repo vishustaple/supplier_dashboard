@@ -167,6 +167,7 @@ class ReportGenrate extends Command
                 ->groupBy('mad.account_name', 's.supplier_name', 'orders.supplier_id', 'YYWW');
 
                 $rankedAmountsQuery = Order::from(DB::raw("(".$weeklyAmounts->toSql().") as WeeklyAmounts"))
+                ->mergeBindings($weeklyAmounts->getQuery()) /** Merge bindings from the first query */
                 ->selectRaw("
                     year,
                     account_name,
