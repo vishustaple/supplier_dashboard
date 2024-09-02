@@ -245,7 +245,7 @@ class ReportGenrate extends Command
                 // }
 
                 foreach ($queryData as $key => $value) {
-                    if ($value->percentage_drop >= 20 && ($value->supplier_name == $values)) {
+                    if ($value->gap_percentage >= 20 && ($value->supplier_name == $values)) {
                         /** Prepare the final array for non-CSV */
                         $finalArray[] = [
                             'account_name' => $value->account_name,
