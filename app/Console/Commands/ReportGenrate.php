@@ -195,8 +195,9 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
- SUM(CASE WHEN wa.order_date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52 as avg_52_weeks,
-
+                    SUM(CASE WHEN wa.order_date BETWEEN ? 
+                                                AND ? 
+                            THEN wa.weekly_amount ELSE 0 END) / 52 as avg_52_weeks,
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
@@ -230,7 +231,7 @@ class ReportGenrate extends Command
 
                 $finalArray = [];
                 foreach ($queryData as $key => $value) {
-                    // if ($value->percentage_drop >= 20 && ($value->supplier_name == $values)) {
+                    if ($value->percentage_drop >= 20 && ($value->supplier_name == $values)) {
                         /** Prepare the final array for non-CSV */
                         $finalArray[] = [
                             'account_name' => $value->account_name,
@@ -244,7 +245,7 @@ class ReportGenrate extends Command
                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                         ];
-                    // }
+                    }
                 }
 
                 // foreach ($queryData as $key => $value) {
