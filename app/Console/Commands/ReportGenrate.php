@@ -168,10 +168,10 @@ class ReportGenrate extends Command
             
             // Step 1: Convert to Raw SQL without bindings
             $weeklyAmountsSql = $weeklyAmounts->toSql();
-            $weeklyAmountsBindings = $weeklyAmounts->getBindings();
+            // $weeklyAmountsBindings = $weeklyAmounts->getBindings();
             
             $rankedAmountsQuery = Order::from(DB::raw("($weeklyAmountsSql) as WeeklyAmounts"))
-                ->mergeBindings($weeklyAmounts) // Correctly merge bindings from the first query
+                ->mergeBindings($weeklyAmounts->getBindings()) // Correctly merge bindings from the first query
                 ->selectRaw("
                     year,
                     account_name,
@@ -197,7 +197,7 @@ class ReportGenrate extends Command
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
             
             $averages = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
-                ->mergeBindings($weeklyAmounts) // Merge bindings from weeklyAmounts
+                ->mergeBindings($weeklyAmounts->getBindings()) // Merge bindings from weeklyAmounts
                 ->selectRaw('
                     wa.account_name,
                     wa.supplier_name,
