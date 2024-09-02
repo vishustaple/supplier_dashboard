@@ -156,6 +156,7 @@ class ReportGenrate extends Command
                     mad.account_name AS account_name,
                     s.supplier_name AS supplier_name,
                     orders.supplier_id,
+                    YEAR(orders.date) AS year,
                     orders.date AS order_date,
                     YEAR(orders.date) * 100 + WEEK(orders.date) AS YYWW,
                     COALESCE(SUM(orders.amount), 0) AS weekly_amount
@@ -170,13 +171,14 @@ class ReportGenrate extends Command
                     ra.year,
                     ra.account_name,
                     ra.supplier_name,
+                    ra.supplier_id,
                     ra.weekly_amount,
                     ROW_NUMBER() OVER (PARTITION BY ra.year, ra.account_name ORDER BY ra.weekly_amount) as row_num,
                     COUNT(*) OVER (PARTITION BY ra.year, ra.account_name) as total_count
                 ")
                 ->whereBetween('ra.order_date', [$start_date, $end_date])
                 ->mergeBindings($weeklyAmounts->getQuery()) ;
-                dd($rankedAmountsQuery);
+                
                 $medians = Order::from(DB::raw("({$rankedAmountsQuery->toSql()}) as ma"))
                 ->mergeBindings($rankedAmountsQuery->getQuery()) /** Merge bindings from the first query */
                 ->selectRaw("
@@ -190,7 +192,7 @@ class ReportGenrate extends Command
                     DB::raw("CEIL((ma.total_count + 1) / 2)")
                 ])
                 ->groupBy('ma.account_name', 'ma.supplier_name', 'ma.supplier_id');
-
+                
                 /** Medians subquery */
                 // $medians = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
                 // ->mergeBindings($weeklyAmounts->getQuery()) /** Merge bindings from the first query */
@@ -233,16 +235,17 @@ class ReportGenrate extends Command
                 ', [$start_date, $end_date, $start_date_10, $start_date_10, $end_date_10, $end_date_10,
                     $start_date_2, $start_date_2, $end_date_2, $end_date_2])
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
-
+                
                 /** Final query */
                 $queryData = Order::from(DB::raw("({$averages->toSql()}) as a"))
                 ->mergeBindings($averages->getQuery()) /** Merge bindings from the averages query */
-                ->mergeBindings($medians->getQuery()) /** Merge bindings from the medians query */
                 ->leftJoin(DB::raw("({$medians->toSql()}) as m"), function ($join) {
                     $join->on('a.account_name', '=', 'm.account_name')
-                        ->on('a.supplier_id', '=', 'm.supplier_id');
+                    ->on('a.supplier_id', '=', 'm.supplier_id');
                 })
-                ->selectRaw('
+                ->mergeBindings($medians->getQuery()); /** Merge bindings from the medians query */
+                
+                $queryData->selectRaw('
                     a.account_name,
                     a.supplier_name,
                     a.supplier_id,
@@ -252,8 +255,10 @@ class ReportGenrate extends Command
                     m.median_52_weeks,
                     ROUND(((m.median_52_weeks - a.avg_2_weeks) / m.median_52_weeks) * 100, 2) AS percentage_drop
                 ')
-                // ->having('a.avg_52_weeks', '<', DB::raw('a.avg_2_weeks'))
                 ->get();
+                // dd($queryData);
+                // ->having('a.avg_52_weeks', '<', DB::raw('a.avg_2_weeks'))
+                
 
                 $finalArray = [];
                 foreach ($queryData as $key => $value) {
