@@ -210,11 +210,11 @@ class ReportGenrate extends Command
             
             $queryData = Order::from(DB::raw("({$averages->toSql()}) as a"))
                 ->mergeBindings($averages->getBindings()) // Merge bindings from averages
+                ->mergeBindings($medians->getBindings()) // Merge bindings from medians
                 ->leftJoin(DB::raw("({$medians->toSql()}) as m"), function ($join) {
                     $join->on('a.account_name', '=', 'm.account_name')
                     ->on('a.supplier_id', '=', 'm.supplier_id');
                 })
-                ->mergeBindings($medians->getBindings()) // Merge bindings from medians
                 ->selectRaw('
                     a.account_name,
                     a.supplier_name,
