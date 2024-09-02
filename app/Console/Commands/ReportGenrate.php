@@ -176,7 +176,7 @@ class ReportGenrate extends Command
                     ROW_NUMBER() OVER (PARTITION BY WeeklyAmounts.year, WeeklyAmounts.account_name ORDER BY WeeklyAmounts.weekly_amount) as row_num,
                     COUNT(*) OVER (PARTITION BY WeeklyAmounts.year, WeeklyAmounts.account_name) as total_count
                 ")
-                ->whereBetween('order_date', [$start_date, $end_date]);
+                ->whereBetween('WeeklyAmounts.order_date', [$start_date, $end_date]);
 
                 $medians = Order::from(DB::raw("({$rankedAmountsQuery->toSql()}) as was"))
                 ->mergeBindings($rankedAmountsQuery->getBindings()) // Merge bindings from rankedAmountsQuery
