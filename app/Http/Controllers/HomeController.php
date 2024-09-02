@@ -418,7 +418,5 @@
             if ($data) {
                 return view('admin.powerbi_report', ['pageTitle' => $reportType, 'data' => $data]);
             }
-        }
-
-        
+        }        
     }
