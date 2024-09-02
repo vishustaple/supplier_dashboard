@@ -253,7 +253,7 @@ class ReportGenrate extends Command
                             'fifty_two_wk_avg' => $value->average_week_52,
                             'ten_week_avg' => $value->average_week_10,
                             'two_wk_avg_percentage' => $value->average_week_2,
-                            'drop' => $value->percentage_drop,
+                            'drop' => $value->gap_percentage,
                             'median' => $value->median_52_weeks,
                             'date' => $originalDate,
                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
