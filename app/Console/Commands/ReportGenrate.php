@@ -55,6 +55,20 @@ class ReportGenrate extends Command
 
                 /** Convert the date to a DateTime object */
                 $dateTime = new DateTime($date);
+                $dateTimes = new DateTime($date);
+
+                /** Extract the year and week number */
+                $year = $dateTimes->format('Y'); /** Full year (e.g., 2024) */
+                $week = $dateTimes->format('W');  /** ISO-8601 week number (e.g., 35) */
+
+                /** Convert the year to two digits (YY format) */
+                $yearYY = substr($year, -2);
+
+                /** Format the week number to two digits */
+                $weekWW = str_pad($week, 2, '0', STR_PAD_LEFT);
+
+                /** Combine to form YYWW */
+                $yyww = $yearYY . $weekWW;
 
                 /** Check if the given date is a Sunday */
                 if ($dateTime->format('w') != 0) {
@@ -183,6 +197,10 @@ class ReportGenrate extends Command
                 ')
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
 
+//                 AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
+//                 AND (YEAR(?) * 100 + WEEK(?)) 
+// THEN wa.weekly_amount ELSE NULL END) AS avg_52_weeks,
+
                 /** Averages subquery */
                 $averages = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
                 ->mergeBindings($weeklyAmounts->getQuery()) /** Merge bindings from the first query */
@@ -190,16 +208,18 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
-                    AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
-                                                AND (YEAR(?) * 100 + WEEK(?)) 
-                            THEN wa.weekly_amount ELSE NULL END) AS avg_52_weeks,
+                     AVG(CASE 
+                    WHEN wa.YYWW >= (? - 100) 
+                        THEN wa.weekly_amount 
+                        ELSE NULL 
+                    END) AS avg_52_weeks,
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_2_weeks
-                ', [$start_date, $start_date, $end_date, $end_date,
+                ', [$yyww, $start_date, $start_date, $end_date, $end_date,
                     $start_date_10, $start_date_10, $end_date_10, $end_date_10,
                     $start_date_2, $start_date_2, $end_date_2, $end_date_2])
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
@@ -220,7 +240,7 @@ class ReportGenrate extends Command
                     a.avg_10_weeks,
                     a.avg_2_weeks,
                     m.median_52_weeks,
-                    ROUND(((a.avg_2_weeks - m.median_52_weeks) / m.median_52_weeks) * 100, 2) AS percentage_drop
+                    ROUND(((m.median_52_weeks - a.avg_2_weeks) / m.median_52_weeks) * 100, 2) AS percentage_drop
                 ')
                 // ->having('a.avg_52_weeks', '<', DB::raw('a.avg_2_weeks'))
                 ->get();
