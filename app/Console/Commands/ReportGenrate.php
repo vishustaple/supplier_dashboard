@@ -156,6 +156,7 @@ class ReportGenrate extends Command
                     mad.account_name,
                     s.supplier_name,
                     orders.supplier_id,
+                    orders.date AS order_date,
                     YEAR(orders.date) * 100 + WEEK(orders.date) AS YYWW,
                     COALESCE(SUM(orders.amount), 0) AS weekly_amount
                 ')
@@ -194,7 +195,7 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
-                    COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount / 52, 0) as avg_52_weeks,
+                    COALESCE(SUM(CASE WHEN wa.order_date BETWEEN ? AND ? THEN wa.weekly_amount / 52, 0) as avg_52_weeks,
                     
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
