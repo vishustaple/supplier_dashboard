@@ -69,7 +69,11 @@
                         </form>
                     </div>
                 </div>
+<<<<<<< HEAD
                 <table class="table power_bi_table">
+=======
+                <table class="table">
+>>>>>>> 5e07ef3ae9b61d5cabfff595eee10e91d9d5bc34
                     <thead>
                         <tr>
                             <th scope="col">Title</th>
