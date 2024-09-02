@@ -176,7 +176,7 @@ class ReportGenrate extends Command
                 ")
                 ->whereBetween('ra.order_date', [$start_date, $end_date])
                 ->mergeBindings($weeklyAmounts->getQuery()) ;
-
+                dd($rankedAmountsQuery);
                 $medians = Order::from(DB::raw("({$rankedAmountsQuery->toSql()}) as ma"))
                 ->mergeBindings($rankedAmountsQuery->getQuery()) /** Merge bindings from the first query */
                 ->selectRaw("
