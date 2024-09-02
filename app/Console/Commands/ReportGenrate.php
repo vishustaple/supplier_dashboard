@@ -194,7 +194,7 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
-                    COALESCE(SUM(CASE WHEN wa.date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52, 0) as avg_52_weeks,
+                    wa.weekly_amount / 52 as avg_52_weeks,
                     
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
