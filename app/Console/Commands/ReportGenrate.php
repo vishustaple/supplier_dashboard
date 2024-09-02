@@ -190,18 +190,14 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
-                    AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
-                                                AND (YEAR(?) * 100 + WEEK(?)) 
-                            THEN wa.weekly_amount ELSE NULL END) AS avg_52_weeks,
-                            
+                    AVG(wa.weekly_amount) AS avg_52_weeks,
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_2_weeks
-                ', [$start_date, $start_date, $end_date, $end_date,
-                    $start_date_10, $start_date_10, $end_date_10, $end_date_10,
+                ', [$start_date_10, $start_date_10, $end_date_10, $end_date_10,
                     $start_date_2, $start_date_2, $end_date_2, $end_date_2])
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
 
