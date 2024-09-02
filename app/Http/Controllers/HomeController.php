@@ -420,52 +420,5 @@
             }
         }
 
-        // value=fV~8Q~l9Ui1KgzANhK8rZ9XTq6_NtagfddXmya5a
-        // secrateid=db4bd365-58d7-45ab-b6de-7afe4ff0daa4
-        // public function redirectToProvider(){
-        //     $response = Http::asForm()->post('https://login.microsoftonline.com/'.env('AZURE_AD_TENANT_ID').'/oauth2/v2.0/token', [
-        //         'client_id' => env('AZURE_AD_CLIENT_ID'),
-        //         'client_secret' => env('AZURE_AD_CLIENT_SECRET'),
-        //         'grant_type' => 'client_credentials',
-        //         'scope' => env('AZURE_AD_SCOPE'),
-        //     ]);
-            
-        //     $accessToken = $response->json()['access_token'];
-        //     dd($accessToken);
-        //     // Your Power BI API endpoint
-        //     $apiUrl = 'https://api.powerbi.com/v1.0/myorg/reports/a43b8268-0440-4e69-b90c-69aaf1a16b63';
-
-        //     // Make the API request using Laravel's HTTP client
-        //     $response = Http::withHeaders([
-        //         'Authorization' => "Bearer $accessToken",
-        //         'Content-Type' => 'application/json'
-        //     ])->get($apiUrl);
-
-        //     // Check the response status
-        //     if ($response->successful()) {
-        //         // Successful response
-        //         return response()->json([
-        //             'status' => 'success',
-        //             'data' => $response->json()
-        //         ]);
-        //     } elseif ($response->status() == 401) {
-        //         // Unauthorized - token might be invalid or expired
-        //         return response()->json([
-        //             'status' => 'error',
-        //             'message' => 'Unauthorized - Invalid or expired token.'
-        //         ], 401);
-        //     } elseif ($response->status() == 403) {
-        //         // Forbidden - Token does not have permissions
-        //         return response()->json([
-        //             'status' => 'error',
-        //             'message' => 'Forbidden - Insufficient permissions.'
-        //         ], 403);
-        //     } else {
-        //         // Other errors
-        //         return response()->json([
-        //             'status' => 'error',
-        //             'message' => 'HTTP Status Code ' . $response->status()
-        //         ], $response->status());
-        //     }
-        // }
+        
     }
