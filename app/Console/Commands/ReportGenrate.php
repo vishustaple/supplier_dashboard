@@ -156,6 +156,7 @@ class ReportGenrate extends Command
                     mad.account_name,
                     s.supplier_name,
                     orders.supplier_id,
+                    YEAR(orders.date), year,
                     orders.date AS order_date,
                     YEAR(orders.date) * 100 + WEEK(orders.date) AS YYWW,
                     COALESCE(SUM(orders.amount), 0) AS weekly_amount
@@ -165,24 +166,50 @@ class ReportGenrate extends Command
                 ->whereBetween('orders.date', [$start_date, $end_date])
                 ->groupBy('mad.account_name', 's.supplier_name', 'orders.supplier_id', 'YYWW');
 
-                /** Medians subquery */
-                $medians = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
-                ->mergeBindings($weeklyAmounts->getQuery()) /** Merge bindings from the first query */
-                ->selectRaw('
+                $rankedAmountsQuery = Order::from(DB::raw("(".$weeklyAmounts->toSql().") as WeeklyAmounts"))
+                ->selectRaw("
+                    year,
+                    account_name,
+                    supplier_name,
+                    weekly_amount,
+                    ROW_NUMBER() OVER (PARTITION BY year, account_name ORDER BY weekly_amount) as row_num,
+                    COUNT(*) OVER (PARTITION BY year, account_name) as total_count
+                ")
+                ->whereBetween('date', [$start_date, $end_date])
+                ->mergeBindings($weeklyAmounts->getQuery()) ;
+
+                $medians = Order::from(DB::raw("({$rankedAmountsQuery->toSql()}) as wa"))
+                ->mergeBindings($rankedAmountsQuery->getQuery()) /** Merge bindings from the first query */
+                ->selectRaw("
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
-                    SUBSTRING_INDEX(
-                        SUBSTRING_INDEX(
-                            GROUP_CONCAT(wa.weekly_amount ORDER BY wa.weekly_amount ASC), 
-                            \',\', 
-                            (COUNT(*) + 1) / 2
-                        ), 
-                        \',\', 
-                        -1
-                    ) AS median_52_weeks
-                ')
+                    AVG(weekly_amount) as median_52_weeks
+                ")
+                ->whereIn('row_num', [
+                    DB::raw("FLOOR((total_count + 1) / 2)"), 
+                    DB::raw("CEIL((total_count + 1) / 2)")
+                ])
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
+
+                /** Medians subquery */
+                // $medians = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
+                // ->mergeBindings($weeklyAmounts->getQuery()) /** Merge bindings from the first query */
+                // ->selectRaw('
+                //     wa.account_name,
+                //     wa.supplier_name,
+                //     wa.supplier_id,
+                //     SUBSTRING_INDEX(
+                //         SUBSTRING_INDEX(
+                //             GROUP_CONCAT(wa.weekly_amount ORDER BY wa.weekly_amount ASC), 
+                //             \',\', 
+                //             (COUNT(*) + 1) / 2
+                //         ), 
+                //         \',\', 
+                //         -1
+                //     ) AS median_52_weeks
+                // ')
+                // ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
 
                 // AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                 //                                 AND (YEAR(?) * 100 + WEEK(?)) 
