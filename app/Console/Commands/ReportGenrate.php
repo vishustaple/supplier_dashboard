@@ -195,16 +195,15 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
-                    COALESCE(SUM(CASE WHEN wa.order_date BETWEEN ? AND ? THEN wa.weekly_amount / 52, 0) as avg_52_weeks,
-                    
+ SUM(CASE WHEN wa.order_date BETWEEN ? AND ? THEN wa.weekly_amount ELSE 0 END) / 52 as average_week_52,
+
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_2_weeks
-                ', [$start_date, $end_date,
-                    $start_date_10, $start_date_10, $end_date_10, $end_date_10,
+                ', [$start_date, $end_date, $start_date_10, $start_date_10, $end_date_10, $end_date_10,
                     $start_date_2, $start_date_2, $end_date_2, $end_date_2])
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
 
