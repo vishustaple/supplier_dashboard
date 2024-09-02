@@ -29,9 +29,9 @@ class ReportGenrate extends Command
      */
     public function handle()
     {
-        // $count = DB::table('operational_anomaly_report')->count();
+        $count = DB::table('operational_anomaly_report')->count();
 
-        // if ($count <= 0) {
+        if ($count <= 0) {
             /** Supplier ids array */
             $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
 
@@ -300,6 +300,6 @@ class ReportGenrate extends Command
                 print_r($finalArray);
                 DB::table('operational_anomaly_report')->insert($finalArray);
             }
-        // }
+        }
     }
 }
