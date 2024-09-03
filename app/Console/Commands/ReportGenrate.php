@@ -29,9 +29,9 @@ class ReportGenrate extends Command
      */
     public function handle()
     {
-        $count = DB::table('operational_anomaly_report')->count();
+        // $count = DB::table('operational_anomaly_report')->count();
 
-        if ($count <= 0) {
+        // if ($count <= 0) {
             /** Supplier ids array */
             $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
 
@@ -156,6 +156,8 @@ class ReportGenrate extends Command
                     mad.account_name AS account_name,
                     s.supplier_name AS supplier_name,
                     orders.supplier_id,
+                    orders.amount AS amount,
+                    MAX(orders.date) AS max_date_per_category,
                     YEAR(orders.date) AS year,
                     orders.date AS order_date,
                     YEAR(orders.date) * 100 + WEEK(orders.date) AS YYWW,
@@ -216,6 +218,12 @@ class ReportGenrate extends Command
                 //                                 AND (YEAR(?) * 100 + WEEK(?)) 
                 //             THEN wa.weekly_amount ELSE NULL END) AS avg_52_weeks,
 
+
+
+//                 SUM(CASE WHEN wa.order_date BETWEEN ? 
+//                 AND ? 
+// THEN wa.weekly_amount ELSE 0 END) / 52 as avg_52_weeks,
+
                 /** Averages subquery */
                 $averages = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
                 ->mergeBindings($weeklyAmounts->getQuery()) /** Merge bindings from the first query */
@@ -223,19 +231,25 @@ class ReportGenrate extends Command
                     wa.account_name,
                     wa.supplier_name,
                     wa.supplier_id,
-                    SUM(CASE WHEN wa.order_date BETWEEN ? 
-                                                AND ? 
-                            THEN wa.weekly_amount ELSE 0 END) / 52 as avg_52_weeks,
+                    IF(
+                        (YEAR(wa.order_date) * 100 + WEEK(wa.order_date, 1)) >= 
+                        (
+                            (YEAR(wa.max_date_per_category) * 100 + WEEK(wa.max_date_per_category, 1)) - 100
+                        ),
+                        SUM(wa.amount) / 52,
+                        NULL
+                    ) AS avg_52_weeks,
+
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
                     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
                                                 AND (YEAR(?) * 100 + WEEK(?)) 
                             THEN wa.weekly_amount ELSE NULL END) AS avg_2_weeks
-                ', [$start_date, $end_date, $start_date_10, $start_date_10, $end_date_10, $end_date_10,
+                ', [$start_date_10, $start_date_10, $end_date_10, $end_date_10,
                     $start_date_2, $start_date_2, $end_date_2, $end_date_2])
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
-                
+                // dd($averages);
                 /** Final query */
                 $queryData = Order::from(DB::raw("({$averages->toSql()}) as a"))
                 ->mergeBindings($averages->getQuery()) /** Merge bindings from the averages query */
@@ -299,7 +313,7 @@ class ReportGenrate extends Command
 
                 // print_r($finalArray);
                 DB::table('operational_anomaly_report')->insert($finalArray);
-            }
+            // }
         }
     }
 }
