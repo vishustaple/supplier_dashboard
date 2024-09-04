@@ -11,11 +11,12 @@
     use Illuminate\Support\Facades\Crypt;
     use Illuminate\Support\Facades\Validator;
     use Illuminate\Support\Facades\Http;
+    use Exception;
 
 
     class HomeController extends Controller
     {
-        public function __construct(){
+        public function __construct() {
             // $this->middleware('user.type')->only(['index', 'userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
             $this->middleware('permission:Manage Users')->only(['userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
         }
@@ -25,21 +26,21 @@
          *
          * @return \Illuminate\Contracts\Support\Renderable
          */
-        public function index(){
+        public function index() {
             return view('admin.index');
         }
 
-        public function register(){
+        public function register() {
             return view('auth.register');
         }
 
-        public function showPowerBi(){
+        public function showPowerBi() {
             $pageTitle = 'Power Bi';
             $data = DB::table('show_power_bi')->select('id', 'title', 'iframe')->get();
             return view('admin.power_bi', compact('pageTitle', 'data'));
         }
 
-        public function userview(){    
+        public function userview() {    
             $userdata=User::where('user_type', '!=', User::USER_TYPE_SUPERADMIN)->orderBy('id','desc')->get();
             $formatuserdata=[];
             $i=1;
@@ -59,7 +60,7 @@
             return view('admin.user',compact('data', 'permissions', 'userInfo'));
         }
 
-        public function editPermissions($userId){
+        public function editPermissions($userId) {
             /** Find the user by ID */
             $user = User::with('permissions')->findOrFail(Crypt::decryptString($userId));
 
@@ -73,7 +74,7 @@
             ]);
         }
         
-        public function userRegister(Request $request){   
+        public function userRegister(Request $request) {   
             $validator = Validator::make($request->all(), [
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
@@ -126,7 +127,7 @@
             }
         }
         
-        public function userLogin(Request $request){
+        public function userLogin(Request $request) {
             $request->validate([
                 "email" => "required|email",
                 "password" => "required",
@@ -146,12 +147,12 @@
             }
         }
 
-        public function userLogout(){
+        public function userLogout() {
             Auth::logout();
             return redirect('/');
         }
 
-        public function UpdateUser(Request $request){
+        public function UpdateUser(Request $request) {
             $userId = $request->id;
             $editUserData = User::where('id', Crypt::decryptString($userId))->first()->toArray();
             $editUserData['id'] = Crypt::encryptString($editUserData['id']);
@@ -162,7 +163,7 @@
             }
         }
     
-        public function UpdateUserData(Request $request){
+        public function UpdateUserData(Request $request) {
             $validator = Validator::make($request->all(), [
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email,' . Crypt::decryptString($request->update_user_id),
@@ -199,7 +200,7 @@
             }
         }
 
-        public function UserRemove(Request $request){
+        public function UserRemove(Request $request) {
             $user = User::find(Crypt::decryptString($request->id));
             $user1 = Auth::user();
             if (($user->user_type != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($user->user_type, [2, 3]) && $user1->user_type == 3)) {
@@ -216,7 +217,7 @@
             }
         }
 
-        public function createPassword(Request $request){
+        public function createPassword(Request $request) {
             $key = env('APP_KEY');
             $data = $request->input('data');
             if ($data === null) {
@@ -240,7 +241,7 @@
             }
         }
 
-        public function updatePassword(Request $request){
+        public function updatePassword(Request $request) {
             $validator = Validator::make(
                 [
                     'user_id' => 'required|exists:users,id',
@@ -281,16 +282,16 @@
             }
         }
 
-        public function changePasswordView(){
+        public function changePasswordView() {
             $adminUser= User::where('user_type',User::USER_TYPE_SUPERADMIN)->first();
             return view('admin.profile',compact('adminUser'));
         }  
 
-        public function userForgetPassword(Request $request){
+        public function userForgetPassword(Request $request) {
             return view('auth.forget_password'); 
         }
 
-        public function userResetPassword(Request $request){
+        public function userResetPassword(Request $request) {
             $validator = Validator::make($request->all(), [
                 'email' => 'required|string|email|max:255',
             ]);
@@ -338,7 +339,7 @@
             return redirect()->route('user.forget');
         }
 
-        public function powerBiAdd(Request $request){
+        public function powerBiAdd(Request $request) {
             try {
                 DB::table('show_power_bi')
                 ->insert([
@@ -352,7 +353,7 @@
             }
         }
 
-        public function powerBiEdit(Request $request){
+        public function powerBiEdit(Request $request) {
             try {
                 DB::table('show_power_bi')
                 ->where('id', $request->input('id'))
@@ -367,7 +368,7 @@
             }
         }
 
-        public function powerBiDelete($id){
+        public function powerBiDelete($id) {
             try {
                 DB::table('show_power_bi')->where('id', $id)->delete();
                 return redirect()->route('power_bi.show');
@@ -376,7 +377,7 @@
             }
         }
 
-        public function powerBiReport(Request $request){
+        public function powerBiReport(Request $request) {
             if ($request->ajax()) {
                 $record =  DB::table('show_power_bi')->select('id', 'title')->get();
                 if ($record->isNotEmpty()) {
@@ -418,5 +419,121 @@
             if ($data) {
                 return view('admin.powerbi_report', ['pageTitle' => $reportType, 'data' => $data]);
             }
-        }        
+        }
+
+        public function microsoft() { 
+            $myscopes = "openid profile User.Read email offline_access"; 
+            $myclient_id = env('MICROSOFT_API_ID');
+            $myclient_secret = env('MICROSOFT_API_SECRET'); 
+            $myredirect_uri = env('MICROSOFT_API_REDIRECT_URI');
+    
+            /** coding to redirect to the Microsoft application just created. */
+            $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?' . http_build_query([
+                'client_id' => $myclient_id,
+                'response_type' => 'code',
+                'redirect_uri' => $myredirect_uri,
+                'scope' => $myscopes,
+            ]);
+
+            return redirect($url); 
+        }
+    
+    
+         public function profile(Request $request) {
+            try {
+                $myclient_id = env('MICROSOFT_API_ID');
+                $myclient_secret = env('MICROSOFT_API_SECRET');
+                $myredirect_uri = env('MICROSOFT_API_REDIRECT_URI');
+                $code = $request->input('code');
+                
+                if (isset($code)) {
+                    /** Get access token using the authorization code */
+                    $url = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+                    $fields = array(
+                        "client_id" => $myclient_id,
+                        "redirect_uri" => $myredirect_uri,
+                        "client_secret" => $myclient_secret,
+                        "code" => $code,
+                        "grant_type" => "authorization_code"
+                    );
+                    $fields_string = http_build_query($fields);
+                
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/x-www-form-urlencoded"));
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    $result = curl_exec($ch);
+                    
+                    if (curl_errno($ch)) {
+                        echo 'Curl error: ' . curl_error($ch);
+                    }
+                    
+                    curl_close($ch);
+                    
+                    $result = json_decode($result, true);
+                    
+                    // Debugging output
+                    if (isset($result['access_token'])) {
+                        /** this is the refresh token used to access Microsoft Live REST APIs */
+                        $myaccess_token = $result['access_token'];
+                        /** tokens expire every one hour so the below code is used to get new tokens then */
+                        $myrefresh_token = $result['refresh_token'];
+                        /**  Step 2: Use Microsoft Graph API instead of Live API */
+                        $url = "https://graph.microsoft.com/v1.0/me";
+
+                        $options = [
+                            "http" => [
+                                "header" => "Authorization: Bearer " . $myaccess_token
+                            ]
+                        ];
+
+                        /** Perpare the url adding Bearer token */
+                        $context = stream_context_create($options);
+
+                        /** Hitting the url adding Bearer token */
+                        $data_json = file_get_contents($url, false, $context);
+                        
+                        /** Getthing microsoft user data and decode the JSON */
+                        $data = json_decode($data_json); 
+
+                        /** Check data in the database and then login into application */
+                        if ($data->id) { 
+                            /** Getting email from the data */
+                            $email = $data->mail;
+
+                            /** Getting the user data of this email */
+                            $data_info = User::where('email', $email)->first();
+
+                            /** If data_info having user data then login user using user id */
+                            if ($data_info != '') {  
+                                if (Auth::loginUsingId($data_info->id)) {
+                                    /** Authentication Successed... */
+                                    return redirect()->intended('/admin/upload-sheet');
+                                } else {
+                                    /** Authentication failed... */
+                                    return redirect('/')->with('message', 'Something want wrong. Try after some time.');
+                                }
+                            } else {
+                                /** Authentication failed... */
+                                return redirect()->route('login')->withErrors(['email' => 'Something wrong. Try after some time.']);
+                            }
+                        }
+                    } else { 
+                       /** Authentication failed... */
+                        return redirect()->route('login')->withErrors(['email' => 'Something wrong. Try after some time.']);
+                    }
+                } else {
+                   /** Authentication failed... */
+                   return redirect()->route('login')->withErrors(['email' => 'Something wrong. Try after some time.']);
+                }
+            /** Handled exception here */
+            } catch (Exception $ex) {
+                /** Authentication failed... */
+                return redirect()->route('login')->withErrors(['email' => 'Something wrong.Try after some time.']);
+                //  . $ex]);
+            }
+        }   
     }

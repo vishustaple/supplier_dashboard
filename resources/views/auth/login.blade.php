@@ -43,8 +43,7 @@
                                                 <button type="submit" class="btn blue ">Login</button>
                                             </div>
                                             <div class="text-center">
-                                            <a href="https://login.microsoftonline.com/{{env('AZURE_AD_TENANT_ID')}}/oauth2/v2.0/authorize?client_id={{env('AZURE_AD_CLIENT_ID')}}&scope=
-Report.Read.All" class="forgot-password-link">Power Bi Login</a>
+                                            <a href="{{ route('microsoft') }}" class="forgot-password-link">Power Bi Login</a>
                                             </div>
                                             <div class="text-center mt-2">
                                                 <a href="{{route('user.forget')}}" class="forgot-password-link">Forgot Password?</a>
