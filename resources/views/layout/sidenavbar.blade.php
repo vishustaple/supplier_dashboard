@@ -133,6 +133,9 @@
         </div>
     </nav>
 </div>
+<?php if (!isset($pageTitleCheck)) { 
+    $pageTitleCheck = ''; 
+}?>
 <script>
     var token = "{{ csrf_token() }}";
     $.ajax({
