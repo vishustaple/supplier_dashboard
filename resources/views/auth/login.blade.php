@@ -43,7 +43,7 @@
                                                 <button type="submit" class="btn blue ">Login</button>
                                             </div>
                                             <div class="text-center pt-2">
-                                                <a href="{{ route('microsoft') }}" class="btn blue" style="color:aliceblue; background-color:#b27929 !important">use microsoft account</a>
+                                                <a href="{{ route('microsoft') }}" class="btn blue" style="color:aliceblue; background-color:#b27929 !important">SignIn with Microsoft</a>
                                             </div>
                                             <div class="text-center mt-2">
                                                 <a href="{{route('user.forget')}}" class="forgot-password-link">Forgot Password?</a>
