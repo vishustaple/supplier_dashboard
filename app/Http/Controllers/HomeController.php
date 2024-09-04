@@ -445,7 +445,7 @@
                 $myclient_secret = env('MICROSOFT_API_SECRET');
                 $myredirect_uri = env('MICROSOFT_API_REDIRECT_URI');
                 $code = $request->input('code');
-                dd($code);
+                // dd($code);
                 if (isset($code)) {
                     /** Get access token using the authorization code */
                     $url = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
