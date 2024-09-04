@@ -129,6 +129,12 @@ class ReportGenrate extends Command
                 ])
                 ->groupBy('ma.account_name', 'ma.supplier_name', 'ma.supplier_id');
                 
+                // AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
+                //                                 AND (YEAR(?) * 100 + WEEK(?)) 
+                //             THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
+                //     AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
+                //                                 AND (YEAR(?) * 100 + WEEK(?)) 
+                //             THEN wa.weekly_amount ELSE NULL END) AS avg_2_weeks
                 /** Averages Subquery */
                 $averages = Order::from(DB::raw("({$weeklyAmounts->toSql()}) as wa"))
                 ->mergeBindings($weeklyAmounts->getQuery()) /** Merge bindings from the first query */
@@ -139,14 +145,15 @@ class ReportGenrate extends Command
                     SUM(CASE WHEN wa.order_date BETWEEN ? 
                                                 AND ? 
                             THEN wa.weekly_amount ELSE 0 END) / 52 as avg_52_weeks,
-                    AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
-                                                AND (YEAR(?) * 100 + WEEK(?)) 
-                            THEN wa.weekly_amount ELSE NULL END) AS avg_10_weeks,
-                    AVG(CASE WHEN wa.YYWW BETWEEN (YEAR(?) * 100 + WEEK(?)) 
-                                                AND (YEAR(?) * 100 + WEEK(?)) 
-                            THEN wa.weekly_amount ELSE NULL END) AS avg_2_weeks
-                ', [$start_date, $end_date, $start_date_10, $start_date_10, $end_date_10, $end_date_10,
-                    $start_date_2, $start_date_2, $end_date_2, $end_date_2])
+                    SUM(CASE WHEN wa.order_date BETWEEN ? 
+                                                AND ? 
+                            THEN wa.weekly_amount ELSE 0 END) / 10 as avg_10_weeks,
+
+                    SUM(CASE WHEN wa.order_date BETWEEN ? 
+                                        AND ? 
+                            THEN wa.weekly_amount ELSE 0 END) / 2 as avg_2_weeks
+                ', [$start_date, $end_date, $start_date_10, $end_date_10,
+                    $start_date_2, $end_date_2])
                 ->groupBy('wa.account_name', 'wa.supplier_name', 'wa.supplier_id');
                 
                 /** Final query */
