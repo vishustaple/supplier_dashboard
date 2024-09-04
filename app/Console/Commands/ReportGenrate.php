@@ -86,7 +86,7 @@ class ReportGenrate extends Command
                 $dateTime->modify('-42 weeks'); /** Already moved 10 weeks back, so move 42 more weeks */
                 $start_date = $dateTime->format('Y-m-d'); /** Date fifty-two weeks before */
 
-                dd($start_date_2, $start_date_10, $start_date);
+                dd($date, $start_date_2, $start_date_10, $start_date);
 
                 /** Weekly Amounts Aubquery */
                 $weeklyAmounts = Order::query()
