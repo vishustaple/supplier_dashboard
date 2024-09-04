@@ -37,7 +37,9 @@ class ReportGenrate extends Command
          *  Insert data into "operational_anomaly_report" table */
             if ($count <= 0) {
             /** Supplier ids array */
-            $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
+            // $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
+
+            $supplier = [2 => 'Grainger'];
 
             /** Using foreach loop insert multiple supplier data */
             foreach ($supplier as $filter => $values) {
@@ -83,6 +85,8 @@ class ReportGenrate extends Command
                 /** Calculate the date 52 weeks before the selected Sunday */
                 $dateTime->modify('-42 weeks'); /** Already moved 10 weeks back, so move 42 more weeks */
                 $start_date = $dateTime->format('Y-m-d'); /** Date fifty-two weeks before */
+
+                dd($start_date_2, $start_date_10, $start_date);
 
                 /** Weekly Amounts Aubquery */
                 $weeklyAmounts = Order::query()
