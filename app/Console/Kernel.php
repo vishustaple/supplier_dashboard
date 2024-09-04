@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command(ReportGenrate::class)->hourly();
+        $schedule->command(ReportGenrate::class)->hourly();
         $schedule->command(SendReportEmail::class)->weeklyOn(1, '0:00');
         $schedule->command(ProcessDeleteCommissions::class)->weekends();
         $schedule->command(validateUploadedFile::class)->everyTenMinutes();

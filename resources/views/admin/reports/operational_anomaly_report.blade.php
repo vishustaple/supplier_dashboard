@@ -59,7 +59,7 @@
             lengthChange: false, // Hide the "Show X entries" dropdown
             searching:false, 
             pageLength: 40,
-            order: [[3, 'desc']],
+            order: [[2, 'desc']],
             ajax: {
                 url: '{{ route("report.operational_anomaly_report") }}',
                 type: 'POST',
