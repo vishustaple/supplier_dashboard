@@ -172,8 +172,8 @@ class ReportGenrate extends Command
 
                 $finalArray = [];
                 foreach ($queryData as $key => $value) {
-                    // if ($value->percentage_drop >= 20 && $value->supplier_name == $values && $value->avg_52_weeks >= 500) {
-                    if ($value->supplier_name == $values) {
+                    if ($value->percentage_drop >= 20 && $value->supplier_name == $values && $value->avg_52_weeks >= 500) {
+                    // if ($value->supplier_name == $values) {
                         /** Prepare the final array for non-CSV */
                         $finalArray[] = [
                             'account_name' => $value->account_name,
