@@ -34,11 +34,6 @@ Route::get('/', function () {
         return view('auth.login');
     }
 })->name('login');
-
-// Route::get('/test', [HomeController::class, 'redirectToProvider'])->name('login.azure');
-// Route::get('/callback', [AzureController::class, 'handleProviderCallback']);
-// Route::get('/powerbi/embed', [PowerBIController::class, 'embed'])->name('powerbi.embed');
-
 Route::get('/microsoft',[HomeController::class, 'microsoft'])->name('microsoft');
 Route::get('/microsoft/profile',[HomeController::class, 'profile']);
 

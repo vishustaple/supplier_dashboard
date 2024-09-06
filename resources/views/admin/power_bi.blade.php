@@ -69,11 +69,7 @@
                         </form>
                     </div>
                 </div>
-<<<<<<< HEAD
                 <table class="table power_bi_table">
-=======
-                <table class="table">
->>>>>>> 5e07ef3ae9b61d5cabfff595eee10e91d9d5bc34
                     <thead>
                         <tr>
                             <th scope="col">Title</th>
@@ -119,12 +115,12 @@
     </script>
     <style>
         table.power_bi_table tbody tr td:nth-child(2) {
-    max-width: 795px  !important;
-    width: 795px  !important;
-    white-space: normal !important;
-    min-width: 795px  !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+            max-width: 795px  !important;
+            width: 795px  !important;
+            white-space: normal !important;
+            min-width: 795px  !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 @endsection   

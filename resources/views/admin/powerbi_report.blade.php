@@ -7,9 +7,53 @@
                     <h3 class="mb-0 ps-2">{{ $pageTitle }}</h3>
                 </div>
                 <div class="container">
-                    {!! $data->iframe !!}
+                    <div id="embedContainer" style="height: 600px;"></div>
                 </div>
                 @include('layout.footer')
         </div>
     </div>
+   <!-- Use the correct script source -->
+<script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.21.0/dist/powerbi.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let models = window['powerbi-client'].models;
+        let config = {
+            type: 'report',
+            tokenType: models.TokenType.Aad,
+            accessToken: "{{ $accessToken }}",
+            embedUrl: "https://app.powerbi.com/reportEmbed",
+            id: "{{ $reportId }}",
+            settings: {
+                panes: {
+                    filters: {
+                        visible: true
+                    },
+                    pageNavigation: {
+                        visible: true
+                    }
+                },
+                bars: {
+                    statusBar: {
+                        visible: true
+                    }
+                }
+            }
+        };
+        // console.log(config);
+        let embedContainer = document.getElementById('embedContainer');
+        let report = powerbi.embed(embedContainer, config);
+
+        report.on("loaded", function () {
+            console.log("Report loaded");
+        });
+
+        report.on("error", function (event) {
+            console.error(event.detail);
+        });
+
+        report.on("rendered", function () {
+            console.log("Report rendered");
+        });
+    });
+</script>
 @endsection  

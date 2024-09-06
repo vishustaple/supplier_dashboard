@@ -11,6 +11,7 @@
     use Illuminate\Support\Facades\Crypt;
     use Illuminate\Support\Facades\Validator;
     use Illuminate\Support\Facades\Http;
+    use Illuminate\Support\Facades\Session;
     use Exception;
 
 
@@ -415,24 +416,37 @@
 
         public function powerBiReportViewRender($id, $reportType) {
             $data = DB::table('show_power_bi')->select('title', 'iframe')->where('id', $id)->first();
+            $pageTitle = $data->title;
+            $accessToken = Session::get('microsoft_access_token'); /** Assuming the token is already stored in session */
+
+            /** Parse the URL and extract the query string */
+            $parsedUrl = parse_url($data->iframe);
+
+            /** Extract the query parameters into an array */
+            $queryParams = [];
+            parse_str($parsedUrl['query'], $queryParams);
+
+            /** Get the reportId */
+            $reportId = $queryParams['reportId'] ?? null;
 
             if ($data) {
-                return view('admin.powerbi_report', ['pageTitle' => $reportType, 'data' => $data]);
+                return view('admin.powerbi_report', compact('pageTitle', 'accessToken', 'reportId'));
             }
         }
 
         public function microsoft() { 
-            $myscopes = "openid profile User.Read email offline_access"; 
+            $myscopes = "openid profile User.Read email offline_access ";
             $myclient_id = env('MICROSOFT_API_ID');
             $myclient_secret = env('MICROSOFT_API_SECRET'); 
             $myredirect_uri = env('MICROSOFT_API_REDIRECT_URI');
     
             /** coding to redirect to the Microsoft application just created. */
-            $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?' . http_build_query([
+            $url = 'https://login.microsoftonline.com/d9448cd0-bd4f-4914-a17f-522139087ae4/oauth2/v2.0/authorize?' . http_build_query([
                 'client_id' => $myclient_id,
                 'response_type' => 'code',
                 'redirect_uri' => $myredirect_uri,
                 'scope' => $myscopes,
+                'grant_type' => 'authorization_code',
             ]);
 
             return redirect($url); 
@@ -445,7 +459,6 @@
                 $myclient_secret = env('MICROSOFT_API_SECRET');
                 $myredirect_uri = env('MICROSOFT_API_REDIRECT_URI');
                 $code = $request->input('code');
-                // dd($code);
                 if (isset($code)) {
                     /** Get access token using the authorization code */
                     $url = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
@@ -474,13 +487,31 @@
                     curl_close($ch);
                     
                     $result = json_decode($result, true);
-                    
+                    // dd($result);
                     // Debugging output
                     if (isset($result['access_token'])) {
                         /** this is the refresh token used to access Microsoft Live REST APIs */
                         $myaccess_token = $result['access_token'];
                         /** tokens expire every one hour so the below code is used to get new tokens then */
                         $myrefresh_token = $result['refresh_token'];
+                        
+                        $response = Http::asForm()->post('https://login.microsoftonline.com/d9448cd0-bd4f-4914-a17f-522139087ae4/oauth2/v2.0/token', [
+                            'client_id' => $myclient_id,
+                            'client_secret' => $myclient_secret,
+                            'grant_type' => 'refresh_token',
+                            'refresh_token' => $myrefresh_token,
+                            'scope' => "https://analysis.windows.net/powerbi/api/Report.Read.All",
+                        ]);
+                        
+                        $tokens = $response->json();
+
+                        Session::forget('microsoft_access_token');
+                        Session::forget('microsoft_refresh_token');
+
+                        /** Store the access token in the session */
+                        Session::put('microsoft_access_token', $tokens['access_token']);
+                        Session::put('microsoft_refresh_token', $tokens['refresh_token']);
+
                         /**  Step 2: Use Microsoft Graph API instead of Live API */
                         $url = "https://graph.microsoft.com/v1.0/me";
 
@@ -495,7 +526,7 @@
 
                         /** Hitting the url adding Bearer token */
                         $data_json = file_get_contents($url, false, $context);
-                        
+                        // dd($data_json);
                         /** Getthing microsoft user data and decode the JSON */
                         $data = json_decode($data_json); 
 
