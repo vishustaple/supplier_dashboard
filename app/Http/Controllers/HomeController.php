@@ -454,18 +454,13 @@
             }
         }
 
-        public function microsoft() { 
-            $myscopes = "openid profile User.Read email offline_access ";
-            $myclient_id = env('MICROSOFT_API_ID');
-            $myclient_secret = env('MICROSOFT_API_SECRET'); 
-            $myredirect_uri = env('MICROSOFT_API_REDIRECT_URI');
-    
+        public function microsoft() {
             /** coding to redirect to the Microsoft application just created. */
             $url = 'https://login.microsoftonline.com/d9448cd0-bd4f-4914-a17f-522139087ae4/oauth2/v2.0/authorize?' . http_build_query([
-                'client_id' => $myclient_id,
+                'client_id' => env('MICROSOFT_API_ID'),
                 'response_type' => 'code',
-                'redirect_uri' => $myredirect_uri,
-                'scope' => $myscopes,
+                'redirect_uri' => env('MICROSOFT_API_REDIRECT_URI'),
+                'scope' => "openid profile User.Read email offline_access",
                 'grant_type' => 'authorization_code',
             ]);
 
@@ -474,20 +469,20 @@
 
         public function profile(Request $request) {
             try {
-                $myclient_id = env('MICROSOFT_API_ID');
-                $myclient_secret = env('MICROSOFT_API_SECRET');
-                $myredirect_uri = env('MICROSOFT_API_REDIRECT_URI');
                 $code = $request->input('code');
+
                 if (isset($code)) {
                     /** Get access token using the authorization code */
                     $url = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+                    
                     $fields = array(
-                        "client_id" => $myclient_id,
-                        "redirect_uri" => $myredirect_uri,
-                        "client_secret" => $myclient_secret,
+                        "client_id" => env('MICROSOFT_API_ID'),
+                        "redirect_uri" => env('MICROSOFT_API_REDIRECT_URI'),
+                        "client_secret" => env('MICROSOFT_API_SECRET'),
                         "code" => $code,
                         "grant_type" => "authorization_code"
                     );
+
                     $fields_string = http_build_query($fields);
                 
                     $ch = curl_init();
@@ -497,33 +492,40 @@
                     curl_setopt($ch, CURLOPT_POST, true);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    
                     $result = curl_exec($ch);
                     
                     if (curl_errno($ch)) {
-                        echo 'Curl error: ' . curl_error($ch);
+                        /** Creating error log for checking errors */
+                        Log::error('Error in Microsoft Login Error During Token Request: ' . $ch);
+
+                        /** Authentication failed... */
+                        return redirect()->route('login')->withErrors(['email' => 'Something wrong. Try after some time.']);
                     }
                     
                     curl_close($ch);
                     
+                    /** Getting final tokens data after decoding the JSON */
                     $result = json_decode($result, true);
-                    // dd($result);
+
                     // Debugging output
+                    // dd($result);
+
+                    /** this is the refresh token used to access Microsoft Live REST APIs */
                     if (isset($result['access_token'])) {
-                        /** this is the refresh token used to access Microsoft Live REST APIs */
-                        $myaccess_token = $result['access_token'];
-                        /** tokens expire every one hour so the below code is used to get new tokens then */
-                        $myrefresh_token = $result['refresh_token'];
-                        
+                        /** Changing the scope of the token and creating new token using refresh token */
                         $response = Http::asForm()->post('https://login.microsoftonline.com/d9448cd0-bd4f-4914-a17f-522139087ae4/oauth2/v2.0/token', [
-                            'client_id' => $myclient_id,
-                            'client_secret' => $myclient_secret,
+                            'client_id' => env('MICROSOFT_API_ID'),
+                            'client_secret' => env('MICROSOFT_API_SECRET'),
                             'grant_type' => 'refresh_token',
-                            'refresh_token' => $myrefresh_token,
+                            'refresh_token' => $result['refresh_token'],
                             'scope' => "https://analysis.windows.net/powerbi/api/Report.Read.All",
                         ]);
                         
+                        /** Setting tokens value into $token variable */
                         $tokens = $response->json();
 
+                        /** Unsetting the old tokens from session */
                         Session::forget('microsoft_access_token');
                         Session::forget('microsoft_refresh_token');
 
@@ -531,12 +533,13 @@
                         Session::put('microsoft_access_token', $tokens['access_token']);
                         Session::put('microsoft_refresh_token', $tokens['refresh_token']);
 
-                        /**  Step 2: Use Microsoft Graph API instead of Live API */
+                        /**  Use Microsoft Graph API instead of Live API */
                         $url = "https://graph.microsoft.com/v1.0/me";
 
+                        /** Adding the header and bearer token into the request */
                         $options = [
                             "http" => [
-                                "header" => "Authorization: Bearer " . $myaccess_token
+                                "header" => "Authorization: Bearer " . $result['access_token']
                             ]
                         ];
 
@@ -545,7 +548,7 @@
 
                         /** Hitting the url adding Bearer token */
                         $data_json = file_get_contents($url, false, $context);
-                        // dd($data_json);
+
                         /** Getthing microsoft user data and decode the JSON */
                         $data = json_decode($data_json); 
 
@@ -581,9 +584,11 @@
                 }
             /** Handled exception here */
             } catch (Exception $ex) {
+                /** Creating error log for checking errors */
+                Log::error('Error in Microsoft Login Error: ' . $ex);
+
                 /** Authentication failed... */
                 return redirect()->route('login')->withErrors(['email' => 'Something wrong.Try after some time.']);
-                //  . $ex]);
             }
         }   
     }
