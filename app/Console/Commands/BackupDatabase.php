@@ -70,7 +70,7 @@ class BackupDatabase extends Command
         $process = new Process([
             'scp',
             '-o', 'StrictHostKeyChecking=no', // Automatically accept new host keys
-            'user@your-server:' . $serverPath,
+            'rocky@3.95.106.180:' . $serverPath,
             $localPath
         ]);
 
