@@ -43,6 +43,8 @@ class BackupDatabase extends Command
             '--result-file=' . $path,
         ]);
 
+        $process->setTimeout(3600);
+
         try {
             $process->mustRun();
             $this->info('Database backup created successfully.');
