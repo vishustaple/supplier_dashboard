@@ -93,7 +93,7 @@ class ReportGenrate extends Command
                     YEAR(orders.date) AS year,
                     orders.date AS order_date,
                     YEAR(orders.date) * 100 + WEEK(orders.date) AS YYWW,
-                    COALESCE(SUM(orders.amount), 0) AS weekly_amount
+                    COALESCE(SUM(orders.cost), 0) AS weekly_amount
                 ')
                 ->leftJoin('master_account_detail as mad', 'orders.customer_number', '=', 'mad.account_number')
                 ->leftJoin('suppliers as s', 'orders.supplier_id', '=', 's.id')
@@ -209,7 +209,7 @@ class ReportGenrate extends Command
   // $weeklyAmountsQuery = Order::query()
                 //     ->join('master_account_detail as mad', 'orders.customer_number', '=', 'mad.account_number')
                 //     ->join('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-                //     ->selectRaw('YEAR(orders.date) as year, mad.account_name, orders.date, COALESCE(SUM(orders.amount), 0) as weekly_amount, suppliers.supplier_name as supplier_name, orders.supplier_id as supplier_id')
+                //     ->selectRaw('YEAR(orders.date) as year, mad.account_name, orders.date, COALESCE(SUM(orders.cost), 0) as weekly_amount, suppliers.supplier_name as supplier_name, orders.supplier_id as supplier_id')
                 //     ->whereBetween('orders.date', [$start_date, $end_date])
                 //     ->groupBy(DB::raw('YEAR(orders.date)'), 'mad.account_name', 'orders.date', 'suppliers.supplier_name');
         

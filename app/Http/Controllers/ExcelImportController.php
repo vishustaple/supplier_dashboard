@@ -668,7 +668,7 @@ class ExcelImportController extends Controller
             $fields = [
                 5 => 'customer_number',
                 6 => 'customer_name',
-                7 => 'amount',
+                7 => 'cost',
                 8 => 'invoice_no',
                 9 => 'date',
             ];
@@ -759,7 +759,7 @@ class ExcelImportController extends Controller
             $fields = [
                 5 => 'customer_number',
                 6 => 'customer_name',
-                7 => 'amount',
+                7 => 'cost',
                 8 => 'invoice_no',
                 9 => 'date',
             ];

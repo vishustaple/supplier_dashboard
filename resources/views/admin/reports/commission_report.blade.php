@@ -281,7 +281,7 @@
                 { data: 'approved', name: 'approved', title: 'Approved', 'orderable': false, 'searchable': false},
                 { data: 'paid', name: 'paid', title: 'Paid', 'orderable': false, 'searchable': false},
                 { data: 'sales_rep', name: 'sales_rep', title: 'Sales Rep', 'orderable': false, 'searchable': false},
-                { data: 'amount', name: 'amount', title: 'Spend', 'orderable': false, 'searchable': false},
+                { data: 'cost', name: 'cost', title: 'Spend', 'orderable': false, 'searchable': false},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate', 'orderable': false, 'searchable': false},
                 { data: 'start_date', name: 'start_date', title: 'Start Date', 'orderable': false, 'searchable': false},
                 { data: 'end_date', name: 'end_date', title: 'End Date', 'orderable': false, 'searchable': false},
@@ -337,7 +337,7 @@
             columns: [
                 { data: 'account_name', name: 'account_name', title: 'Business Name'},
                 { data: 'supplier', name: 'supplier', title: 'Supplier'},
-                { data: 'amount', name: 'amount', title: 'Spend'},
+                { data: 'cost', name: 'cost', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'commission', name: 'commission', title: 'Commission'},
             ],

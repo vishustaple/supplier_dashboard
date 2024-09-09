@@ -85,7 +85,7 @@ class ProcessUploadedFiles extends Command
                     }
 
                     if ($value->supplier_id == 7) {
-                        $columnArray[$value->supplier_id]['amount'] = '';
+                        $columnArray[$value->supplier_id]['cost'] = '';
                         $columnArray[$value->supplier_id]['invoice_date'] = '';
                     }
 
@@ -425,8 +425,8 @@ class ProcessUploadedFiles extends Command
                                             $keyCustomerNumber = array_search($columnArray[$fileValue->supplier_id]['customer_number'], $maxNonEmptyValue);
                                         }
     
-                                        if (!empty($columnArray[$fileValue->supplier_id]['amount'])) {
-                                            $keyAmount = array_search($columnArray[$fileValue->supplier_id]['amount'], $maxNonEmptyValue);
+                                        if (!empty($columnArray[$fileValue->supplier_id]['cost'])) {
+                                            $keyAmount = array_search($columnArray[$fileValue->supplier_id]['cost'], $maxNonEmptyValue);
                                         }
     
                                         if (!empty($columnArray[$fileValue->supplier_id]['invoice_no'])) {
@@ -498,7 +498,7 @@ class ProcessUploadedFiles extends Command
                                                             'attachment_id' => $fileValue->id,
                                                             'created_by' => $fileValue->created_by,
                                                             'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
-                                                            'amount' => str_replace(",", "", number_format($row[$key], 2, '.')),
+                                                            'cost' => str_replace(",", "", number_format($row[$key], 2, '.')),
                                                             'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -537,7 +537,7 @@ class ProcessUploadedFiles extends Command
                                                         'attachment_id' => $fileValue->id,
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => $fileValue->supplier_id,
-                                                        'amount' => $row[$keyAmount],
+                                                        'cost' => $row[$keyAmount],
                                                         'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -548,7 +548,7 @@ class ProcessUploadedFiles extends Command
                                                         'attachment_id' => $fileValue->id,
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => $fileValue->supplier_id,
-                                                        'amount' => $row[$keyAmount],
+                                                        'cost' => $row[$keyAmount],
                                                         'date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : ($fileValue->start_date),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),

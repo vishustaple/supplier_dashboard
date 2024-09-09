@@ -49,10 +49,10 @@ class ProcessCommissionAndRebate extends Command
             foreach ($salesRep as $key => $values) {
                 foreach ($monthDates as $key2 => $filter) {
                     $query = Order::query()->selectRaw(
-                        "SUM(`orders`.`amount`) AS `amount`, 
+                        "SUM(`orders`.`cost`) AS `cost`, 
                         `m2`.`account_name` AS `account_name`,
-                        ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
-                        (((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) / 100) * MAX(`commission`.`commission`) AS `commissions`,
+                        ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
+                        (((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) / 100) * MAX(`commission`.`commission`) AS `commissions`,
                         `commission`.`commission` AS `commission`,
                         `rebate`.`volume_rebate` AS `volume_rebates`,
                         `rebate`.`incentive_rebate` AS `incentive_rebates`,
@@ -99,11 +99,11 @@ class ProcessCommissionAndRebate extends Command
                     /** Group by with account name */
                     $query->groupBy('commission.account_name', 'commission.supplier');
         
-                    /** Calculating total volume rebate, total commission on rebate and total amount */
+                    /** Calculating total volume rebate, total commission on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
 
                     foreach ($query->get() as $value) {
-                        $totalAmount += $value->amount;
+                        $totalAmount += $value->cost;
                         $totalVolumeRebate += $value->volume_rebate;
                         $totalCommissionRebate += $value->commissions;
                     }
@@ -148,7 +148,7 @@ class ProcessCommissionAndRebate extends Command
                                     CommissionRebateDetail::where('id', $dataExistCheck2[$key1]->id)->update([
                                         'paid' => 0,
                                         'approved' => 0,
-                                        'spend' => $value->amount,
+                                        'spend' => $value->cost,
                                         'month' =>  $filter['month'],
                                         'quarter' => $filters['quarter'],
                                         'end_date' => $filter['end_date'],
@@ -168,7 +168,7 @@ class ProcessCommissionAndRebate extends Command
                                     CommissionRebateDetail::create([
                                         'paid' => 0,
                                         'approved' => 0,
-                                        'spend' => $value->amount,
+                                        'spend' => $value->cost,
                                         'month' =>  $filter['month'],
                                         'quarter' => $filters['quarter'],
                                         'end_date' => $filter['end_date'],
@@ -212,7 +212,7 @@ class ProcessCommissionAndRebate extends Command
                                 CommissionRebateDetail::create([
                                     'paid' => 0,
                                     'approved' => 0,
-                                    'spend' => $value->amount,
+                                    'spend' => $value->cost,
                                     'month' =>  $filter['month'],
                                     'quarter' => $filters['quarter'],
                                     'end_date' => $filter['end_date'],

@@ -128,10 +128,10 @@
                                     <th colspan="2" class="border-bottom border-top" style="text-align: center;background-color: #d0d0d0;">{{ $key1 }}</th>
                                     <th class="border-bottom border-top"  colspan="3"></th>
                                 </tr>
-                                @php $amount = $rebate = $commission_total = 0; @endphp
+                                @php $cost = $rebate = $commission_total = 0; @endphp
                                 @foreach($commissions as $key2 => $commission)
                                     <?php 
-                                        $amount += (float)str_replace(',', '', $commission['total_amount']);
+                                        $cost += (float)str_replace(',', '', $commission['total_amount']);
                                         $rebate += (float)str_replace(',', '', $commission['total_volume_rebate']);
                                         $commission_total += (float)str_replace(',', '', $commission['total_commissions']);
                                         $commission_total1 += (float)str_replace(',', '', $commission['total_commissions']);
@@ -170,7 +170,7 @@
                                 @endforeach
                                 <tr class="subtotal" style="background-color: #f2f2f2;">
                                     <th class="border-top border-bottom" colspan="2">{{ $commission['account_name'] }} Subtotal</th>
-                                    <th class="border-top border-bottom">${{ number_format($amount, 2) }}</th>
+                                    <th class="border-top border-bottom">${{ number_format($cost, 2) }}</th>
                                     <th class="border-top border-bottom">${{ number_format($rebate, 2) }}</th>
                                     <th class="border-top border-bottom">${{ number_format($commission_total, 2); }}</th>
                                 </tr>

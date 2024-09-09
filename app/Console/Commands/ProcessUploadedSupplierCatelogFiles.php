@@ -121,7 +121,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
 
         ini_set('memory_limit', '1024M');
         $query = DB::table('orders')
-        ->select('orders.id as id', 'order_product_details.value as amount')
+        ->select('orders.id as id', 'order_product_details.value as cost')
         ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
         ->whereIn('order_product_details.key', ['Total Spend'])
         ->where('orders.supplier_id', 3)
@@ -130,7 +130,7 @@ class ProcessUploadedSupplierCatelogFiles extends Command
         foreach ($query as $key => $value) {
             $id = DB::table('orders')
             ->where('id', $value->id)
-            ->update(['amount' => $value->amount]);
+            ->update(['cost' => $value->cost]);
         }
 
         // $query = DB::table('orders')

@@ -59,10 +59,10 @@
                             <tr>
                             @endif
                            
-                            @if (isset($orders->amount) && !empty($orders->amount))
+                            @if (isset($orders->cost) && !empty($orders->cost))
                             <tr>
                             <th scope="row">Amount</th>
-                            <td> {{ '$'.$orders->amount }}</td>
+                            <td> {{ '$'.$orders->cost }}</td>
                             </tr>
                             @endif
                             @if (isset($data->date) && !empty($data->date))

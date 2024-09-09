@@ -20,7 +20,7 @@ class Order extends Model
      */
     protected $fillable = [
         'date',
-        'amount',
+        'cost',
         'attachment_id',
         'created_by',
         'supplier_id',
@@ -455,7 +455,7 @@ class Order extends Model
         $orderColumnArray = [
             0 => 'suppliers.supplier_name',
             1 => 'm2.account_name',
-            2 => 'amount',
+            2 => 'cost',
         ];
 
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
@@ -466,18 +466,18 @@ class Order extends Model
 
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
             $query = self::query()->selectRaw(
-                "SUM(`orders`.`amount`) AS `amount`, 
+                "SUM(`orders`.`cost`) AS `cost`, 
                 `m2`.`account_name` AS `account_name`,
-                ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
+                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
                 `rebate`.`volume_rebate` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
                 `orders`.`date` AS `date`"
             );
         } else {
             $query = self::query()->selectRaw(
-                "SUM(`orders`.`amount`) AS `amount`, 
+                "SUM(`orders`.`cost`) AS `cost`, 
                 `m2`.`account_name` AS `account_name`,
-                ((SUM(`orders`.`amount`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
+                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
                 `rebate`.`incentive_rebate` AS `incentive_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
                 `orders`.`date` AS `date`"
@@ -589,12 +589,12 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        /** Calculating total volume rebate, total incentive rebate and total amount */
+        /** Calculating total volume rebate, total incentive rebate and total cost */
         $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
         foreach ($query->get() as $key => $value) {
             $totalVolumeRebate += $value->volume_rebate;
             $totalIncentiveRebate += $value->incentive_rebate;
-            $totalAmount += $value->amount;
+            $totalAmount += $value->cost;
         }
 
         /** For debug query */
@@ -622,7 +622,7 @@ class Order extends Model
                 if ($csv) {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = number_format($value->amount, 2, '.', false);
+                    $finalArray[$key]['cost'] = number_format($value->cost, 2, '.', false);
                     if ($filter['rebate_check'] == 1) {
                         $finalArray[$key]['volume_rebate'] = number_format($value->volume_rebate, 2, '.', false);
                     }
@@ -632,7 +632,7 @@ class Order extends Model
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->amount, 2);
+                    $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->cost, 2);
                     $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
                     $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($value->incentive_rebate, 2).' ('.(!empty($value->incentive_rebates) ? ($value->incentive_rebates.'%') : ('N/A')).')';
                 }
@@ -832,7 +832,7 @@ class Order extends Model
                     $finalArray[$key]['approved'] = ($data->approved == 1) ? ('Yes') : ('No');
                     $finalArray[$key]['paid'] = ($data->paid == 1) ? ('Yes') : ('No');
                     $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
-                    $finalArray[$key]['amount'] = number_format($data->spend, 2, '.', false);
+                    $finalArray[$key]['cost'] = number_format($data->spend, 2, '.', false);
                     $finalArray[$key]['volume_rebate'] = number_format($data->volume_rebate, 2, '.', false);
                     $finalArray[$key]['commissions'] = number_format($data->commission, 2, '.', false);
                 } else {
@@ -867,7 +867,7 @@ class Order extends Model
                     $finalArray[$key]['end_date'] = date_format(date_create($endDate), 'm/d/Y');
                     $finalArray[$key]['start_date'] = date_format(date_create($startDate), 'm/d/Y');
                     $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
-                    $finalArray[$key]['amount'] = '$'.number_format($data->spend, 2);
+                    $finalArray[$key]['cost'] = '$'.number_format($data->spend, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
                     $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$data->ids.']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button data-id="['.$data->ids.']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                 }
@@ -881,7 +881,7 @@ class Order extends Model
                 $finalArrays['approved'] = (($annual["approved"] == 0) ? ('No') : ('Yes'));
                 $finalArrays['paid'] = (($annual["paid"] == 0) ? ('No') : ('Yes'));
                 $finalArrays['sales_rep'] = $salesRep->sales_rep;
-                $finalArrays['amount'] = '$'.number_format($annual["spend"], 2);
+                $finalArrays['cost'] = '$'.number_format($annual["spend"], 2);
                 $finalArrays['volume_rebate'] = '$'.number_format($annual["volume_rebate"], 2);
                 $finalArrays['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$annual["ids"].']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($annual["commission"], 2).'</button> <button data-id="['.$annual["ids"].']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                 $finalArray[] = $finalArrays;
@@ -909,7 +909,7 @@ class Order extends Model
         if ($csv) {
             /** Create query for CSV export with specific columns */
             $query = CommissionRebateDetail::query()->selectRaw(
-                "`commission_rebate_detail`.`spend` AS `amount`, 
+                "`commission_rebate_detail`.`spend` AS `cost`, 
                 `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
                 `commission_rebate_detail`.`commission` AS `commissions`,
                 `commission_rebate_detail`.`commission_percentage` AS `commission`,
@@ -931,7 +931,7 @@ class Order extends Model
         } else {
             /** Create query for normal data retrieval with aggregated columns */
             $query = CommissionRebateDetail::query()->selectRaw(
-                "SUM(`commission_rebate_detail`.`spend`) AS `amount`, 
+                "SUM(`commission_rebate_detail`.`spend`) AS `cost`, 
                 SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
                 SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
                 `commission_rebate_detail`.`commission_percentage` AS `commission`,
@@ -1043,7 +1043,7 @@ class Order extends Model
                 if ($csv) {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = $value->amount;
+                    $finalArray[$key]['cost'] = $value->cost;
                     $finalArray[$key]['approved_by'] = $value->approved_by;
                     $finalArray[$key]['commission_end_date'] = date_format(date_create($value->commission_end_date), 'm/d/Y');
                     $finalArray[$key]['commission_start_date'] = date_format(date_create($value->commission_start_date), 'm/d/Y');
@@ -1062,7 +1062,7 @@ class Order extends Model
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['amount'] = '$'.number_format($value->amount, 2);
+                    $finalArray[$key]['cost'] = '$'.number_format($value->cost, 2);
                     $finalArray[$key]['commission'] = '$'.number_format($value->commissions, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($value->volume_rebate, 2) .' ('. $value->volume_rebates. '%)';
                 }
@@ -1182,7 +1182,7 @@ class Order extends Model
             "suppliers.supplier_name as supplier_name,
             suppliers.id as supplier_id,
             master_account_detail.account_name as account_name,
-            SUM(`orders`.`amount`) as spend"
+            SUM(`orders`.`cost`) as spend"
         );
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
@@ -1269,7 +1269,7 @@ class Order extends Model
                 $finalArray[$key]['spend'] = $value->spend;
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
             } else {
-                /** Calculating total amount */
+                /** Calculating total cost */
                 $totalAmount += $value->spend;
 
                 /** Prepare the final array for non-CSV */

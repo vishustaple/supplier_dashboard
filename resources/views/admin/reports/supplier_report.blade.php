@@ -652,7 +652,7 @@
             columns: [
                 { data: 'supplier', name: 'supplier', title: 'Supplier'},
                 { data: 'account_name', name: 'account_name', title: 'Account Name'},
-                { data: 'amount', name: 'amount', title: 'Spend'},
+                { data: 'cost', name: 'cost', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
                 { data: 'incentive_rebate', name: 'incentive_rebate', title: 'Incentive Rebate'},
             ],
