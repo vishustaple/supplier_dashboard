@@ -10,7 +10,7 @@ class SupplierDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'suppliers_detail';
+    protected $table = 'supplier_contacts';
 
     protected $fillable = [
         'main',
@@ -28,8 +28,8 @@ class SupplierDetail extends Model
 		$orderColumnArray = ['main', 'name', 'title', 'email', 'phone', 'status'];
 
 		$query = self::query() // Replace YourModel with the actual model you are using for the data   
-		->select(['suppliers_detail.id as id', 'main', 'suppliers_detail.department_id as department_id', 'email', 'first_name', 'last_name', 'phone', 'department.department as department', 'status', DB::raw("CONCAT(first_name, ' ', last_name) AS name")])
-		->leftJoin('department', 'department.id', '=', 'suppliers_detail.department_id');
+		->select(['supplier_contacts.id as id', 'main', 'supplier_contacts.department_id as department_id', 'email', 'first_name', 'last_name', 'phone', 'department.department as department', 'status', DB::raw("CONCAT(first_name, ' ', last_name) AS name")])
+		->leftJoin('department', 'department.id', '=', 'supplier_contacts.department_id');
 
 		$totalRecords = $query->getQuery()->getCountForPagination();
 

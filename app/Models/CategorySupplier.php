@@ -32,29 +32,29 @@ class CategorySupplier extends Model
             'suppliers.supplier_name',
             'department.department',
             'name',
-            'suppliers_detail.email',
-            'suppliers_detail.phone',
+            'supplier_contacts.email',
+            'supplier_contacts.phone',
             'suppliers.category',
-            'suppliers_detail.status',
+            'supplier_contacts.status',
         ];
 
         $query = self::select([
             'suppliers.id as id',
             'suppliers.hide_show as hide_show',
             'suppliers.category as category',
-            'suppliers_detail.email as email',
-            'suppliers_detail.phone as phone',
-            'suppliers_detail.status as status',
+            'supplier_contacts.email as email',
+            'supplier_contacts.phone as phone',
+            'supplier_contacts.status as status',
             'department.department as department',
             'suppliers.supplier_name as supplier_name',
             'manage_columns.id as manage_columns_id',
-            DB::raw("CONCAT(suppliers_detail.first_name, ' ', suppliers_detail.last_name) as name"),
+            DB::raw("CONCAT(supplier_contacts.first_name, ' ', supplier_contacts.last_name) as name"),
         ])
-        ->leftJoin('suppliers_detail', function($join) {
-            $join->on('suppliers_detail.supplier', '=', 'suppliers.id')
-                 ->where('suppliers_detail.main', '=', 1);
+        ->leftJoin('supplier_contacts', function($join) {
+            $join->on('supplier_contacts.supplier', '=', 'suppliers.id')
+                 ->where('supplier_contacts.main', '=', 1);
         })
-        ->leftJoin('department', 'department.id', '=', 'suppliers_detail.department_id')
+        ->leftJoin('department', 'department.id', '=', 'supplier_contacts.department_id')
         ->leftJoin('manage_columns', 'manage_columns.supplier_id', '=', 'suppliers.id');
 
         /** Getting total records before adding filter */
@@ -71,7 +71,7 @@ class CategorySupplier extends Model
             $query->where(function ($q) use ($searchTerm, $supplierColumnArray) {
                 foreach ($supplierColumnArray as $column) {
                     if ($column == 'name') {
-                        $q->orWhere(DB::raw("CONCAT(suppliers_detail.first_name, ' ', suppliers_detail.last_name)"), 'LIKE', '%' . $searchTerm . '%');
+                        $q->orWhere(DB::raw("CONCAT(supplier_contacts.first_name, ' ', supplier_contacts.last_name)"), 'LIKE', '%' . $searchTerm . '%');
                     } else {
                         $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
                     }
