@@ -32,7 +32,7 @@ class BackupDatabase extends Command
      * Execute the console command.
      */
     public function handle() {
-        $filename = 'backup_' . Carbon::now()->format('Y_m_d_H_i_s') . '.sql';
+        $filename = 'backup_' . Carbon::now()->format('Y_m_d') . '.sql';
         $path = storage_path("app/backups/{$filename}");
 
         $process = new Process([
@@ -50,10 +50,10 @@ class BackupDatabase extends Command
             $this->info('Database backup created successfully.');
             
             /** Optionally, download the backup to your local system */
-            $this->downloadBackup($filename);
+            // $this->downloadBackup($filename);
             
             /** Delete the backup file from the server */
-            unlink($path);
+            // unlink($path);
             $this->info('Backup file deleted from the server.');
 
         } catch (ProcessFailedException $exception) {
@@ -82,3 +82,7 @@ class BackupDatabase extends Command
         }
     }
 }
+
+
+// scp rocky@3.95.106.180:/home/rocky/projects/sql.centerpointgroup.com/public_html/storage/app/backups/backup_.sql /home/staple/Downloads/database_backups/
+// home/rocky/projects/sql.centerpointgroup.com/public_html/storage/app/backups
