@@ -139,6 +139,8 @@
 
             if (Auth::attempt($credentials, $remember)) {
                 Auth::logoutOtherDevices($request->password);
+                Session::forget('microsoft_access_token');
+                Session::forget('microsoft_refresh_token');
                 /** Connection could not be established with host "mailpit:1025": stream_socket_client(): php_network_getaddresses: getaddrinfo for mailpit failed: Name or service not known */
                 /** Log::info('Email sent successfully'); */
                 return redirect()->intended('/admin/upload-sheet');
@@ -149,6 +151,8 @@
         }
 
         public function userLogout() {
+            Session::forget('microsoft_access_token');
+            Session::forget('microsoft_refresh_token');
             Auth::logout();
             return redirect('/');
         }
@@ -385,7 +389,7 @@
                     $titles = $record->pluck('title')->toArray();
 
                     $pageTitleCheck = $request->input('pageTitleCheck');
-    
+
                     /** Generate the HTML content */
                     $data = '
                     <a class="nav-link ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'active' : '') . '" data-toggle="collapse" href="#subMenuPowerBi">
@@ -393,14 +397,14 @@
                         PowerBi Reports<i class="fas fa-caret-down"></i>
                     </a>
                     <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'show' : '') . '" id="subMenuPowerBi">';
-    
+
                     foreach ($record as $key => $value) {
                         $data .= '
                         <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == $value->title) ? 'active' : '') . '" href="' . route('powerbi_report.type', ['id' => $value->id, 'reportType' => $value->title]) . '">' . htmlspecialchars($value->title, ENT_QUOTES, 'UTF-8') . '</a>';
                     }
-    
+
                     $data .= '</div>';
-    
+
                     return response()->json([
                         'success' => true,
                         'data' => $data,
@@ -415,22 +419,33 @@
         }
 
         public function powerBiReportViewRender($id, $reportType) {
+            /** Getting power bi report ifram using id */
             $data = DB::table('show_power_bi')->select('title', 'iframe')->where('id', $id)->first();
+
+            /** Setting the title */
             $pageTitle = $data->title;
+
+            /** Getting access token into session */
             $accessToken = Session::get('microsoft_access_token'); /** Assuming the token is already stored in session */
-
-            /** Parse the URL and extract the query string */
-            $parsedUrl = parse_url($data->iframe);
-
-            /** Extract the query parameters into an array */
-            $queryParams = [];
-            parse_str($parsedUrl['query'], $queryParams);
-
-            /** Get the reportId */
-            $reportId = $queryParams['reportId'] ?? null;
-
+            
             if ($data) {
-                return view('admin.powerbi_report', compact('pageTitle', 'accessToken', 'reportId'));
+                if (isset($accessToken) && !empty($accessToken)) {                    
+                    /** Get the reportId into the ifram */
+                    preg_match('/reportId=([a-zA-Z0-9-]+)/', $data->iframe, $matches);
+                    $reportId = $matches[1] ?? null;
+
+                    return view('admin.powerbi_report', compact('pageTitle', 'accessToken', 'reportId'));
+                } else {
+                    $accessToken = false;
+                    $ifram = $data->iframe;
+
+                    return view('admin.powerbi_report', compact('pageTitle', 'accessToken', 'ifram'));
+                }
+            } else {
+                $accessToken = false;
+                $ifram = "<h1> Kindly add embad code </h1>";
+
+                return view('admin.powerbi_report', compact('pageTitle', 'accessToken', 'ifram'));
             }
         }
 
@@ -451,9 +466,8 @@
 
             return redirect($url); 
         }
-    
-    
-         public function profile(Request $request) {
+
+        public function profile(Request $request) {
             try {
                 $myclient_id = env('MICROSOFT_API_ID');
                 $myclient_secret = env('MICROSOFT_API_SECRET');
