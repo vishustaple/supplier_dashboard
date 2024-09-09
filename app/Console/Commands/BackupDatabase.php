@@ -54,7 +54,7 @@ class BackupDatabase extends Command
             
             /** Delete the backup file from the server */
             // unlink($path);
-            $this->info('Backup file deleted from the server.');
+            // $this->info('Backup file deleted from the server.');
 
         } catch (ProcessFailedException $exception) {
             $this->error('The backup process has failed.');
@@ -84,5 +84,5 @@ class BackupDatabase extends Command
 }
 
 
-// scp rocky@3.95.106.180:/home/rocky/projects/sql.centerpointgroup.com/public_html/storage/app/backups/backup_.sql /home/staple/Downloads/database_backups/
+// scp rocky@3.95.106.180:/home/rocky/projects/sql.centerpointgroup.com/public_html/storage/app/backups/backup_2024_09_09.sql /home/staple/Downloads/database_backups/
 // home/rocky/projects/sql.centerpointgroup.com/public_html/storage/app/backups
