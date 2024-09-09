@@ -40,7 +40,7 @@ class validateUploadedFile extends Command
         $destinationPath = public_path('/excel_sheets');
 
         /** Select those file name where cron is one */
-        $fileValue = DB::table('uploaded_files')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
+        $fileValue = DB::table('attachments')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
         
         $suppliers = ManageColumns::getRequiredColumns();
 
@@ -155,7 +155,7 @@ class validateUploadedFile extends Command
 
                                     if ($fileExist->count() > 0) {
                                         /** Update cron two means start processing data into excel */
-                                        DB::table('uploaded_files')->where('id', $fileValue->id)
+                                        DB::table('attachments')->where('id', $fileValue->id)
                                         ->update([
                                             'cron' => 10
                                         ]);
@@ -181,7 +181,7 @@ class validateUploadedFile extends Command
                 
                         if ($fileExist->count() > 0) {
                             /** Update cron two means start processing data into excel */
-                            DB::table('uploaded_files')
+                            DB::table('attachments')
                             ->where('id', $fileValue->id)
                             ->update([
                                 'cron' => 10
@@ -193,11 +193,11 @@ class validateUploadedFile extends Command
             }
             // dd($fileValue);
             /** Update cron two means start processing data into excel */
-            DB::table('uploaded_files')->where('id', $fileValue->id)
+            DB::table('attachments')->where('id', $fileValue->id)
             ->update(['cron' => 11]);
         } else if ($fileValue->supplier_id == 7) {
             /** Update cron two means start processing data into excel */
-            DB::table('uploaded_files')->where('id', $fileValue->id)
+            DB::table('attachments')->where('id', $fileValue->id)
             ->update(['cron' => 11]);
         } else {
 

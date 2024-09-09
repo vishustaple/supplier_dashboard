@@ -45,7 +45,7 @@ class ProcessUploadedFiles extends Command
 
         try{
             /** Select those file name where cron is one */
-            $fileValue = DB::table('uploaded_files')
+            $fileValue = DB::table('attachments')
             ->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')
             ->where('cron', '=', 11)
             ->whereNull('deleted_by')
@@ -57,7 +57,7 @@ class ProcessUploadedFiles extends Command
                 DB::table('operational_anomaly_report')->delete();
 
                 /** Update cron two means start processing data into excel */
-                DB::table('uploaded_files')
+                DB::table('attachments')
                 ->where('id', $fileValue->id)
                 ->update([
                     'cron' => UploadedFiles::CRON
@@ -210,7 +210,7 @@ class ProcessUploadedFiles extends Command
                             7 => 'Weekly Sales Account Summary', 
                         ];
 
-                        DB::table('uploaded_files')
+                        DB::table('attachments')
                         ->where('id', $fileValue->id)
                         ->update([
                             'cron' => 4
@@ -619,7 +619,7 @@ class ProcessUploadedFiles extends Command
                             
                             if (isset($finalInsertArray) && !empty($finalInsertArray)) {
                                 try {
-                                    DB::table('uploaded_files')
+                                    DB::table('attachments')
                                     ->where('id', $fileValue->id)
                                     ->update([
                                         'cron' => 5
@@ -642,7 +642,7 @@ class ProcessUploadedFiles extends Command
                         }
                     try {
                         /** Update the 'cron' field three after processing done */
-                        DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 6]);
+                        DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 6]);
     
                         $this->info('Uploaded files processed successfully.');
                     } catch (QueryException $e) {   
@@ -651,7 +651,7 @@ class ProcessUploadedFiles extends Command
                     }
                 } catch (\Exception $e) {
                     /** Update the 'cron' field three after processing done */
-                    // DB::table('uploaded_files')->where('id', $fileValue->id)->update(['cron' => 1]);
+                    // DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 1]);
                     echo "Error loading spreadsheet: " . $e->getMessage();
                 }
             } else {
@@ -661,7 +661,7 @@ class ProcessUploadedFiles extends Command
             echo "Error loading spreadsheet: " . $e->getMessage();
             die;
         } catch (QueryException $e) {   
-            echo "Database table uploaded_files select query failed: " . $e->getMessage();
+            echo "Database table attachments select query failed: " . $e->getMessage();
             die;
         }  
     }

@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->timestamps();
             
-            $table->foreign('data_id')->references('id')->on('uploaded_files');
+            $table->foreign('data_id')->references('id')->on('attachments');
             $table->foreign('order_id')->references('id')->on('orders'); /** Assuming 'orders' table exists */
             /** Add other foreign key constraints if needed */
 

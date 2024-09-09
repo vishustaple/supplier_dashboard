@@ -17,7 +17,7 @@ class UploadedFiles extends Model
     const CRON = 2;
     const PROCESSED = 3;
 
-    protected $table = 'uploaded_files';
+    protected $table = 'attachments';
 
      /**
      * The attributes that are mass assignable.
@@ -53,27 +53,27 @@ class UploadedFiles extends Model
 
     public static function getFilterdExcelData($filter = []){
         $orderColumnArray = [
-            0 => 'uploaded_files.supplier_id',
-            1 => 'uploaded_files.file_name',
-            2 => 'uploaded_files.cron',
-            3 => 'uploaded_files.created_by',
-            4 => 'uploaded_files.created_at',
-            5 => 'uploaded_files.id',
+            0 => 'attachments.supplier_id',
+            1 => 'attachments.file_name',
+            2 => 'attachments.cron',
+            3 => 'attachments.created_by',
+            4 => 'attachments.created_at',
+            5 => 'attachments.id',
         ];
          
         $query = self::query()->selectRaw(
-            "`uploaded_files`.`file_name` as `file_name`,
-            `uploaded_files`.`created_by` as `created_by`,
-            `uploaded_files`.`cron` as `cron`,
-            `uploaded_files`.`id` as `id`,
-            `uploaded_files`.`created_at` as `created_at`,
-            `uploaded_files`.`deleted_at` as `deleted_at`,
-            `uploaded_files`.`delete` as `delete`,
+            "`attachments`.`file_name` as `file_name`,
+            `attachments`.`created_by` as `created_by`,
+            `attachments`.`cron` as `cron`,
+            `attachments`.`id` as `id`,
+            `attachments`.`created_at` as `created_at`,
+            `attachments`.`deleted_at` as `deleted_at`,
+            `attachments`.`delete` as `delete`,
             `suppliers`.`supplier_name` as `supplier_name`,
             CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS `user_name`"
         )
-        ->leftJoin('users', 'uploaded_files.created_by', '=', 'users.id')
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'uploaded_files.supplier_id')
+        ->leftJoin('users', 'attachments.created_by', '=', 'users.id')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'attachments.supplier_id')
         ->withTrashed();
 
         /** Get total records count (without filtering) */
@@ -92,7 +92,7 @@ class UploadedFiles extends Model
             $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
-        $query->orderBy('uploaded_files.id', 'desc');
+        $query->orderBy('attachments.id', 'desc');
         if (isset($filter['start']) && isset($filter['length'])) {
             /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();

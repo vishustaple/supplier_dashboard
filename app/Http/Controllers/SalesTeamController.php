@@ -137,7 +137,7 @@ class SalesTeamController extends Controller
             }
         } catch (QueryException $e) { 
             return response()->json(['error' => 'Sales Repersantative not removed' . $e->getMessage()], 404);
-            echo "Database table uploaded_files select query failed: " . $e->getMessage();
+            echo "Database table attachments select query failed: " . $e->getMessage();
             die;
         }
     }

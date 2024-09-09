@@ -13,7 +13,7 @@ class AddDeletedByToUploadedFilesTable extends Migration
      */
     public function up()
     {
-        Schema::table('uploaded_files', function (Blueprint $table) {
+        Schema::table('attachments', function (Blueprint $table) {
             // Add deleted_at column
             $table->softDeletes();
             
@@ -30,7 +30,7 @@ class AddDeletedByToUploadedFilesTable extends Migration
      */
     public function down()
     {
-        Schema::table('uploaded_files', function (Blueprint $table) {
+        Schema::table('attachments', function (Blueprint $table) {
             // Drop deleted_at column
             $table->dropSoftDeletes();
             

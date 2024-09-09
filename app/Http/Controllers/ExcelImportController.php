@@ -35,8 +35,8 @@ class ExcelImportController extends Controller
 
     public function index() {
         $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
-        $uploadData = UploadedFiles::query()->selectRaw("`uploaded_files`.*, CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name")
-        ->leftJoin('users', 'uploaded_files.created_by', '=', 'users.id')
+        $uploadData = UploadedFiles::query()->selectRaw("`attachments`.*, CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name")
+        ->leftJoin('users', 'attachments.created_by', '=', 'users.id')
         ->get();
         // echo"<pre>";
         // print_r($uploadData);
