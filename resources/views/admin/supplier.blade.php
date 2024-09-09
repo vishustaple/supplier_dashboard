@@ -108,7 +108,7 @@
                                 <input type="hidden" name="supplier_id" id="supplier_data_edit_id_one">
                             </form>
                             <form action="" id="columns_form_edit">
-                                <input type="hidden" name="supplier_id" id="supplier_data_id">
+                                <input type="hidden" name="supplier_id" id="supplier_attachment_id">
                                 <table class="table" id="dynamicTableOne">
                                     <thead>
                                         <tr>
@@ -334,7 +334,7 @@
                 var button = event.relatedTarget; // Button that triggered the modal
                 // Set the value of the input element
                 $('#supplier_data_edit_id_one').val(button.getAttribute('data-id'));
-                $('#supplier_data_id').val(button.getAttribute('data-id'));
+                $('#supplier_attachment_id').val(button.getAttribute('data-id'));
                 
                 formData = new FormData($('#edit_file_format')[0]),
                 $.ajax({

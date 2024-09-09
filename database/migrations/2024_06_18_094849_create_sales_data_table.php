@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('staples_orders_data', function (Blueprint $table) {
             $table->id();
-            $table->string("data_id")->nullable();
+            $table->string("attachment_id")->nullable();
             $table->string("master_customer_number")->nullable();
             $table->string("master_customer_name")->nullable();
             $table->string("bill_to_number")->nullable();

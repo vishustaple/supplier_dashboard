@@ -20,7 +20,7 @@ class ExcelData extends Model
      protected $fillable = [
         'key',
         'value',
-        'data_id',
+        'attachment_id',
         'order_id',
         'file_name',
     ];

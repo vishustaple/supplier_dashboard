@@ -719,7 +719,7 @@ class ExcelImportController extends Controller
         /** Create the table */
         Schema::create($tableName, function (Blueprint $table) use ($columns, $requiredFieldId) {
             $table->id();
-            $table->bigInteger('data_id')->unsigned()->index(); /** Adding the data_id column */
+            $table->bigInteger('attachment_id')->unsigned()->index(); /** Adding the attachment_id column */
             foreach ($columns as $key => $column) {
                 /** Replace spaces with underscores, remove unwanted characters, and convert to lowercase */
                 $column = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $column))));
@@ -818,7 +818,7 @@ class ExcelImportController extends Controller
         /** Create the table */
         Schema::create($tableName, function (Blueprint $table) use ($columns, $requiredFieldId) {
             $table->id();
-            $table->bigInteger('data_id')->unsigned()->index(); /** Adding the data_id column */
+            $table->bigInteger('attachment_id')->unsigned()->index(); /** Adding the attachment_id column */
             foreach ($columns as $key => $column) {
                 /** Replace spaces with underscores, remove unwanted characters, and convert to lowercase */
                 $column = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $column))));

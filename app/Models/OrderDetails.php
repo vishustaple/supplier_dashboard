@@ -16,7 +16,7 @@ class OrderDetails extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'data_id',
+        'attachment_id',
         'order_id',
         'created_by',
         'invoice_date',
