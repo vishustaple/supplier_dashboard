@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requird_fields', function (Blueprint $table) {
+        Schema::create('required_fields', function (Blueprint $table) {
             $table->id();
             $table->string('field_name');
             $table->string('fields_select_name');
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('requird_fields');
+        Schema::dropIfExists('required_fields');
     }
 };

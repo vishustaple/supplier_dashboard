@@ -69,7 +69,8 @@ class BackupDatabase extends Command
         /** Example with scp (Secure Copy): */
         $process = new Process([
             'scp',
-            'rocky@3.95.106.180:' . $serverPath,
+            '-o', 'StrictHostKeyChecking=no', // Automatically accept new host keys
+            'user@your-server:' . $serverPath,
             $localPath
         ]);
 

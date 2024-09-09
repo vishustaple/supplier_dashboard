@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('manage_columns', function (Blueprint $table) {
             $table->unsignedBigInteger('required_field_id')->after('required')->nullable(); // or ->after('some_column') to specify position
-            $table->foreign('required_field_id')->references('id')->on('requird_fields');
+            $table->foreign('required_field_id')->references('id')->on('required_fields');
         });
     }
 

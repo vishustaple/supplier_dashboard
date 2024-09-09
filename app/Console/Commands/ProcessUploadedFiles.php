@@ -71,10 +71,10 @@ class ProcessUploadedFiles extends Command
                     'manage_columns.id as id',
                     'manage_columns.field_name as field_name',
                     'manage_columns.supplier_id as supplier_id',
-                    'requird_fields.id as required_field_id',
-                    'requird_fields.field_name as required_field_column',
+                    'required_fields.id as required_field_id',
+                    'required_fields.field_name as required_field_column',
                 )
-                ->leftJoin('requird_fields', 'manage_columns.required_field_id', '=', 'requird_fields.id')
+                ->leftJoin('required_fields', 'manage_columns.required_field_id', '=', 'required_fields.id')
                 ->where('supplier_id', $fileValue->supplier_id)
                 ->get();
 

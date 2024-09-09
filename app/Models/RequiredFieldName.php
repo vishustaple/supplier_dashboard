@@ -9,7 +9,7 @@ class RequiredFieldName extends Model
 {
     use HasFactory;
 
-    protected $table = 'requird_fields';
+    protected $table = 'required_fields';
 
     /**
      * The attributes that are mass assignable.
