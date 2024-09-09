@@ -102,7 +102,6 @@
                         @endif
                     </tbody>
                 </table>
-                <!-- <iframe title="CenterPoint Reporting SQL" width="1140" height="541.25" src=https://app.powerbi.com/reportEmbed?reportId=a43b8268-0440-4e69-b90c-69aaf1a16b63&autoAuth=true&ctid=d9448cd0-bd4f-4914-a17f-522139087ae4 frameborder="0" allowFullScreen="true"></iframe> -->
         @include('layout.footer')
         </div>
     </div>
