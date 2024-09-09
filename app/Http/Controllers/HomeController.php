@@ -434,17 +434,22 @@
                     preg_match('/reportId=([a-zA-Z0-9-]+)/', $data->iframe, $matches);
                     $reportId = $matches[1] ?? null;
 
+                    /** Rendring the view */
                     return view('admin.powerbi_report', compact('pageTitle', 'accessToken', 'reportId'));
                 } else {
+                    /** Setting the access token false and setting ifram value */
                     $accessToken = false;
                     $ifram = $data->iframe;
 
+                    /** Rendring the view */
                     return view('admin.powerbi_report', compact('pageTitle', 'accessToken', 'ifram'));
                 }
             } else {
+                /** Setting the access token false and setting ifram value */
                 $accessToken = false;
-                $ifram = "<h1> Kindly add embad code </h1>";
+                $ifram = "<h1> Kindly add embeded Code </h1>";
 
+                /** Rendring the view */
                 return view('admin.powerbi_report', compact('pageTitle', 'accessToken', 'ifram'));
             }
         }
