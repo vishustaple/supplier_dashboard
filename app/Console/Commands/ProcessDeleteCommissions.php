@@ -49,7 +49,7 @@ class ProcessDeleteCommissions extends Command
                 DB::table('commission_rebate_detail')->where('sales_rep', $value->id)->delete();
 
                 /** Delete records from Commission Rebate table */
-                DB::table('commission_rebate')->where('sales_rep', $value->id)->delete();
+                DB::table('commissions_rebate')->where('sales_rep', $value->id)->delete();
             }
         }
     }

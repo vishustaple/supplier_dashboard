@@ -24,7 +24,7 @@ return new class extends Migration
             $table->text('content');
             $table->timestamps();
             $table->foreign('sales_rep')->references('id')->on('sales_team');
-            $table->foreign('commission_rebate_id')->references('id')->on('commission_rebate');
+            $table->foreign('commission_rebate_id')->references('id')->on('commissions_rebate');
         });
     }
 

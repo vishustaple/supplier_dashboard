@@ -261,7 +261,7 @@ class ReportController extends Controller
 
     public function approvedUpdate(Request $request){
         if ($request->ajax()) {
-            DB::table('commission_rebate')
+            DB::table('commissions_rebate')
             ->whereIn('id', $request->id)
             ->update([
                 'approved' => $request->approved,
@@ -284,7 +284,7 @@ class ReportController extends Controller
     public function paidUpdate(Request $request){
         if ($request->ajax()) {
             $loggedUserId = Auth::id();
-            DB::table('commission_rebate')
+            DB::table('commissions_rebate')
             ->whereIn('id', $request->id)
             ->update([
                 'paid_by' => $loggedUserId,

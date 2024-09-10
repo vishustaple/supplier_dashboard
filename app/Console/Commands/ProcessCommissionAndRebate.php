@@ -108,11 +108,11 @@ class ProcessCommissionAndRebate extends Command
                         $totalCommissionRebate += $value->commissionss;
                     }
 
-                    $dataExistCheck = DB::table('commission_rebate')
+                    $dataExistCheck = DB::table('commissions_rebate')
                     ->whereYear('start_date', $year)
                     ->whereDate('start_date', '>=', $filter['start_date'])
                     ->whereDate('end_date', '<=', $filter['end_date'])
-                    ->where('commission_rebate.sales_rep', $values->sales_rep)
+                    ->where('commissions_rebate.sales_rep', $values->sales_rep)
                     ->first();
 
                     if (!empty($dataExistCheck)) {
