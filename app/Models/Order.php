@@ -869,7 +869,7 @@ class Order extends Model
                     $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
                     $finalArray[$key]['cost'] = '$'.number_format($data->spend, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
-                    $finalArray[$key]['commissions'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$data->ids.']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commissions, 2).'</button> <button data-id="['.$data->ids.']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
+                    $finalArray[$key]['commissions'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commissions_rebate_id" data-id="['.$data->ids.']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commissions, 2).'</button> <button data-id="['.$data->ids.']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                 }
                 $ids++;
             }
@@ -883,7 +883,7 @@ class Order extends Model
                 $finalArrays['sales_rep'] = $salesRep->sales_rep;
                 $finalArrays['cost'] = '$'.number_format($annual["spend"], 2);
                 $finalArrays['volume_rebate'] = '$'.number_format($annual["volume_rebate"], 2);
-                $finalArrays['commissions'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$annual["ids"].']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($annual["commissions"], 2).'</button> <button data-id="['.$annual["ids"].']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
+                $finalArrays['commissions'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commissions_rebate_id" data-id="['.$annual["ids"].']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($annual["commissions"], 2).'</button> <button data-id="['.$annual["ids"].']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                 $finalArray[] = $finalArrays;
             }
 
@@ -912,13 +912,13 @@ class Order extends Model
                 "`commissions_rebate_detail`.`spend` AS `cost`, 
                 `commissions_rebate_detail`.`volume_rebate` AS `volume_rebate`,
                 `commissions_rebate_detail`.`commissions` AS `commissionss`,
-                `commissions_rebate_detail`.`commission_percentage` AS `commissions`,
+                `commissions_rebate_detail`.`commissions_percentage` AS `commissions`,
                 `commissions_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`,
                 `commissions_rebate_detail`.`start_date` as start_date,
                 `commissions_rebate_detail`.`end_date` as end_date,
-                `commissions_rebate_detail`.`commission_start_date` as `commission_start_date`,
-                `commissions_rebate_detail`.`commission_end_date` as `commission_end_date`,
+                `commissions_rebate_detail`.`commissions_start_date` as `commissions_start_date`,
+                `commissions_rebate_detail`.`commissions_end_date` as `commissions_end_date`,
                 `commissions_rebate_detail`.`quarter` as quarter,
                 `commissions_rebate_detail`.`account_name` as account_name,
                 `commissions_rebate_detail`.`month` as month,
@@ -934,7 +934,7 @@ class Order extends Model
                 "SUM(`commissions_rebate_detail`.`spend`) AS `cost`, 
                 SUM(`commissions_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
                 SUM(`commissions_rebate_detail`.`commissions`) AS `commissionss`,
-                `commissions_rebate_detail`.`commission_percentage` AS `commissions`,
+                `commissions_rebate_detail`.`commissions_percentage` AS `commissions`,
                 `commissions_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`,
                 `commissions_rebate_detail`.`start_date` as start_date,
@@ -996,13 +996,13 @@ class Order extends Model
             ->whereDate('commissions_rebate_detail.end_date', '<=', $endDate);
         }
 
-        /** Filter the data on the bases of commission_rebate_id */
-        if (isset($filter['commission_rebate_id']) && !empty($filter['commission_rebate_id'])) {
-            if (is_string($filter['commission_rebate_id'])) {
-                $filter['commission_rebate_id'] = explode(',', $filter['commission_rebate_id']);
+        /** Filter the data on the bases of commissions_rebate_id */
+        if (isset($filter['commissions_rebate_id']) && !empty($filter['commissions_rebate_id'])) {
+            if (is_string($filter['commissions_rebate_id'])) {
+                $filter['commissions_rebate_id'] = explode(',', $filter['commissions_rebate_id']);
             }
 
-            $query->whereIn('commissions_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
+            $query->whereIn('commissions_rebate_detail.commissions_rebate_id', $filter['commissions_rebate_id']);
         }
 
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
@@ -1045,8 +1045,8 @@ class Order extends Model
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['cost'] = $value->cost;
                     $finalArray[$key]['approved_by'] = $value->approved_by;
-                    $finalArray[$key]['commission_end_date'] = date_format(date_create($value->commission_end_date), 'm/d/Y');
-                    $finalArray[$key]['commission_start_date'] = date_format(date_create($value->commission_start_date), 'm/d/Y');
+                    $finalArray[$key]['commissions_end_date'] = date_format(date_create($value->commissions_end_date), 'm/d/Y');
+                    $finalArray[$key]['commissions_start_date'] = date_format(date_create($value->commissions_start_date), 'm/d/Y');
                     $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
                     $finalArray[$key]['commissionss'] = $value->commissionss;
                     $finalArray[$key]['commissions'] = $value->commissions;

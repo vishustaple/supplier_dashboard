@@ -268,7 +268,7 @@ class ReportController extends Controller
             ]);
 
             DB::table('commissions_rebate_detail')
-            ->whereIn('commission_rebate_id', $request->id)
+            ->whereIn('commissions_rebate_id', $request->id)
             ->update([
                 'approved' => $request->approved,
             ]);
@@ -293,7 +293,7 @@ class ReportController extends Controller
             ]);
             
             DB::table('commissions_rebate_detail')
-            ->whereIn('commission_rebate_id', $request->id)
+            ->whereIn('commissions_rebate_id', $request->id)
             ->update([
                 'paid_by' => $loggedUserId,
                 'paid' => $request->paid,
@@ -311,9 +311,9 @@ class ReportController extends Controller
     public function downloadSampleCommissionFile(Request $request) {  
         $csv = true;
         $filter['sales_reps'] = $request->input('sales_rep');
-        $filter['commission_rebate_id'] = explode(',', $request->input('commission_rebate_id'));
+        $filter['commissions_rebate_id'] = explode(',', $request->input('commissions_rebate_id'));
 
-        $content = CommissionRebateDetailHtml::select('content')->where('commission_rebate_id', $filter['commission_rebate_id'])->first();
+        $content = CommissionRebateDetailHtml::select('content')->where('commissions_rebate_id', $filter['commissions_rebate_id'])->first();
 
         if ($content) {
             $pdf = Pdf::loadHTML($content->content)->setPaper('a4', 'landscape')->setOption(['dpi' => 100, 'defaultFont' => 'mohanonda']);
@@ -596,8 +596,8 @@ class ReportController extends Controller
                         'account_name' => $item['account_name'],
                         'supplier' => $item['supplier'],
                         'commissions' => $item['commissions'],
-                        'commission_end_date' => $item['commission_end_date'],
-                        'commission_start_date' => $item['commission_start_date'],
+                        'commissions_end_date' => $item['commissions_end_date'],
+                        'commissions_start_date' => $item['commissions_start_date'],
                         'start_date' => $item['start_date'],
                         'end_date' => $item['end_date'],
                         'amounts' => [],

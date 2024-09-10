@@ -770,7 +770,7 @@ function downloadCsv(id='') {
     order = supplierDataTable.order();
 
     // Add query parameters for date range and supplier ID
-    csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&sales_rep=' + $('#sales_rep').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&commission_rebate_id=' + id + '&supplier=' + $('#supplier').val();
+    csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&sales_rep=' + $('#sales_rep').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&commissions_rebate_id=' + id + '&supplier=' + $('#supplier').val();
 
     // Open a new window to download the CSV file
     window.open(csvUrl, '_blank');

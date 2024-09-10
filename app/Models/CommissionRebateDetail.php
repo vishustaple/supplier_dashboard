@@ -31,8 +31,8 @@ class CommissionRebateDetail extends Model
         'start_date',	
         'account_name',	
         'volume_rebate',	
-        'commission_rebate_id',	
-        'commission_percentage',	
+        'commissions_rebate_id',	
+        'commissions_percentage',	
         'volume_rebate_percentage',	
     ];
 }

@@ -71,7 +71,7 @@
                     d.supplier_id = $('#supplier').val();
                     // d.quarter = $('#quarter').val();
                     // d.sales_reps = $('#sales_rep').val();
-                    // d.commission_rebate_id = $('#commission_table_id').val();
+                    // d.commissions_rebate_id = $('#commission_table_id').val();
                 },
             },
 

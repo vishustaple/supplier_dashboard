@@ -152,7 +152,7 @@
                                                 @if($firstTime == true)
                                                     @php $firstTime = false; @endphp
                                                     <td rowspan="{{$nonZeroCount + 1}}" style="text-align: center;" class="border-right border-bottom">{{ $commissions['supplier'] }} <br>
-                                                    {{ $commissions['commission_start_date'] }} - {{ $commissions['commission_end_date'] }}</td>
+                                                    {{ $commissions['commissions_start_date'] }} - {{ $commissions['commissions_end_date'] }}</td>
                                                 @endif
                                                 <td>{{ $key }} {{ $year }}</td>
                                                 <td>${{ number_format($commissions['month_amount'][$key], 2) }}</td>

@@ -135,7 +135,7 @@ class ProcessCommissionAndRebate extends Command
                             ->whereYear('start_date', $year)
                             ->whereDate('start_date', '>=', $filter['start_date'])
                             ->whereDate('end_date', '<=', $filter['end_date'])
-                            ->where('commission_rebate_id', $dataExistCheck->id)
+                            ->where('commissions_rebate_id', $dataExistCheck->id)
                             ->get();
 
                             $countArray = count($dataExistCheck2);
@@ -158,9 +158,9 @@ class ProcessCommissionAndRebate extends Command
                                         'start_date' => $filter['start_date'],
                                         'account_name' => $value->account_name,
                                         'volume_rebate' => $value->volume_rebate,
-                                        'commission_end_date' => $value->end_date,
-                                        'commission_start_date' => $value->start_date,
-                                        'commission_percentage' => $value->commissions,
+                                        'commissions_end_date' => $value->end_date,
+                                        'commissions_start_date' => $value->start_date,
+                                        'commissions_percentage' => $value->commissions,
                                         'volume_rebate_percentage' => $value->volume_rebates,
                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                     ]);
@@ -178,10 +178,10 @@ class ProcessCommissionAndRebate extends Command
                                         'start_date' => $filter['start_date'],
                                         'account_name' => $value->account_name,
                                         'volume_rebate' => $value->volume_rebate,
-                                        'commission_end_date' => $value->end_date,
-                                        'commission_start_date' => $value->start_date,
-                                        'commission_percentage' => $value->commissions,
-                                        'commission_rebate_id' => $dataExistCheck->id,
+                                        'commissions_end_date' => $value->end_date,
+                                        'commissions_start_date' => $value->start_date,
+                                        'commissions_percentage' => $value->commissions,
+                                        'commissions_rebate_id' => $dataExistCheck->id,
                                         'volume_rebate_percentage' => $value->volume_rebates,
                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -222,10 +222,10 @@ class ProcessCommissionAndRebate extends Command
                                     'start_date' => $filter['start_date'],
                                     'account_name' => $value->account_name,
                                     'volume_rebate' => $value->volume_rebate,
-                                    'commission_end_date' => $value->end_date,
-                                    'commission_start_date' => $value->start_date,
-                                    'commission_percentage' => $value->commissions,
-                                    'commission_rebate_id' => $newCommissionRebate->id,
+                                    'commissions_end_date' => $value->end_date,
+                                    'commissions_start_date' => $value->start_date,
+                                    'commissions_percentage' => $value->commissions,
+                                    'commissions_rebate_id' => $newCommissionRebate->id,
                                     'volume_rebate_percentage' => $value->volume_rebates,
                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),

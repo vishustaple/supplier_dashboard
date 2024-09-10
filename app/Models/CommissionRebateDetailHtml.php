@@ -25,6 +25,6 @@ class CommissionRebateDetailHtml extends Model
         'sales_rep',
         'commissions',
         'volume_rebate',
-        'commission_rebate_id',
+        'commissions_rebate_id',
     ];
 }
