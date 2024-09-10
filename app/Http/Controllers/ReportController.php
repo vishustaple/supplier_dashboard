@@ -267,7 +267,7 @@ class ReportController extends Controller
                 'approved' => $request->approved,
             ]);
 
-            DB::table('commission_rebate_detail')
+            DB::table('commissions_rebate_detail')
             ->whereIn('commission_rebate_id', $request->id)
             ->update([
                 'approved' => $request->approved,
@@ -292,7 +292,7 @@ class ReportController extends Controller
                 'paid_date' => date('Y-m-d', strtotime($request->paid_date))
             ]);
             
-            DB::table('commission_rebate_detail')
+            DB::table('commissions_rebate_detail')
             ->whereIn('commission_rebate_id', $request->id)
             ->update([
                 'paid_by' => $loggedUserId,

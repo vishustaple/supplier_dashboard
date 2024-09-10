@@ -9,7 +9,7 @@ class CommissionRebateDetail extends Model
 {
     use HasFactory;
     
-    protected $table = 'commission_rebate_detail';
+    protected $table = 'commissions_rebate_detail';
 
     
     /**

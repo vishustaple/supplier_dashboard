@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('commission_rebate_detail', function (Blueprint $table) {
+        Schema::create('commissions_rebate_detail', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('commission_rebate_id');
             $table->unsignedBigInteger('sales_rep');
@@ -41,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('commission_rebate_detail');
+        Schema::dropIfExists('commissions_rebate_detail');
     }
 };

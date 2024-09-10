@@ -131,7 +131,7 @@ class ProcessCommissionAndRebate extends Command
                                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
                                     
-                            $dataExistCheck2 = DB::table('commission_rebate_detail')
+                            $dataExistCheck2 = DB::table('commissions_rebate_detail')
                             ->whereYear('start_date', $year)
                             ->whereDate('start_date', '>=', $filter['start_date'])
                             ->whereDate('end_date', '<=', $filter['end_date'])

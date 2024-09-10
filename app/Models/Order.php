@@ -897,57 +897,57 @@ class Order extends Model
     public static function getCommissionReportFilterdDataSecond($filter = [], $csv = false){
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
-            0 => 'commission_rebate_detail.account_name',
+            0 => 'commissions_rebate_detail.account_name',
             1 => 'suppliers.supplier_name',
-            2 => 'commission_rebate_detail.spend',
-            3 => 'commission_rebate_detail.volume_rebate',
-            4 => 'commission_rebate_detail.commissions',
-            5 => 'commission_rebate_detail.start_date',
-            6 => 'commission_rebate_detail.end_date',
+            2 => 'commissions_rebate_detail.spend',
+            3 => 'commissions_rebate_detail.volume_rebate',
+            4 => 'commissions_rebate_detail.commissions',
+            5 => 'commissions_rebate_detail.start_date',
+            6 => 'commissions_rebate_detail.end_date',
         ];
 
         if ($csv) {
             /** Create query for CSV export with specific columns */
             $query = CommissionRebateDetail::query()->selectRaw(
-                "`commission_rebate_detail`.`spend` AS `cost`, 
-                `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
-                `commission_rebate_detail`.`commissions` AS `commissionss`,
-                `commission_rebate_detail`.`commission_percentage` AS `commissions`,
-                `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
+                "`commissions_rebate_detail`.`spend` AS `cost`, 
+                `commissions_rebate_detail`.`volume_rebate` AS `volume_rebate`,
+                `commissions_rebate_detail`.`commissions` AS `commissionss`,
+                `commissions_rebate_detail`.`commission_percentage` AS `commissions`,
+                `commissions_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`,
-                `commission_rebate_detail`.`start_date` as start_date,
-                `commission_rebate_detail`.`end_date` as end_date,
-                `commission_rebate_detail`.`commission_start_date` as `commission_start_date`,
-                `commission_rebate_detail`.`commission_end_date` as `commission_end_date`,
-                `commission_rebate_detail`.`quarter` as quarter,
-                `commission_rebate_detail`.`account_name` as account_name,
-                `commission_rebate_detail`.`month` as month,
-                `commission_rebate_detail`.`approved` as approved,
-                `commission_rebate_detail`.`paid` as paid,
+                `commissions_rebate_detail`.`start_date` as start_date,
+                `commissions_rebate_detail`.`end_date` as end_date,
+                `commissions_rebate_detail`.`commission_start_date` as `commission_start_date`,
+                `commissions_rebate_detail`.`commission_end_date` as `commission_end_date`,
+                `commissions_rebate_detail`.`quarter` as quarter,
+                `commissions_rebate_detail`.`account_name` as account_name,
+                `commissions_rebate_detail`.`month` as month,
+                `commissions_rebate_detail`.`approved` as approved,
+                `commissions_rebate_detail`.`paid` as paid,
                 CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS `approved_by`"
             );
 
-            $query->leftJoin('users', 'users.id', '=', 'commission_rebate_detail.paid_by');
+            $query->leftJoin('users', 'users.id', '=', 'commissions_rebate_detail.paid_by');
         } else {
             /** Create query for normal data retrieval with aggregated columns */
             $query = CommissionRebateDetail::query()->selectRaw(
-                "SUM(`commission_rebate_detail`.`spend`) AS `cost`, 
-                SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
-                SUM(`commission_rebate_detail`.`commissions`) AS `commissionss`,
-                `commission_rebate_detail`.`commission_percentage` AS `commissions`,
-                `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
+                "SUM(`commissions_rebate_detail`.`spend`) AS `cost`, 
+                SUM(`commissions_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
+                SUM(`commissions_rebate_detail`.`commissions`) AS `commissionss`,
+                `commissions_rebate_detail`.`commission_percentage` AS `commissions`,
+                `commissions_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`,
-                `commission_rebate_detail`.`start_date` as start_date,
-                `commission_rebate_detail`.`end_date` as end_date,
-                `commission_rebate_detail`.`quarter` as quarter,
-                `commission_rebate_detail`.`account_name` as account_name,
-                `commission_rebate_detail`.`month` as month,
-                `commission_rebate_detail`.`approved` as approved,
-                `commission_rebate_detail`.`paid` as paid"
+                `commissions_rebate_detail`.`start_date` as start_date,
+                `commissions_rebate_detail`.`end_date` as end_date,
+                `commissions_rebate_detail`.`quarter` as quarter,
+                `commissions_rebate_detail`.`account_name` as account_name,
+                `commissions_rebate_detail`.`month` as month,
+                `commissions_rebate_detail`.`approved` as approved,
+                `commissions_rebate_detail`.`paid` as paid"
             );
         }
 
-        $query->leftJoin('suppliers', 'suppliers.id', '=', 'commission_rebate_detail.supplier');
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'commissions_rebate_detail.supplier');
     
          /** Year and quarter filter here */
          if (isset($filter['year']) || !empty($filter['quarter'])) {
@@ -992,8 +992,8 @@ class Order extends Model
             }
 
             /** Apply date filter to the query */
-            $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
-            ->whereDate('commission_rebate_detail.end_date', '<=', $endDate);
+            $query->whereDate('commissions_rebate_detail.start_date', '>=', $startDate)
+            ->whereDate('commissions_rebate_detail.end_date', '<=', $endDate);
         }
 
         /** Filter the data on the bases of commission_rebate_id */
@@ -1002,17 +1002,17 @@ class Order extends Model
                 $filter['commission_rebate_id'] = explode(',', $filter['commission_rebate_id']);
             }
 
-            $query->whereIn('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
+            $query->whereIn('commissions_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
         }
 
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
-            $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
+            $query->where('commissions_rebate_detail.sales_rep', $filter['sales_reps']);
         }
 
         // $query->groupBy('suppliers.id');
         /** Group by necessary fields */
         if (!$csv) {
-            $query->groupBy('commission_rebate_detail.account_name', 'commission_rebate_detail.supplier');
+            $query->groupBy('commissions_rebate_detail.account_name', 'commissions_rebate_detail.supplier');
         }
 
         // dd($query->toSql(), $query->getBindings());
@@ -1085,7 +1085,7 @@ class Order extends Model
     public static function getAllCommission($filter = []){
         /** Initialize the query on the CommissionRebateDetail model, selecting the sum of commissionss and the paid date */
         $query = CommissionRebateDetail::query()->selectRaw(
-            "SUM(`commission_rebate_detail`.`commissions`) AS `commissionss`,
+            "SUM(`commissions_rebate_detail`.`commissions`) AS `commissionss`,
             paid_date"
         );
 
@@ -1133,13 +1133,13 @@ class Order extends Model
             }
 
             /** Apply the date range filter to the query */
-            $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
-                ->whereDate('commission_rebate_detail.start_date', '<=', $endDate);
+            $query->whereDate('commissions_rebate_detail.start_date', '>=', $startDate)
+                ->whereDate('commissions_rebate_detail.start_date', '<=', $endDate);
         }
 
         /** Apply sales representative filter if provided */
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
-            $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
+            $query->where('commissions_rebate_detail.sales_rep', $filter['sales_reps']);
         }
 
         /** Execute the query and get the first result */
