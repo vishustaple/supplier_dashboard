@@ -27,7 +27,7 @@ class CommissionRebateDetail extends Model
         'approved',
         'sales_rep',	
         'paid_date',	
-        'commission',	
+        'commissions',	
         'start_date',	
         'account_name',	
         'volume_rebate',	

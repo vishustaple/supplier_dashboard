@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('commission_rebate_id');
             $table->unsignedBigInteger('sales_rep');
             $table->string('month')->nullable();
-            $table->string('commission')->nullable();
+            $table->string('commissions')->nullable();
             $table->string('volume_rebate')->nullable();
             $table->string('spend')->nullable();
             $table->tinyInteger('approved')->default(0)->comment("1 => Yes, 0 => No,");

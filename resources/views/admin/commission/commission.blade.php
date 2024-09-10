@@ -91,13 +91,13 @@
             <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
                 <div class="col-md-12 mb-0 text-end">
                     <!-- Button trigger modal -->
-                    <a href="{{ route('commission.list', ['commissionType' => 'commission_listing'])}}" class="btn btn-secondary border-0 bg_yellow" title="Back"><i class="fas fa-arrow-left me-2"></i>Back</a>
+                    <a href="{{ route('commissions.list', ['commissionType' => 'commission_listing'])}}" class="btn btn-secondary border-0 bg_yellow" title="Back"><i class="fas fa-arrow-left me-2"></i>Back</a>
                 </div>
             </div> 
             <div class="container">
                 <div class="" id="successMessages"></div>
                 <div class="" id="errorMessage"></div>
-                <form id="commission_form" action="route('commission.add')" method="POST">
+                <form id="commission_form" action="route('commissions.add')" method="POST">
                     <table class="table" id="commission_table">
                         <thead>
                             <tr>
@@ -130,7 +130,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm commission" name="commission[]" id="" aria-describedby="helpId" placeholder=""  required />
+                                    <input type="text" class="form-control form-control-sm commissions" name="commissions[]" id="" aria-describedby="helpId" placeholder=""  required />
                                 </td>
                                 <td>
                                     <input type="text" name="date[]" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" required>
@@ -157,7 +157,7 @@
                 event.preventDefault();
                 $.ajax({
                     type: 'POST',
-                    url: "{{route('commission.add')}}",
+                    url: "{{route('commissions.add')}}",
                     dataType: 'json',
                     data: new FormData($('#commission_form')[0]),
                     headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
@@ -202,7 +202,7 @@
             function selectCustomer (count='') {
                 $('.mySelectAccountName'+count+'').select2({
                     ajax: {
-                        url: "{{ route('commission.customerSearch') }}",
+                        url: "{{ route('commissions.customerSearch') }}",
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {
@@ -226,7 +226,7 @@
                     var accountName = e.params.data.id; // Selected account_name ID
                     // Perform AJAX request here using the selected account_name ID
                     $.ajax({
-                        url: "{{ route('commission.supplierSearch') }}",
+                        url: "{{ route('commissions.supplierSearch') }}",
                         method: 'GET',
                         data: {
                             check: true,
@@ -277,7 +277,7 @@
             $('#add_commission').on('click', function(){
                 // Your existing code to append rows to the table
                 var count = $('#commission_table tbody tr').length + 1;
-                $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountNames mySelectAccountName'+count+'" name="account_name[]" required><option value="">Select</option></select></td><td><select class="mySelectSupplier'+count+' form-control-sm" name="supplier[]" aria-label="Default select example" required><option selected>--select--</option></select></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm" required><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" required /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range" required></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></div></td></tr>');
+                $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountNames mySelectAccountName'+count+'" name="account_name[]" required><option value="">Select</option></select></td><td><select class="mySelectSupplier'+count+' form-control-sm" name="supplier[]" aria-label="Default select example" required><option selected>--select--</option></select></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm" required><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commissions'+count+'" name="commissions[]" id="" aria-describedby="helpId" placeholder="" required /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range" required></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></div></td></tr>');
 
                 setDate(count);
                 selectCustomer(count);

@@ -123,20 +123,20 @@
                     <tbody>
                         @if(isset($commission_data))
                         @php $commission_total1 = 0; @endphp
-                            @foreach($commission_data as $key1 => $commissions)
+                            @foreach($commission_data as $key1 => $commissionss)
                                 <tr class="subtotal" style="background-color: #d0d0d0;">
                                     <th colspan="2" class="border-bottom border-top" style="text-align: center;background-color: #d0d0d0;">{{ $key1 }}</th>
                                     <th class="border-bottom border-top"  colspan="3"></th>
                                 </tr>
                                 @php $cost = $rebate = $commission_total = 0; @endphp
-                                @foreach($commissions as $key2 => $commission)
+                                @foreach($commissionss as $key2 => $commissions)
                                     <?php 
-                                        $cost += (float)str_replace(',', '', $commission['total_amount']);
-                                        $rebate += (float)str_replace(',', '', $commission['total_volume_rebate']);
-                                        $commission_total += (float)str_replace(',', '', $commission['total_commissions']);
-                                        $commission_total1 += (float)str_replace(',', '', $commission['total_commissions']);
+                                        $cost += (float)str_replace(',', '', $commissions['total_amount']);
+                                        $rebate += (float)str_replace(',', '', $commissions['total_volume_rebate']);
+                                        $commission_total += (float)str_replace(',', '', $commissions['total_commissions']);
+                                        $commission_total1 += (float)str_replace(',', '', $commissions['total_commissions']);
                                         // Remove 'YTD' key from the array
-                                        $filteredArray = array_filter($commission['month'], function($value, $key) {
+                                        $filteredArray = array_filter($commissions['month'], function($value, $key) {
                                             return $key !== 'YTD';
                                         }, ARRAY_FILTER_USE_BOTH);
 
@@ -146,30 +146,30 @@
                                         }));
                                         $firstTime = true;
                                     ?>
-                                    @foreach($commission['month'] as $key => $month)
-                                        @if(!empty($commission['month_amount'][$key]) && $key != 'YTD')
+                                    @foreach($commissions['month'] as $key => $month)
+                                        @if(!empty($commissions['month_amount'][$key]) && $key != 'YTD')
                                             <tr>
                                                 @if($firstTime == true)
                                                     @php $firstTime = false; @endphp
-                                                    <td rowspan="{{$nonZeroCount + 1}}" style="text-align: center;" class="border-right border-bottom">{{ $commission['supplier'] }} <br>
-                                                    {{ $commission['commission_start_date'] }} - {{ $commission['commission_end_date'] }}</td>
+                                                    <td rowspan="{{$nonZeroCount + 1}}" style="text-align: center;" class="border-right border-bottom">{{ $commissions['supplier'] }} <br>
+                                                    {{ $commissions['commission_start_date'] }} - {{ $commissions['commission_end_date'] }}</td>
                                                 @endif
                                                 <td>{{ $key }} {{ $year }}</td>
-                                                <td>${{ number_format($commission['month_amount'][$key], 2) }}</td>
-                                                <td>${{ number_format($commission['month_rebate'][$key], 2) }}</td>
-                                                <td>${{ number_format($commission['month'][$key], 2) }}</td>
+                                                <td>${{ number_format($commissions['month_amount'][$key], 2) }}</td>
+                                                <td>${{ number_format($commissions['month_rebate'][$key], 2) }}</td>
+                                                <td>${{ number_format($commissions['month'][$key], 2) }}</td>
                                             </tr>
                                         @endif
                                     @endforeach
                                     <tr style="background-color: #f2f2f2;">
-                                        <th class="border-top border-bottom">{{ $commission['supplier'] }} Subtotal</th>
-                                        <th class="border-top border-bottom">${{ number_format($commission['total_amount'], 2) }}</th>
-                                        <th class="border-top border-bottom">${{ number_format($commission['total_volume_rebate'], 2) }}</th>
-                                        <th class="border-top border-bottom">${{ number_format($commission['total_commissions'], 2) }}</th>
+                                        <th class="border-top border-bottom">{{ $commissions['supplier'] }} Subtotal</th>
+                                        <th class="border-top border-bottom">${{ number_format($commissions['total_amount'], 2) }}</th>
+                                        <th class="border-top border-bottom">${{ number_format($commissions['total_volume_rebate'], 2) }}</th>
+                                        <th class="border-top border-bottom">${{ number_format($commissions['total_commissions'], 2) }}</th>
                                     </tr>
                                 @endforeach
                                 <tr class="subtotal" style="background-color: #f2f2f2;">
-                                    <th class="border-top border-bottom" colspan="2">{{ $commission['account_name'] }} Subtotal</th>
+                                    <th class="border-top border-bottom" colspan="2">{{ $commissions['account_name'] }} Subtotal</th>
                                     <th class="border-top border-bottom">${{ number_format($cost, 2) }}</th>
                                     <th class="border-top border-bottom">${{ number_format($rebate, 2) }}</th>
                                     <th class="border-top border-bottom">${{ number_format($commission_total, 2); }}</th>

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('commission_rebate', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sales_rep');
-            $table->string('commission')->nullable();
+            $table->string('commissions')->nullable();
             $table->string('volume_rebate')->nullable();
             $table->string('spend')->nullable();
             $table->string('quarter')->nullable();

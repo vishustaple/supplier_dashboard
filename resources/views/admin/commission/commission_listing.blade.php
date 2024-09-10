@@ -7,7 +7,7 @@
         <div class="container">
             <div class="m-1 mb-2 d-md-flex border-bottom pb-3 mb-3 align-items-center justify-content-between">
                 <h3 class="mb-0 ">{{ $pageTitle }}</h3>
-                <a href="{{ route('commission.add-view') }}" class="btn btn-primary">
+                <a href="{{ route('commissions.add-view') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Add Commissions</a>
             </div>
             <table class="data_table_files" id="commission_data">
@@ -35,13 +35,13 @@
                     </div>
                     <div id="editsuccessMessage"></div>
                     <div id="editerrorMessage" ></div>
-                        <form action="{{route('commission.edit')}}" method="post" id="edit_commission_name">
+                        <form action="{{route('commissions.edit')}}" method="post" id="edit_commission_name">
                             @csrf
                             <div class="modal-body">
                                 <input type="hidden" name="commission_id" id="commission_id" value="">
                                 <div class="form-group">
                                     <label>Commission</label>
-                                    <input type="text" placeholder="Enter Commission" class="form-control" name="commission" id="commission" value="" required>
+                                    <input type="text" placeholder="Enter Commission" class="form-control" name="commissions" id="commissions" value="" required>
                                 </div>
                                 <div class="form-group ps-1">
                                     <div class="form-check col-md-6">
@@ -105,7 +105,7 @@
             serverSide: true,
             pageLength: 50,
             ajax: {
-                url: '{{ route("commission.filter") }}',
+                url: '{{ route("commissions.filter") }}',
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -125,7 +125,7 @@
                 { data: 'account_name', name: 'account_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'sales_rep', name: 'sales_rep' },
-                { data: 'commission', name: 'commission' },
+                { data: 'commissions', name: 'commissions' },
                 { data: 'start_date', name: 'start_date' },
                 { data: 'end_date', name: 'end_date' },
                 { data: 'status', name: 'status' },
@@ -141,7 +141,7 @@
 
         function downloadCommissionCsv() {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route("commission.export-csv") }}';
+            var csvUrl = '{{ route("commissions.export-csv") }}';
             csvUrl += '?search=' + dataTable.search();
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');
@@ -165,20 +165,20 @@
         myModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget, // Button that triggered the modal
             id = button.getAttribute('data-id'), // Extract value from data-* attributes
-            commissionNumber = button.getAttribute('data-commission'),
+            commissionNumber = button.getAttribute('data-commissions'),
             date = button.getAttribute('data-date'),
             commissionStatus = button.getAttribute('data-status'),
             
             // Getting input using ids
             commissionId = document.getElementById('commission_id'),
-            commission = document.getElementById('commission'),
+            commissions = document.getElementById('commissions'),
             commissionDate = document.getElementById('commission_date'),
             commissionChecked = document.getElementById('checked'),
             unChecked = document.getElementById('unchecked');
 
             // Set the value of the input element
             commissionId.value = id,
-            commission.value = commissionNumber,
+            commissions.value = commissionNumber,
             commissionDate.value = date;
             if (commissionStatus == 1) {
                 checked.checked  = true;
@@ -189,10 +189,10 @@
 
         $("#edit_commission_name").on('submit', function (e){
             e.preventDefault();
-            commission = document.getElementById('commission'),
+            commissions = document.getElementById('commissions'),
             commissionDate = document.getElementById('commission_date');
-            if (commission.value.trim() == '') {
-                $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please add commission <button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+            if (commissions.value.trim() == '') {
+                $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please add commissions <button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
                 return;
             }
 
@@ -204,7 +204,7 @@
             var formData = new FormData($('#edit_commission_name')[0]);
             $.ajax({
                 type: 'POST',
-                url: '{{ route("commission.edit") }}', // Replace with your actual route name
+                url: '{{ route("commissions.edit") }}', // Replace with your actual route name
                 data: formData,
                 processData: false,
                 contentType: false,

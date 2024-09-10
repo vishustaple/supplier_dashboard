@@ -81,7 +81,7 @@ class ReportController extends Controller
         if ($reportType == 'business_report') {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'accountData' => Account::select('account_name')->groupBy('account_name')->get(), 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->whereIn('id', [1,2,3,4,5])->get()]);
         } elseif ($reportType == 'commission_report') {
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'sales_rep' => SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'), 'commission.sales_rep as id')->leftJoin('commission', 'commission.sales_rep', '=', 'sales_team.id')->groupBy('commission.sales_rep')->get()]);
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'sales_rep' => SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'), 'commissions.sales_rep as id')->leftJoin('commissions', 'commissions.sales_rep', '=', 'sales_team.id')->groupBy('commissions.sales_rep')->get()]);
         } elseif ($reportType == 'consolidated_report') {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get()]);
         } else {
@@ -340,23 +340,23 @@ class ReportController extends Controller
            
             foreach ($datas as $key => $data) {
                 if (isset($data['quarter']) && $data['quarter'] == 1) {
-                    $datas1['quarter1'] += $data['commissions'];
+                    $datas1['quarter1'] += $data['commissionss'];
                 }
         
                 if (isset($data['quarter']) && $data['quarter'] == 2) {
-                    $datas1['quarter2'] += $data['commissions'];
+                    $datas1['quarter2'] += $data['commissionss'];
                 }
         
                 if (isset($data['quarter']) && $data['quarter'] == 3) {
-                    $datas1['quarter3'] += $data['commissions'];
+                    $datas1['quarter3'] += $data['commissionss'];
                 }
         
                 if (isset($data['quarter']) && $data['quarter'] == 4) {
-                    $datas1['quarter4'] += $data['commissions'];
+                    $datas1['quarter4'] += $data['commissionss'];
                 }
     
-                if (isset($data['commissions'])) {
-                    $datas1['anual'] += $data['commissions'];
+                if (isset($data['commissionss'])) {
+                    $datas1['anual'] += $data['commissionss'];
                 }
     
                 if (isset($data['cost'])) {
@@ -364,10 +364,10 @@ class ReportController extends Controller
                 }
     
                 if (isset($data['month']) && $data['month'] == 'January') {
-                    $datas1['January'] += $data['commissions'];
+                    $datas1['January'] += $data['commissionss'];
                     $datas1['rebate']['January'] += $data['volume_rebate'];
                     $datas1['amount1']['January'] += $data['cost'];
-                    $monthData[$key]['January'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['January'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['January'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['January'] = number_format($data['cost'], 2);
                 } else {
@@ -375,10 +375,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'February') {
-                    $datas1['February'] += $data['commissions'];
+                    $datas1['February'] += $data['commissionss'];
                     $datas1['rebate']['February'] += $data['volume_rebate'];
                     $datas1['amount1']['February'] += $data['cost'];
-                    $monthData[$key]['February'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['February'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['February'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['February'] = number_format($data['cost'], 2);
                 } else {
@@ -386,10 +386,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'March') {
-                    $datas1['March'] += $data['commissions'];
+                    $datas1['March'] += $data['commissionss'];
                     $datas1['amount1']['March'] += $data['cost'];
                     $datas1['rebate']['March'] += $data['volume_rebate'];
-                    $monthData[$key]['March'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['March'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['March'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['March'] = number_format($data['cost'], 2);
                 } else {
@@ -397,10 +397,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'April') {
-                    $datas1['April'] += $data['commissions'];
+                    $datas1['April'] += $data['commissionss'];
                     $datas1['rebate']['April'] += $data['volume_rebate'];
                     $datas1['amount1']['March'] += $data['cost'];
-                    $monthData[$key]['April'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['April'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['April'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['April'] = number_format($data['cost'], 2);
                 } else {
@@ -408,10 +408,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'May') {
-                    $datas1['May'] += $data['commissions'];
+                    $datas1['May'] += $data['commissionss'];
                     $datas1['rebate']['May'] += $data['volume_rebate'];
                     $datas1['amount1']['May'] += $data['cost'];
-                    $monthData[$key]['May'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['May'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['May'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['May'] = number_format($data['cost'], 2);
                 } else {
@@ -419,10 +419,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'June') {
-                    $datas1['June'] += $data['commissions'];
+                    $datas1['June'] += $data['commissionss'];
                     $datas1['rebate']['June'] += $data['volume_rebate'];
                     $datas1['amount1']['June'] += $data['cost'];
-                    $monthData[$key]['June'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['June'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['June'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['June'] = number_format($data['cost'], 2);
                 } else {
@@ -430,10 +430,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'July') {
-                    $datas1['July'] += $data['commissions'];
+                    $datas1['July'] += $data['commissionss'];
                     $datas1['rebate']['July'] += $data['volume_rebate'];
                     $datas1['amount1']['July'] += $data['cost'];
-                    $monthData[$key]['July'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['July'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['July'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['July'] = number_format($data['cost'], 2);
                 } else {
@@ -441,10 +441,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'August') {
-                    $datas1['August'] += $data['commissions'];
+                    $datas1['August'] += $data['commissionss'];
                     $datas1['rebate']['August'] += $data['volume_rebate'];
                     $datas1['amount1']['August'] += $data['cost'];
-                    $monthData[$key]['August'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['August'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['August'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['August'] = number_format($data['cost'], 2);
                 } else {
@@ -452,10 +452,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'September') {
-                    $datas1['September'] += $data['commissions'];
+                    $datas1['September'] += $data['commissionss'];
                     $datas1['rebate']['September'] += $data['volume_rebate'];
                     $datas1['amount1']['September'] += $data['cost'];
-                    $monthData[$key]['September'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['September'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['September'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['September'] = number_format($data['cost'], 2);
                 } else {
@@ -463,10 +463,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'October') {
-                    $datas1['October'] += $data['commissions'];
+                    $datas1['October'] += $data['commissionss'];
                     $datas1['rebate']['October'] += $data['volume_rebate'];
                     $datas1['amount1']['October'] += $data['cost'];
-                    $monthData[$key]['October'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['October'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['October'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['October'] = number_format($data['cost'], 2);
                 } else {
@@ -474,10 +474,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'November') {
-                    $datas1['November'] += $data['commissions'];
+                    $datas1['November'] += $data['commissionss'];
                     $datas1['rebate']['November'] += $data['volume_rebate'];
                     $datas1['amount1']['November'] += $data['cost'];
-                    $monthData[$key]['November'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['November'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['November'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['November'] = number_format($data['cost'], 2);
                 } else {
@@ -485,10 +485,10 @@ class ReportController extends Controller
                 }
                 
                 if (isset($data['month']) && $data['month'] == 'December') {
-                    $datas1['December'] += $data['commissions'];
+                    $datas1['December'] += $data['commissionss'];
                     $datas1['rebate']['December'] += $data['volume_rebate'];
                     $datas1['amount1']['December'] += $data['cost'];
-                    $monthData[$key]['December'] = number_format($data['commissions'], 2);
+                    $monthData[$key]['December'] = number_format($data['commissionss'], 2);
                     $monthData1[$key]['December'] = number_format($data['volume_rebate'], 2);
                     $monthData11[$key]['December'] = number_format($data['cost'], 2);
                 } else {
@@ -558,7 +558,7 @@ class ReportController extends Controller
                 $datas1['quarter4'] = number_format($datas1['quarter4'], 2);
             }
             
-            $datas1['anual'] = number_format($allCommission['commissions'], 2);
+            $datas1['anual'] = number_format($allCommission['commissionss'], 2);
             $datas1['paid_date'] = $allCommission['paid_date'];
             $datas1['month'] = $monthData;
             $datas1['month_rebate'] = $monthData1;
@@ -590,18 +590,18 @@ class ReportController extends Controller
             // die;
             /** Grouping the data */
             foreach ($datas1['commission_data'] as $item_key => $item) {
-                $key = $item['supplier'] . '|' . $item['commission'];
+                $key = $item['supplier'] . '|' . $item['commissions'];
                 if (!isset($groupedData[$item['account_name']][$key])) {
                     $groupedData[$item['account_name']][$key] = [
                         'account_name' => $item['account_name'],
                         'supplier' => $item['supplier'],
-                        'commission' => $item['commission'],
+                        'commissions' => $item['commissions'],
                         'commission_end_date' => $item['commission_end_date'],
                         'commission_start_date' => $item['commission_start_date'],
                         'start_date' => $item['start_date'],
                         'end_date' => $item['end_date'],
                         'amounts' => [],
-                        'commissions' => [],
+                        'commissionss' => [],
                         'volume_rebates' => [],
                         'month' => array_fill_keys(
                             [
@@ -663,7 +663,7 @@ class ReportController extends Controller
 
                 /** Append values for sum calculation */
                 $groupedData[$item['account_name']][$key]['amounts'][] = $item['cost'];
-                $groupedData[$item['account_name']][$key]['commissions'][] = $item['commissions'];
+                $groupedData[$item['account_name']][$key]['commissionss'][] = $item['commissionss'];
                 $groupedData[$item['account_name']][$key]['volume_rebates'][] = $item['volume_rebate'];
 
                 /** Initialize the month's array if not already set */
@@ -754,13 +754,13 @@ class ReportController extends Controller
                 }
             }
 
-            /** Summarize the amounts, commissions, and volume rebates */
+            /** Summarize the amounts, commissionss, and volume rebates */
             foreach ($groupedData as $key => $value) {
                 foreach ($groupedData[$key] as &$data) {
                     $data['total_amount'] = array_sum($data['amounts']);
-                    $data['total_commissions'] = array_sum($data['commissions']);
+                    $data['total_commissions'] = array_sum($data['commissionss']);
                     $data['total_volume_rebate'] = array_sum($data['volume_rebates']);
-                    unset($data['amounts'], $data['commissions'], $data['volume_rebates']);
+                    unset($data['amounts'], $data['commissionss'], $data['volume_rebates']);
                 }
             }
             

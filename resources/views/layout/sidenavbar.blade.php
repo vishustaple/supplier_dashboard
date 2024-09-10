@@ -27,7 +27,7 @@
                         <div class="sb-nav-link-icon"></div>
                         Manage Sales Rep
                     </a>
-                    <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commission.list', ['commissionType' => 'commission_listing'])}}">
+                    <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commissions.list', ['commissionType' => 'commission_listing'])}}">
                         <div class="sb-nav-link-icon"></div>
                         Sales Rep Commission
                     </a>

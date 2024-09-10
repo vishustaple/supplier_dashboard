@@ -285,7 +285,7 @@
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate', 'orderable': false, 'searchable': false},
                 { data: 'start_date', name: 'start_date', title: 'Start Date', 'orderable': false, 'searchable': false},
                 { data: 'end_date', name: 'end_date', title: 'End Date', 'orderable': false, 'searchable': false},
-                { data: 'commission', name: 'commission', title: 'Commission', 'orderable': false, 'searchable': false},
+                { data: 'commissions', name: 'commissions', title: 'Commission', 'orderable': false, 'searchable': false},
             ],
 
             fnDrawCallback: function( oSettings ) {
@@ -339,7 +339,7 @@
                 { data: 'supplier', name: 'supplier', title: 'Supplier'},
                 { data: 'cost', name: 'cost', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
-                { data: 'commission', name: 'commission', title: 'Commission'},
+                { data: 'commissions', name: 'commissions', title: 'Commission'},
             ],
         });
 

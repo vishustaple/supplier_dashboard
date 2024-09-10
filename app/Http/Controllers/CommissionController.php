@@ -63,20 +63,20 @@ class CommissionController extends Controller
             $date = $request->input('date');
             $supplier = $request->input('supplier');
             $salesRep = $request->input('sales_rep');
-            $commission = $request->input('commission');
+            $commissions = $request->input('commissions');
             $accountName = $request->input('account_name');
 
             /** Setting variables */
             $error = false;
             $accountNameArray = [];
 
-            /** If getting zero errors than save the data into commission table */
+            /** If getting zero errors than save the data into commissions table */
             foreach ($accountName as $key => $value) {
-                DB::table('commission')->insert([
+                DB::table('commissions')->insert([
                     'sales_rep' => $salesRep[$key],
                     'supplier' =>  $supplier[$key],
                     'account_name' => $value,
-                    'commission' => $commission[$key],
+                    'commissions' => $commissions[$key],
                     'start_date' => date_format(date_create(trim(explode(" - ", $date[$key])[0])),"Y-m-d H:i:s"),
                     'end_date' => date_format(date_create(trim(explode(" - ", $date[$key])[1])),"Y-m-d H:i:s"),
                     'created_at' => date('Y-m-d H:i:s'),
@@ -84,7 +84,7 @@ class CommissionController extends Controller
                 ]);
             }
 
-            /** Returning the success message after save commission data */
+            /** Returning the success message after save commissions data */
             if ($error == false) {
                 return response()->json(['success' => 'Commissions added successfully'], 200);
             }
@@ -148,7 +148,7 @@ class CommissionController extends Controller
         if ($request->ajax()) {
             try {
                 $updateCommission = Commission::where('id', $request->commission_id)
-                ->update(['commission' => $request->commission,
+                ->update(['commissions' => $request->commissions,
                     'start_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[0])),"Y-m-d H:i:s"),
                     'end_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[1])),"Y-m-d H:i:s"),
                     'status' => $request->status

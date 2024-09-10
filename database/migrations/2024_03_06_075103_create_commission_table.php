@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('commission', function (Blueprint $table) {
+        Schema::create('commissions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sales_rep');
             $table->unsignedBigInteger('supplier');
             $table->string('account_name');
-            $table->string('commission');
+            $table->string('commissions');
             $table->date('start_date');
             $table->date('end_date');
             $table->tinyInteger('status')->default(1)->comment("1 => active, 0 => Inactive,");
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('commission');
+        Schema::dropIfExists('commissions');
     }
 };

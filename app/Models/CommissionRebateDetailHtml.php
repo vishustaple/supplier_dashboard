@@ -23,7 +23,7 @@ class CommissionRebateDetailHtml extends Model
         'content',
         'approved',
         'sales_rep',
-        'commission',
+        'commissions',
         'volume_rebate',
         'commission_rebate_id',
     ];

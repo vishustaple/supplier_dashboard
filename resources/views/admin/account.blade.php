@@ -127,7 +127,7 @@
         function selectCustomer (count='') {
             $('.mySelectAccountGPName').select2({
                 ajax: {
-                    url: "{{ route('commission.customerSearch') }}",
+                    url: "{{ route('commissions.customerSearch') }}",
                     dataType: 'json',
                     delay: 250,
                     data: function(params) {
@@ -147,7 +147,7 @@
                 var customerId = e.params.data.id; // Selected account_name ID
                 // Perform your AJAX request here using the selected account_name ID
                 $.ajax({
-                    url: "{{ route('commission.supplierSearch') }}",
+                    url: "{{ route('commissions.supplierSearch') }}",
                     method: 'GET',
                     data: {
                         customer_number: customerId

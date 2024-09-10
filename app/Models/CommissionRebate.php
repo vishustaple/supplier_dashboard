@@ -26,7 +26,7 @@ class CommissionRebate extends Model
         'sales_rep',
         'paid_date',
         'start_date',
-        'commission',
+        'commissions',
         'volume_rebate',
     ];
 }
