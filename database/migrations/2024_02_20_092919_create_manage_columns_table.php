@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('manage_columns', function (Blueprint $table) {
+        Schema::create('supplier_fields', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('supplier_id');
             $table->tinyInteger('required')->default(0);
-            $table->string('field_name', 225);
+            $table->string('raw_label', 225);
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('manage_columns');
+        Schema::dropIfExists('supplier_fields');
     }
 };

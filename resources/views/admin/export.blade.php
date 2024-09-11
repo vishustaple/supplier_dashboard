@@ -427,7 +427,7 @@
                         var editButton = '<button class="btn btn-link edit_column" type="button" data-id="' + column.id + '"><i class="fas fa-edit"></i></button>';
 
                         // Append table row
-                        $("#tableBody").append("<tr><td>" + i +"</td><td>" + column.field_name + "</td><td>" + requiredIcon + "</td><td>" + editButton + "</td></tr>");
+                        $("#tableBody").append("<tr><td>" + i +"</td><td>" + column.raw_label + "</td><td>" + requiredIcon + "</td><td>" + editButton + "</td></tr>");
                         i++;
                     });
                 },
@@ -486,7 +486,7 @@
             var dataToSave = []; // Array to store the data to be saved
             var fieldValues = {};
             var isValid = true;
-            // Iterate over each input field with name 'field_name[]'
+            // Iterate over each input field with name 'raw_label[]'
             $('input[name="field_names[]"]').each(function(index) {
                 var fieldValue = $(this).val(); // Get the value of the input field
                 fieldValue = htmlspecialchars(fieldValue); 

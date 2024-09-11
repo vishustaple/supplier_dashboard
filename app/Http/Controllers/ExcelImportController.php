@@ -300,7 +300,7 @@ class ExcelImportController extends Controller
             $columnValue = $value['fieldValue'];
             $column = ManageColumns::find($id);
             if ($column) {
-                $column->field_name = $columnValue;
+                $column->raw_label = $columnValue;
                 $column->save();
             } 
         }
@@ -543,13 +543,13 @@ class ExcelImportController extends Controller
     public function supplierFileFormatImport(Request $request) {
         try{
             if (!empty($request->input('supplier_id'))) {
-                $fileColumnsData = DB::table('manage_columns')
+                $fileColumnsData = DB::table('supplier_fields')
                 ->select([
-                    'manage_columns.id as manage_columns_id',
-                    'manage_columns.field_name as field_name',
-                    'manage_columns.required_field_id as required_field_id',
+                    'supplier_fields.id as manage_columns_id',
+                    'supplier_fields.raw_label as raw_label',
+                    'supplier_fields.required_field_id as required_field_id',
                 ])
-                ->where('manage_columns.supplier_id', $request->input('supplier_id'))
+                ->where('supplier_fields.supplier_id', $request->input('supplier_id'))
                 ->get();
 
                 $fields = RequiredFieldName::all();
@@ -569,7 +569,7 @@ class ExcelImportController extends Controller
                     $mapColumns .= '</select>';
 
                     $finalArray[] = [
-                        'excel_field' => '<input type="text" class="form-control" name="field_name[]" value="'.$values->field_name.'"',
+                        'excel_field' => '<input type="text" class="form-control" name="raw_label[]" value="'.$values->raw_label.'"',
                         'map_columns' => '<input type="hidden" name="manage_columns_id[]" value="'.$values->manage_columns_id.'">'.$mapColumns
                     ];
                 }
@@ -632,7 +632,7 @@ class ExcelImportController extends Controller
     
                     foreach ($cleanedArray as $key => $value) {
                         $finalArray[] = [
-                            'excel_field' => '<input type="text" class="form-control" name="field_name[]" value="'.$value.'">',
+                            'excel_field' => '<input type="text" class="form-control" name="raw_label[]" value="'.$value.'">',
                             'map_columns' => $mapColumns
                         ];
                     }
@@ -650,7 +650,7 @@ class ExcelImportController extends Controller
     public function addSupplierFileFormatImport(Request $request) {
         $validator = Validator::make($request->all(),
             [
-                'field_name' => 'required',
+                'raw_label' => 'required',
                 'supplier_id' => 'required',
             ],
         );
@@ -691,10 +691,10 @@ class ExcelImportController extends Controller
         }
 
         foreach ($request->input('required_field_id') as $key => $value) {
-            DB::table('manage_columns')->insert([
+            DB::table('supplier_fields')->insert([
                 'required' => (($value != 0 ) ? (1) : (0)),
                 'supplier_id' => $request->input('supplier_id'),
-                'field_name' => $request->input('field_name')[$key],
+                'raw_label' => $request->input('raw_label')[$key],
                 'required_field_id' => (($value != 0 ) ? ($value) : (null)),
             ]);
         }
@@ -707,7 +707,7 @@ class ExcelImportController extends Controller
             $tableName = $tableName->table_name;
         }
 
-        $columns = $request->input('field_name');
+        $columns = $request->input('raw_label');
         $requiredFieldId = $request->input('required_field_id');
 
         /** Check if the table already exists */
@@ -770,7 +770,7 @@ class ExcelImportController extends Controller
 
         /** Collect missing keys */
         $missing_keys = [];
-        foreach ($request->input('field_name') as $key => $value) {
+        foreach ($request->input('raw_label') as $key => $value) {
             if (empty(trim($value))) {
                 return response()->json(['error' => "Please fill all columns"], 200);    
             }
@@ -787,7 +787,7 @@ class ExcelImportController extends Controller
         }
 
         foreach ($request->input('required_field_id') as $key => $value) {
-            DB::table('manage_columns')->where('id', $request->input('manage_columns_id')[$key])->update(['required_field_id' => (($value != 0 ) ? ($value) : (null)), 'field_name' => $request->input('field_name')[$key]]);
+            DB::table('supplier_fields')->where('id', $request->input('manage_columns_id')[$key])->update(['required_field_id' => (($value != 0 ) ? ($value) : (null)), 'raw_label' => $request->input('raw_label')[$key]]);
         }
 
         $tableName = DB::table('supplier_tables')->select('table_name')->where('supplier_id', $request->input('supplier_id'))->first();
@@ -799,7 +799,7 @@ class ExcelImportController extends Controller
             $tableName = $tableName->table_name;
         }
 
-        $columns = $request->input('field_name');
+        $columns = $request->input('raw_label');
         $requiredFieldId = $request->input('required_field_id');
 
        /** Check if the table already exists */
@@ -839,7 +839,7 @@ class ExcelImportController extends Controller
     }
 
     public function removeSupplierFileFormatImport(Request $request) {
-        DB::table('manage_columns')
+        DB::table('supplier_fields')
         ->where(
             'supplier_id',
             $request->input('id')

@@ -47,7 +47,7 @@ class CategorySupplier extends Model
             'supplier_contacts.status as status',
             'department.department as department',
             'suppliers.supplier_name as supplier_name',
-            'manage_columns.id as manage_columns_id',
+            'supplier_fields.id as manage_columns_id',
             DB::raw("CONCAT(supplier_contacts.first_name, ' ', supplier_contacts.last_name) as name"),
         ])
         ->leftJoin('supplier_contacts', function($join) {
@@ -55,7 +55,7 @@ class CategorySupplier extends Model
                  ->where('supplier_contacts.main', '=', 1);
         })
         ->leftJoin('department', 'department.id', '=', 'supplier_contacts.department_id')
-        ->leftJoin('manage_columns', 'manage_columns.supplier_id', '=', 'suppliers.id');
+        ->leftJoin('supplier_fields', 'supplier_fields.supplier_id', '=', 'suppliers.id');
 
         /** Getting total records before adding filter */
         $totalRecords = $query->getQuery()->getCountForPagination();
