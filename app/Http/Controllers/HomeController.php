@@ -42,14 +42,15 @@
         }
 
         public function userview() {    
-            $userdata=User::where('user_type', '!=', User::USER_TYPE_SUPERADMIN)->orderBy('id','desc')->get();
-            $formatuserdata=[];
-            $i=1;
+            $userdata = User::where('user_type', '!=', User::USER_TYPE_SUPERADMIN)->orderBy('id','desc')->get();
+            $formatuserdata = [];
+            $i = 1;
             $userInfo = Auth::user();
             foreach ($userdata as $data) {
                 $formatuserdata[] = [
                     $data->first_name. ' ' .$data->last_name,
-                    ($data->user_type == 3)? 'User':' Admin ',
+                    ($data->user_type == 3) ? 'User' : 'Admin',
+                    ($data->status == 1) ? 'Active' : 'In-Active',
                     (($data->user_type != 2 && $userInfo->user_type == 2) || $userInfo->user_type == 1 || (!in_array($data->user_type, [2, 3]) && $userInfo->user_type == 3)) ? ('<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser" data-userid="' . Crypt::encryptString($data->id) . '"><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . Crypt::encryptString($data->id) . '" class="btn btn-danger btn-xs remove" title="Remove User"><i class="fa-solid fa-trash"></i></button>') : (''),
                 ];
                 $i++;
@@ -80,6 +81,7 @@
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'user_role' => 'required',
+                'user_status' => 'required',
             ]);
 
             if ($validator->fails()) {  
@@ -90,13 +92,24 @@
                     $userType = ($request->user_role == USER::USER_TYPE_ADMIN) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
                     if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
                         $token = Str::random(40);
-                        $user = User::create([
-                            'first_name' => $request->first_name,
-                            'last_name' => $request->last_name,
-                            'email' => $request->email,
-                            'remember_token' => $token,
-                            'user_type'=> $userType,
-                        ]);
+                        if ($user1->user_type == 1) {
+                            $user = User::create([
+                                'user_type' => $userType,
+                                'email' => $request->email,
+                                'remember_token' => $token,
+                                'status' => $request->user_status,
+                                'last_name' => $request->last_name,
+                                'first_name' => $request->first_name,
+                            ]);
+                        } else { 
+                            $user = User::create([
+                                'user_type'=> $userType,
+                                'email' => $request->email,
+                                'remember_token' => $token,
+                                'last_name' => $request->last_name,
+                                'first_name' => $request->first_name,
+                            ]);
+                        }
 
                         /** Sync permissions for the user */
                         $user->permissions()->sync($request->input('permissions'));
@@ -137,10 +150,23 @@
             $credentials = $request->only('email', 'password');
             $remember = $request->has('remember');
 
+            /** Login user into the website */
             if (Auth::attempt($credentials, $remember)) {
+                /** Logout user into other devices */
                 Auth::logoutOtherDevices($request->password);
+
+                /** Unset the session of the microsoft_access_token and microsoft_refresh_token */
                 Session::forget('microsoft_access_token');
                 Session::forget('microsoft_refresh_token');
+
+                /** Getting login user data using auth */
+                $user = Auth::user();
+                if ($user->status == 0) {
+                    /** Log out the user if they are inactive */
+                    Auth::logout();
+                    
+                    return redirect()->route('login')->withErrors(['email' => 'Your account is inactive. Please contact the administrator.']);
+                }
                 /** Connection could not be established with host "mailpit:1025": stream_socket_client(): php_network_getaddresses: getaddrinfo for mailpit failed: Name or service not known */
                 /** Log::info('Email sent successfully'); */
                 return redirect()->intended('/admin/upload-sheet');
@@ -151,16 +177,28 @@
         }
 
         public function userLogout() {
+            /** Unset the session of the microsoft_access_token and microsoft_refresh_token */
             Session::forget('microsoft_access_token');
             Session::forget('microsoft_refresh_token');
+
+            /** Logout the user from website */
             Auth::logout();
+
+            /** Redirect user to back to the login page */
             return redirect('/');
         }
 
         public function UpdateUser(Request $request) {
+            /** Getting the user id from the request */
             $userId = $request->id;
+
+            /** With the help of user id we will get the user data for edit */
             $editUserData = User::where('id', Crypt::decryptString($userId))->first()->toArray();
+
+            /** Here we encrypting the id for front end */
             $editUserData['id'] = Crypt::encryptString($editUserData['id']);
+            
+            /** Sending data into front-end for edit */
             if ($editUserData) {
                 return response()->json(['success' => true, 'editUserData' => $editUserData]);
             } else {
@@ -169,12 +207,15 @@
         }
     
         public function UpdateUserData(Request $request) {
+            /** Validating the request data */
             $validator = Validator::make($request->all(), [
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email,' . Crypt::decryptString($request->update_user_id),
                 'update_user_role' => 'required',
+                'update_user_status' => 'required',
             ]);
             
+            /** If faild to validate then redirect back with error message into the response */
             if ($validator->fails()) {  
                 return response()->json(['error' => $validator->errors()], 200);
             } else {
@@ -184,12 +225,22 @@
                     if ($user) {
                         $userType = ($request->update_user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
                         if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
-                            $user->update([
-                                'first_name' => $request->first_name,
-                                'last_name' => $request->last_name,
-                                'email' => $request->email,
-                                'user_type' => $userType,
-                            ]);
+                            if ($user1->user_type == 1) {
+                                $user->update([
+                                    'user_type' => $userType,
+                                    'email' => $request->email,
+                                    'status' => $request->update_user_status,
+                                    'last_name' => $request->last_name,
+                                    'first_name' => $request->first_name,
+                                ]);
+                            } else {
+                                $user->update([
+                                    'user_type' => $userType,
+                                    'email' => $request->email,
+                                    'last_name' => $request->last_name,
+                                    'first_name' => $request->first_name,
+                                ]);
+                            }
 
                             /** Sync user permissions */
                             $user->permissions()->sync($request->input('permissions'));

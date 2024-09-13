@@ -50,6 +50,18 @@
                                     <label for="inputEmail">Email address</label>
                                     <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
                                 </div>
+                                @auth
+                                    @if (Auth::user()->user_type == 1)
+                                        <div class="form-group mb-3">
+                                            <label for="userrole">User Status</label>
+                                            <select id="user_status" name="user_status" class="form-control"> 
+                                                <option value="" selected>--Select--</option>
+                                                <option value="1">Active</option>
+                                                <option value="0">In-Active</option>
+                                            </select>
+                                        </div>
+                                    @endif
+                                @endauth
                                 <div class="form-group mb-3">
                                     <label for="userrole">User Role</label>
                                     <select id="user_role" name="user_role" class="form-control"> 
@@ -114,6 +126,18 @@
                                     <label for="inputEmail">Email address</label>
                                     <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
                                 </div>
+                                @auth
+                                    @if (Auth::user()->user_type == 1)
+                                        <div class="form-group mb-3">
+                                            <label for="userrole">User Status</label>
+                                            <select id="updateinputStatus" name="update_user_status" class="form-control"> 
+                                                <option value="" selected>--Select--</option>
+                                                <option value="0">In-Active</option>
+                                                <option value="1">Active</option>
+                                            </select>
+                                        </div>
+                                    @endif
+                                @endauth
                                 <div class="form-group mb-3">
                                     <label for="userrole">User Role</label>
                                         <select id="update_user_role" name="update_user_role" class="form-control"> 
@@ -143,6 +167,11 @@
     </div>
 </div>
 <style>
+    .inactive-user {
+        background-color: #f8d7da !important; /* Light red background for inactive users */
+        color: #721c24 !important; /* Dark red text color */
+    }
+    
     .permissions>p {
         width: 100%;
     }
@@ -179,10 +208,17 @@
             "columns": [
                 { title: 'User Name' },
                 { title: 'User Role' },
+                { title: 'User Status' },
                 <?php if(isset($userInfo) && $userInfo->user_type != 3) { ?>
                 { title: 'Action' },
                 <?php }?>
-            ]
+            ],
+
+            "createdRow": function(row, data, dataIndex) {
+                if (data[2] === 'In-Active') { // Check if the status is 'In-Active'
+                    $(row).addClass('inactive-user');
+                }
+            }
         });
 
         $('#userModal').on('show.bs.modal', function (e) {
@@ -278,7 +314,7 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                     console.log(response);
+                    //  console.log(response);
                      if(response.error){
                         var errorMessage = '';
                         if (typeof response.error === 'object') {
@@ -344,6 +380,7 @@
                     $('#updateFirstName').val(response.editUserData.first_name);
                     $('#updateLastName').val(response.editUserData.last_name);
                     $('#updateinputEmail').val(response.editUserData.email);
+                    $('#updateinputStatus').val(response.editUserData.status);
                     $('#update_user_role option[value="' + response.editUserData.user_type + '"]').prop('selected', true);
 
                     $('#updateuserModal').modal('show');
