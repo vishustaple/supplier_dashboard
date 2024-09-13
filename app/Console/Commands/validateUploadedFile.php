@@ -57,7 +57,13 @@ class validateUploadedFile extends Command
             
             $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
 
-            $columnValues = DB::table('supplier_fields')->select('id', 'supplier_id', 'raw_label')->where('supplier_id', $fileValue->supplier_id)->get();
+            $columnValues = DB::table('supplier_fields')
+            ->select('id', 'supplier_id', 'label')
+            ->where([
+                'supplier_id' => $fileValue->supplier_id,
+                'deleted' => 0,
+            ])
+            ->get();
 
             foreach ($columnValues as $key => $value) {
                 if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {

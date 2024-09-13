@@ -9,7 +9,7 @@ class ExcelData extends Model
 {
     use HasFactory;
     
-    protected $table = 'order_product_details';
+    protected $table = 'order_details';
     
      /**
      * The attributes that are mass assignable.
@@ -18,11 +18,9 @@ class ExcelData extends Model
      */
     
      protected $fillable = [
-        'key',
+        'supplier_field_id',
         'value',
-        'attachment_id',
         'order_id',
-        'file_name',
     ];
 
     /** Define the relationship with the Supplier model */

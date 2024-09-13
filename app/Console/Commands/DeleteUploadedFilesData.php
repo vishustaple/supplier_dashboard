@@ -60,7 +60,7 @@ class DeleteUploadedFilesData extends Command
     
                 // if (in_array($fileData->cron, [3, 10, 11, 6])) {
                     /** Delete records from ExcelData table */
-                    DB::table('order_product_details')->where('attachment_id', $id)->delete();
+                    DB::table('order_details')->where('attachment_id', $id)->delete();
         
                     /** Delete records from OrderDetails table */
                     DB::table('order_details')->where('attachment_id', $id)->delete();

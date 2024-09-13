@@ -11,21 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_details', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('attachment_id')->nullable();
+        // Schema::create('order_details', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->unsignedBigInteger('order_id');
+        //     $table->unsignedBigInteger('attachment_id')->nullable();
 
-            $table->string('invoice_number');
-            $table->datetime('invoice_date');
-            $table->string('order_file_name');
-            $table->unsignedBigInteger('created_by');
-            $table->timestamps();
+        //     $table->string('invoice_number');
+        //     $table->datetime('invoice_date');
+        //     $table->string('order_file_name');
+        //     $table->unsignedBigInteger('created_by');
+        //     $table->timestamps();
 
-            $table->foreign('attachment_id')->references('id')->on('attachments');
-            $table->foreign('order_id')->references('id')->on('orders');
-            $table->foreign('created_by')->references('id')->on('users');
-        });
+        //     $table->foreign('attachment_id')->references('id')->on('attachments');
+        //     $table->foreign('order_id')->references('id')->on('orders');
+        //     $table->foreign('created_by')->references('id')->on('users');
+        // });
     }
 
     /**
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_details');
+        // Schema::dropIfExists('order_details');
     }
 };

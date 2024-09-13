@@ -2,9 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Order;
-use App\Models\CatalogDetail;
-use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -29,32 +26,50 @@ class ProcessUploadedSupplierCatelogFiles extends Command
      */
     public function handle()
     {
-        // ini_set('memory_limit', '1024M');
-        // $query = DB::table('orders')
-        // ->select('orders.id as id', 'order_product_details.value as cost')
-        // ->leftJoin('order_product_details', 'orders.id', '=', 'order_product_details.order_id')
-        // ->whereIn('order_product_details.key', ['Total Spend'])
-        // ->where('orders.supplier_id', 3)
+        ini_set('memory_limit', '1024M');
+        // $query = DB::table('order_details')
+        // ->select(
+        //     'order_details.order_id as order_id',
+        //     'order_details.invoice_number as invoice_number'
+        // )
         // ->get();
-        // dd($query);
-        // foreach ($query as $key => $value) {
-        //     $id = DB::table('orders')
-        //     ->where('id', $value->id)
-        //     ->update(['cost' => $value->cost]);
+            
+        // foreach ($query as $value) {
+        //     DB::table('orders')
+        //     ->where('id', $value->order_id)
+        //     ->update(['invoice_number' => $value->invoice_number]);
         // }
 
-        ini_set('memory_limit', '1024M');
-        $query = DB::table('order_details')
-        ->select(
-            'order_details.order_id as order_id',
-            'order_details.invoice_number as invoice_number'
-        )
+        // $query = DB::table('supplier_fields')
+        // ->select('id', 'raw_label', 'label', 'type')
+        // ->whereIn('supplier_id', [1, 2, 3, 4, 5, 6])
+        // ->get();
+        // // dd($query);
+        // foreach ($query as $value) {
+        //     $rawLabel = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value->raw_label))));
+        //     DB::table('supplier_fields')
+        //     ->where('id', $value->id)
+        //     ->update([
+        //         'raw_label' => $rawLabel,
+        //         'label' => $value->raw_label,
+        //         'type' => 'string'
+        //     ]);
+        // }
+
+        $query = DB::table('orders')
+        ->select('id', 'raw_label', 'label', 'type')
+        ->whereIn('supplier_id', [1, 2, 3, 4, 5, 6])
         ->get();
-            
+        // dd($query);
         foreach ($query as $value) {
-            DB::table('orders')
-            ->where('id', $value->order_id)
-            ->update(['invoice_number' => $value->invoice_number]);
+            $rawLabel = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value->raw_label))));
+            DB::table('supplier_fields')
+            ->where('id', $value->id)
+            ->update([
+                'raw_label' => $rawLabel,
+                'label' => $value->raw_label,
+                'type' => 'string'
+            ]);
         }
     }
 }

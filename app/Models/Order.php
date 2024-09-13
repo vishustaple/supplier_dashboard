@@ -493,18 +493,18 @@ class Order extends Model
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
         
         if (isset($filter['supplier']) && $filter['supplier'] == 4){
-            $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+            $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
         }
         
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
-                    $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+                    $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
                     $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
-                    $query->where('order_product_details.key', 'DEPT');
-                    // $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
+                    $query->where('order_details.supplier_field_id', 50);
+                    // $query->whereNotIn('order_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                     $query->whereNotIn(
-                        'order_product_details.value',
+                        'order_details.value',
                         [
                             'NON CODE',
                             'IMPULSE BUYS',
@@ -529,16 +529,22 @@ class Order extends Model
                 $query->whereRaw("
                     (
                         CASE 
-                            WHEN order_product_details.key = 'Transaction Source System DESC' 
+                            WHEN order_details.supplier_field_id = 'Transaction Source System DESC' 
                                 THEN 
                                     CASE 
-                                        WHEN order_product_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
                                         ELSE 0 
                                     END
-                            WHEN order_product_details.key = 'Transaction Source System'
+                            WHEN order_details.supplier_field_id = 'Transaction Source System'
                                 THEN 
                                     CASE 
-                                        WHEN order_product_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            WHEN order_details.supplier_field_id = 532
+                                THEN 
+                                    CASE 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
                                         ELSE 0 
                                     END
                             ELSE 0
@@ -546,8 +552,8 @@ class Order extends Model
                     ) = 1
                 ");
                
-                // $query->whereIn('order_product_details.key', ['Transaction Source System DESC']);
-                // $query->whereNotIn('order_product_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
+                // $query->whereIn('order_details.supplier_field_id', ['Transaction Source System DESC']);
+                // $query->whereNotIn('order_details.value', ['Staples Technology Solutions', 'Staples Promotional Products USA']);
             }
         } else {
             if ($csv) {
@@ -1315,13 +1321,14 @@ class Order extends Model
         ini_set('memory_limit', '1024M');
         $query = self::query()
         ->selectRaw(
-            "`order_product_details`.`order_id` as `id`,
-            `order_product_details`.`key` as `key`,
-            `order_product_details`.`value` as `value`"
+            "`order_details`.`order_id` as `id`,
+            `supplier_fields`.`label` as `label`,
+            `order_details`.`value` as `value`"
         );
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+        ->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id')
+        ->leftJoin('order_details', 'order_details.supplier_field_id', '=', 'supplier_fields.id');
 
         /** Year and quarter filter here */
         if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
@@ -1415,9 +1422,9 @@ class Order extends Model
             $finalArray = [];
             foreach ($stapleColumnArray as $keys => $values) {
                 foreach ($queryData as $key => $value) {
-                    if ($values == rtrim($value->key, " ID") || ($values == 'Group1' && $value->key == 'Group ID1')) {
+                    if ($values == rtrim($value->label, " ID") || ($values == 'Group1' && $value->label == 'Group ID1')) {
                         /** Prepare the final array for CSV */
-                        if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                        if (preg_match('/\bdate\b/i', $value->label) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
                             $finalArray[$value->id][$values] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                         } else {
                             $finalArray[$value->id][$values] = $value->value;
@@ -1433,10 +1440,10 @@ class Order extends Model
             $finalArray = [];
             foreach ($queryData as $key => $value) {         
                 /** Prepare the final array for CSV */
-                if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
-                    $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                if (preg_match('/\bdate\b/i', $value->label) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                    $finalArray[$value->id][$value->label] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                 } else {
-                    $finalArray[$value->id][$value->key] = $value->value;
+                    $finalArray[$value->id][$value->label] = $value->value;
                 }
             }
         }

@@ -21,10 +21,10 @@ class ManageColumns extends Model
     ];
 
     public static function getRequiredColumns(){
-        $columnValues = DB::table('supplier_fields')->select('supplier_id', 'raw_label')->get();
+        $columnValues = DB::table('supplier_fields')->select('supplier_id', 'label')->where('deleted', 0)->get();
 
         foreach ($columnValues as $value) {
-            $jsArray[$value->supplier_id][] =  $value->raw_label;
+            $jsArray[$value->supplier_id][] =  $value->label;
         }
 
         return $jsArray;
@@ -37,6 +37,5 @@ class ManageColumns extends Model
             $row = strtolower($row);
         }
         return $array;
-
     }
 }

@@ -36,7 +36,7 @@ class ProcessUploadedFiles extends Command
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
 
-        try{
+        try {
             /** Select those file name where cron is one */
             $fileValue = DB::table('attachments')
             ->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')
@@ -62,13 +62,16 @@ class ProcessUploadedFiles extends Command
                 $columnValues = DB::table('supplier_fields')
                 ->select(
                     'supplier_fields.id as id',
-                    'supplier_fields.raw_label as raw_label',
+                    'supplier_fields.label as raw_label',
                     'supplier_fields.supplier_id as supplier_id',
                     'required_fields.id as required_field_id',
                     'required_fields.field_name as required_field_column',
                 )
                 ->leftJoin('required_fields', 'supplier_fields.required_field_id', '=', 'required_fields.id')
-                ->where('supplier_id', $fileValue->supplier_id)
+                ->where([
+                    'supplier_id' => $fileValue->supplier_id,
+                    'deleted' => 0,
+                ])
                 ->get();
 
                 $date = '';
@@ -273,7 +276,7 @@ class ProcessUploadedFiles extends Command
                                     $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('attachment_id')->first();
                                     if (isset($dataIdForDeleteDuplicateData->attachment_id) && !empty($dataIdForDeleteDuplicateData->attachment_id)) {
                                         DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
-                                        DB::table('order_product_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
+                                        DB::table('order_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
                                         DB::table('orders')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
                                     }
                                 }
@@ -415,8 +418,8 @@ class ProcessUploadedFiles extends Command
                                             $keyCustomerNumber = array_search($columnArray[$fileValue->supplier_id]['customer_number'], $maxNonEmptyValue);
                                         }
     
-                                        if (!empty($columnArray[$fileValue->supplier_id]['cost'])) {
-                                            $keyAmount = array_search($columnArray[$fileValue->supplier_id]['cost'], $maxNonEmptyValue);
+                                        if (!empty($columnArray[$fileValue->supplier_id]['amount'])) {
+                                            $keyAmount = array_search($columnArray[$fileValue->supplier_id]['amount'], $maxNonEmptyValue);
                                         }
     
                                         if (!empty($columnArray[$fileValue->supplier_id]['invoice_no'])) {
@@ -458,21 +461,13 @@ class ProcessUploadedFiles extends Command
 
                                                     if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1]) && !empty($value)) {
                                                         $finalInsertArray[] = [
-                                                            'attachment_id' => $fileValue->id,
                                                             'value' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s'),
-                                                            'key' => $maxNonEmptyValue[$key1],
-                                                            'file_name' => $fileValue->file_name,
-                                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                            'supplier_field_id' => (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1) != false) ? (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1)) : (''),
                                                         ];  
                                                     } else {
                                                         $finalInsertArray[] = [
-                                                            'attachment_id' => $fileValue->id,
                                                             'value' => $value,
-                                                            'key' => $maxNonEmptyValue[$key1],
-                                                            'file_name' => $fileValue->file_name,
-                                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                            'supplier_field_id' => (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1) != false) ? (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1)) : (''),
                                                         ];  
                                                     }
                                                     
@@ -534,8 +529,15 @@ class ProcessUploadedFiles extends Command
                                             if ($count == 70) {
                                                 $count = 0;
                                                 try {
-                                                    DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->insert($excelInsertArray);
-                                                    DB::table('order_product_details')->insert($finalInsertArray);
+                                                    DB::table(
+                                                        DB::table('supplier_tables')
+                                                        ->select('table_name')
+                                                        ->where('supplier_id', $fileValue->supplier_id)
+                                                        ->first()
+                                                        ->table_name
+                                                    )
+                                                    ->insert($excelInsertArray);
+                                                    DB::table('order_details')->insert($finalInsertArray);
                                                 } catch (QueryException $e) {   
                                                     Log::error('Error in YourScheduledTask: ' . $e->getMessage());
                                                     echo "Database insertion failed: " . $e->getMessage();
@@ -576,7 +578,7 @@ class ProcessUploadedFiles extends Command
                                     )
                                     ->insert($excelInsertArray);
 
-                                    DB::table('order_product_details')
+                                    DB::table('order_details')
                                     ->insert($finalInsertArray);
                                 } catch (QueryException $e) {   
                                     Log::error('Error in YourScheduledTask: ' . $e->getMessage());

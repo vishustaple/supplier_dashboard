@@ -55,8 +55,10 @@ class CategorySupplier extends Model
                  ->where('supplier_contacts.main', '=', 1);
         })
         ->leftJoin('department', 'department.id', '=', 'supplier_contacts.department_id')
-        ->leftJoin('supplier_fields', 'supplier_fields.supplier_id', '=', 'suppliers.id');
-
+        ->leftJoin('supplier_fields', function($join) {
+            $join->on('supplier_fields.supplier_id', '=', 'suppliers.id')
+                 ->where('supplier_fields.deleted', '=', 0);
+        });
         /** Getting total records before adding filter */
         $totalRecords = $query->getQuery()->getCountForPagination();
 

@@ -541,15 +541,18 @@ class ExcelImportController extends Controller
     }
 
     public function supplierFileFormatImport(Request $request) {
-        try{
+        try {
             if (!empty($request->input('supplier_id'))) {
                 $fileColumnsData = DB::table('supplier_fields')
                 ->select([
                     'supplier_fields.id as manage_columns_id',
-                    'supplier_fields.raw_label as raw_label',
+                    'supplier_fields.label as raw_label',
                     'supplier_fields.required_field_id as required_field_id',
                 ])
-                ->where('supplier_fields.supplier_id', $request->input('supplier_id'))
+                ->where([
+                    'supplier_fields.supplier_id' => $request->input('supplier_id'),
+                    'deleted' => 0,
+                ])
                 ->get();
 
                 $fields = RequiredFieldName::all();
@@ -694,7 +697,9 @@ class ExcelImportController extends Controller
             DB::table('supplier_fields')->insert([
                 'required' => (($value != 0 ) ? (1) : (0)),
                 'supplier_id' => $request->input('supplier_id'),
-                'raw_label' => $request->input('raw_label')[$key],
+                'label' => $request->input('raw_label')[$key],
+                'raw_label' => preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $request->input('raw_label')[$key])))),
+                'type' => (($value == 7) ? ('decimal') : (($value == 9) ? ('date') : ('string'))),
                 'required_field_id' => (($value != 0 ) ? ($value) : (null)),
             ]);
         }
@@ -787,7 +792,14 @@ class ExcelImportController extends Controller
         }
 
         foreach ($request->input('required_field_id') as $key => $value) {
-            DB::table('supplier_fields')->where('id', $request->input('manage_columns_id')[$key])->update(['required_field_id' => (($value != 0 ) ? ($value) : (null)), 'raw_label' => $request->input('raw_label')[$key]]);
+            DB::table('supplier_fields')
+            ->where('id', $request->input('manage_columns_id')[$key])
+            ->update([
+                'label' => $request->input('raw_label')[$key],
+                'required_field_id' => (($value != 0 ) ? ($value) : (null)), 
+                'type' => (($value == 7) ? ('decimal') : (($value == 9) ? ('date') : ('string'))),
+                'raw_label' => preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $request->input('raw_label')[$key])))),
+            ]);
         }
 
         $tableName = DB::table('supplier_tables')->select('table_name')->where('supplier_id', $request->input('supplier_id'))->first();
@@ -844,7 +856,7 @@ class ExcelImportController extends Controller
             'supplier_id',
             $request->input('id')
         )
-        ->delete();
+        ->update(['deleted' => 1]);
 
         return response()->json(['success' => "Columns deleted successfully"], 200);
     }

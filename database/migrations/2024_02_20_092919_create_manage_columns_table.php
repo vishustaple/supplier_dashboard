@@ -16,6 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('supplier_id');
             $table->tinyInteger('required')->default(0);
             $table->string('raw_label', 225);
+            $table->string('label', 225);
+            $table->string('type', 225);
+            $table->string('deleted', 225);
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->timestamps();
         });
