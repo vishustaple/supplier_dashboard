@@ -167,6 +167,11 @@
     </div>
 </div>
 <style>
+    .inactive-user {
+        background-color: #f8d7da !important; /* Light red background for inactive users */
+        color: #721c24 !important; /* Dark red text color */
+    }
+    
     .permissions>p {
         width: 100%;
     }
@@ -203,10 +208,17 @@
             "columns": [
                 { title: 'User Name' },
                 { title: 'User Role' },
+                { title: 'User Status' },
                 <?php if(isset($userInfo) && $userInfo->user_type != 3) { ?>
                 { title: 'Action' },
                 <?php }?>
-            ]
+            ],
+
+            "createdRow": function(row, data, dataIndex) {
+                if (data[2] === 'In-Active') { // Check if the status is 'In-Active'
+                    $(row).addClass('inactive-user');
+                }
+            }
         });
 
         $('#userModal').on('show.bs.modal', function (e) {
