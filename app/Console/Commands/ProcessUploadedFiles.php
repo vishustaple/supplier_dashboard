@@ -39,7 +39,7 @@ class ProcessUploadedFiles extends Command
         try {
             /** Select those file name where cron is one */
             $fileValue = DB::table('attachments')
-            ->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')
+            ->select('id', 'supplier_id', 'file_name', 'created_by')
             ->where('cron', '=', 11)
             ->whereNull('deleted_by')
             ->first();
@@ -484,7 +484,7 @@ class ProcessUploadedFiles extends Command
                                                             'created_by' => $fileValue->created_by,
                                                             'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                                             'cost' => str_replace(",", "", number_format($row[$key], 2, '.')),
-                                                            'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
+                                                            'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : (''),
                                                             'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
                                                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -501,7 +501,7 @@ class ProcessUploadedFiles extends Command
                                                         'supplier_id' => $fileValue->supplier_id,
                                                         'cost' => $row[$keyAmount],
                                                         'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
-                                                        'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : ($fileValue->start_date),
+                                                        'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : (''),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'customer_number' => $customerNumber[0],
@@ -513,7 +513,7 @@ class ProcessUploadedFiles extends Command
                                                         'supplier_id' => $fileValue->supplier_id,
                                                         'cost' => $row[$keyAmount],
                                                         'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
-                                                        'date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : ($fileValue->start_date),
+                                                        'date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : (''),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'customer_number' => ltrim($row[$keyCustomerNumber], '0'),
