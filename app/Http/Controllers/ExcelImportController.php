@@ -76,18 +76,11 @@ class ExcelImportController extends Controller
     }
 
     public function import(Request $request) {
+        /** Increasing memory for smoothly process data of excel file */
         ini_set('memory_limit', '1024M');
-        $suppliers = ManageColumns::getRequiredColumns();
-        $endDateRange = $request->input('enddate');
 
-        /** Split the date range string into start and end dates */
-        if(!empty($endDateRange )){
-            list($startDate, $endDate) = explode(' - ', $endDateRange);
-            
-            /** Convert the date strings to the 'YYYY-MM-DD' format */
-            $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
-            $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-        }
+        /** Getting suppliers ids and its required columns */
+        $suppliers = ManageColumns::getRequiredColumns();
         
         /** Validate the uploaded file */
         $validator = Validator::make(
@@ -101,8 +94,10 @@ class ExcelImportController extends Controller
             return response()->json(['error' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }
         
-        try{
+        try {
+            /** Getting the file extension for process file according to the extension */
             $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('file'));
+
             if ($inputFileType === 'Xlsx') {
                 $reader = new Xlsx();
             } elseif ($inputFileType === 'Xls') {
@@ -112,16 +107,17 @@ class ExcelImportController extends Controller
                 throw new Exception('Unsupported file type: ' . $inputFileType);
             }
 
+            /** Loading the file without attached image */
             $spreadSheet = $reader->load($request->file('file'), 2);
+
+            /** Setting the variables for validation */
             $validationCheck = $arrayDiff = false;
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
-                $maxNonEmptyCount = 0;
-
                 if ($validationCheck == true) {
                     break;
                 }
 
-                foreach ($spreadSheets->toArray() as $key=>$value) {
+                foreach ($spreadSheets->toArray() as $value) {
                     /** Remove empty key from the array of excel sheet column name */
                     $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                         return !empty($item);
@@ -133,6 +129,7 @@ class ExcelImportController extends Controller
                         return trim(str_replace(["\r", "\n"], '', $values));
                     }, $finalExcelKeyArray1);
 
+                    /** Handle case of office depot weekly excel file */
                     if ($request->supplierselect == 7) {
                         foreach ($cleanedArray as $keys => $valuess) {
                             if ($keys > 5) {
@@ -144,26 +141,22 @@ class ExcelImportController extends Controller
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
                        
-
                         if ($request->supplierselect == 7) {
                             $supplierValues = array_slice($supplierValues, 0, 6, true);
                         }
                         
+                        /** Getting the difference of excel file columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
+
+                        /** Checking the difference if arrayDiff empty then break the loop and go to next step */
                         if (empty($arrayDiff)) {
-                            $maxNonEmptyvalue1 = $value;
                             $validationCheck = true;
                             break;
                         }
                     }
                 }
             }
-            // if ($validationCheck == false) {
-            //     $missingColumns = implode(', ', $arrayDiff);
-            //     return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
-            // }
         } catch (\Exception $e) {
-            // dd($e->getMessage());
             return redirect()->back()->with('error', $e->getMessage());
         }
 
@@ -187,27 +180,13 @@ class ExcelImportController extends Controller
 
         /** check supllier upload right file or not */
         if (isset($suppliers[$request->supplierselect])) {
-          
-            $supplierValues = $suppliers[$request->supplierselect];
-            // dd(array_diff($supplierValues,$cleanedArray));
-            // dd($supplierValues);
-
             /** Get the authenticated user */
             $user = Auth::user();
-            $endDateRange = $request->input('enddate');
-            if(!empty($endDateRange)){
-                // Split the date range string into start and end dates
-                list($startDate, $endDate) = explode(' - ', $endDateRange);
-                // Convert the date strings to the 'YYYY-MM-DD' format
-                $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
-                $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-            }
-            try{
+
+            try {
                 UploadedFiles::create([
                     'supplier_id' => $request->supplierselect,
                     'cron' => UploadedFiles::UPLOAD,
-                    'start_date' => $formattedStartDate??"",
-                    'end_date' => $formattedEndDate??"",
                     'file_name' => $fileName,
                     'created_by' => $user->id,
                 ]); 

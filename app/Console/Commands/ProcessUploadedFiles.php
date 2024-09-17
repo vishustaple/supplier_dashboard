@@ -62,7 +62,7 @@ class ProcessUploadedFiles extends Command
                 $columnValues = DB::table('supplier_fields')
                 ->select(
                     'supplier_fields.id as id',
-                    'supplier_fields.label as raw_label',
+                    'supplier_fields.label as label',
                     'supplier_fields.supplier_id as supplier_id',
                     'required_fields.id as required_field_id',
                     'required_fields.field_name as required_field_column',
@@ -77,7 +77,7 @@ class ProcessUploadedFiles extends Command
                 $date = '';
                 foreach ($columnValues as $key => $value) {
                     if (!empty($value->required_field_column)) {
-                        $columnArray[$value->supplier_id][$value->required_field_column] = $value->raw_label;
+                        $columnArray[$value->supplier_id][$value->required_field_column] = $value->label;
                     }
 
                     if ($value->supplier_id == 7) {
@@ -86,15 +86,17 @@ class ProcessUploadedFiles extends Command
                     }
 
                     if ($value->required_field_id == 9) {
-                        $date = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value->raw_label))));
+                        $date = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value->label))));
                     }
 
                     if (in_array($value->supplier_id, [1, 7])) {
                         $columnArray[$value->supplier_id]['invoice_no'] = '';
                     }
 
-                    $columnArray1[$value->id] = $value->raw_label;
+                    $columnArray1[$value->id] = $value->label;
                 }
+
+                
 
                 if ($fileValue->supplier_id == 7) {
                     $columnArray2 = [
@@ -167,12 +169,12 @@ class ProcessUploadedFiles extends Command
                         $columnArray2[$fileValue->supplier_id][$value] = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value)))); 
                     }
                 }
+                dd($columnArray2);
+                    try {
+                        /** Increasing the memory limit becouse memory limit issue */
+                        ini_set('memory_limit', '1024M');
 
-                try {
-                    /** Increasing the memory limit becouse memory limit issue */
-                    ini_set('memory_limit', '1024M');
-
-                    /** Inserting files data into the database after doing excel import */                       
+                        /** Inserting files data into the database after doing excel import */                       
                         unset($spreadSheet, $reader);
 
                         $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
@@ -593,20 +595,24 @@ class ProcessUploadedFiles extends Command
     
                         $this->info('Uploaded files processed successfully.');
                     } catch (QueryException $e) {   
+                        Log::error('Database updation failed: ' . $e->getMessage());
                         echo "Database updation failed: " . $e->getMessage();
                         die;
                     }
                 } catch (\Exception $e) {
                     /** Update the 'cron' field three after processing done */
+                    Log::error('Exception loading spreadsheet: ' . $e->getMessage());
                     echo "Error loading spreadsheet: " . $e->getMessage();
                 }
             } else {
                 echo "No file left to process.";
             }
         } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            Log::error('Error loading spreadsheet: ' . $e->getMessage());
             echo "Error loading spreadsheet: " . $e->getMessage();
             die;
-        } catch (QueryException $e) {   
+        } catch (QueryException $e) {
+            Log::error('Database table attachments select query failed: ' . $e->getMessage());
             echo "Database table attachments select query failed: " . $e->getMessage();
             die;
         }  

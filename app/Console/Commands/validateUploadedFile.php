@@ -40,11 +40,13 @@ class validateUploadedFile extends Command
         $destinationPath = public_path('/excel_sheets');
 
         /** Select those file name where cron is one */
-        $fileValue = DB::table('attachments')->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
+        $fileValue = DB::table('attachments')->select('id', 'supplier_id', 'file_name', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
         
+        /** Getting suppliers ids and its required columns */
         $suppliers = ManageColumns::getRequiredColumns();
 
         if ($fileValue !== null && $fileValue->supplier_id != 7) {
+            /** Getting the file extension for process file according to the extension */
             $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
 
             if ($inputFileType === 'Xlsx') {
@@ -52,29 +54,32 @@ class validateUploadedFile extends Command
             } elseif ($inputFileType === 'Xls') {
                 $reader = new Xls();
             } else {
-                // throw new Exception('Unsupported file type: ' . $inputFileType);
+                Log::error('Unsupported file type: ' . $inputFileType. 'getting this error during file data validating');
             }
             
+            /** Loading the file without attached image */
             $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
 
+            /** Getting the required date columns from the supplier_fields */
             $columnValues = DB::table('supplier_fields')
-            ->select('id', 'supplier_id', 'label')
+            ->select('supplier_id', 'label')
             ->where([
-                'supplier_id' => $fileValue->supplier_id,
                 'deleted' => 0,
+                'required_field_id' => 9,
+                'supplier_id' => $fileValue->supplier_id,
             ])
             ->get();
 
+            /** Creating the date array using "columnValues" */
             foreach ($columnValues as $key => $value) {
-                if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {
-                    $columnArray[$value->supplier_id]['invoice_date'] = $value->raw_label;
-                }
+                $columnArray[$value->supplier_id]['invoice_date'] = $value->label;
             }
                 
+            /** Checking the all sheets of excel using loop */
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
-                $maxNonEmptyCount = 0;
-
-                foreach ($spreadSheets->toArray() as $key=>$value) {
+                /** Compairing date of excel sheet data using loop */
+                foreach ($spreadSheets->toArray() as $key => $value) {
+                    /** Getting sheet columns using array value and array filter */
                     $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                         return !empty($item);
                     }, ARRAY_FILTER_USE_BOTH));
@@ -85,18 +90,15 @@ class validateUploadedFile extends Command
                         return str_replace(["\r", "\n"], '', $values);
                     }, $finalExcelKeyArray1);
 
-                    if ($fileValue->supplier_id == 7) {
-                        foreach ($cleanedArray as $keys => $valuess) {
-                            if ($keys > 5) {
-                                $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
-                            }
-                        }
-                    }
-
+                    /** If suppliers having required columns */
                     if (isset($suppliers[$fileValue->supplier_id])) {
+                        /** Getting the supplier required columns */
                         $supplierValues = $suppliers[$fileValue->supplier_id];
+
+                        /** Checking the difference of supplier excel file columns and database columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
+                        /** Checking the difference if arrayDiff empty then break the loop and go to next step */
                         if (empty($arrayDiff)) {
                             $maxNonEmptyvalue1 = $value;
                             $startIndexValueArray = $key;
@@ -105,6 +107,7 @@ class validateUploadedFile extends Command
                     }
                 }
 
+                /** If not able to get the required columns then continue */
                 if (!isset($maxNonEmptyvalue1)) {
                     continue;
                 }
@@ -120,6 +123,7 @@ class validateUploadedFile extends Command
                     return trim(str_replace(["\r", "\n"], '', $value));
                 }, $finalExcelKeyArray1);
 
+                /** In case of grainer supplier we need to skip the first row */
                 if ($fileValue->supplier_id == 2) {
                     $startIndex = $startIndexValueArray + 1;
                 } else {
@@ -129,6 +133,7 @@ class validateUploadedFile extends Command
                 $chunkSize = 0; // Adjust as needed
                 $dates = [];
 
+                /** Getting date column index */
                 if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
                     $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $cleanedArray);
                 }
@@ -149,7 +154,9 @@ class validateUploadedFile extends Command
                                 }
 
                                 if ($chunkSize == 1000) {
+                                    /** Checking date into the orders table */
                                     $fileExist = Order::where(function ($query) use ($dates) {
+                                        /** creating date query using loop */
                                         foreach ($dates as $startDate) {
                                             if (!empty($startDate)) {
                                                 $query->orWhere('date', '=', $startDate);
@@ -160,11 +167,9 @@ class validateUploadedFile extends Command
                                     $chunkSize = 0;
 
                                     if ($fileExist->count() > 0) {
-                                        /** Update cron two means start processing data into excel */
+                                        /** Update cron ten means duplicate data into the excel file */
                                         DB::table('attachments')->where('id', $fileValue->id)
-                                        ->update([
-                                            'cron' => 10
-                                        ]);
+                                        ->update(['cron' => 10]);
                                         die;
                                     }
                                 }
@@ -186,24 +191,24 @@ class validateUploadedFile extends Command
                         })->where('supplier_id', $fileValue->supplier_id);
                 
                         if ($fileExist->count() > 0) {
-                            /** Update cron two means start processing data into excel */
+                            /** Update cron ten means duplicate data into the excel file */
                             DB::table('attachments')
                             ->where('id', $fileValue->id)
-                            ->update([
-                                'cron' => 10
-                            ]);
+                            ->update(['cron' => 10]);
                             die;
                         }
                     }
                 }
             }
             // dd($fileValue);
-            /** Update cron two means start processing data into excel */
-            DB::table('attachments')->where('id', $fileValue->id)
+            /** Update cron eleven means start processing data into excel */
+            DB::table('attachments')
+            ->where('id', $fileValue->id)
             ->update(['cron' => 11]);
         } else if ($fileValue->supplier_id == 7) {
-            /** Update cron two means start processing data into excel */
-            DB::table('attachments')->where('id', $fileValue->id)
+            /** Update cron eleven means start processing data into excel */
+            DB::table('attachments')
+            ->where('id', $fileValue->id)
             ->update(['cron' => 11]);
         } else {
 
