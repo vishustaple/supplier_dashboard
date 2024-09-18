@@ -140,7 +140,7 @@ class validateUploadedFile extends Command
                     $startIndex = $startIndexValueArray;
                 }
 
-                $chunkSize = 0; // Adjust as needed
+                $chunkSize = 0;
                 $dates = [];
 
                 /** Getting date column index */
