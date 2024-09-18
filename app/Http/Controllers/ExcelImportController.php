@@ -145,6 +145,17 @@ class ExcelImportController extends Controller
                             $supplierValues = array_slice($supplierValues, 0, 6, true);
                         }
                         
+                        if ($request->supplierselect == 4) {
+                            /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                            $groupIndex = array_search('Group ID', $cleanedArray);
+                            $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                            $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+
+                            $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
+                            $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                            $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                        }
+                        
                         /** Getting the difference of excel file columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
@@ -159,7 +170,7 @@ class ExcelImportController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
-
+        
         /** Here we return the error into form of json */
         if ($validationCheck == false) {
             $missingColumns = implode(', ', $arrayDiff);

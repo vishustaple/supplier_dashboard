@@ -96,8 +96,6 @@ class ProcessUploadedFiles extends Command
                     $columnArray1[$value->id] = $value->label;
                 }
 
-                
-
                 if ($fileValue->supplier_id == 7) {
                     $columnArray2 = [
                         $fileValue->supplier_id => [
@@ -169,7 +167,7 @@ class ProcessUploadedFiles extends Command
                         $columnArray2[$fileValue->supplier_id][$value] = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value)))); 
                     }
                 }
-                dd($columnArray2);
+
                     try {
                         /** Increasing the memory limit becouse memory limit issue */
                         ini_set('memory_limit', '1024M');
@@ -214,10 +212,7 @@ class ProcessUploadedFiles extends Command
 
                         for ($i = 0; $i <= $sheetCount; $i++) {
                             $count = $maxNonEmptyCount = 0;
-                            
-                            // if ($fileValue->supplier_id == 5 && $i == 1) {
-                            //     continue;
-                            // }
+
                             if (($sheetCount == 1 && $i == 1 && $fileValue->supplier_id != 5) || ($fileValue->supplier_id == 5 && $i == 0) || ($fileValue->supplier_id == 7 && $i != 2)) {
                                 continue;
                             }
@@ -258,20 +253,31 @@ class ProcessUploadedFiles extends Command
                                         $supplierValues = array_slice($supplierValues, 0, 6, true);
                                     }
 
+                                    if ($fileValue->supplier_id == 4) {
+                                        /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                                        $groupIndex = array_search('Group ID', $cleanedArray);
+                                        $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                                        $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+            
+                                        $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
+                                        $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                                        $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                                    }
+
                                     $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
                                     if (empty($arrayDiff)) {
-                                        $maxNonEmptyValue = $value;
+                                        $maxNonEmptyValue = $cleanedArray;
                                         $startIndexValueArray = $key;
                                         break;
                                     }
                                 }
                             }
-                            
+
                             if (!isset($maxNonEmptyValue)) {
                                 continue;
                             }
-                            
+
                             if ($fileValue->supplier_id == 7) {
                                 $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
                                 if (!empty($supplierYear)) {
@@ -284,17 +290,17 @@ class ProcessUploadedFiles extends Command
                                 }
                             }
 
-                            if ($fileValue->supplier_id == 4) {
-                                $columnArray2[$fileValue->supplier_id]["Group ID1"] = 'group_id';
-                                $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
-                                $columnArray2[$fileValue->supplier_id]["Transaction Source System1"] = 'transaction_source_system';
-                                $maxNonEmptyValue[36] = "Payment Method Code1";
-                                $maxNonEmptyValue[37] = "Payment Method Code";
-                                $maxNonEmptyValue[42] = "Transaction Source System1";
-                                $maxNonEmptyValue[43] = "Transaction Source System";
-                                $maxNonEmptyValue[44] = "Group ID1";
-                                $maxNonEmptyValue[45] = "Group ID";
-                            }
+                            // if ($fileValue->supplier_id == 4) {
+                            //     $columnArray2[$fileValue->supplier_id]["Group ID1"] = 'group_id';
+                            //     $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
+                            //     $columnArray2[$fileValue->supplier_id]["Transaction Source System1"] = 'transaction_source_system';
+                            //     $maxNonEmptyValue[36] = "Payment Method Code1";
+                            //     $maxNonEmptyValue[37] = "Payment Method Code";
+                            //     $maxNonEmptyValue[42] = "Transaction Source System1";
+                            //     $maxNonEmptyValue[43] = "Transaction Source System";
+                            //     $maxNonEmptyValue[44] = "Group ID1";
+                            //     $maxNonEmptyValue[45] = "Group ID";
+                            // }
 
                             /** Clean up the values */
                             $maxNonEmptyValue = array_map(function ($value) {
