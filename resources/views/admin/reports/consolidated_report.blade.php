@@ -203,11 +203,13 @@
                 
                 if (checkedValuess.includes(supplierIdToCheck.toString())) { // Convert to string for comparison
                     $('#selectAllAccounts').hide();
-                    checkedAccounts = []
+                    checkedAccounts = [];
+                    $('#selectAllAccounts').prop('checked', false)
                     $('#consolidated_supplier_data').DataTable().ajax.reload();
                 } else {
                     $('#consolidated_supplier_data').DataTable().ajax.reload();
                     $('#selectAllAccounts').show();
+                    $('#selectAllAccounts').prop('checked', false)
                 }
             }
 
