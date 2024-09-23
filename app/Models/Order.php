@@ -1312,7 +1312,7 @@ class Order extends Model
 
     public static function getConsolidatedDownloadData($filter=[]) {
         /** Increasing the memory limit becouse memory limit issue */
-        ini_set('memory_limit', '1024M');
+        ini_set('memory_limit', '7024M');
         $query = self::query()
         ->selectRaw(
             "`order_product_details`.`order_id` as `id`,
@@ -1357,7 +1357,7 @@ class Order extends Model
         }
 
         $queryData = $query->get();
-
+        // dd($queryData);
         $stapleColumnArray = [
             "Div",
             "Master_Customer_Number",

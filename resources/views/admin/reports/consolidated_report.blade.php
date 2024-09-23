@@ -55,7 +55,20 @@
                         </div>
                     </div>
                 </form>
-                <table class="data_table_files" id="consolidated_supplier_data"></table>
+                <table class="data_table_files" id="consolidated_supplier_data">
+                <thead>
+                    <tr>
+                        <th>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="selectAllAccounts">Account Name
+                            </div>
+                        </th>
+                        <th>Supplier Name</th>
+                        <th>Spend</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                </table>
             </div>
         </div>
     </div>
@@ -320,10 +333,10 @@
                 },
 
                 columns: [
-                    { data: 'account_name', name: 'account_name', title: 'Account Name' },
-                    { data: 'supplier_name', name: 'supplier_name', title: 'Supplier Name' },
-                    { data: 'spend', name: 'spend', title: 'Spend', 'searchable': false },
-                    { data: 'category', name: 'category', title: 'Category', 'orderable': false, 'searchable': false },
+                    { data: 'account_name', name: 'account_name' },
+                    { data: 'supplier_name', name: 'supplier_name' },
+                    { data: 'spend', name: 'spend', 'searchable': false },
+                    { data: 'category', name: 'category', 'orderable': false, 'searchable': false },
                 ],
 
                 fnDrawCallback: function( oSettings ) {
@@ -343,6 +356,48 @@
             $('#downloadCsvBtn').on('click', function () {
                 // Trigger CSV download
                 downloadCsv();
+            });
+
+            // Array to store the checked checkbox IDs
+            var checkedAccounts = [];
+
+            // Handle 'Select All' checkbox click
+            $('#selectAllAccounts').on('click', function () {
+                var rows = consolidateddataTable.rows().nodes();
+                $('input[type="checkbox"]', rows).prop('checked', this.checked);
+
+                // Update the checkedAccounts array based on the "Select All" state
+                checkedAccounts = this.checked ? consolidateddataTable.rows().data().map(row => row.id).toArray() : [];
+            });
+
+            // Handle individual row checkbox click
+            $('#supplierReport tbody').on('click', 'input[type="checkbox"]', function () {
+                var checkboxId = $(this).data('id'); // Assuming each checkbox has a unique identifier in a data attribute
+
+                if (!this.checked) {
+                    $('#selectAllAccounts').prop('checked', false);
+                    // Remove unchecked ID from checkedAccounts
+                    checkedAccounts = checkedAccounts.filter(id => id !== checkboxId);
+                } else {
+                    // Add checked ID to checkedAccounts
+                    if (!checkedAccounts.includes(checkboxId)) {
+                        checkedAccounts.push(checkboxId);
+                    }
+                }
+
+                // Check if all checkboxes are checked
+                if ($('input[type="checkbox"]:checked', consolidateddataTable.rows().nodes()).length === $('input[type="checkbox"]', consolidateddataTable.rows().nodes()).length) {
+                    $('#selectAllAccounts').prop('checked', true);
+                }
+            });
+
+            // After reloading the DataTable
+            consolidateddataTable.on('draw', function () {
+                // Restore checked states
+                $('input[type="checkbox"]', consolidateddataTable.rows().nodes()).each(function () {
+                    var checkboxId = $(this).data('id');
+                    $(this).prop('checked', checkedAccounts.includes(checkboxId));
+                });
             });
 
             function downloadCsv() {
