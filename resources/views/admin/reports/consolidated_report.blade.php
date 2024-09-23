@@ -200,14 +200,12 @@
                 });
 
                 var supplierIdToCheck = 3; // Replace with the supplier ID you want to check
-                
+                checkedAccounts = [];
                 if (checkedValuess.includes(supplierIdToCheck.toString())) { // Convert to string for comparison
                     $('#selectAllAccounts').hide();
-                    checkedAccounts = [];
                     $('#selectAllAccounts').prop('checked', false)
                     $('#consolidated_supplier_data').DataTable().ajax.reload();
                 } else {
-                    checkedAccounts = [];
                     $('#consolidated_supplier_data').DataTable().ajax.reload();
                     $('#selectAllAccounts').show();
                     $('#selectAllAccounts').prop('checked', false)
