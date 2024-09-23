@@ -207,6 +207,7 @@
                     $('#selectAllAccounts').prop('checked', false)
                     $('#consolidated_supplier_data').DataTable().ajax.reload();
                 } else {
+                    checkedAccounts = [];
                     $('#consolidated_supplier_data').DataTable().ajax.reload();
                     $('#selectAllAccounts').show();
                     $('#selectAllAccounts').prop('checked', false)
