@@ -95,19 +95,10 @@ class ProcessUploadedFiles extends Command
                         $columnArray[$value->supplier_id]['invoice_no'] = '';
                     }
 
-                    if ($value->supplier_id != 4) {
-                        $columnArray2[$fileValue->supplier_id][$value->label] = $value->raw_label;
-                    }
+                    $columnArray2[$fileValue->supplier_id][$value->label] = $value->raw_label;
                     $columnArray1[$value->id] = $value->label;
-
                 }
 
-                if ($value->supplier_id == 4) {
-                    foreach ($columnArray1 as $key => $value) {
-                        $columnArray2[$fileValue->supplier_id][$value] = preg_replace('/^_+|_+$/', '', strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $value)))); 
-                    }
-                }
-                
                 try {
                     /** Increasing the memory limit becouse memory limit issue */
                     ini_set('memory_limit', '1024M');
@@ -369,7 +360,7 @@ class ProcessUploadedFiles extends Command
                                         $keyCustomerNumber = array_search($columnArray[$fileValue->supplier_id]['customer_number'], $maxNonEmptyValue);
                                     }
 
-                                    /** Here we will getting the amount key */
+                                    /** Here we will getting the cost key */
                                     if (!empty($columnArray[$fileValue->supplier_id]['cost'])) {
                                         $keyAmount = array_search($columnArray[$fileValue->supplier_id]['cost'], $maxNonEmptyValue);
                                     }
