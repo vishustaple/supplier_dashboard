@@ -192,6 +192,30 @@
                 }
             });
 
+            // Function to update checked values and check for supplier ID
+            function updateCheckedValues() {
+                checkedValuess = []; // Clear the array
+                $('.checkboxs:checked').each(function() {
+                    checkedValuess.push($(this).val());
+                });
+
+                var supplierIdToCheck = 3; // Replace with the supplier ID you want to check
+                
+                if (checkedValuess.includes(supplierIdToCheck.toString())) { // Convert to string for comparison
+                    $('#selectAllAccounts').hide();
+                    checkedAccounts = []
+                    $('#consolidated_supplier_data').DataTable().ajax.reload();
+                } else {
+                    $('#consolidated_supplier_data').DataTable().ajax.reload();
+                    $('#selectAllAccounts').show();
+                }
+            }
+
+            // Attach the change event to checkboxes
+            $('.checkboxs').change(function() {
+                updateCheckedValues();
+            });
+
             $('#select_dates').on('change', function(){
                 var selectValue = $(this).val();
 
