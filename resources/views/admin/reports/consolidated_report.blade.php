@@ -200,15 +200,21 @@
                 });
 
                 var supplierIdToCheck = 3; // Replace with the supplier ID you want to check
+                var supplierIdToCheck1 = 'all'; // Replace with the supplier ID you want to check
                 checkedAccounts = [];
+                
                 if (checkedValuess.includes(supplierIdToCheck.toString())) { // Convert to string for comparison
                     $('#selectAllAccounts').hide();
                     $('#selectAllAccounts').prop('checked', false)
                     $('#consolidated_supplier_data').DataTable().ajax.reload();
-                } else {
-                    $('#consolidated_supplier_data').DataTable().ajax.reload();
+                } else if (checkedValuess.includes(supplierIdToCheck1.toString())) {
                     $('#selectAllAccounts').show();
                     $('#selectAllAccounts').prop('checked', false)
+                    $('#consolidated_supplier_data').DataTable().ajax.reload();
+                } else {
+                    $('#selectAllAccounts').show();
+                    $('#selectAllAccounts').prop('checked', false)
+                    $('#consolidated_supplier_data').DataTable().ajax.reload();
                 }
             }
 
