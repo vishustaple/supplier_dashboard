@@ -183,6 +183,8 @@
                                 button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
                             },
                             error: function(xhr, status, error) {
+                                button.disabled = false;
+                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
                                 alert('File download failed!');
                             }
                         });
