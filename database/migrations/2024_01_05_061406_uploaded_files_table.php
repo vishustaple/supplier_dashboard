@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('uploaded_files', function (Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('supplier_id');
             $table->string('file_name', 255);
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('uploaded_files');
+        Schema::dropIfExists('attachments');
     }
 };

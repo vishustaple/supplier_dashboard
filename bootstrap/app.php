@@ -52,4 +52,11 @@ $app->singleton(
 |
 */
 
+// $app->register(\Barryvdh\DomPDF\ServiceProvider::class);
+// $app->configure('dompdf');
+$app->singleton(
+    \Barryvdh\DomPDF\ServiceProvider::class,
+    App\Exceptions\Handler::class
+);
+
 return $app;

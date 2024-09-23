@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CommissionRebate extends Model
 {
@@ -20,13 +20,13 @@ class CommissionRebate extends Model
     protected $fillable = [
         'paid',
         'spend',
+        'quarter',
         'end_date',
         'approved',
         'sales_rep',
+        'paid_date',
         'start_date',
         'commission',
         'volume_rebate',
-        // 'commission_percentage',
-        // 'volume_rebate_percentage',
     ];
 }

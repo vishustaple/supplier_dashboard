@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SalesTeam extends Model
 {
@@ -102,7 +102,7 @@ class SalesTeam extends Model
                 }
             } else {
                 // $formatuserdata[$key]['status'] = ($data->status == 1) ? ("Active") : ("In-Active");    
-                $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+                $formatuserdata[$key]['action'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit SalesTeam" class=" " href= '.route('sales.edit', ['id' => $data->id,'routename' => 'sales']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
                 // <a class=" " title="View Details" href= '.route('sales.index', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a>
                 // <a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Sales"><i class="fa-solid fa-trash"></i>Remove</a>
                 // $formatuserdata[$key]['status'] = '<div class="form-check form-switch">

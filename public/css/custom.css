@@ -207,19 +207,21 @@ body #main  .dataTables_wrapper .dataTables_paginate .paginate_button.disabled{
 }
 div#userModal .modal-header,
 #updateuserModal .modal-header,
-#exampleModal .modal-header{ 
-  justify-content: center;
-  padding: 10px;
+#exampleModal .modal-header,
+.modal .modal-header{ 
+  justify-content: center !important;
+  padding: 10px !important;
 }
 div#userModal .modal-header button.close,
 #updateuserModal  .modal-header button.close,
-#exampleModal  .modal-header button.close{
+#exampleModal  .modal-header button.close,
+.modal .modal-header button.close{
   position: absolute;
   right: 0px;
   top: 0px;
   width: 40px;
   height: 40px;
-  background: #dc3545;
+  background-color: #dc3545;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -230,12 +232,14 @@ div#userModal .modal-header button.close,
 }
 div#userModal .modal-content,
 #updateuserModal .modal-content,
-#exampleModal  .modal-content{
+#exampleModal  .modal-content,
+.modal .modal-content{
   border-radius: 25px;
 }
 div#userModal .modal-header h5,
 #updateuserModal .modal-header h5,
-#exampleModal .modal-header h5 {
+#exampleModal .modal-header h5 ,
+.modal .modal-header h5{
   font-size: 30px;
 }
   table.data_table_files.dataTable.no-footer thead tr th:last-child {
@@ -447,6 +451,15 @@ div#layoutSidenav_content.collapsedfull{
 }
 .container{
   max-width: 100% !important;
+}
+@media (min-width:1200px) {
+  .login_container.container{
+    max-width: 1140px !important;
+  }
+}
+.login_container button.blue{
+   padding: 8px 35px;
+   width: 200px !important;
 }
 #example_wrapper #example {
   display: inline-table !important;

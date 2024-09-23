@@ -9,14 +9,10 @@
                 <h3 class="mb-0 ">{{ $pageTitle }}</h3>
                 <a href="{{ route('commission.add-view') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Add Commissions</a>
-                <!-- <button id="downloadCommissionCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
-                    </div> -->
             </div>
             <table class="data_table_files" id="commission_data">
                 <thead>
                     <tr>
-                        <!-- <th>Customer Name</th>
-                        <th>Customer Number</th> -->
                         <th>Account Name</th>
                         <th>Supplier</th>
                         <th>Sales Rep</th>
@@ -35,7 +31,7 @@
                     <div class="modal-header">
                         <h5 class="modal-title" id="editCommissionModalLabel">Edit Commission</h5>
                         <!-- Close icon -->
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div id="editsuccessMessage"></div>
                     <div id="editerrorMessage" ></div>
@@ -126,8 +122,6 @@
                 $('#manualLoader').hide();
             },
             columns: [
-                // { data: 'customer_name', name: 'customer_name' },
-                // { data: 'customer_number', name: 'customer_number' },
                 { data: 'account_name', name: 'account_name' },
                 { data: 'supplier_name', name: 'supplier_name' },
                 { data: 'sales_rep', name: 'sales_rep' },
@@ -153,13 +147,21 @@
             window.open(csvUrl, '_blank');
         }
 
-        $('.dateRangePicker').daterangepicker({  
-                showDropdowns: false,
-                linkedCalendars: false,
+        $('.dateRangePicker').daterangepicker({
+            autoApply: true,
+            showDropdowns: true,
+            minYear: moment().subtract(7, 'years').year(),
+            maxYear: moment().add(7, 'years').year(),
+            // maxDate: moment(),
+            ranges: {
+                'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
+                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
         });
         
         var myModal = document.getElementById('editCommissionModal');
-        console.log(myModal);
         myModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget, // Button that triggered the modal
             id = button.getAttribute('data-id'), // Extract value from data-* attributes

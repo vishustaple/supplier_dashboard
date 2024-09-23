@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 
 class Supplier extends Model
 {
@@ -15,6 +16,16 @@ class Supplier extends Model
     'show',
     'supplier_name',
   ];
+
+  public function uploadedFiles()
+  {
+      return $this->hasMany(UploadedFiles::class);
+  }
+
+  public function createdByUser()
+  {
+      return $this->belongsTo(User::class, 'created_by');
+  }
 
   public static function getSearchSupplierData($search=''){
     if (!empty($search)) {

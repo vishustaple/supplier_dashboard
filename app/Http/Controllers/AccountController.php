@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Validator;
 use League\Csv\Writer;
-use App\Models\{Account, CategorySupplier};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Validator;
+use App\Models\{Account, CategorySupplier};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 // use App\Rules\AtLeastOneChecked;
-
 class AccountController extends Controller
 {
     public function editCustomerName(){
@@ -26,29 +25,14 @@ class AccountController extends Controller
         }
 
         if(isset($id)){
-            $account = Account::select(
-                'master_account_detail.id as id',
-                'master_account_detail.account_number as customer_number',
-                'master_account_detail.customer_name as customer_name',
-                'master_account_detail.account_name as account_name',
-                'master_account_detail.volume_rebate as volume_rebate',
-                'master_account_detail.member_rebate as member_rebate',
-                'master_account_detail.temp_active_date as temp_active_date',
-                'master_account_detail.temp_end_date as temp_end_date',
-                'master_account_detail.record_type as record_type',
-                'master_account_detail.cpg_sales_representative as cpg_sales_representative',
-                'master_account_detail.cpg_customer_service_rep as cpg_customer_service_rep',
-                'suppliers.supplier_name as category_supplier',
-                'master_account_detail.parent_name as parent_name',
-                'master_account_detail.grandparent_name as grand_parent_name')
-                ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-            ->where('master_account_detail.id','=', $id)->first();
-
-            return view('admin.viewdetail',compact('account'));
+            $pageTitle = 'Account Details';
+            $account = Account::select('master_account_detail.account_name as account_name')->where('master_account_detail.id', $id)->first();
+            return view('admin.account_detail', compact('account', 'pageTitle'));
         }
+        
         $missingAccount = Account::whereNull('account_name')->orWhere('account_name', '')->get();
         $totalmissingaccount=count($missingAccount);
-        // dd($totalmissingaccount);
+
         $grandparent = Account::getSearchGPNameData();
         $parent = Account::getSearchPNameData();
 
@@ -56,6 +40,13 @@ class AccountController extends Controller
         $parent_id = Account::getSearchPNumberData();
 
         return view('admin.account' ,compact(['totalmissingaccount' => 'totalmissingaccount', 'grandparent' => 'grandparent', 'parent' => 'parent', 'grandparent_id' => 'grandparent_id', 'parent_id' => 'parent_id']));
+    }
+
+    public function getAccountsDetailWithAjax(Request $request){
+        if ($request->ajax()) {
+            $formatuserdata = Account::getFilterdAccountsAllData($request->all());
+            return response()->json($formatuserdata);
+        }
     }
 
     public function getEmptyAccountNameAccounts(Request $request){
@@ -294,27 +285,34 @@ class AccountController extends Controller
     public function editAccountName(Request $request){
         $accoundid = $request->account_id;
         $accountname =$request->account_name;
-        $validator = Validator::make(
+        $parentName = $request->parent_name;
+        $parentNumber =$request->parent_number;
+        $categoryName = $request->catagory_name;
+        $customerName =$request->customer_name;
+        $validator = Validator::make($request->all(),
             [
-                'account_name'=>$request->account_name,
-               
-            ],
-            [
+                // 'parent_name'=>'required|string|max:255',
                 'account_name'=>'required|string|max:255',
-
+                // 'parent_number'=>'required|string|max:255',
+                // 'customer_name'=>'required|string|max:255',
+                // 'category_name'=>'required|string|max:255',
             ]
         );
-        if( $validator->fails() )
-        {  
-           
+
+        if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 200);
-    
-        }
-        else{
+        } else {
             try {
-                $updateAccountName = Account::where('id', $accoundid)->update(['account_name' => $accountname]);
-                if($updateAccountName){
-                    return response()->json(['success' => 'Account Name Update Successfully!'], 200);
+                $updateAccountName = Account::where('id', $accoundid)->update([
+                    'account_name' => $accountname,
+                    'parent_name' => $parentName,
+                    'parent_id' => $parentNumber,
+                    'record_type' => $categoryName,
+                    'customer_name' => $customerName,
+                ]);
+
+                if ($updateAccountName) {
+                    return response()->json(['success' => 'Account Data Update Successfully!'], 200);
                 }
             } catch (\Throwable $e) {
                 return response()->json(['error' => $e->getMessage()], 200);

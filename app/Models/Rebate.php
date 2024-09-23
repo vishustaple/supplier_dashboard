@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Rebate extends Model
 {
@@ -17,6 +17,7 @@ class Rebate extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'supplier',
         'account_name',
         'volume_rebate',
         'incentive_rebate'

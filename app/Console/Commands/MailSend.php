@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use Carbon\Carbon;
-use App\Models\{UploadedFiles, CategorySupplier};
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use App\Models\{UploadedFiles, CategorySupplier};
+
 class MailSend extends Command
 {
     /**
@@ -67,7 +68,6 @@ class MailSend extends Command
                 }
             }
 
-
             if($id == 1 || $id == 2 || $id == 3|| $id == 4){
                 if($id == 4){
                     $currentDay = Carbon::now()->day;
@@ -115,7 +115,6 @@ class MailSend extends Command
                             }
                         }
                     }
-
                 }
 
                 /** Get the current month start date */
@@ -127,7 +126,7 @@ class MailSend extends Command
                     ->first();
 
                     if(!isset($data)){
-                        $this->info('no issue  ' . $id);
+                        $this->info('no issue ' . $id);
 
                         $supplierName = CategorySupplier::where('id',$id)->value('supplier_name');
                         $email = 'vishustaple.in@gmail.com';

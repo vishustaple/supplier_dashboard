@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OrderDetails extends Model
 {
@@ -16,7 +16,7 @@ class OrderDetails extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'data_id',
+        'attachment_id',
         'order_id',
         'created_by',
         'invoice_date',

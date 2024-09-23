@@ -10,32 +10,24 @@
         box-sizing: border-box;
     }
     .card {
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-}
-.card-header {
-    border: 0;
-    background: #007bff24;
-    color: #007bff;
-}
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    .card-header {
+        border: 0;
+        background: #007bff24;
+        color: #007bff;
+    }
 </style>
 </head>
 <body>
-<div class="container">
-    <div class="row justify-content-center mt-5">
-        <!-- <div class="col-md-6"> -->
-            <!-- <div class="card"> -->
-                <!-- <div class="card-header">
-           
-                </div>
-                <div class="card-body"> -->
-                  
-                    <h2>Create Password link has been Expired.</h2>
-            
-                   
-                <!-- </div> -->
-            <!-- </div> -->
-        <!-- </div> -->
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            @if(isset($message))
+                <h2>{{$message}}</h2>    
+            @else
+                <h2>Create Password link has been Expired.</h2>
+            @endif
+        </div>
     </div>
-</div>
 </body>
 </html>

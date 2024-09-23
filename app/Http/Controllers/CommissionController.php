@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Illuminate\Http\Request;
 use League\Csv\Writer;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\{Account, Commission};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 
 class CommissionController extends Controller
 {
+    public function __construct(){
+        $this->middleware('permission:Sales Rep')->only(['index', 'commissionAdd', 'commissionAjaxFilter', 'commissionAddView', 'editCommission']);
+    }
+
     public function index(Request $request, $commissionType, $id=null){
         if (!isset($id)) {
             $id = $request->query('id');
@@ -35,7 +39,7 @@ class CommissionController extends Controller
 
     public function commissionAjaxCustomerSearch(Request $request){
         if ($request->ajax()) {
-            $formatuserdata = Account::getSearchCustomerData($request->input('q'));
+            $formatuserdata = Account::getSearchCustomerData($request->input('q'), $request->input('supplier'), $request->input('supplier_array'), $request->input('supplier_check'), $request->input('all_supplier'));
             return response()->json($formatuserdata);
         }
     }
@@ -47,28 +51,42 @@ class CommissionController extends Controller
             } else {
                 $formatuserdata = Account::getSearchSupplierDatas($request->all());
             }
-            // $formatuserdata = Supplier::getSearchSupplierData($request->input('q'));
+            
             return response()->json($formatuserdata);
         }
     }
 
     public function commissionAdd(Request $request){
+        /** Checking request is ajax or not */
         if ($request->ajax()) {
-            $result = DB::table('commission')
-            ->where('commission.account_name', $request->input('account_name'))
-            ->exists();
-            if (!$result) {
-                DB::table('commission')->insert(['sales_rep' => $request->input('sales_rep'),
-                'supplier' =>  $request->input('supplier'),
-                'account_name' => $request->input('account_name'),
-                'commission' => $request->input('commission'),
-                'start_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[0])),"Y-m-d H:i:s"),
-                'end_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[1])),"Y-m-d H:i:s"),
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),]);
+            /** Getting form data using methos request */
+            $date = $request->input('date');
+            $supplier = $request->input('supplier');
+            $salesRep = $request->input('sales_rep');
+            $commission = $request->input('commission');
+            $accountName = $request->input('account_name');
+
+            /** Setting variables */
+            $error = false;
+            $accountNameArray = [];
+
+            /** If getting zero errors than save the data into commission table */
+            foreach ($accountName as $key => $value) {
+                DB::table('commission')->insert([
+                    'sales_rep' => $salesRep[$key],
+                    'supplier' =>  $supplier[$key],
+                    'account_name' => $value,
+                    'commission' => $commission[$key],
+                    'start_date' => date_format(date_create(trim(explode(" - ", $date[$key])[0])),"Y-m-d H:i:s"),
+                    'end_date' => date_format(date_create(trim(explode(" - ", $date[$key])[1])),"Y-m-d H:i:s"),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            /** Returning the success message after save commission data */
+            if ($error == false) {
                 return response()->json(['success' => 'Commissions added successfully'], 200);
-            } else {
-                return response()->json(['error' => 'You have alraedy added commission of this account.'], 200);
             }
         }
     }
@@ -94,9 +112,6 @@ class CommissionController extends Controller
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */
         $data = Commission::getFilterdCommissionData($filter, $csv);
-        // echo"<pre>";
-        // print_r($data);
-        // die;
 
         /** Create a stream for output */
         $stream = fopen('php://temp', 'w+');

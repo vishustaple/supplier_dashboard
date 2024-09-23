@@ -3,29 +3,45 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    
     const USER_TYPE_SUPERADMIN = 1;
     const USER_TYPE_ADMIN = 2;
     const USER_TYPE_USER = 3;
+
+    public function permissions(){
+        return $this->belongsToMany(Permission::class);
+    }
+
+    public function uploadedFiles(){
+        return $this->hasMany(UploadedFiles::class);
+    }
+
+    public function hasPermission($permission){
+        return $this->permissions()->where('name', $permission)->exists();
+    }
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'first_name',
-        'last_name',
         'email',
+        'status',
         'password',
         'user_type',
-        'remember_token'
+        'last_name',
+        'first_name',
+        'remember_token',
+
     ];
 
     /**

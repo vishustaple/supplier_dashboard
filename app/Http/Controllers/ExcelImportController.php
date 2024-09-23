@@ -2,26 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Validator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\QueryException;
-use App\Helpers\ArrayHelper;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx; 
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{CategorySupplier, UploadedFiles, ManageColumns, Order};
-
+use App\Models\{
+    UploadedFiles,
+    ManageColumns,
+    SupplierDetail,
+    ShowPermissions,
+    CategorySupplier,
+    RequiredFieldName,
+};
 
 class ExcelImportController extends Controller
 {
-    public function index(){
-        $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
+    public function __construct() {
+        $this->middleware('permission:Manage Supplier')->only(['allSupplier']);
+        $this->middleware('permission:Supplier Edit')->only(['editSupplierName']);
+        $this->middleware('permission:Supplier Add')->only(['addSupplierName', 'addSupplierMain']);
+        $this->middleware('permission:Supplier Delete')->only(['deleteSupplier']);
+    }
 
-        $uploadData = UploadedFiles::with(['createdByUser:id,first_name,last_name'])->withTrashed()->orderBy('id', 'desc')->get();
+    public function index() {
+        $categorySuppliers = CategorySupplier::where('show', 0)->where('show', '!=', 1)->get();
+        $uploadData = UploadedFiles::query()->selectRaw("`attachments`.*, CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name")
+        ->leftJoin('users', 'attachments.created_by', '=', 'users.id')
+        ->get();
         // echo"<pre>";
         // print_r($uploadData);
         // die;
@@ -46,47 +62,22 @@ class ExcelImportController extends Controller
                 getSupplierName($item->supplier_id),
                 '<div class="file_td">'.$item->file_name.'</div>',
                 $cronString,
-                $item->createdByUser->first_name.' '.$item->createdByUser->last_name,
+                ((isset($item->user_name)) ? ($item->user_name) : (' ')),
                 $item->created_at->format('m/d/Y'),
                 (isset($item->delete) && !empty($item->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : ((isset($item->deleted_at) && !empty($item->deleted_at) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$item->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>')),
             ];
             $i++;
         }
-
+        
         $pageTitle = "Upload Sheets";
         $data=json_encode($formattedData);
  
         return view('admin.export',compact('categorySuppliers','data', 'pageTitle'));
     }
-    public function import(Request $request)
-    {
-        // dd($request->all());
+
+    public function import(Request $request) {
         ini_set('memory_limit', '1024M');
-
-        $supplierId = $request->supplierselect;
-        $supplierFilesNamesArray = [
-            1 => 'Usage By Location and Item',
-            2 => 'Invoice Detail Report',
-            4 => 'All Shipped Order Detail',
-            5 => 'Centerpoint_Summary_Report',
-            6 => 'Blad1',
-            7 => 'Weekly Sales Account Summary', 
-        ];
-
-        $suppliers= ManageColumns::getRequiredColumns();
-        // $suppliers=[
-        //     '1' => ['SOLD TO NAME', 'SOLD TOACCOUNT', 'ON-CORESPEND', 'OFF-CORESPEND'],
-        //     '2' => ['Track Code', 'Track Code Name', 'Sub track Code', 'Sub Track Code Name', 'Account Name', 'Account Number', 'Actual Price Paid', 'Invoice Number', 'Bill Date'],
-        //     '3' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-        //     '4' => ['MASTER_CUSTOMER', 'MASTER_NAME', 'ADJGROSSSALES', 'INVOICENUMBER', 'INVOICEDATE'],
-        //     // '5' => ['Customer Name', 'Customer Num', 'Current List', 'Invoice Num', 'Invoice Date'],
-        //     '5' => ['Customer Name', 'Customer Num', 'Current List'],
-        //     '6' => ['Leader customer 2', 'Leader customer 3', 'Leader customer 4', 'Leader customer 5', 'Leader customer 6', 'Leader customer 1', 'Sales Amount - P', 'Billing Document', 'Billing Date'],
-        //     '7'=>  ['GP ID', 'GP Name', 'Parent Id', 'Parent Name', 'Account ID', 'Account Name'],
-        //     '8' => ['CUSTOMER NM', 'CUSTOMER GRANDPARENT ID', 'CUSTOMER GRANDPARENT NM', 'CUSTOMER PARENT ID', 'CUSTOMER PARENT NM', 'CUSTOMER ID', 'Total Spend', 'Invoice #', 'Shipped Date'],
-        // ];
-
-
+        $suppliers = ManageColumns::getRequiredColumns();
         $endDateRange = $request->input('enddate');
 
         /** Split the date range string into start and end dates */
@@ -98,319 +89,89 @@ class ExcelImportController extends Controller
             $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
         }
         
-        
         /** Validate the uploaded file */
         $validator = Validator::make(
-            [
-                'supplierselect'=>$request->supplierselect,
-                'file'      =>  $request->file('file'),
-            ],
-            [
-                'supplierselect'=>'required',
-                'file' => 'required|file|mimes:xlsx,xls',
-
-            ],
-            [
-                'supplierselect.required' => 'Please select a supplier. It is a required field.',
-            ]
+            ['supplierselect' => $request->supplierselect, 'file' => $request->file('file')],
+            ['supplierselect' => 'required', 'file' => 'required'],
+            ['supplierselect.required' => 'Please select a supplier. It is a required field.']
         );
-        
 
         if( $validator->fails() ){  
             $categorySuppliers = $categorySuppliers = CategorySupplier::where('show', 0)->get();
-            // return redirect()->back()->withErrors($validator)->withInput(compact('categorySuppliers'));
             return response()->json(['error' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }
         
         try{
-            $reader = new Xlsx(); 
-            $spreadSheet = $reader->load($request->file('file'), 2);
-
-            // if ($supplierId != 3) {
-            //     $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$supplierId]);
-            // }
-
-            $validationCheck = $arrayDiff = false;
-    
-            $columnValues = DB::table('manage_columns')->select('id', 'supplier_id', 'field_name')->where('supplier_id', $request->supplierselect)->get();
-    
-            foreach ($columnValues as $key => $value) {
-                if (in_array($value->id, [24, 68, 103, 128, 195, 258])) {
-                    $columnArray[$value->supplier_id]['invoice_date'] = $value->field_name;
-                }
-    
-                if (in_array($value->supplier_id, [7])) {
-                    $columnArray[$value->supplier_id]['invoice_date'] = '';
-                }
+            $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('file'));
+            if ($inputFileType === 'Xlsx') {
+                $reader = new Xlsx();
+            } elseif ($inputFileType === 'Xls') {
+                $reader = new Xls();
+            } else {
+                return response()->json(['error' => 'Unsupported file type: ' . $inputFileType], 200);
+                throw new Exception('Unsupported file type: ' . $inputFileType);
             }
-            
-            // echo"<pre>";
-            // print_r($columnArray);
-            // die;
 
-           
-            // if (isset($sheet) && $sheet) {
-            //     $workSheet = $sheet;
-            //     $workSheetArrays = $workSheetArray = $workSheet->toArray();
-        
-            //     $maxNonEmptyCount = 0;
-        
-            //     foreach ($workSheetArray as $key=>$value) {
-            //         /** Checking not empty columns */
-            //         $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
-            //             return !empty($item);
-            //         }));
-                    
-            //         /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
-            //         if ($nonEmptyCount > $maxNonEmptyCount) {
-            //             $maxNonEmptyvalues = $maxNonEmptyvalue = $value;
-            //             $startIndexValueArray = $key;
-            //             $maxNonEmptyCount = $nonEmptyCount;
-            //         } 
-                    
-            //         /** Stop loop after reading 31 rows from excel file */
-            //         if($key > 30){
-            //             break;
-            //         }
-            //     }
-    
-            //     /** Remove empty key from the array of excel sheet column name */
-            //     $finalExcelKeyArray = array_values(array_filter($maxNonEmptyvalue, function ($item) {
-            //         return !empty($item);
-            //     }, ARRAY_FILTER_USE_BOTH));
-                            
-            //     /** Clean up the values */
-            //     $cleanedArray = array_map(function ($value) {
-            //         /** Remove line breaks and trim whitespace */
-            //         return str_replace(["\r", "\n"], '', $value);
-            //     }, $finalExcelKeyArray);
+            $spreadSheet = $reader->load($request->file('file'), 2);
+            $validationCheck = $arrayDiff = false;
+            foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
+                $maxNonEmptyCount = 0;
 
-            //     $chunkSize = 0; // Adjust as needed
-            //     $dates=[];
+                if ($validationCheck == true) {
+                    break;
+                }
 
-                
-            //     if ($request->supplierselect == 7) {
-            //         foreach ($cleanedArray as $key => $value) {
-            //             if ($key > 5) {
-            //                 $cleanedArray[$key] = trim("Year_" . substr($cleanedArray[$key], - 2));
-            //             }
-            //         }
-            //     }
-
-            //     if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
-            //         $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
-            //     }
-                
-            //     if (!empty($keyInvoiceDate)) {
-            //         foreach ($workSheetArrays as $key => $row) {
-
-            //             if ($request->supplierselect == 2) {
-            //                 $startIndex = $startIndexValueArray + 1;
-            //             } else {
-            //                 $startIndex = $startIndexValueArray;
-            //             }
-            
-            //             if($key > $startIndex){
-            //                 if (!empty($row[$keyInvoiceDate])) {
-            //                     if (!empty($row[$keyInvoiceDate]) && $request->supplierselect == 4) {
-            //                         $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
-            //                     } else {
-            //                         $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
-            //                     }
-            //                 } 
-                            
-            //                 if ($chunkSize == 1000) {
-            //                     $fileExist = Order::where(function ($query) use ($dates) {
-            //                         foreach ($dates as $startDate) {
-            //                             if (!empty($startDate)) {
-            //                                 $query->orWhere('date', '>=', $startDate);
-            //                             }
-            //                         }
-            //                     })->where('supplier_id', $request->supplierselect);
-            
-            //                     if ($fileExist->count() > 0) {
-            //                         // break;
-            //                         return response()->json(['error' => "You have already uploaded this file."], 200);
-            //                     }
-
-            //                     unset($dates);
-            //                     $chunkSize = 0;
-            //                 }
-            
-            //                 $chunkSize++; 
-            //             }
-            //         }
-
-            //         $fileExist = Order::where(function ($query) use ($dates) {
-            //             foreach ($dates as $startDate) {
-            //                 if (!empty($startDate)) {
-            //                     $query->orWhere('date', '>=', $startDate);
-            //                 }
-            //             }
-            //         })->where('supplier_id', $request->supplierselect);
-
-            //         if ($fileExist->count() > 0) {
-            //             return response()->json(['error' => "You have already uploaded this file."], 200);
-            //         }
-            //     }
-
-            //     if (isset($suppliers[$request->supplierselect])) {
-            //         $supplierValues = $suppliers[$request->supplierselect];
-            //         $arrayDiff = array_diff($supplierValues, $cleanedArray);
-            //         if (empty($arrayDiff)) {
-            //             $validationCheck = true;
-            //         }
-            //     }
-            // } else {
-                // $sheetName = $workSheet->getTitle();
-                // $sheetCount = $spreadSheet->getSheetCount();
-                 
-                // $skipSheet = $sheetCount - 1;
-                
-                foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
-
-                // for ($i=0; $i < $sheetCount; $i++) {
-                    // $workSheet = $spreadSheets->getSheet($i);
-        
-                    // $workSheetArrays = $workSheetArray1 = $workSheet->toArray();
-
-                    $maxNonEmptyCount = 0;
-            
-                    // foreach ($workSheetArray1 as $key=>$value) {
-                    foreach ($spreadSheets->toArray() as $key=>$value) {
-                        /** Checking not empty columns */
-                        $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
-                            return !empty($item);
-                        }));
-                        
-                        /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
-                        if ($nonEmptyCount > $maxNonEmptyCount) {
-                            $maxNonEmptyvalues = $maxNonEmptyvalue1 = $value;
-                            $startIndexValueArray = $key;
-                            $maxNonEmptyCount = $nonEmptyCount;
-                        } 
-                        
-                        /** Stop loop after reading 31 rows from excel file */
-                        if($key > 13){
-                            break;
-                        }
-                    }
-        
+                foreach ($spreadSheets->toArray() as $key=>$value) {
                     /** Remove empty key from the array of excel sheet column name */
-                    $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
+                    $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                         return !empty($item);
                     }, ARRAY_FILTER_USE_BOTH));
                                 
                     /** Clean up the values */
-                    $cleanedArray = array_map(function ($value) {
+                    $cleanedArray = array_map(function ($values) {
                         /** Remove line breaks and trim whitespace */
-                        return str_replace(["\r", "\n"], '', $value);
+                        return trim(str_replace(["\r", "\n"], '', $values));
                     }, $finalExcelKeyArray1);
 
                     if ($request->supplierselect == 7) {
-                        foreach ($cleanedArray as $key => $value) {
-                            if ($key > 5) {
-                                $cleanedArray[$key] = trim("Year_" . substr($cleanedArray[$key], - 2));
+                        foreach ($cleanedArray as $keys => $valuess) {
+                            if ($keys > 5) {
+                                $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
                             }
                         }
                     }
 
-                    if ($request->supplierselect == 2) {
-                        $startIndex = $startIndexValueArray + 1;
-                    } else {
-                        $startIndex = $startIndexValueArray;
-                    }
-
-                    $chunkSize = 0; // Adjust as needed
-                    $dates = [];
-
-                    if (!empty($columnArray[$request->supplierselect]['invoice_date'])) {
-                        $keyInvoiceDate = array_search($columnArray[$request->supplierselect]['invoice_date'], $cleanedArray);
-                    }
-
-                    if (!empty($keyInvoiceDate)) {
-                        foreach ($spreadSheets->toArray() as $key => $row) {
-                            if($key > $startIndex){
-                                if (!empty($row[$keyInvoiceDate])) {
-                                    if ($request->supplierselect == 4) {
-                                        $date = explode("-", $row[$keyInvoiceDate]);
-                                    if(count($date) <= 2){
-                                        $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
-                                    } else {
-                                        $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
-                                    }
-                                    } else {
-                                        $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
-                                    }
-
-                                    if ($chunkSize == 1000) {
-                                        $fileExist = Order::where(function ($query) use ($dates) {
-                                            foreach ($dates as $startDate) {
-                                                if (!empty($startDate)) {
-                                                    $query->orWhere('date', '>=', $startDate);
-                                                }
-                                            }
-                                        })->where('supplier_id', $request->supplierselect);
-                                        
-                                        $chunkSize = 0;
-
-                                        if ($fileExist->count() > 0) {
-                                            return response()->json(['error' => "You have already uploaded this file."], 200);
-                                            // break;
-                                        }
-                                    
-                                    }
-                                } else {
-                                    $dates = [];
-                                }
-                
-                                $chunkSize++;
-                            }
-                        }
-
-                        if (!empty($dates)) {
-                            $fileExist = Order::where(function ($query) use ($dates) {
-                                foreach ($dates as $startDate) {
-                                    if (!empty($startDate)) {
-                                        $query->orWhere('date', '>=', $startDate);
-                                    }
-                                }
-                            })->where('supplier_id', $request->supplierselect);
-                    
-                            if ($fileExist->count() > 0) {
-                                return response()->json(['error' => "You have already uploaded this file."], 200);
-                            }
-                        }
-                    }
-                    
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
-                        $arrayDiff = array_diff($supplierValues, $cleanedArray);
+                       
 
+                        if ($request->supplierselect == 7) {
+                            $supplierValues = array_slice($supplierValues, 0, 6, true);
+                        }
+                        
+                        $arrayDiff = array_diff($supplierValues, $cleanedArray);
                         if (empty($arrayDiff)) {
+                            $maxNonEmptyvalue1 = $value;
                             $validationCheck = true;
                             break;
                         }
                     }
                 }
+            }
+            // if ($validationCheck == false) {
+            //     $missingColumns = implode(', ', $arrayDiff);
+            //     return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
             // }
-
         } catch (\Exception $e) {
+            // dd($e->getMessage());
             return redirect()->back()->with('error', $e->getMessage());
         }
 
+        /** Here we return the error into form of json */
         if ($validationCheck == false) {
             $missingColumns = implode(', ', $arrayDiff);
             return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
         }
-      
-
-        /** Output the cleaned array */
-        // echo"<pre>";
-        // print_r($cleanedArray);
-        // $clean= ManageColumns::cleanRows($cleanedArray);
-        // print_r($clean);
-        // die;
 
         /** Get the uploaded file */
         $file = $request->file('file');
@@ -462,27 +223,19 @@ class ExcelImportController extends Controller
             return response()->json(['error' => 'Please select supplier.'], 200);
         }
     }
-    public function allSupplier(){
 
-        // dd("here");
-        $categorySuppliers = CategorySupplier::all();
-        $formattedData = [];
-        foreach ($categorySuppliers as $suppliers) {
-            # code...
-            $formattedData[] = [
-                // $suppliers->id, 
-                $suppliers->supplier_name,
-                $suppliers->created_at ? $suppliers->created_at->format('m/d/Y') : 'null', 
-                // $suppliers->created_at->format('m/d/Y'),
-            ];
-        }
-       
-        $data=json_encode($formattedData);
+    public function allSupplier() {
         $pageTitle = 'Supplier Data';
-        return view('admin.supplier',compact('data', 'pageTitle'));
+        return view('admin.supplier', compact('pageTitle'));
+    }
+
+    public function ShowAllSupplier(Request $request) {
+        if ($request->ajax()) {
+            $response = CategorySupplier::supplierShowDataTable($request->all());
+            return response()->json($response);
+        }
     }
     
-
     public function deleteFile(Request $request, $id) {
         if (!isset($id)) {
             $id = $request->id;
@@ -522,7 +275,7 @@ class ExcelImportController extends Controller
             4 => 'staple_sample.xlsx',
             5 => 'wb_sample.xlsx',
             6 => 'lyreco_sample.xlsx',
-            7 => 'od_sample.xlsx',
+            7 => 'weekly_office_depot_sample_file.xlsx',
         ];
 
         $destinationPath = public_path('/excel_sheets');
@@ -536,11 +289,12 @@ class ExcelImportController extends Controller
         return response()->download($destinationPath.'/'.$filename[$id], $filename[$id], $headers);
     }
 
-    public function getColumns(Request $request){
+    public function getColumns(Request $request) {
         $columns = ManageColumns::where('supplier_id',$request->dataIdValue)->get();
         return response()->json($columns);
     }
-    public function saveColumns(Request $request){
+
+    public function saveColumns(Request $request) {
         foreach ($request->all() as $key => $value) {
             $id = $value['fieldId'];
             $columnValue = $value['fieldValue'];
@@ -554,11 +308,579 @@ class ExcelImportController extends Controller
 
     }
 
-    public function getExportWithAjax(Request $request){
+    public function getExportWithAjax(Request $request) {
         if ($request->ajax()) {
             $formatuserdata = UploadedFiles::getFilterdExcelData($request->all());
             return response()->json($formatuserdata);
         }
     }
+ 
+    public function editSupplierName(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'id' => 'required',
+                'phone' => 'required',
+                'email' => 'required',
+                'status' => 'required',
+                'last_name' => 'required',
+                'first_name' => 'required',
+                'department' => 'required',
+                'supplier_id' => 'required',
+            ],
+        );
+
+        if( $validator->fails()){  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        if ($request->main == 1) {
+            SupplierDetail::where('main', 1)
+            ->where('supplier', $request->supplier_id)
+            ->update(['main' => 0]);
+
+            $supplierData = SupplierDetail::find($request->id);
+            $supplierData->update([
+                'main' => $request->main,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'supllier' => $request->supplier_id,
+                'first_name' => $request->first_name,
+                'department_id' => $request->department,
+            ]);
+        } else {
+            $supplierData = SupplierDetail::find($request->id);
+            $supplierData->update([
+                'main' => 0,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'supllier' => $request->supplier_id,
+                'first_name' => $request->first_name,
+                'department_id' => $request->department,
+            ]);
+
+            $existRecord = SupplierDetail::where('main', 1)
+            ->where('supplier', $request->supplier_id)
+            ->first();
+            if (!$existRecord) {
+                $updateManiRecord = SupplierDetail::where('id', '!=', $request->id)
+                ->where('supplier', $request->supplier_id)
+                ->first();
+
+                SupplierDetail::where('id', $updateManiRecord->id)
+                ->where('supplier', $request->supplier_id)
+                ->update(['main' => 1]);
+            }
+        }
+
+        return response()->json(['success' => 'Supplier info updated'], 200);
+    }
+
+    public function addSupplierName(Request $request) {
+        $validator = Validator::make(
+            [
+                'phone'=> $request->phone,
+                'email'=> $request->email,
+                'department'=> $request->department,
+                'status'=> $request->status,
+                'last_name'=> $request->last_name,
+                'first_name'=> $request->first_name,
+                'supplier_id' => $request->supplier_id,
+            ],
+            [
+                'department'=>'required',
+                'phone'=>'required',
+                'email'=>'required',
+                'status'=>'required',
+                'last_name'=>'required',
+                'first_name'=>'required',
+                'supplier_id' => 'required',
+            ],
+        );
+
+        if( $validator->fails()){  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+        
+        if ($request->main == 1) {
+            SupplierDetail::where('main', 1)->where('supplier', $request->supplier_id)
+            ->update(['main' => 0]);
+
+            SupplierDetail::create([
+                'main'=> $request->main,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'supplier' => $request->supplier_id,
+                'first_name' => $request->first_name,
+                'department_id' => $request->department,
+            ]);
+        } else {
+            SupplierDetail::create([
+                'main' => 0,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'status' => $request->status,
+                'last_name' => $request->last_name,
+                'supplier' => $request->supplier_id,
+                'first_name' => $request->first_name,
+                'department_id' => $request->department,
+            ]);
+        }
+        
+        return response()->json(['success' => 'Supplier info added'], 200);
+    }
+
+    public function supplierAdd(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'show' => 'required',
+                'category' => 'required',
+                'supplier_name' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        CategorySupplier::create([
+            'created_by' => Auth::id(),
+            'show' => $request->input('show'),
+            'category' => $request->input('category'),
+            'supplier_name' => $request->input('supplier_name'),
+        ]);
+    }
+
+    public function addSupplierMain(Request $request) {
+        if ($request->main == 1) {
+            SupplierDetail::where('main', 1)->where('supplier', $request->supplier_id)
+            ->update(['main' => 0]);
+
+            SupplierDetail::where('id', $request->id)->update(['main'=> $request->main]);
+        } else {
+            SupplierDetail::where('id', $request->id)->update(['main' => 0]);
+        }
+
+        return response()->json(['success' => 'Supplier info updated'], 200);
+    }
+
+    public function deleteSupplier(Request $request) {
+        $checked = SupplierDetail::select('id')->where('id', $request->id)->where('main', 1)->count();
+        
+        if ($checked > 0) {
+            SupplierDetail::where('id', $request->id)->delete();
+            $id = SupplierDetail::where('supplier', $request->supplier_id)->first();
+            if ($id) {
+                SupplierDetail::where('id', $id->id)->update(['main' => 1]);
+            }
+        } else {
+            SupplierDetail::where('id', $request->id)->delete();
+        }
+
+        return response()->json(['success' => 'Supplier info deleted'], 200);
+    }
+
+    public function showSupplier(Request $request) {
+        $id = $request->id;
+        $pageTitle = getSupplierName($request->id);
+        $departments = DB::table('department')->get();
+        return view('admin.supplier_detail',compact('id', 'pageTitle', 'departments'));
+    }
+
+    public function getSupplierDetailWithAjax(Request $request) {
+        if ($request->ajax()) {
+            $supplierData = SupplierDetail::getSupplierDetailFilterdData($request->all());
+            return response()->json($supplierData);
+        }
+    }
+
+    public function editSupplierShowHide(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'id' => 'required',
+                'show' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        CategorySupplier::where('id', $request->input('id'))
+        ->update(['hide_show' => $request->input('show')]);
+        return response()->json(['success' => true], 200);
+    }
+
+    public function supplierUpdate(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'show' => 'required',
+                'category' => 'required',
+                'supplier_name' => 'required',
+                'supplier_id' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        CategorySupplier::where('id', $request->input('supplier_id'))
+        ->update([
+            'hide_show' => $request->input('show'),
+            'category' => $request->input('category'),
+            'supplier_name' => $request->input('supplier_name'),
+        ]);
+        
+        return response()->json(['success' => true], 200);
+    }
+
+    public function supplierFileFormatImport(Request $request) {
+        try{
+            if (!empty($request->input('supplier_id'))) {
+                $fileColumnsData = DB::table('manage_columns')
+                ->select([
+                    'manage_columns.id as manage_columns_id',
+                    'manage_columns.field_name as field_name',
+                    'manage_columns.required_field_id as required_field_id',
+                ])
+                ->where('manage_columns.supplier_id', $request->input('supplier_id'))
+                ->get();
+
+                $fields = RequiredFieldName::all();
+                $finalArray = [];
+                foreach ($fileColumnsData as $key => $values) {
+                    $mapColumns = '<select class="form-select form-select-sm excel_col" aria-label=".form-select-sm example" name="required_field_id[]">
+                    <option value="0" selected>--Select--</option>';
+
+                    foreach ($fields as $key => $value) {
+                        if ($values->required_field_id == $value->id) {
+                            $mapColumns .= '<option selected value="'.$value->id.'" >'.$value->fields_select_name.((in_array($value->id, [5, 6, 7, 8, 9]) ? (' *') : (''))).'</option>';
+                        } else {
+                            $mapColumns .= '<option value="'.$value->id.'" >'.$value->fields_select_name.((in_array($value->id, [5, 6, 7, 8, 9]) ? (' *') : (''))).'</option>';
+                        }
+                    }
+
+                    $mapColumns .= '</select>';
+
+                    $finalArray[] = [
+                        'excel_field' => '<input type="text" class="form-control" name="field_name[]" value="'.$values->field_name.'"',
+                        'map_columns' => '<input type="hidden" name="manage_columns_id[]" value="'.$values->manage_columns_id.'">'.$mapColumns
+                    ];
+                }
+
+                return response()->json(['success' => true, 'final' => $finalArray], 200);
+            } else {   
+                if ($request->file('excel_file') != '') {
+                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('excel_file'));
+                    if ($inputFileType === 'Xlsx') {
+                        $reader = new Xlsx();
+                    } elseif ($inputFileType === 'Xls') {
+                        $reader = new Xls();
+                    } else {
+                        return response()->json(['error' => 'Unsupported file type: ' . $inputFileType], 200);
+                    }
+        
+                    $spreadSheet = $reader->load($request->file('excel_file'), 2);
+                    $maxNonEmptyCount = 0;
+                    foreach ($spreadSheet->getAllSheets()[0]->toArray() as $key=>$value) {
+                        /** Checking not empty columns */
+                        $nonEmptyCount = count(array_filter(array_values($value), function ($item) {
+                            return !empty($item);
+                        }));
+                        
+                        /** If column count is greater then previous row columns count. Then assigen value to '$maxNonEmptyvalue' */
+                        if ($nonEmptyCount > $maxNonEmptyCount) {
+                            $maxNonEmptyvalue1 = $value;
+                            $startIndexValueArray = $key;
+                            $maxNonEmptyCount = $nonEmptyCount;
+                        }
+                        
+                        /** Stop loop after reading 31 rows from excel file */
+                        if($key > 20){
+                            break;
+                        }
+                    }
     
+                    /** Remove empty key from the array of excel sheet column name */
+                    $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
+                        return !empty($item);
+                    }, ARRAY_FILTER_USE_BOTH));
+                                
+                    /** Clean up the values */
+                    $cleanedArray = array_map(function ($value) {
+                        /** Remove line breaks and trim whitespace */
+                        return trim(str_replace(["\r", "\n"], '', $value));
+                    }, $finalExcelKeyArray1);
+    
+                    $finalArray = [];
+                    
+                    $fields = RequiredFieldName::all();
+                    $mapColumns = '<select class="form-select form-select-sm excel_col" aria-label=".form-select-sm example" name="required_field_id[]">
+                    <option value="0" selected>--Select--</option>';
+    
+                    foreach ($fields as $key => $value) {
+                        $mapColumns .= '<option value="'.$value->id.'" >'.$value->fields_select_name.((in_array($value->id, [5, 6, 7, 8, 9]) ? (' *') : (''))).'</option>';
+                    }
+    
+                    $mapColumns .= '</select>'; 
+    
+                    foreach ($cleanedArray as $key => $value) {
+                        $finalArray[] = [
+                            'excel_field' => '<input type="text" class="form-control" name="field_name[]" value="'.$value.'">',
+                            'map_columns' => $mapColumns
+                        ];
+                    }
+                    // dd($cleanedArray);
+                    return response()->json(['success' => true, 'final' => $finalArray], 200);
+                } else {
+                    return response()->json(['error' => 'Please select your file'], 200);
+                }
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 200);
+        }
+    }
+
+    public function addSupplierFileFormatImport(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'field_name' => 'required',
+                'supplier_id' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        if ($request->input('supplier_id') == 7) {
+            $fields = [
+                5 => 'customer_number',
+                6 => 'customer_name',
+            ];
+        } else {
+            $fields = [
+                5 => 'customer_number',
+                6 => 'customer_name',
+                7 => 'cost',
+                8 => 'invoice_no',
+                9 => 'date',
+            ];
+        }
+
+        /** Get the keys of the $fields array */
+        $field_keys = array_keys($fields);
+
+        /** Collect missing keys */
+        $missing_keys = [];
+
+        foreach ($field_keys as $key) {
+            if (!in_array((string)$key, $request->input('required_field_id'))) {
+                $missing_keys[] = $fields[$key];
+            }
+        }
+
+        if (!empty($missing_keys)) {
+            return response()->json(['error' => "The following field keys are not present in the Map column: " . implode(', ', $missing_keys) . "."], 200);
+        }
+
+        foreach ($request->input('required_field_id') as $key => $value) {
+            DB::table('manage_columns')->insert([
+                'required' => (($value != 0 ) ? (1) : (0)),
+                'supplier_id' => $request->input('supplier_id'),
+                'field_name' => $request->input('field_name')[$key],
+                'required_field_id' => (($value != 0 ) ? ($value) : (null)),
+            ]);
+        }
+
+        $tableName = DB::table('supplier_tables')->select('table_name')->where('supplier_id', $request->input('supplier_id'))->first();
+        if (!$tableName) {
+            $supplierName = DB::table('suppliers')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
+            $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
+        } else {
+            $tableName = $tableName->table_name;
+        }
+
+        $columns = $request->input('field_name');
+        $requiredFieldId = $request->input('required_field_id');
+
+        /** Check if the table already exists */
+        if (Schema::hasTable($tableName)) {
+            $newTableName = $tableName . '_old_' . time();
+            Schema::rename($tableName, $newTableName);
+        }
+
+        /** Create the table */
+        Schema::create($tableName, function (Blueprint $table) use ($columns, $requiredFieldId) {
+            $table->id();
+            $table->bigInteger('attachment_id')->unsigned()->index(); /** Adding the attachment_id column */
+            foreach ($columns as $key => $column) {
+                /** Replace spaces with underscores, remove unwanted characters, and convert to lowercase */
+                $column = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $column))));
+                if (!empty($column)) {
+                    if ($requiredFieldId[$key] == 7) {
+                        $table->decimal($column)->nullable();
+                    } elseif ($requiredFieldId[$key] == 9) {
+                        $table->date($column)->nullable();
+                    } else {
+                        $table->string($column)->nullable();
+                    }
+                }
+            }
+            $table->timestamps(); /** This adds created_at and updated_at columns */
+        });
+
+        return response()->json(['success' => "Columns added successfully"], 200);
+    }
+
+    public function editSupplierFileFormatImport(Request $request) {
+        $validator = Validator::make($request->all(),
+            [
+                'manage_columns_id' => 'required',
+            ],
+        );
+
+        if ( $validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+
+        if ($request->input('supplier_id') == 7) {
+            $fields = [
+                5 => 'customer_number',
+                6 => 'customer_name',
+            ];
+        } else {
+            $fields = [
+                5 => 'customer_number',
+                6 => 'customer_name',
+                7 => 'cost',
+                8 => 'invoice_no',
+                9 => 'date',
+            ];
+        }
+
+        /** Get the keys of the $fields array */
+        $field_keys = array_keys($fields);
+
+        /** Collect missing keys */
+        $missing_keys = [];
+        foreach ($request->input('field_name') as $key => $value) {
+            if (empty(trim($value))) {
+                return response()->json(['error' => "Please fill all columns"], 200);    
+            }
+        }
+
+        foreach ($field_keys as $key) {
+            if (!in_array((string)$key, $request->input('required_field_id'))) {
+                $missing_keys[] = $fields[$key];
+            }
+        }
+
+        if (!empty($missing_keys)) {
+            return response()->json(['error' => "The following field keys are not present in the Map column" . implode(', ', $missing_keys) . "."], 200);
+        }
+
+        foreach ($request->input('required_field_id') as $key => $value) {
+            DB::table('manage_columns')->where('id', $request->input('manage_columns_id')[$key])->update(['required_field_id' => (($value != 0 ) ? ($value) : (null)), 'field_name' => $request->input('field_name')[$key]]);
+        }
+
+        $tableName = DB::table('supplier_tables')->select('table_name')->where('supplier_id', $request->input('supplier_id'))->first();
+
+        if (!$tableName) {
+            $supplierName = DB::table('suppliers')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
+            $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
+        } else {
+            $tableName = $tableName->table_name;
+        }
+
+        $columns = $request->input('field_name');
+        $requiredFieldId = $request->input('required_field_id');
+
+       /** Check if the table already exists */
+        if (Schema::hasTable($tableName)) {
+            /** Check if the table is empty */
+            $rowCount = DB::table($tableName)->count();
+            if ($rowCount == 0) {
+                Schema::drop($tableName);
+            } else {
+                $newTableName = $tableName . '_old_' . time();
+                Schema::rename($tableName, $newTableName);
+            }
+        }
+
+
+        /** Create the table */
+        Schema::create($tableName, function (Blueprint $table) use ($columns, $requiredFieldId) {
+            $table->id();
+            $table->bigInteger('attachment_id')->unsigned()->index(); /** Adding the attachment_id column */
+            foreach ($columns as $key => $column) {
+                /** Replace spaces with underscores, remove unwanted characters, and convert to lowercase */
+                $column = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $column))));
+                if (!empty($column)) {
+                    if ($requiredFieldId[$key] == 7) {
+                        $table->decimal($column)->nullable();
+                    } elseif ($requiredFieldId[$key] == 9) {
+                        $table->date($column)->nullable();
+                    } else {
+                        $table->string($column)->nullable();
+                    }
+                }
+            }
+            $table->timestamps(); /** This adds created_at and updated_at columns */
+        });
+        
+        return response()->json(['success' => "Column updated successfully"], 200);
+    }
+
+    public function removeSupplierFileFormatImport(Request $request) {
+        DB::table('manage_columns')
+        ->where(
+            'supplier_id',
+            $request->input('id')
+        )
+        ->delete();
+
+        return response()->json(['success' => "Columns deleted successfully"], 200);
+    }
+
+    public function editSupplierPermissions($id){
+        /** Find the user by ID */
+        $supplier = CategorySupplier::with('showPermissions')->find($id);
+
+        /** Get all permissions */
+        $showPermissions = ShowPermissions::all();
+
+        /** Return user and permissions data as JSON response */
+        return response()->json([
+            'supplier' => $supplier,
+            'show_permissions' => $showPermissions
+        ]);
+    }
+
+    public function updateSupplierPermissions(Request $request){
+        $validator = Validator::make($request->all(), [
+            'supplier_id' => 'required',
+            'show_permissions' => 'required',
+        ]);
+        
+        if ($validator->fails()) {  
+            return response()->json(['error' => $validator->errors()], 200);
+        } else {
+            try {
+                $supplier = CategorySupplier::find($request->supplier_id);
+
+                /** Sync supplier permissions */
+                $supplier->showPermissions()->sync($request->input('show_permissions'));
+                return response()->json(['success' => true], 200);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 200);
+            }
+        }
+    }
 }

@@ -20,7 +20,7 @@
             <a href="{{ route('sales.index') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
             @endif
             @if (isset($catalog) && !empty($catalog))
-            <a href="{{ route('sales.index') }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
+            <a href="{{ route('catalog.list', ['catalogType' => 'catalog']) }}" class="btn btn-secondary border-0 bg_yellow" ><i class="fas fa-arrow-left me-2"></i>Back</a>
             @endif
             
             <!-- Add redirect conditions here -->
@@ -59,10 +59,10 @@
                             <tr>
                             @endif
                            
-                            @if (isset($orders->amount) && !empty($orders->amount))
+                            @if (isset($orders->cost) && !empty($orders->cost))
                             <tr>
                             <th scope="row">Amount</th>
-                            <td> {{ '$'.$orders->amount }}</td>
+                            <td> {{ '$'.$orders->cost }}</td>
                             </tr>
                             @endif
                             @if (isset($data->date) && !empty($data->date))
@@ -331,7 +331,7 @@
 
             @if (isset($catalog) && !empty($catalog))
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
             <table class="table">
                 <thead>
                     <tr>

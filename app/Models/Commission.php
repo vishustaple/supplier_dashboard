@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
-use DB;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Commission extends Model
 {
@@ -40,7 +40,7 @@ class Commission extends Model
             7 => 'commission.id',
         ];
    
-        $query = self::query() // Replace YourModel with the actual model you are using for the data
+        $query = self::query() /** Replace YourModel with the actual model you are using for the data */
         ->leftJoin('suppliers', 'commission.supplier', '=', 'suppliers.id')
         ->leftJoin('sales_team', 'sales_team.id', '=', 'commission.sales_rep')
         ->select(
@@ -52,35 +52,43 @@ class Commission extends Model
             DB::raw("CONCAT(sales_team.first_name, ' ', sales_team.last_name) AS sales_rep"),
             'commission.end_date as end_date',
             'commission.id as id'
-        ); // Adjust the column names as needed
+        ); /** Adjust the column names as needed */
     
-        // Search functionality
+        $totalRecords = $query->getQuery()->getCountForPagination();
+
+        /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
             $query->where(function ($q) use ($searchTerm, $orderColumnArray) {
                 foreach ($orderColumnArray as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                    if ($column == 'commission.sales_rep') {
+                        $q->orWhere(DB::raw("CONCAT(sales_team.first_name, ' ', sales_team.last_name)"), 'LIKE', '%' . $searchTerm . '%');
+                    } else {
+                        $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
+                    }
                 }
             });
         }
 
-        $totalRecords = $query->getQuery()->getCountForPagination();
+        
 
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            // Order by column and direction
+            /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
+        $filteredRecords = $query->getQuery()->getCountForPagination();
+
         if (isset($filter['start']) && isset($filter['length'])) {
-            // Get paginated results based on start, length
+            /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
         }
 
-        // Print the SQL query
+        /** Print the SQL query */
         // dd($filteredData->toArray());    
 
         $formatuserdata=[];
@@ -96,6 +104,7 @@ class Commission extends Model
 
             $start_date = date("m/d/Y", strtotime($data->start_date)); /** Convert to mm/dd/yyyy format */
             $end_date = date("m/d/Y", strtotime($data->end_date)); /** Convert to mm/dd/yyyy format */
+            
             /** To create a date range for the same day, just concatenate the start date */
             $date_range = $start_date . " - " . $end_date;
 
@@ -111,7 +120,7 @@ class Commission extends Model
         return [
             'data' => $formatuserdata,
             'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
         ];
     }
 }

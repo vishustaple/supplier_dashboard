@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use DB;
 use App\Models\UploadedFiles;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Database\QueryException;
@@ -33,11 +33,21 @@ class DeleteUploadedFilesData extends Command
     {
         /** Selecting the file data row using table id */
         $fileData = UploadedFiles::where('delete', 1)->first();
-
         
+        /** Array of different supplires table */
+        $supplierTableArray = [
+            1 => 'g_and_t_laboratories_charles_river_order',
+            2 => 'grainger_order',
+            3 => 'office_depot_order',
+            4 => 'staples_order',
+            5 => 'wb_mason_order',
+            6 => 'lyreco_order',
+            7 => 'odp_order',
+        ];
+
         if (isset($fileData->id) && !empty($fileData->id)) {
             /** Update delete two means start deleting data into excel */
-            DB::table('uploaded_files')->where('id', $fileData->id)->update(['delete' => UploadedFiles::CRON]);
+            DB::table('attachments')->where('id', $fileData->id)->update(['delete' => UploadedFiles::CRON]);
             try {
                 $id = $fileData->id;
                 $fileData->delete = 0;
@@ -48,16 +58,19 @@ class DeleteUploadedFilesData extends Command
                 /** Delete records from UploadedFiles table */
                 UploadedFiles::where('id', $id)->delete();
     
-                if (in_array($fileData->cron, [2, 3])) {
+                // if (in_array($fileData->cron, [3, 10, 11, 6])) {
                     /** Delete records from ExcelData table */
-                    DB::table('order_product_details')->where('data_id', $id)->delete();
+                    DB::table('order_product_details')->where('attachment_id', $id)->delete();
         
                     /** Delete records from OrderDetails table */
-                    DB::table('order_details')->where('data_id', $id)->delete();
+                    DB::table('order_details')->where('attachment_id', $id)->delete();
         
                     /** Delete records from Order table */
-                    DB::table('orders')->where('data_id', $id)->delete();
-                }
+                    DB::table('orders')->where('attachment_id', $id)->delete();
+
+                    /** Delete records from Suppliers Orders table */
+                    DB::table($supplierTableArray[$fileData->supplier_id])->where('attachment_id', $id)->delete();
+                // }
     
                 if (File::exists($filePath)) {
                     try {
@@ -75,7 +88,7 @@ class DeleteUploadedFilesData extends Command
                 }
 
                 /** Update the 'delete' field three after deleting done */
-                DB::table('uploaded_files')->where('id', $fileData->id)->update(['delete' => 0]);
+                DB::table('attachments')->where('id', $fileData->id)->update(['delete' => 0]);
             } catch (QueryException $e) {   
                 Log::error('Database deletion failed:: ' . $e->getMessage());
     
@@ -85,7 +98,7 @@ class DeleteUploadedFilesData extends Command
 
             $this->info('File deleted successfully.');
         } else {
-            $this->info('No file for delete successfully.');
+            $this->info('No file for delete.');
         }
     }
 }
