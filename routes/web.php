@@ -58,7 +58,6 @@ Route::group(['prefix' => 'admin'], function () {
         Route::delete('/queries/delete/{query}', [SavedQueryController::class, 'destroy'])->name('queries.destroy');
         
 
-        Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::get('/supplier', [ExcelImportController::class, 'allSupplier'])->name('supplier');
         Route::get('/supplier/{id?}', [ExcelImportController::class, 'showSupplier'])->name('supplier.show');
         Route::post('/suppliers/edit', [ExcelImportController::class, 'editSupplierName'])->name('supplier.edit');

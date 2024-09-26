@@ -61,17 +61,18 @@ class UploadedFiles extends Model
             5 => 'attachments.id',
         ];
          
-        $query = self::query()->selectRaw(
-            "`attachments`.`file_name` as `file_name`,
-            `attachments`.`created_by` as `created_by`,
-            `attachments`.`cron` as `cron`,
+        $query = self::query()->selectRaw("
             `attachments`.`id` as `id`,
+            `attachments`.`cron` as `cron`,
+            `attachments`.`delete` as `delete`,
+            `attachments`.`file_name` as `file_name`,
+            `attachments`.`created_by` as `created_by`,
             `attachments`.`created_at` as `created_at`,
             `attachments`.`deleted_at` as `deleted_at`,
-            `attachments`.`delete` as `delete`,
             `suppliers`.`supplier_name` as `supplier_name`,
-            CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS `user_name`"
-        )
+            CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS `user_name`
+        ")
+
         ->leftJoin('users', 'attachments.created_by', '=', 'users.id')
         ->leftJoin('suppliers', 'suppliers.id', '=', 'attachments.supplier_id')
         ->withTrashed();
@@ -131,10 +132,10 @@ class UploadedFiles extends Model
                 $formatuserdata[$key]['status'] = '<div class="clear"></div><progress value="'.$cronString.'" max="100" id="progBar"><span id="downloadProgress"></span></progress><div id="progUpdate">'.$cronString.'% Uploaded</div>';
             }
            
-            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
-            $formatuserdata[$key]['file_name'] = '<div class="file_td">'.$data->file_name.'</div>';
             $formatuserdata[$key]['uploaded_by'] = $data->user_name;
+            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['date'] = date_format(date_create($data->created_at), 'm/d/Y');
+            $formatuserdata[$key]['file_name'] = '<div class="file_td">'.$data->file_name.'</div>';
             $formatuserdata[$key]['id'] = (isset($data->delete) && !empty($data->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : (((isset($data->deleted_at) && !empty($data->deleted_at) || $data->cron == 10) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$data->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>'));
         }
 
