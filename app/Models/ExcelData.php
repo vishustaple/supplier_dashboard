@@ -20,14 +20,13 @@ class ExcelData extends Model
      protected $fillable = [
         'key',
         'value',
-        'attachment_id',
         'order_id',
         'file_name',
+        'attachment_id',
     ];
 
     /** Define the relationship with the Supplier model */
-    public function order()
-    {
+    public function order() {
         return $this->belongsTo(order::class);
     }
 }

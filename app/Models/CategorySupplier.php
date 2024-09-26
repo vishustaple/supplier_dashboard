@@ -40,14 +40,14 @@ class CategorySupplier extends Model
 
         $query = self::select([
             'suppliers.id as id',
-            'suppliers.hide_show as hide_show',
             'suppliers.category as category',
+            'suppliers.hide_show as hide_show',
             'supplier_contacts.email as email',
             'supplier_contacts.phone as phone',
             'supplier_contacts.status as status',
             'department.department as department',
-            'suppliers.supplier_name as supplier_name',
             'manage_columns.id as manage_columns_id',
+            'suppliers.supplier_name as supplier_name',
             DB::raw("CONCAT(supplier_contacts.first_name, ' ', supplier_contacts.last_name) as name"),
         ])
         ->leftJoin('supplier_contacts', function($join) {

@@ -13,13 +13,18 @@ class ManageColumns extends Model
     protected $table = 'manage_columns';
 
     protected $fillable = [
-        'supplier_id',
         'required',
         'field_name',
+        'supplier_id',
     ];
 
     public static function getRequiredColumns(){
-        $columnValues = DB::table('manage_columns')->select('supplier_id', 'field_name')->get();
+        $columnValues = DB::table('manage_columns')
+        ->select(
+            'supplier_id',
+            'field_name'
+        )
+        ->get();
 
         foreach ($columnValues as $value) {
             $jsArray[$value->supplier_id][] =  $value->field_name;
