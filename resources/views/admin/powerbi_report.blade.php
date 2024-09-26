@@ -13,7 +13,6 @@
                     {!! $ifram !!}
                 @endif
             </div>
-            @include('layout.footer')
         </div>
     </div>
     @if($accessToken)

@@ -71,7 +71,6 @@
                 </main>
             </div>
             <div id="layoutAuthentication_footer">
-            @include('layout.footer')
             </div>
         </div>
 @endsection

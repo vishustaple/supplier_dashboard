@@ -57,7 +57,6 @@
                 </main>
             </div>
         </div>
-        @include('layout.footer')
     </body>
 </html>
 @endsection

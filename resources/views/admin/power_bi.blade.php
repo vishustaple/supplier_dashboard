@@ -102,7 +102,6 @@
                         @endif
                     </tbody>
                 </table>
-        @include('layout.footer')
         </div>
     </div>
     <script>
