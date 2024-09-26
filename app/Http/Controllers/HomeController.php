@@ -1,25 +1,25 @@
 <?php
     namespace App\Http\Controllers;
 
-    use App\Models\{User, Permission};
+    use Exception;
     use Illuminate\Support\Str;
     use Illuminate\Http\Request;
+    use App\Models\{User, Permission};
     use Illuminate\Support\Facades\DB;
     use Illuminate\Support\Facades\Log;
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Support\Facades\Mail;
-    use Illuminate\Support\Facades\Crypt;
-    use Illuminate\Support\Facades\Validator;
     use Illuminate\Support\Facades\Http;
+    use Illuminate\Support\Facades\Crypt;
     use Illuminate\Support\Facades\Session;
-    use Exception;
+    use Illuminate\Support\Facades\Validator;
 
 
     class HomeController extends Controller
     {
         public function __construct() {
-            // $this->middleware('user.type')->only(['index', 'userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
             $this->middleware('permission:Manage Users')->only(['userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
+            $this->middleware('permission:Manage Power BI Reports')->only(['showPowerBi', 'powerBiAdd', 'powerBiEdit', 'powerBiDelete', '']);
         }
     
         /**
@@ -27,10 +27,6 @@
          *
          * @return \Illuminate\Contracts\Support\Renderable
          */
-        public function index() {
-            return view('admin.index');
-        }
-
         public function register() {
             return view('auth.register');
         }
@@ -397,6 +393,11 @@
 
         public function powerBiAdd(Request $request) {
             try {
+                DB::table('permissions')
+                ->insert([
+                    'name' => $request->input('title')
+                ]);
+
                 DB::table('show_power_bi')
                 ->insert([
                     'title' => $request->input('title'),
@@ -411,6 +412,17 @@
 
         public function powerBiEdit(Request $request) {
             try {
+                $report = DB::table('show_power_bi')
+                ->where('id', $request->input('id'))
+                ->select('name')
+                ->first();
+
+                DB::table('permissions')
+                ->where('name', $report->name)
+                ->update([
+                    'name' => $request->input('title')
+                ]);
+
                 DB::table('show_power_bi')
                 ->where('id', $request->input('id'))
                 ->update([
@@ -426,7 +438,17 @@
 
         public function powerBiDelete($id) {
             try {
+                $report = DB::table('show_power_bi')
+                ->where('id', $id)
+                ->select('name')
+                ->first();
+
+                DB::table('permissions')
+                ->where('name', $report->name)
+                ->delete();
+
                 DB::table('show_power_bi')->where('id', $id)->delete();
+
                 return redirect()->route('power_bi.show');
             } catch (\Exception $e) {
                 Log::error('error', $e->getMessage());
@@ -435,7 +457,38 @@
 
         public function powerBiReport(Request $request) {
             if ($request->ajax()) {
-                $record =  DB::table('show_power_bi')->select('id', 'title')->get();
+                if (!in_array(Auth::user()->user_type, [User::USER_TYPE_SUPERADMIN,User::USER_TYPE_ADMIN])) {
+
+                    /** Convert the collection to array */
+                    $titleArray = DB::table('show_power_bi')->select('title')->get()->map(function ($item) {
+                        return [$item->title];
+                    })->toArray();
+
+                    /** Convert the collection to array */
+                    $permissionArray = DB::table('permissions')->select('id')->whereIn('name', $titleArray)->get()->map(function ($item) {
+                        return [$item->id];
+                    })->toArray();
+
+                    /** Convert the collection to array */
+                    $userHasPermissionArray = DB::table('permission_user')->select('permission_id')->where('user_id', Auth::user()->id)->whereIn('permission_id', $permissionArray)->get()->map(function ($item) {
+                        return [$item->permission_id];
+                    })->toArray();
+
+                    /** Convert the collection to array */
+                    $titlesArray = DB::table('permissions')->select('name')->whereIn('id', $userHasPermissionArray)->get()->map(function ($item) {
+                        return [$item->name];
+                    })->toArray();
+
+                    $record =  DB::table('show_power_bi')
+                    ->whereIn('title', $titlesArray)
+                    ->select('id', 'title')
+                    ->get();
+                } else {
+                    $record =  DB::table('show_power_bi')
+                    ->select('id', 'title')
+                    ->get();
+                }
+
                 if ($record->isNotEmpty()) {
                     $titles = $record->pluck('title')->toArray();
 
@@ -449,7 +502,7 @@
                     </a>
                     <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'show' : '') . '" id="subMenuPowerBi">';
 
-                    foreach ($record as $key => $value) {
+                    foreach ($record as $value) {
                         $data .= '
                         <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == $value->title) ? 'active' : '') . '" href="' . route('powerbi_report.type', ['id' => $value->id, 'reportType' => $value->title]) . '">' . htmlspecialchars($value->title, ENT_QUOTES, 'UTF-8') . '</a>';
                     }
@@ -457,19 +510,31 @@
                     $data .= '</div>';
 
                     return response()->json([
-                        'success' => true,
                         'data' => $data,
+                        'success' => true,
                     ]);
                 } else {
                     return response()->json([
-                        'success' => true,
                         'data' => '',
+                        'success' => true,
                     ]);
                 }
             }
         }
 
         public function powerBiReportViewRender($id, $reportType) {
+            if (!in_array(Auth::user()->user_type, [User::USER_TYPE_SUPERADMIN,User::USER_TYPE_ADMIN])) {
+                $title = DB::table('show_power_bi')->select('title')->where('id', $id)->first();
+    
+                $permission = DB::table('permissions')->select('id')->where('name', $title->title)->first();
+    
+                $userHasPermission = DB::table('permission_user')->select('permission_id')->where('user_id', Auth::user()->id)->where('permission_id', $permission->id)->first();
+    
+                if (!$userHasPermission) {
+                    return redirect()->route('upload.sheets')->withErrors(['error' => 'You do not have permissions to access this report.']);;
+                }
+            }
+
             /** Getting power bi report ifram using id */
             $data = DB::table('show_power_bi')->select('title', 'iframe')->where('id', $id)->first();
 
