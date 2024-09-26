@@ -66,15 +66,15 @@ class SalesTeam extends Model
         /** Get total records count (without filtering) */
         $totalRecords = $query->count();
 
+        /** Order by column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
+        /** Get paginated results based on start, length */
         if (isset($filter['start']) && isset($filter['length'])) {
-            /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
@@ -91,12 +91,13 @@ class SalesTeam extends Model
             1 => 'Sales',
             2 => 'Agent',
             3 => 'Customer Services',
-         
         ];
+
         foreach ($filteredData as $key => $data) {
             $formatuserdata[$key]['name'] = $data->first_name.' '.$data->last_name;
             $formatuserdata[$key]['email'] = $data->email;
             $formatuserdata[$key]['phone'] = isset($data->phone) ? "\t" .$data->phone : null;
+
             if ($csv) {
                 if ($data->status == 1) {
                     $formatuserdata[$key]['status'] = 'Active';
@@ -121,7 +122,6 @@ class SalesTeam extends Model
                     $formatuserdata[$key]['status'] .= '<label class="form-check-label" for="flexCheckDefault">In-Active</label></div>';
                 }
             }
-           
             
             $userType = isset($userTypeLabels[$data->team_user_type]) ? $userTypeLabels[$data->team_user_type] : 'Unknown';
 
@@ -134,10 +134,7 @@ class SalesTeam extends Model
 
             return $finalArray;
         }
-        
-        // echo"<pre>";
-        // print_r($formatuserdata);
-        // die;
+
         /** Return the result along with total and filtered counts */
         return [
             'data' => $formatuserdata,

@@ -27,8 +27,21 @@ class SupplierDetail extends Model
 		/** Define column array for ordering the rows and searching the rows */
 		$orderColumnArray = ['main', 'name', 'title', 'email', 'phone', 'status'];
 
-		$query = self::query() // Replace YourModel with the actual model you are using for the data   
-		->select(['supplier_contacts.id as id', 'main', 'supplier_contacts.department_id as department_id', 'email', 'first_name', 'last_name', 'phone', 'department.department as department', 'status', DB::raw("CONCAT(first_name, ' ', last_name) AS name")])
+		$query = self::query() /** Replace YourModel with the actual model you are using for the data */
+		->select(
+			[
+				'main',
+				'email',
+				'phone',
+				'status',
+				'last_name',
+				'first_name',
+				'supplier_contacts.id as id',
+				'department.department as department',
+				'supplier_contacts.department_id as department_id',
+				DB::raw("CONCAT(first_name, ' ', last_name) AS name")
+			]
+		)
 		->leftJoin('department', 'department.id', '=', 'supplier_contacts.department_id');
 
 		$totalRecords = $query->getQuery()->getCountForPagination();
@@ -49,8 +62,8 @@ class SupplierDetail extends Model
 		}
 		
 		/** Get total records count (without filtering) */
+		/** Order by column and direction */
 		if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-			/** Order by column and direction */
 			$query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
 		} else {
 			$query->orderBy($orderColumnArray[0], 'asc');
@@ -75,7 +88,7 @@ class SupplierDetail extends Model
 		// dd($query->toSql(), $query->getBindings());
 		// dd($finalArray);
 
-		// Return the result along with total and filtered counts
+		/** Return the result along with total and filtered counts */
 		return [
 			'data' => $finalArray,
 			'recordsTotal' => $totalRecords,

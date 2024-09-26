@@ -11,7 +11,6 @@ class CommissionRebateDetail extends Model
     
     protected $table = 'commission_rebate_detail';
 
-    
     /**
     * The attributes that are mass assignable.
     *

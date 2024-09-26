@@ -17,7 +17,7 @@ class RecordType extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'created_by',
         'account_name',
-        'created_by'
     ];
 }

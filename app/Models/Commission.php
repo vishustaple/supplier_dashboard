@@ -12,7 +12,6 @@ class Commission extends Model
 
     protected $table = 'commission';
 
-    
      /**
      * The attributes that are mass assignable.
      *
@@ -44,14 +43,14 @@ class Commission extends Model
         ->leftJoin('suppliers', 'commission.supplier', '=', 'suppliers.id')
         ->leftJoin('sales_team', 'sales_team.id', '=', 'commission.sales_rep')
         ->select(
-            'commission.account_name as account_name',
-            'suppliers.supplier_name as supplier_name',
+            'commission.id as id',
+            'commission.status as status',
+            'commission.end_date as end_date',
             'commission.commission as commission',
             'commission.start_date as start_date',
-            'commission.status as status',
+            'commission.account_name as account_name',
+            'suppliers.supplier_name as supplier_name',
             DB::raw("CONCAT(sales_team.first_name, ' ', sales_team.last_name) AS sales_rep"),
-            'commission.end_date as end_date',
-            'commission.id as id'
         ); /** Adjust the column names as needed */
     
         $totalRecords = $query->getQuery()->getCountForPagination();
@@ -70,10 +69,8 @@ class Commission extends Model
             });
         }
 
-        
-
+        /** Order by column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
@@ -81,8 +78,8 @@ class Commission extends Model
 
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
+        /** Get paginated results based on start, length */
         if (isset($filter['start']) && isset($filter['length'])) {
-            /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
@@ -93,12 +90,12 @@ class Commission extends Model
 
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
+            $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
+            $formatuserdata[$key]['account_name'] = $data->account_name;
+            $formatuserdata[$key]['commission'] = $data->commission.'%';
+            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['customer_name'] = $data->customer_name;
             $formatuserdata[$key]['customer_number'] = $data->customer_number;
-            $formatuserdata[$key]['account_name'] = $data->account_name;
-            $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
-            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
-            $formatuserdata[$key]['commission'] = $data->commission.'%';
             $formatuserdata[$key]['start_date'] = date('m/d/Y', strtotime($data->start_date));
             $formatuserdata[$key]['end_date'] = date('m/d/Y', strtotime($data->end_date)); /**date_format */
 

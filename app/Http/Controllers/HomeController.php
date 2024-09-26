@@ -624,7 +624,7 @@
                     /** Getting final tokens data after decoding the JSON */
                     $result = json_decode($result, true);
 
-                    // Debugging output
+                    /** Debugging output */
                     // dd($result);
 
                     /** this is the refresh token used to access Microsoft Live REST APIs */

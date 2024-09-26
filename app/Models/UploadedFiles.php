@@ -36,22 +36,19 @@ class UploadedFiles extends Model
 
     protected $dates = ['deleted_at'];
 
-    public function supplier(): BelongsTo
-    {
+    public function supplier(): BelongsTo {
         return $this->belongsTo(Supplier::class);
     }
 
-    public function user(): BelongsTo
-    {
+    public function user(): BelongsTo {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function deletedByUser(): BelongsTo
-    {
+    public function deletedByUser(): BelongsTo {
         return $this->belongsTo(User::class, 'deleted_by');
     }
 
-    public static function getFilterdExcelData($filter = []){
+    public static function getFilterdExcelData($filter = []) {
         $orderColumnArray = [
             0 => 'attachments.supplier_id',
             1 => 'attachments.file_name',
@@ -94,15 +91,17 @@ class UploadedFiles extends Model
         }
 
         $query->orderBy('attachments.id', 'desc');
+
+        /** Get paginated results based on start, length */
         if (isset($filter['start']) && isset($filter['length'])) {
-            /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
         }
         
         /** Print the SQL query
-        * For debug query */
+        * For debug query 
+        */
         // dd($query->toSql(), $query->getBindings());
 
         /** Get filtered records count */
