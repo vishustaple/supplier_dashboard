@@ -72,7 +72,25 @@
                                 </div>
                                 <div class="permissions" id="add_permissions">
                                     <p id="permission_heading">Permissions:</p>
+                                    <?php $count_report = $count_power_bi_report = 0; ?>
                                     @foreach($permissions as $permission)
+                                        <?php 
+                                            if ($permission->report_type == 1) {
+                                                $count_report = $count_report + 1;
+                                            }
+
+                                            if ($permission->report_type == 2) {
+                                                $count_power_bi_report = $count_power_bi_report + 1;
+                                            }
+
+                                            if ($count_report == 1) {
+                                                echo '<p id="report_permission_heading">Report:</p>';
+                                            }
+
+                                            if ($count_power_bi_report == 1) {
+                                                echo '<p id="power_bi_report_permission_heading">Power Bi Report:</p>';
+                                            }
+                                        ?>
                                         <div>
                                             <input type="checkbox" name="permissions[]" value="{{ $permission->id }}">
                                             <label>{{ $permission->name }}</label>
@@ -251,10 +269,26 @@
         async function renderPermissions(user, permissions) {
             var permissionsContainer = $('#permissions-container');
             permissionsContainer.empty();
-            permissionsContainer.append('<p id="permission_heading">Permissions:</p>');
+            permissionsContainer.append('<p id="permission_headings">Permissions:</p>');
+            var count_report = count_power_bi_report = 0;
             permissions.forEach(function(permission) {
-                var checkbox = $('<input>', { type: 'checkbox', name: 'permissions[]', value: permission.id });
-                
+                var checkbox = $('<input>', { type: 'checkbox', name: 'permissions[]', value: permission.id }); 
+                if (permission.report_type == 1) {
+                    count_report = count_report + 1;
+                }
+
+                if (permission.report_type == 2) {
+                    count_power_bi_report = count_power_bi_report + 1;
+                }
+
+                if (count_report == 1) {
+                    permissionsContainer.append('<p id="report_permission_headings">Report:</p>')
+                }
+
+                if (count_power_bi_report == 1) {
+                    permissionsContainer.append('<p id="power_bi_report_permission_headings">Power Bi Report:</p>')
+                }
+
                 // Check if the permission ID exists in the user's permissions array
                 var isPermissionChecked = user.permissions.some(function(userPermission) {
                     return userPermission.id === permission.id;
@@ -273,15 +307,36 @@
         $('input[type="checkbox"]').parent().hide();
         if ($('#user_role').val() == 2) {
             $('#permission_heading').show();
+            $('#report_permission_heading').hide();
+            $('#power_bi_report_permission_heading').hide();
+
+            $('#permission_headings').show();
+            $('#report_permission_headings').hide();
+            $('#power_bi_report_permission_headings').hide();
+
             $('input[type="checkbox"]').parent().hide();
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"][value="4"]').parent().show();
         } else if ($('#user_role').val() == 3) {
             $('#permission_heading').show();
+            $('#report_permission_heading').show();
+            $('#power_bi_report_permission_heading').show();
+
+            $('#permission_headings').show();
+            $('#report_permission_headings').show();
+            $('#power_bi_report_permission_headings').show();
+
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"]').parent().show();
         } else {
             $('#permission_heading').hide();
+            $('#report_permission_heading').hide();
+            $('#power_bi_report_permission_heading').hide();
+
+            $('#permission_headings').hide();
+            $('#report_permission_headings').hide();
+            $('#power_bi_report_permission_headings').hide();
+
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"]').parent().hide();
         }
@@ -289,16 +344,36 @@
         $('#user_role, #update_user_role').on('change', function(){
             if ($(this).val() == 2) {
                 $('#permission_heading').show();
+                $('#report_permission_heading').hide();
+                $('#power_bi_report_permission_heading').hide();
+
+                $('#permission_headings').show();
+                $('#report_permission_headings').hide();
+                $('#power_bi_report_permission_headings').hide();
+
                 $('input[type="checkbox"]').prop('checked', false);
                 $('input[type="checkbox"]').parent().hide();
                 $('input[type="checkbox"][value="4"]').parent().show();
             } else if ($(this).val() == 3) {
                 $('#permission_heading').show();
+                $('#report_permission_heading').show();
+                $('#power_bi_report_permission_heading').show();
+
+                $('#permission_headings').show();
+                $('#report_permission_headings').show();
+                $('#power_bi_report_permission_headings').show();
+
                 $('input[type="checkbox"]').prop('checked', false);
                 $('input[type="checkbox"]').parent().show();
             } else {
                 $('#permission_heading').hide();
-                $('#permission_heading').hide();
+                $('#report_permission_heading').hide();
+                $('#power_bi_report_permission_heading').hide();
+
+                $('#permission_headings').hide();
+                $('#report_permission_headings').hide();
+                $('#power_bi_report_permission_headings').hide();
+
                 $('input[type="checkbox"]').parent().hide();
             }
         });

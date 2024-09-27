@@ -19,6 +19,7 @@
     width: 100%;
     }
 
+
     /* Apply border to table cells */
     table.dataTable td,
     table.dataTable th {
@@ -463,4 +464,14 @@ div#layoutSidenav_content.collapsedfull{
 }
 #example_wrapper #example {
   display: inline-table !important;
+}
+
+div#updateuserModal .modal-dialog {
+  max-width: 900px;
+  margin: 1.75rem auto;
+}
+
+div#userModal .modal-dialog {
+  max-width: 900px;
+  margin: 1.75rem auto;
 }
