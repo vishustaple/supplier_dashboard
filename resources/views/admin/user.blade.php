@@ -302,6 +302,20 @@
 
                 permissionsContainer.append($('<div>').append(checkbox, label));
             });
+
+            if ($('#update_user_role').val() == 2) {
+                $('#permission_headings').show();
+                $('#report_permission_headings').hide();
+                $('#power_bi_report_permission_headings').hide();
+            } else if ($('#update_user_role').val() == 3) {
+                $('#permission_headings').show();
+                $('#report_permission_headings').show();
+                $('#power_bi_report_permission_headings').show();
+            } else {
+                $('#permission_headings').hide();
+                $('#report_permission_headings').hide();
+                $('#power_bi_report_permission_headings').hide();
+            }
         }
 
         $('input[type="checkbox"]').parent().hide();
@@ -309,10 +323,6 @@
             $('#permission_heading').show();
             $('#report_permission_heading').hide();
             $('#power_bi_report_permission_heading').hide();
-
-            $('#permission_headings').show();
-            $('#report_permission_headings').hide();
-            $('#power_bi_report_permission_headings').hide();
 
             $('input[type="checkbox"]').parent().hide();
             $('input[type="checkbox"]').prop('checked', false);
@@ -322,20 +332,12 @@
             $('#report_permission_heading').show();
             $('#power_bi_report_permission_heading').show();
 
-            $('#permission_headings').show();
-            $('#report_permission_headings').show();
-            $('#power_bi_report_permission_headings').show();
-
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"]').parent().show();
         } else {
             $('#permission_heading').hide();
             $('#report_permission_heading').hide();
             $('#power_bi_report_permission_heading').hide();
-
-            $('#permission_headings').hide();
-            $('#report_permission_headings').hide();
-            $('#power_bi_report_permission_headings').hide();
 
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"]').parent().hide();
