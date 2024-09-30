@@ -77,7 +77,7 @@
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'user_role' => 'required',
-                'user_status' => 'required',
+                // 'user_status' => 'required',
             ]);
 
             if ($validator->fails()) {  
@@ -208,7 +208,7 @@
                 'first_name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email,' . Crypt::decryptString($request->update_user_id),
                 'update_user_role' => 'required',
-                'update_user_status' => 'required',
+                // 'update_user_status' => 'required',
             ]);
             
             /** If faild to validate then redirect back with error message into the response */
