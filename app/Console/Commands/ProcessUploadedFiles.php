@@ -297,7 +297,15 @@ class ProcessUploadedFiles extends Command
 
                                         if (!isset($customerId) && empty($customerId)) {
                                             $insertId = DB::table('customers')
-                                            ->insert(['customer_name' => $row[$keyCustomerName]]);
+                                            ->insert([
+                                                'customer_name' => $row[$keyCustomerName]
+                                            ]);
+
+                                            DB::table('customer_suppliers')
+                                            ->insert([
+                                                'customer_id' => $insertId,
+                                                'supplier_id' => $fileValue->supplier_id,
+                                            ]);
                                         } else {
                                             $insertId = $customerId->id;
                                         }
@@ -348,7 +356,15 @@ class ProcessUploadedFiles extends Command
 
                                     if (!isset($customerId) && empty($customerId)) {
                                         $insertId = DB::table('customers')
-                                        ->insert(['customer_name' => $row[$keyCustomerName]]);
+                                        ->insert([
+                                            'customer_name' => $row[$keyCustomerName]
+                                        ]);
+
+                                        DB::table('customer_suppliers')
+                                        ->insert([
+                                            'customer_id' => $insertId,
+                                            'supplier_id' => $fileValue->supplier_id,
+                                        ]);
                                     } else {
                                         $insertId = $customerId->id;
                                     }
