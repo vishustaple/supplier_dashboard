@@ -12,6 +12,7 @@
     use Illuminate\Support\Facades\Http;
     use Illuminate\Support\Facades\Crypt;
     use Illuminate\Support\Facades\Session;
+    use Illuminate\Database\QueryException;
     use Illuminate\Support\Facades\Validator;
 
 
@@ -439,18 +440,20 @@
         public function powerBiDelete($id) {
             try {
                 $report = DB::table('show_power_bi')
-                ->where('id', $id)
-                ->select('name')
+                ->select('title')
+                ->where(['id' => $id])
                 ->first();
 
                 DB::table('permissions')
-                ->where('name', $report->name)
+                ->where('name', $report->title)
                 ->delete();
 
-                DB::table('show_power_bi')->where('id', $id)->delete();
+                DB::table('show_power_bi')
+                ->where('id', $id)
+                ->delete();
 
                 return redirect()->route('power_bi.show');
-            } catch (\Exception $e) {
+            } catch (QueryException $e) {
                 Log::error('error', $e->getMessage());
             }
         }
