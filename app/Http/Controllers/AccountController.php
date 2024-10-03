@@ -34,6 +34,7 @@ class AccountController extends Controller
 
         if (isset($id)) {
             $pageTitle = 'Account Details';
+            
             $account = Account::select('master_account_detail.account_name as account_name')
             ->where('master_account_detail.id', $id)
             ->first();
@@ -44,15 +45,10 @@ class AccountController extends Controller
         $missingAccount = Account::whereNull('account_name')
         ->orWhere('account_name', '')
         ->get();
-        $totalmissingaccount=count($missingAccount);
 
-        $grandparent = Account::getSearchGPNameData();
-        $parent = Account::getSearchPNameData();
+        $totalmissingaccount = count($missingAccount);
 
-        $grandparent_id = Account::getSearchGPNumberData();
-        $parent_id = Account::getSearchPNumberData();
-
-        return view('admin.account' ,compact(['totalmissingaccount' => 'totalmissingaccount', 'grandparent' => 'grandparent', 'parent' => 'parent', 'grandparent_id' => 'grandparent_id', 'parent_id' => 'parent_id']));
+        return view('admin.account' ,compact(['totalmissingaccount' => 'totalmissingaccount']));
     }
 
     public function getAccountsDetailWithAjax(Request $request) {
