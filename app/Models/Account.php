@@ -70,6 +70,7 @@ class Account extends Model
         if ($csv) {
             $query = self::query() /** Eager load relationships */
             ->select(
+                'customers.id as customer_id',
                 'master_account_detail.id as id',
                 'suppliers.supplier_name as supplier_id',
                 'customers.customer_name as customer_name',
@@ -90,6 +91,7 @@ class Account extends Model
         } else {
             $query = self::query() /** Eager load relationships */
             ->select(
+                'customers.id as customer_id',
                 'master_account_detail.id as id',
                 'suppliers.supplier_name as supplier_name',
                 'customers.customer_name as customer_name',
@@ -125,19 +127,21 @@ class Account extends Model
 
         /** Get total records count (without filtering) */
         $totalRecords = $query->getQuery()->getCountForPagination();
+
+        /** Order by column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
+        /** Get paginated results based on start, length */
         if (isset($filter['start']) && isset($filter['length'])) {
-            /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
         }
+
         /** Print the SQL query */
         // dd($query->toSql());    
 
@@ -180,11 +184,8 @@ class Account extends Model
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
                 $formatuserdata[$key]['customer_number'] = $data->customer_number;
-                // $formatuserdata[$key]['grand_parent_name'] = $data->grand_parent_name;
-                // $formatuserdata[$key]['grand_parent_id'] = $data->grandparent_id;
                 $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
-                // $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a> <a title="Edit Account" class=" " href= '.route('account.edit', ['id' => $data->id,'routename' => 'account']).' ><i class="fa-regular fa-pen-to-square"></i>Edit</a><a hrefe="#" data-id="'. $data->id .'" class="remove" title="Remove Account"><i class="fa-solid fa-trash"></i>Remove</a></div></div>';
-                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" data-parent_name="'.$data->parent_name.'" data-parent_number="'.$data->parent_id.'" data-customer_name="'.$data->customer_name.'" data-category_name="'.$data->record_type.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit
+                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" data-parent_name="'.$data->parent_name.'" data-parent_number="'.$data->parent_id.'"data-customer_id="'.$data->customer_id.'" data-customer_name="'.$data->customer_name.'" data-category_name="'.$data->record_type.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit
               </a></div></div>';
             }
         }

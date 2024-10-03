@@ -17,45 +17,6 @@
                     </a>
                 </div>
             </div>
-            <div class="mx-auto d-flex justify-content-between align-items-center">
-                <!-- Modal -->
-                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Add Account</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="alert alert-success" id="successMessage" style="display:none;"></div>
-                                <div class="alert alert-danger" id="errorMessage" style="display:none;"></div>
-                                <form class="" id="add_supplier" method="post">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label>Customer ID </label>
-                                        <input type="text" placeholder="Enter Customer Id" class="form-control" name="customer_id" id="customer_id">
-                                    </div> 
-                                    <div class="form-group">
-                                        <label>Customer Name</label>
-                                        <input type="text" placeholder="Enter Customer name" class="form-control" name="customer_name" id="customer_name">
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="form-check form-check-inline">
-                                            <input type="checkbox" id="parent" class="form-check-input radio-checkbox" name="parent" value="1">
-                                            <label class="form-check-label" for="parent">Parent</label>
-                                        </div>
-                                    </div>
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary mx-auto" id="supplier_add">Submit</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>      
-            </div>
             <div class="container">
                 <div class="alert alert-success m-3" id="account_del_success" style="display:none;"></div>
                 <table id="account_data" class="data_table_files"></table>
@@ -84,6 +45,7 @@
                                     </div>
                                     <div class="modal_input_wrap pb-3">
                                         <label>Customer Name</label>
+                                        <input type="hidden" class="form-control" name="customer_id" id="customers_id" value="">
                                         <input type="text" placeholder="Enter Customer Name" class="form-control" name="customer_name" id="customers_name" value="">
                                         <div id="customer_name_error"></div>
                                     </div>
@@ -121,6 +83,7 @@
             document.getElementById('parent_name').value = event.relatedTarget.getAttribute('data-parent_name');
             document.getElementById('parent_number').value = event.relatedTarget.getAttribute('data-parent_number');
             document.getElementById('category_name').value = event.relatedTarget.getAttribute('data-category_name');
+            document.getElementById('customers_id').value = event.relatedTarget.getAttribute('data-customer_id');
             document.getElementById('customers_name').value = event.relatedTarget.getAttribute('data-customer_name');
         });
 
@@ -210,68 +173,6 @@
             });
 
             $('#account_data_length').hide();
-
-            $('#exampleModal').on('show.bs.modal', function (e) {
-                $('#errorMessage').fadeOut();
-                $("#add_supplier")[0].reset();
-            })
-
-            //submit form with ajax
-            $("#add_supplier").on('submit', function (e){
-                e.preventDefault();
-                var formData = new FormData($('#add_supplier')[0]);
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ route("account.add") }}', // Replace with your actual route name
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        if(response.error){
-                            $('#errorMessage').text(response.error);
-                            $('#errorMessage').css('display','block');
-                            setTimeout(function () {
-                                $('#errorMessage').fadeOut();
-                            }, 5000);
-                        }
-                        // Assuming `response` is the error response object
-                        let errorMessages = [];
-                        if (response && response.error) {
-                            var errorMessage = '';
-                            if (typeof response.error === 'object') {
-                                // Iterate over the errors object
-                                $.each(response.error, function (key, value) {
-                                    errorMessage += value[0] + '<br>';
-                                });
-                            } else {
-                                errorMessage = response.error;
-                            }
-
-                            $('#editerrorMessage').text('');
-                            $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
-                        }
-
-                        // Set the content of the div with all accumulated error messages
-                        if(response.success){
-                            $('#page-loader').hide();
-                            $('#successMessages').html('');
-                            $('#successMessagess').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                            $("form")[0].reset();
-                        }
-                        // Handle success response
-                        // console.log(response);
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        const errorresponse = JSON.parse(xhr.responseText);
-                        $('#errorMessage').text(errorresponse.error);
-                        $('#errorMessage').css('display','block');
-                        setTimeout(function () {
-                            $('#errorMessage').fadeOut();
-                        }, 5000);
-                    }
-                });
-            });
 
             //update account name 
             $(document).on('click', '.btn-clos', function () {

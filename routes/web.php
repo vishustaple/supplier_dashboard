@@ -87,16 +87,10 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/accounts/p-name', [AccountController::class, 'PName'])->name('ParentName');
         Route::get('/account/{id?}', [AccountController::class, 'allAccount'])->name('account');
         Route::post('/account/detail', [AccountController::class, 'getAccountsDetailWithAjax'])->name('account.detail');
-        Route::post('/addaccount', [AccountController::class, 'addAccount'])->name('account.add');
-        Route::get('/accounts/p-number', [AccountController::class, 'PNumber'])->name('ParentNumber');
-        Route::get('/accounts/gp-name', [AccountController::class, 'gPName'])->name('grandParentName');
-        Route::get('/createaccount', [AccountController::class, 'createAccount'])->name('account.create');
         Route::get('/accounts/remove', [AccountController::class, 'removeAccount'])->name('account.remove');
         Route::post('/accounts/update', [AccountController::class, 'updateAccount'])->name('account.update');
-        Route::get('/accounts/gp-number', [AccountController::class, 'gPNumber'])->name('grandParentNumber');
         Route::get('/accounts/csv', [AccountController::class, 'exportAccountCsv'])->name('account.export-csv');
         Route::post('/account/filter', [AccountController::class, 'getAccountsWithAjax'])->name('account.filter');
-        Route::get('/accounts/edit/{id}/{routename}', [AccountController::class, 'editAccount'])->name('account.edit');
         Route::post('/accounts/editaccountname', [AccountController::class, 'editAccountName'])->name('accountname.edit');
         Route::get('/accounts/count', [AccountController::class, 'getEmptyAccountNameAccounts'])->name('accounts.counts');
         Route::post('/accounts/account-number', [AccountController::class, 'getAccountNumber'])->name('get.accountNumber');

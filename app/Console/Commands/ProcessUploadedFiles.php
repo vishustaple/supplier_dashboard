@@ -290,6 +290,18 @@ class ProcessUploadedFiles extends Command
                                          * account table
                                          */
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
+
+                                        $customerId = DB::table('customers')
+                                        ->where('customer_name', $row[$keyCustomerName])
+                                        ->first();
+
+                                        if (!isset($customerId) && empty($customerId)) {
+                                            $insertId = DB::table('customers')
+                                            ->insert(['customer_name' => $row[$keyCustomerName]]);
+                                        } else {
+                                            $insertId = $customerId->id;
+                                        }
+
                                         if (empty($customers)) {
                                             if (strpos($row[$keyParentName], "CenterPoint") !== false || strpos($row[$keyParentName], "centerpoint") !== false) {
                                                 Account::create([
@@ -297,52 +309,65 @@ class ProcessUploadedFiles extends Command
                                                     'parent_name' => $row[$keyParentName],
                                                     'account_number' => $row[$keyCustomer],
                                                     'account_name' => $row[$keyCustomerName],
-                                                    'customer_name' => $row[$keyCustomerName],
+                                                    'customer_id' => $insertId,
                                                     'grandparent_id' => $row[$keyGrandParent],
                                                     'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
                                                     'grandparent_name' => $row[$keyGrandParentName],
                                                 ]);
                                             } else {
                                                 Account::create([
+                                                    'customer_id' => $insertId,
                                                     'parent_id' => $row[$keyParent],
                                                     'parent_name' => $row[$keyParentName],
                                                     'account_number' => $row[$keyCustomer],
                                                     'account_name' => $row[$keyParentName],
-                                                    'customer_name' => $row[$keyCustomerName],
                                                     'grandparent_id' => $row[$keyGrandParent],
-                                                    'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
                                                     'grandparent_name' => $row[$keyGrandParentName],
+                                                    'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
                                                 ]);
                                             }
                                         } else {
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->update([
+                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            ->update([
+                                                'customer_id' => $insertId,
                                                 'parent_id' => $row[$keyParent],
                                                 'parent_name' => $row[$keyParentName],
-                                                'account_number' => ltrim($row[$keyCustomer], '0'),
-                                                'customer_name' => $row[$keyCustomerName],
                                                 'grandparent_id' => $row[$keyGrandParent],
-                                                'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                                 'grandparent_name' => $row[$keyGrandParentName],
+                                                'account_number' => ltrim($row[$keyCustomer], '0'),
+                                                'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                             ]);
                                         }
                                     }
                                 }
 
                                 if (in_array($fileValue->supplier_id, [1, 4, 5, 6]) || count($columnArray[$fileValue->supplier_id]) <= 5) {
+                                    $customerId = DB::table('customers')
+                                    ->where('customer_name', $row[$keyCustomerName])
+                                    ->first();
+
+                                    if (!isset($customerId) && empty($customerId)) {
+                                        $insertId = DB::table('customers')
+                                        ->insert(['customer_name' => $row[$keyCustomerName]]);
+                                    } else {
+                                        $insertId = $customerId->id;
+                                    }
+
                                     /** Into case of some supplier which do not have grand parent and parent we will use this 
                                      * condition for insert and update into account table */
                                     if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                         if (empty($customers)) {
                                             Account::create([
+                                                'customer_id' => $insertId,
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
-                                                'customer_name' => $row[$keyCustomerName],
                                                 'category_supplier' => $fileValue->supplier_id,
                                             ]);
                                         } else {
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->update([
+                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            ->update([
+                                                'customer_id' => $insertId,
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
-                                                'customer_name' => $row[$keyCustomerName],
                                                 'category_supplier' => $fileValue->supplier_id,
                                             ]);
                                         }
