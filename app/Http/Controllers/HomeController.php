@@ -415,11 +415,11 @@
             try {
                 $report = DB::table('show_power_bi')
                 ->where('id', $request->input('id'))
-                ->select('name')
+                ->select('title')
                 ->first();
 
                 DB::table('permissions')
-                ->where('name', $report->name)
+                ->where('name', $report->title)
                 ->update([
                     'name' => $request->input('title')
                 ]);
