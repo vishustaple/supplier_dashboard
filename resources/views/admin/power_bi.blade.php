@@ -91,7 +91,7 @@
                                                 </button>
                                             </div>
                                             <div class="col-auto">
-                                                <a class="btn btn-danger" href="{{ route('powerbi.delete', ['id' => $value->id]) }}">
+                                                <a class="btn btn-danger" href="javascript:void(0);" onclick="deletePowerBI('{{ $value->id }}')">
                                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                                 </a>
                                             </div>
@@ -105,13 +105,6 @@
         @include('layout.footer')
         </div>
     </div>
-    <script>
-        document.getElementById('editStaticBackdrop').addEventListener('show.bs.modal', function (event) {
-            $('#powerbi_id').val(event.relatedTarget.getAttribute('data-id'));
-            $('input[name="titles"]').val(event.relatedTarget.getAttribute('data-title'));
-            $('textarea[name="iframes"]').val(event.relatedTarget.getAttribute('data-iframe'));
-        });
-    </script>
     <style>
         table.power_bi_table tbody tr td:nth-child(2) {
             max-width: 795px  !important;
@@ -122,4 +115,27 @@
             text-overflow: ellipsis;
         }
     </style>
+    <script>
+        document.getElementById('editStaticBackdrop').addEventListener('show.bs.modal', function (event) {
+            $('#powerbi_id').val(event.relatedTarget.getAttribute('data-id'));
+            $('input[name="titles"]').val(event.relatedTarget.getAttribute('data-title'));
+            $('textarea[name="iframes"]').val(event.relatedTarget.getAttribute('data-iframe'));
+        });
+
+        function deletePowerBI(id) {
+            swal.fire({
+                title: "Power Bi Report",
+                text: "Are you sure you want to delete this report?",
+                icon: "error",
+                showCancelButton: true,
+                confirmButtonText: 'YES',
+                cancelButtonText: 'NO',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('powerbi.delete')}}/"+id+""; // Change this to the redirect URL
+                }
+            });  
+        }
+    </script>
 @endsection   
