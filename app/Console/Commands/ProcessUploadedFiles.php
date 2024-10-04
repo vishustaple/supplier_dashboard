@@ -319,7 +319,7 @@ class ProcessUploadedFiles extends Command
                                                     'account_name' => $row[$keyCustomerName],
                                                     'customer_id' => $insertId,
                                                     'grandparent_id' => $row[$keyGrandParent],
-                                                    'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
+                                                    'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
                                                     'grandparent_name' => $row[$keyGrandParentName],
                                                 ]);
                                             } else {
@@ -331,7 +331,7 @@ class ProcessUploadedFiles extends Command
                                                     'account_name' => $row[$keyParentName],
                                                     'grandparent_id' => $row[$keyGrandParent],
                                                     'grandparent_name' => $row[$keyGrandParentName],
-                                                    'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
+                                                    'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
                                                 ]);
                                             }
                                         } else {
@@ -343,7 +343,7 @@ class ProcessUploadedFiles extends Command
                                                 'grandparent_id' => $row[$keyGrandParent],
                                                 'grandparent_name' => $row[$keyGrandParentName],
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
-                                                'category_supplier' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
+                                                'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                             ]);
                                         }
                                     }
@@ -377,14 +377,14 @@ class ProcessUploadedFiles extends Command
                                             Account::create([
                                                 'customer_id' => $insertId,
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
-                                                'category_supplier' => $fileValue->supplier_id,
+                                                'supplier_id' => $fileValue->supplier_id,
                                             ]);
                                         } else {
                                             Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
                                             ->update([
                                                 'customer_id' => $insertId,
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
-                                                'category_supplier' => $fileValue->supplier_id,
+                                                'supplier_id' => $fileValue->supplier_id,
                                             ]);
                                         }
                                     }
@@ -452,11 +452,17 @@ class ProcessUploadedFiles extends Command
                                                 if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1]) && !empty($value)) {
                                                     $finalInsertArray[] = [
                                                         'value' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s'),
+                                                        'attachment_id' => $fileValue->id,
+                                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'supplier_field_id' => (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1) != false) ? (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1)) : (''),
                                                     ];  
                                                 } else {
                                                     $finalInsertArray[] = [
                                                         'value' => $value,
+                                                        'attachment_id' => $fileValue->id,
+                                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'supplier_field_id' => (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1) != false) ? (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1)) : (''),
                                                     ];  
                                                 }

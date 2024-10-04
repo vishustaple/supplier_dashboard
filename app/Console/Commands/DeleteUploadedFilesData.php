@@ -54,23 +54,15 @@ class DeleteUploadedFilesData extends Command
                 $destinationPath = public_path('/excel_sheets');
                 $filePath = $destinationPath.'/'.$fileData->file_name;
                 $fileData->save();
-    
-                /** Delete records from UploadedFiles table */
-                UploadedFiles::where('id', $id)->delete();
-    
-                // if (in_array($fileData->cron, [3, 10, 11, 6])) {
-                    /** Delete records from ExcelData table */
-                    DB::table('order_details')->where('attachment_id', $id)->delete();
-        
-                    /** Delete records from OrderDetails table */
-                    DB::table('order_details')->where('attachment_id', $id)->delete();
-        
-                    /** Delete records from Order table */
-                    DB::table('orders')->where('attachment_id', $id)->delete();
+                
+                /** Delete records from OrderDetails table */
+                DB::table('order_details')->where('attachment_id', $id)->delete();
 
-                    /** Delete records from Suppliers Orders table */
-                    DB::table($supplierTableArray[$fileData->supplier_id])->where('attachment_id', $id)->delete();
-                // }
+                /** Delete records from Order table */
+                DB::table('orders')->where('attachment_id', $id)->delete();
+                
+                /** Delete records from Suppliers Orders table */                
+                DB::table($supplierTableArray[$fileData->supplier_id])->where('attachment_id', $id)->delete();
     
                 if (File::exists($filePath)) {
                     try {
@@ -78,22 +70,25 @@ class DeleteUploadedFilesData extends Command
                         File::delete($filePath);
                     } catch (\Exception $e) {
                         /** Log or handle the error */
+                        $this->info('Error deleting file: ' . $e->getMessage());
                         Log::error('Error deleting file: ' . $e->getMessage());
-                        session()->flash('error', 'Error deleting file: ' . $e->getMessage());
+                        
+                        die;
                     }
                 } else {
                     /** File does not exist */
+                    $this->info('File does not exist at path: ' . $filePath);
                     Log::warning('File does not exist at path: ' . $filePath);
-                    session()->flash('error', 'File does not exist at path: ' . $filePath);
+                    die;
                 }
 
                 /** Update the 'delete' field three after deleting done */
                 DB::table('attachments')->where('id', $fileData->id)->update(['delete' => 0]);
             } catch (QueryException $e) {   
+                $this->info('Database deletion failed:: ' . $e->getMessage());
                 Log::error('Database deletion failed:: ' . $e->getMessage());
     
-                /** Error message */
-                session()->flash('error', $e->getMessage());
+                die;
             }
 
             $this->info('File deleted successfully.');
