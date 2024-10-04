@@ -11,7 +11,7 @@
                     </div>
                 </div>
 
-                <!-- Modal -->
+                <!-- Modal Add New Power Bi Report -->
                 <div class="modal fade" id="addStaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addStaticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <form method="POST" action="{{ route('powerbi.add') }}">
@@ -40,7 +40,7 @@
                     </div>
                 </div>
 
-                <!-- Modal -->
+                <!-- Modal Edit Power Bi Report -->
                 <div class="modal fade" id="editStaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editStaticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <form method="POST" action="{{ route('powerbi.update') }}" id="powerbi_edit">
