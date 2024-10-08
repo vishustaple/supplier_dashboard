@@ -34,7 +34,7 @@
 
         public function showPowerBi() {
             $pageTitle = 'Power Bi';
-            $data = DB::table('show_power_bi')->select('id', 'title', 'iframe')->get();
+            $data = DB::table('show_power_bi')->select('id', 'title', 'iframe', 'deleted')->get();
             return view('admin.power_bi', compact('pageTitle', 'data'));
         }
 
@@ -414,7 +414,7 @@
         public function powerBiEdit(Request $request) {
             try {
                 $report = DB::table('show_power_bi')
-                ->where('id', $request->input('id'))
+                ->where(['id' => $request->input('id'), 'deleted' => 0])
                 ->select('title')
                 ->first();
 
@@ -425,7 +425,7 @@
                 ]);
 
                 DB::table('show_power_bi')
-                ->where('id', $request->input('id'))
+                ->where(['id' => $request->input('id'), 'deleted' => 0])
                 ->update([
                     'title' => $request->input('titles'),
                     'iframe' => $request->input('iframes'),
@@ -450,7 +450,7 @@
 
                 DB::table('show_power_bi')
                 ->where('id', $id)
-                ->delete();
+                ->update(['deleted' => 1]);
 
                 return redirect()->route('power_bi.show');
             } catch (QueryException $e) {
@@ -463,7 +463,7 @@
                 if (!in_array(Auth::user()->user_type, [User::USER_TYPE_SUPERADMIN,User::USER_TYPE_ADMIN])) {
 
                     /** Convert the collection to array */
-                    $titleArray = DB::table('show_power_bi')->select('title')->get()->map(function ($item) {
+                    $titleArray = DB::table('show_power_bi')->select('title')->where('deleted', 0)->get()->map(function ($item) {
                         return [$item->title];
                     })->toArray();
 
@@ -484,10 +484,12 @@
 
                     $record =  DB::table('show_power_bi')
                     ->whereIn('title', $titlesArray)
+                    ->where('deleted', 0)
                     ->select('id', 'title')
                     ->get();
                 } else {
                     $record =  DB::table('show_power_bi')
+                    ->where('deleted', 0)
                     ->select('id', 'title')
                     ->get();
                 }
@@ -527,7 +529,7 @@
 
         public function powerBiReportViewRender($id, $reportType) {
             if (!in_array(Auth::user()->user_type, [User::USER_TYPE_SUPERADMIN,User::USER_TYPE_ADMIN])) {
-                $title = DB::table('show_power_bi')->select('title')->where('id', $id)->first();
+                $title = DB::table('show_power_bi')->select('title')->where(['id' => $id, 'deleted' => 0])->first();
     
                 $permission = DB::table('permissions')->select('id')->where('name', $title->title)->first();
     
@@ -539,7 +541,7 @@
             }
 
             /** Getting power bi report ifram using id */
-            $data = DB::table('show_power_bi')->select('title', 'iframe')->where('id', $id)->first();
+            $data = DB::table('show_power_bi')->select('title', 'iframe')->where(['id' => $id, 'deleted' => 0])->first();
 
             /** Setting the title */
             $pageTitle = $data->title;

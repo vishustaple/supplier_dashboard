@@ -80,24 +80,32 @@
                     <tbody>
                         @if($data)
                             @foreach($data as $key => $value)
-                                <tr>
-                                    <td>{{ $value->title }}</td>
-                                    <td>{{ $value->iframe }}</td>
-                                    <td>
-                                        <div class="row justify-content-start">
-                                            <div class="col-auto px-0">
-                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-id="{{ $value->id }}" data-title="{{ $value->title }}" data-iframe="{{ $value->iframe }}" data-bs-target="#editStaticBackdrop">
-                                                    <i class="fa fa-pencil-square" aria-hidden="true"></i>
-                                                </button>
+                                @if($value->deleted == 1)
+                                    <tr class="text-danger">
+                                        <td>{{ $value->title }}</td>
+                                        <td>{{ $value->iframe }}</td>
+                                        <td></td>
+                                    </tr>
+                                @else
+                                    <tr>
+                                        <td>{{ $value->title }}</td>
+                                        <td>{{ $value->iframe }}</td>
+                                        <td>
+                                            <div class="row justify-content-start">
+                                                <div class="col-auto px-0">
+                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-id="{{ $value->id }}" data-title="{{ $value->title }}" data-iframe="{{ $value->iframe }}" data-bs-target="#editStaticBackdrop">
+                                                        <i class="fa fa-pencil-square" aria-hidden="true"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <a class="btn btn-danger" href="javascript:void(0);" onclick="deletePowerBI('{{ $value->id }}')">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </a>
+                                                </div>
                                             </div>
-                                            <div class="col-auto">
-                                                <a class="btn btn-danger" href="javascript:void(0);" onclick="deletePowerBI('{{ $value->id }}')">
-                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                         @endif
                     </tbody>
