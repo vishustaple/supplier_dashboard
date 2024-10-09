@@ -39,7 +39,7 @@ class DeleteUploadedFilesData extends Command
             1 => 'g_and_t_laboratories_charles_river_order',
             2 => 'grainger_order',
             3 => 'office_depot_order',
-            4 => 'staples_order',
+            4 => 'staples_orders_data',
             5 => 'wb_mason_order',
             6 => 'lyreco_order',
             7 => 'odp_order',
@@ -68,8 +68,23 @@ class DeleteUploadedFilesData extends Command
                     /** Delete records from Order table */
                     DB::table('orders')->where('attachment_id', $id)->delete();
 
-                    /** Delete records from Suppliers Orders table */
-                    DB::table($supplierTableArray[$fileData->supplier_id])->where('attachment_id', $id)->delete();
+                    if ($fileData->supplier_id == 4) {
+                        /** Delete records from Suppliers Orders table */
+                        DB::table('staples_order')
+                        ->where('attachment_id', $id)
+                        ->delete();
+
+                        /** Delete records from Suppliers Orders table */
+                        DB::table($supplierTableArray[$fileData->supplier_id])
+                        ->where('attachment_id', $id)
+                        ->delete();
+                    } else {
+                        /** Delete records from Suppliers Orders table */
+                        DB::table($supplierTableArray[$fileData->supplier_id])
+                        ->where('attachment_id', $id)
+                        ->delete();
+                    }
+                    
                 // }
     
                 if (File::exists($filePath)) {
