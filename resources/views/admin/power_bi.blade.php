@@ -11,7 +11,7 @@
                     </div>
                 </div>
 
-                <!-- Modal -->
+                <!-- Modal Add New Power Bi Report -->
                 <div class="modal fade" id="addStaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addStaticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <form method="POST" action="{{ route('powerbi.add') }}">
@@ -40,7 +40,7 @@
                     </div>
                 </div>
 
-                <!-- Modal -->
+                <!-- Modal Edit Power Bi Report -->
                 <div class="modal fade" id="editStaticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editStaticBackdropLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <form method="POST" action="{{ route('powerbi.update') }}" id="powerbi_edit">
@@ -80,24 +80,32 @@
                     <tbody>
                         @if($data)
                             @foreach($data as $key => $value)
-                                <tr>
-                                    <td>{{ $value->title }}</td>
-                                    <td>{{ $value->iframe }}</td>
-                                    <td>
-                                        <div class="row justify-content-start">
-                                            <div class="col-auto px-0">
-                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-id="{{ $value->id }}" data-title="{{ $value->title }}" data-iframe="{{ $value->iframe }}" data-bs-target="#editStaticBackdrop">
-                                                    <i class="fa fa-pencil-square" aria-hidden="true"></i>
-                                                </button>
+                                @if($value->deleted == 1)
+                                    <tr class="text-danger">
+                                        <td>{{ $value->title }}</td>
+                                        <td>{{ $value->iframe }}</td>
+                                        <td></td>
+                                    </tr>
+                                @else
+                                    <tr>
+                                        <td>{{ $value->title }}</td>
+                                        <td>{{ $value->iframe }}</td>
+                                        <td>
+                                            <div class="row justify-content-start">
+                                                <div class="col-auto px-0">
+                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-id="{{ $value->id }}" data-title="{{ $value->title }}" data-iframe="{{ $value->iframe }}" data-bs-target="#editStaticBackdrop">
+                                                        <i class="fa fa-pencil-square" aria-hidden="true"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <a class="btn btn-danger" href="javascript:void(0);" onclick="deletePowerBI('{{ $value->id }}')">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </a>
+                                                </div>
                                             </div>
-                                            <div class="col-auto">
-                                                <a class="btn btn-danger" href="{{ route('powerbi.delete', ['id' => $value->id]) }}">
-                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                         @endif
                     </tbody>
@@ -105,13 +113,6 @@
         @include('layout.footer')
         </div>
     </div>
-    <script>
-        document.getElementById('editStaticBackdrop').addEventListener('show.bs.modal', function (event) {
-            $('#powerbi_id').val(event.relatedTarget.getAttribute('data-id'));
-            $('input[name="titles"]').val(event.relatedTarget.getAttribute('data-title'));
-            $('textarea[name="iframes"]').val(event.relatedTarget.getAttribute('data-iframe'));
-        });
-    </script>
     <style>
         table.power_bi_table tbody tr td:nth-child(2) {
             max-width: 795px  !important;
@@ -122,4 +123,27 @@
             text-overflow: ellipsis;
         }
     </style>
+    <script>
+        document.getElementById('editStaticBackdrop').addEventListener('show.bs.modal', function (event) {
+            $('#powerbi_id').val(event.relatedTarget.getAttribute('data-id'));
+            $('input[name="titles"]').val(event.relatedTarget.getAttribute('data-title'));
+            $('textarea[name="iframes"]').val(event.relatedTarget.getAttribute('data-iframe'));
+        });
+
+        function deletePowerBI(id) {
+            swal.fire({
+                title: "Power Bi Report",
+                text: "Are you sure you want to delete this report?",
+                icon: "error",
+                showCancelButton: true,
+                confirmButtonText: 'YES',
+                cancelButtonText: 'NO',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('powerbi.delete')}}/"+id+""; // Change this to the redirect URL
+                }
+            });  
+        }
+    </script>
 @endsection   
