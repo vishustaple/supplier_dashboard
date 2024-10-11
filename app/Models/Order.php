@@ -1272,6 +1272,7 @@ class Order extends Model
                 $finalArray[$key]['account_name'] = "
                 <div class='form-check'>
                     <input class='form-check-input' type='checkbox'>
+                    <input class='form-check-input' type='hidden' value='".$value->supplier_id."'>
                     <label class='form-check-label'>
                         ".$value->account_name."
                     </label>
@@ -1333,16 +1334,8 @@ class Order extends Model
         }
 
         /** Filter for specific supplier IDs */
-        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
-        } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
-            if (isset($filter['supplier_id'][1])) {
-                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
-            } else {
-                $query->where('orders.supplier_id', $filter['supplier_id'][0]);
-            }
-        } else {
-
+        if (isset($filter['supplier_id'])) {
+            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
         }
 
         $queryData = $query->get();
