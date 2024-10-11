@@ -145,8 +145,6 @@
                         }
                     }
                 });
-                
-                alert(selectedSupplierIds);
 
                 // Selecting the supplier_id and create the supplier_id array
                 $('.checkboxs:checked').each(function() {
