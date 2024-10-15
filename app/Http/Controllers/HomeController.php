@@ -4,6 +4,7 @@
     use Exception;
     use Illuminate\Support\Str;
     use Illuminate\Http\Request;
+    use Illuminate\Support\Carbon;
     use App\Models\{User, Permission};
     use Illuminate\Support\Facades\DB;
     use Illuminate\Support\Facades\Log;
@@ -396,13 +397,18 @@
             try {
                 DB::table('permissions')
                 ->insert([
-                    'name' => $request->input('title')
+                    'report_type' => 2,
+                    'name' => $request->input('title'),
+                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
 
                 DB::table('show_power_bi')
                 ->insert([
                     'title' => $request->input('title'),
                     'iframe' => $request->input('iframe'),
+                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
 
                 return redirect()->route('power_bi.show');
@@ -413,23 +419,33 @@
 
         public function powerBiEdit(Request $request) {
             try {
-                dd($request->all());
                 $report = DB::table('show_power_bi')
-                ->where(['id' => $request->input('id'), 'deleted' => 0])
+                ->where([
+                    'deleted' => 0,
+                    'id' => $request->input('id'),
+                ])
                 ->select('title')
                 ->first();
 
                 DB::table('permissions')
-                ->where('name', $report->title)
+                ->where([
+                    'report_type' => 2,
+                    'name' => $report->title,
+                ])
                 ->update([
-                    'name' => $request->input('title')
+                    'name' => $request->input('titles'),
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
 
                 DB::table('show_power_bi')
-                ->where(['id' => $request->input('id'), 'deleted' => 0])
+                ->where([
+                    'deleted' => 0,
+                    'id' => $request->input('id'),
+                ])
                 ->update([
                     'title' => $request->input('titles'),
                     'iframe' => $request->input('iframes'),
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
 
                 return redirect()->route('power_bi.show');
@@ -442,11 +458,16 @@
             try {
                 $report = DB::table('show_power_bi')
                 ->select('title')
-                ->where(['id' => $id])
+                ->where([
+                    'id' => $id
+                ])
                 ->first();
 
                 DB::table('permissions')
-                ->where('name', $report->title)
+                ->where([
+                    'report_type' => 2,
+                    'name' => $report->title,
+                ])
                 ->delete();
 
                 DB::table('show_power_bi')
@@ -464,24 +485,15 @@
                 if (!in_array(Auth::user()->user_type, [User::USER_TYPE_SUPERADMIN,User::USER_TYPE_ADMIN])) {
 
                     /** Convert the collection to array */
-                    $titleArray = DB::table('show_power_bi')->select('title')->where('deleted', 0)->get()->map(function ($item) {
-                        return [$item->title];
-                    })->toArray();
-
-                    /** Convert the collection to array */
-                    $permissionArray = DB::table('permissions')->select('id')->whereIn('name', $titleArray)->get()->map(function ($item) {
-                        return [$item->id];
-                    })->toArray();
-
-                    /** Convert the collection to array */
-                    $userHasPermissionArray = DB::table('permission_user')->select('permission_id')->where('user_id', Auth::user()->id)->whereIn('permission_id', $permissionArray)->get()->map(function ($item) {
-                        return [$item->permission_id];
-                    })->toArray();
-
-                    /** Convert the collection to array */
-                    $titlesArray = DB::table('permissions')->select('name')->whereIn('id', $userHasPermissionArray)->get()->map(function ($item) {
-                        return [$item->name];
-                    })->toArray();
+                    $titlesArray = DB::table('permissions')
+                    ->join('permission_user', 'permission_user.permission_id', '=', 'permissions.id')
+                    ->where([
+                        'permissions.report_type' => 2,
+                        'permission_user.user_id' => Auth::user()->id,
+                    ])
+                    ->get()
+                    ->pluck('name')
+                    ->toArray();
 
                     $record =  DB::table('show_power_bi')
                     ->whereIn('title', $titlesArray)
