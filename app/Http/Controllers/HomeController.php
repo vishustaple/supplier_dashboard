@@ -413,12 +413,11 @@
 
         public function powerBiEdit(Request $request) {
             try {
-                dd($request->all());
                 $report = DB::table('show_power_bi')
                 ->where(['id' => $request->input('id'), 'deleted' => 0])
                 ->select('title')
                 ->first();
-
+                dd($report->title);
                 DB::table('permissions')
                 ->where('name', $report->title)
                 ->update([
