@@ -1237,6 +1237,9 @@ class Order extends Model
             }
         }
 
+        /** Group by with order supplier id */
+        $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
+
         /** Order by specified column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -1244,18 +1247,17 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        /** Group by with order supplier id */
-        $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
+        $totalAmount = 0;
+        $query1 = $query;
 
         /** Get the filtered records count */
         $filteredRecords = $query->getQuery()->getCountForPagination();
-
+        
         /** Paginate the results if pagination filters are provided */
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-
-        $totalAmount = 0;
+        
         $finalArray = [];
         foreach ($queryData as $key => $value) {
             if($csv) {
@@ -1265,9 +1267,6 @@ class Order extends Model
                 $finalArray[$key]['spend'] = $value->spend;
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
             } else {
-                /** Calculating total cost */
-                $totalAmount += $value->spend;
-
                 /** Prepare the final array for non-CSV */
                 $finalArray[$key]['account_name'] = "
                 <div class='form-check'>
@@ -1283,8 +1282,13 @@ class Order extends Model
             }
         }
         // dd($query->toSql(), $query->getBindings());
-        // dd($finalArray);
+        // dd($totalAmount);
+        
         if(!$csv && isset($finalArray[0])) {
+            foreach ($query1->get() as $key => $value) {
+                /** Calculating total cost */
+                $totalAmount += $value->spend;
+            }
             $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
         }
         

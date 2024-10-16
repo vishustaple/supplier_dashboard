@@ -2,16 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
-    SavedQueryController,
-    ExcelImportController,
-    SalesTeamController,
-    RebateController,
-    CommissionController,
-    CatalogController,
-    ReportController,
     HomeController,
+    RebateController,
+    ReportController,
+    CatalogController,
+    AccountController,
+    SalesTeamController,
+    SavedQueryController,
+    CommissionController,
+    ExcelImportController,
     CategorySupplierController,
-    AccountController
 };
 
 use Illuminate\Support\Facades\Auth; 
@@ -124,6 +124,9 @@ Route::group(['prefix' => 'admin'], function () {
     
         //not in use now this route     
         Route::get('/userlist', [HomeController::class, 'userview'])->name('user.show');
+
+
+
         Route::get('/powerbi', [HomeController::class, 'showPowerBi'])->name('power_bi.show');
         Route::post('/powerbi/add', [HomeController::class, 'powerBiAdd'])->name('powerbi.add');
         Route::post('/powerbi/edit', [HomeController::class, 'powerBiEdit'])->name('powerbi.update');
