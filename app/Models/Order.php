@@ -1249,10 +1249,6 @@ class Order extends Model
 
         $totalAmount = 0;
         $query1 = $query;
-        foreach ($query1->get() as $key => $value) {
-            /** Calculating total cost */
-            $totalAmount += $value->spend;
-        }
 
         /** Get the filtered records count */
         $filteredRecords = $query->getQuery()->getCountForPagination();
@@ -1287,7 +1283,12 @@ class Order extends Model
         }
         // dd($query->toSql(), $query->getBindings());
         // dd($totalAmount);
-        if(!$csv && isset($finalArray[0]) && $totalAmount != 0) {
+        
+        if(!$csv && isset($finalArray[0])) {
+            foreach ($query1->get() as $key => $value) {
+                /** Calculating total cost */
+                $totalAmount += $value->spend;
+            }
             $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
         }
         
