@@ -1261,7 +1261,6 @@ class Order extends Model
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-
         
         $finalArray = [];
         foreach ($queryData as $key => $value) {
@@ -1287,7 +1286,7 @@ class Order extends Model
             }
         }
         // dd($query->toSql(), $query->getBindings());
-        dd($totalAmount);
+        // dd($totalAmount);
         if(!$csv && isset($finalArray[0]) && $totalAmount != 0) {
             $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
         }
