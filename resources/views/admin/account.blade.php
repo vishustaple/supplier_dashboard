@@ -142,6 +142,8 @@
                     },
                     cache: true
                 },
+                placeholder: "Select an account",
+                allowClear: true,
                 minimumInputLength: 1
             }).on('select2:select', function (e) {
                 var customerId = e.params.data.id; // Selected account_name ID
