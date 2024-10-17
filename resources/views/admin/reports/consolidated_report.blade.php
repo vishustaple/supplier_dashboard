@@ -292,6 +292,7 @@
                         },
                         cache: true
                     },
+                    placeholder: "Select an account",
                     allowClear: true,
                     minimumInputLength: 1
                 });
