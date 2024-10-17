@@ -23,7 +23,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label>Reoprt Title</label>
+                                        <label>Report Title</label>
                                         <input class="form-control" required type="text" placeholder="Title here" name="title">
                                     </div>
                                     <div class="form-group">
@@ -53,7 +53,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label>Reoprt Title</label>
+                                        <label>Report Title</label>
                                         <input class="form-control" required type="text" placeholder="Title here" name="titles">
                                     </div>
                                     <div class="form-group">
