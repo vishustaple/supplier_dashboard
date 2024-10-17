@@ -36,7 +36,9 @@
                                     </div>
                                     <div class="form-group mb-0">
                                         <label for="selectBox">Select Account:</label>
-                                        <select id="account_name" name="account_name" class="form-control"></select>
+                                        <select id="account_name" name="account_name" class="form-control">
+                                            <option></option>
+                                        </select>
                                     </div>
                                 </div>
                                
