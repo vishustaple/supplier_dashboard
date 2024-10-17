@@ -50,7 +50,8 @@
         </div>
         <div class="row justify-content-end py-3 header_bar" style="display:none !important;">
             <div class="col-md-4 card shadow border-0">
-                <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_amount"></b></h6>
+            <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_spend"></b></h6>
+                <h6 class="d-flex total_amount_header justify-content-between">Qualified Spend: <b style="color:#000;" id="qualified_spend"></b></h6>
                 <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
                 <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
                 <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
@@ -581,12 +582,12 @@
                 $('#incentive_rebate_check').prop('checked', false);
             }
 
-            var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="total_amount">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
+            var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="qualified_spend">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
             hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
             hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
-            totalAmount = $html.find('.total_amount').val();
+            totalAmount = $html.find('.qualified_spend').val();
 
-            $('#total_amount').text('$'+totalAmount);
+            $('#qualified_spend').text('$'+totalAmount);
 
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
@@ -659,6 +660,7 @@
 
             fnDrawCallback: function( oSettings ) {
                 setPercentage();
+                setTotalAmount();
             },
         });
 
@@ -666,6 +668,12 @@
             // Trigger CSV download
             downloadCsv();
         });
+
+        function setTotalAmount() {
+            if ($('.total_amount').val() != null) {
+                $('.total_spend').text(('.total_amount').val());
+            }
+        }
 
         function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download

@@ -496,6 +496,20 @@ class Order extends Model
         }
         
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            $query1 = $query;
+            $query1->groupBy('m2.account_name');
+            $totalAmount1 = 0;
+            foreach ($query1->get() as $key => $value) {
+                $totalAmount1 += $value->cost;
+            }
+
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
                     $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
@@ -517,12 +531,7 @@ class Order extends Model
                     );
                 }
             } 
-            $query->where('orders.supplier_id', $filter['supplier']);
-
-            /** Year and quarter filter here */
-            if (isset($filter['end_date']) && isset($filter['start_date'])) {
-                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
-            }
+           
 
             if ($filter['supplier'] == 4) {
                 $query->whereRaw("
@@ -628,13 +637,17 @@ class Order extends Model
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->cost, 2);
+                    $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($value->cost, 2);
                     $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
                     $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($value->incentive_rebate, 2).' ('.(!empty($value->incentive_rebates) ? ($value->incentive_rebates.'%') : ('N/A')).')';
                 }
             }
         }
     
+        if(!$csv && isset($finalArray[0]) && $totalAmount1 != 0) {
+            $finalArray[0]['supplier'] .= '<input type="hidden" class="total_spend" value="' . number_format($totalAmount1, 2) . '">';
+        }
+
         if ($csv) {
             $startDates = date_format(date_create(trim($filter['start_date'])), 'm-d-Y');
             $endDates = date_format(date_create(trim($filter['end_date'])), 'm-d-Y');
