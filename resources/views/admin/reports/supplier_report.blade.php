@@ -671,7 +671,7 @@
 
         function setTotalAmount() {
             if ($('.total_amount').val() != null) {
-                $('.total_spend').text(('.total_amount').val());
+                $('#total_spend').text(('.total_amount').val());
             }
         }
 
