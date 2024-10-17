@@ -483,7 +483,7 @@ class Order extends Model
             ");
         }
 
-        $query1 = $query;
+        $query1 = self::query()->selectRaw("SUM(`orders`.`cost`) AS `cost`");
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
             $query1->where('orders.supplier_id', $filter['supplier']);
 
