@@ -483,6 +483,21 @@ class Order extends Model
             ");
         }
 
+        $query1 = $query;
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query1->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query1->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            $totalAmount1 = 0;
+            foreach ($query1->get() as $key => $value) {
+                $totalAmount1 += $value->cost;
+            }
+        }
+
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('rebate', function($join) {
             $join->on('m2.account_name', '=', 'rebate.account_name')
@@ -503,12 +518,6 @@ class Order extends Model
                 $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
             }
 
-            $query1 = $query;
-            $query1->groupBy('m2.account_name');
-            $totalAmount1 = 0;
-            foreach ($query1->get() as $key => $value) {
-                $totalAmount1 += $value->cost;
-            }
 
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
