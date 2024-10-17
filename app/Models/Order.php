@@ -496,6 +496,20 @@ class Order extends Model
         }
         
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            $query1 = $query;
+            $query1->groupBy('m2.account_name');
+            $totalAmount1 = 0;
+            foreach ($query1->get() as $key => $value) {
+                $totalAmount1 += $value->cost;
+            }
+
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
                     $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
@@ -517,12 +531,7 @@ class Order extends Model
                     );
                 }
             } 
-            $query->where('orders.supplier_id', $filter['supplier']);
-
-            /** Year and quarter filter here */
-            if (isset($filter['end_date']) && isset($filter['start_date'])) {
-                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
-            }
+           
 
             if ($filter['supplier'] == 4) {
                 $query->whereRaw("
@@ -628,13 +637,17 @@ class Order extends Model
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->cost, 2);
+                    $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($value->cost, 2);
                     $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
                     $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($value->incentive_rebate, 2).' ('.(!empty($value->incentive_rebates) ? ($value->incentive_rebates.'%') : ('N/A')).')';
                 }
             }
-        }
+        } 
     
+        if(!$csv && isset($finalArray[0]) && $totalAmount1 != 0) {
+            $finalArray[0]['account_name'] .= '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">';
+        }
+
         if ($csv) {
             $startDates = date_format(date_create(trim($filter['start_date'])), 'm-d-Y');
             $endDates = date_format(date_create(trim($filter['end_date'])), 'm-d-Y');
@@ -1237,6 +1250,9 @@ class Order extends Model
             }
         }
 
+        /** Group by with order supplier id */
+        $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
+
         /** Order by specified column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -1244,18 +1260,21 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        /** Group by with order supplier id */
-        $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
+        $totalAmount = 0;
+        $query1 = $query;
+        foreach ($query1->get() as $key => $value) {
+            /** Calculating total cost */
+            $totalAmount += $value->spend;
+        }
 
         /** Get the filtered records count */
         $filteredRecords = $query->getQuery()->getCountForPagination();
-
+        
         /** Paginate the results if pagination filters are provided */
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-
-        $totalAmount = 0;
+        
         $finalArray = [];
         foreach ($queryData as $key => $value) {
             if($csv) {
@@ -1265,13 +1284,11 @@ class Order extends Model
                 $finalArray[$key]['spend'] = $value->spend;
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
             } else {
-                /** Calculating total cost */
-                $totalAmount += $value->spend;
-
                 /** Prepare the final array for non-CSV */
                 $finalArray[$key]['account_name'] = "
                 <div class='form-check'>
                     <input class='form-check-input' type='checkbox'>
+                    <input class='form-check-input' type='hidden' value='".$value->supplier_id."'>
                     <label class='form-check-label'>
                         ".$value->account_name."
                     </label>
@@ -1282,8 +1299,8 @@ class Order extends Model
             }
         }
         // dd($query->toSql(), $query->getBindings());
-        // dd($finalArray);
-        if(!$csv && isset($finalArray[0])) {
+        // dd($totalAmount);
+        if(!$csv && isset($finalArray[0]) && $totalAmount != 0) {
             $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
         }
         
@@ -1333,16 +1350,8 @@ class Order extends Model
         }
 
         /** Filter for specific supplier IDs */
-        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
-        } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
-            if (isset($filter['supplier_id'][1])) {
-                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
-            } else {
-                $query->where('orders.supplier_id', $filter['supplier_id'][0]);
-            }
-        } else {
-
+        if (isset($filter['supplier_id'])) {
+            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
         }
 
         $queryData = $query->get();

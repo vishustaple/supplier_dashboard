@@ -125,18 +125,27 @@
             $('#downloadButton').on('click', function(e) {
                 e.preventDefault();
                 // Get all checked checkboxes within the DataTable
-                var checkedValues = [], selectedAccounts = [];
+                var oldselect = 0,
+                    checkedValues = [],
+                    selectedAccounts = [],
+                    selectedSupplierIds = [];
                 
                 // Selecting the account name and create the selectedAccounts array
                 $('#consolidated_supplier_data tbody tr').each(function() {
                     var checkbox = $(this).find('input[type="checkbox"]:checked');
                     if (checkbox.length > 0) {
-                        var accountName = $(this).find('td').eq(0).text().trim(); // Assuming the Account Name is in the first column
+                        var accountName = $(this).find('td').eq(0).text().trim(), // Assuming the Account Name is in the first column
+                            selectedSupplier = $(this).find('input[type="hidden"]').val(); // Assuming the Supplier Ids is hidden
             
                         selectedAccounts.push(accountName);
+                        if (oldselect !== selectedSupplier) {
+                            oldselect = selectedSupplier;
+
+                            selectedSupplierIds.push(selectedSupplier);
+                        }
                     }
                 });
-    
+
                 // Selecting the supplier_id and create the supplier_id array
                 $('.checkboxs:checked').each(function() {
                     checkedValues.push($(this).val());
@@ -160,7 +169,7 @@
                             type: 'POST',
                             data: { 
                                 account_name: selectedAccounts,
-                                supplier_id: checkedValues,
+                                supplier_id: selectedSupplierIds,
                                 start_date: $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
                                 end_date: $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD') 
                             },
