@@ -645,7 +645,7 @@ class Order extends Model
         }
     
         if(!$csv && isset($finalArray[0]) && $totalAmount1 != 0) {
-            $finalArray[0]['account_name'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount1, 2) . '">';
+            $finalArray[0]['account_name'] .= '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">';
         }
 
         if ($csv) {
