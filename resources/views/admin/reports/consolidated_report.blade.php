@@ -290,6 +290,7 @@
                         },
                         cache: true
                     },
+                    allowClear: true,
                     minimumInputLength: 1
                 });
             }
