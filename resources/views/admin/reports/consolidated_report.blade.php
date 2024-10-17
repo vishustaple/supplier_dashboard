@@ -177,7 +177,7 @@
                             xhrFields: { responseType: 'blob' },
                             success: function(data, status, xhr) {
                                 var blob = new Blob([data], { type: 'text/csv' });
-                                var link = document.createElement('a');
+                                var link = document.createElement('a'); 
                                 link.href = window.URL.createObjectURL(blob);
                                 var now = new Date();
                                 var dateStr = now.getFullYear() + "-" +
