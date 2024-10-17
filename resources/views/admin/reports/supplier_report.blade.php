@@ -570,6 +570,10 @@
         });
 
         function setPercentage() {
+            if ($('.total_amount').val() != null) {
+                $('#total_spend').text(('.total_amount').val());
+            }
+            
             var selectedValues = $('#supplier').val();
         
             if (selectedValues == 3) {
@@ -660,7 +664,6 @@
 
             fnDrawCallback: function( oSettings ) {
                 setPercentage();
-                setTotalAmount();
             },
         });
 
@@ -669,11 +672,7 @@
             downloadCsv();
         });
 
-        function setTotalAmount() {
-            if ($('.total_amount').val() != null) {
-                $('#total_spend').text(('.total_amount').val());
-            }
-        }
+    
 
         function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download
