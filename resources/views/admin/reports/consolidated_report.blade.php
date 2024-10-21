@@ -30,9 +30,15 @@
                         <div class="form-group relative col-md-9 mb-0">  
                             <div class="row">
                                 <div class="col-md-7">
-                                    <div class="form-group relative  mb-3">  
-                                        <label for="enddate">Select Date:</label>
-                                        <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                                    <div class="form-group relative  mb-3 row">
+                                        <div class="col-6">
+                                            <label for="startdate">Select Start Date:</label>
+                                            <input class="form-control" id="startdate" name="dates" placeholder="Enter Your Start Date " >
+                                        </div>  
+                                        <div class="col-6">
+                                            <label for="enddate">Select End Date:</label>
+                                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                                        </div>
                                     </div>
                                     <div class="form-group mb-0">
                                         <label for="selectBox">Select Account:</label>
@@ -122,6 +128,15 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            var defaultStartDate = moment().subtract(1, 'month').startOf('month'); // Default start date (1 month ago)
+            var defaultEndDate = moment(); // Default end date (today)
+            
+            // Set the default start date in the input
+            $('#startdate').val(defaultStartDate.format('MM/DD/YYYY'));
+            
+            // Set the default end date in the input
+            $('#enddate').val(defaultEndDate.format('MM/DD/YYYY'));
+
             $('#downloadButton').on('click', function(e) {
                 e.preventDefault();
                 // Get all checked checkboxes within the DataTable
@@ -170,8 +185,8 @@
                             data: { 
                                 account_name: selectedAccounts,
                                 supplier_id: selectedSupplierIds,
-                                start_date: $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
-                                end_date: $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD') 
+                                start_date: moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'),
+                                end_date: moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD') 
                             },
                             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                             xhrFields: { responseType: 'blob' },
@@ -298,9 +313,14 @@
 
             selectCustomer ()
 
-            $('#enddate').daterangepicker({
+            // Start Date Picker with custom ranges
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
+                locale: {
+                    format: 'MM/DD/YYYY'
+                },
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: {
@@ -309,6 +329,32 @@
                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                     'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                 }
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
+            });
+
+            // End Date Picker - Simple calendar
+            $('#enddate').daterangepicker({
+                autoApply: true,
+                showDropdowns: true,
+                singleDatePicker: true,
+                locale: {
+                    format: 'MM/DD/YYYY'
+                }
+            }, function(start) {
+                $('#enddate').val(start.format('MM/DD/YYYY')); // Manually set the selected date for end date
             });
 
             // Button click event
@@ -359,8 +405,8 @@
 
                         d.supplier_id = checkedValues;
                         d.account_name = $('#account_name').val();
-                        d.end_date = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD');
-                        d.start_date = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD');
+                        d.start_date = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
+                        d.end_date = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
                     },
                 },
 
@@ -448,8 +494,8 @@
                 // You can customize this URL to match your backend route for CSV download
                 var csvUrl = '{{ route("consolidated-report.export-csv") }}',
                 order = consolidateddataTable.order(),
-                start = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
-                end = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD'),
+                start = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'),
+                end = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'),
                 checkedValues = [];
                 $('.checkboxs:checked').each(function() {
                     checkedValues.push($(this).val());
