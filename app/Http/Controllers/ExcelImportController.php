@@ -101,7 +101,7 @@ class ExcelImportController extends Controller
             return response()->json(['error' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }
         
-        try{
+        try {
             $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('file'));
             if ($inputFileType === 'Xlsx') {
                 $reader = new Xlsx();
@@ -114,9 +114,13 @@ class ExcelImportController extends Controller
 
             $spreadSheet = $reader->load($request->file('file'), 2);
             $validationCheck = $arrayDiff = false;
-            foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
-                $maxNonEmptyCount = 0;
-
+            foreach ($spreadSheet->getAllSheets() as $one => $spreadSheets) {
+                // if ($request->supplierselect == 7) {
+                //     if ($spreadSheets->getTitle() != 'Weekly Sales Account Summary') {
+                //         continue;
+                //     }
+                // }
+                
                 if ($validationCheck == true) {
                     break;
                 }
@@ -133,37 +137,31 @@ class ExcelImportController extends Controller
                         return trim(str_replace(["\r", "\n"], '', $values));
                     }, $finalExcelKeyArray1);
 
-                    if ($request->supplierselect == 7) {
-                        foreach ($cleanedArray as $keys => $valuess) {
-                            if ($keys > 5) {
-                                $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
-                            }
-                        }
-                    }
-
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
-                       
-
                         if ($request->supplierselect == 7) {
-                            $supplierValues = array_slice($supplierValues, 0, 6, true);
+                            $supplierValues = array_slice($supplierValues, 0, 6, true);                        
+                            if (isset($cleanedArray[5]) && $cleanedArray[5] == $supplierValues[5]) {
+                                foreach ($cleanedArray as $keys => $valuess) {
+                                    if ($keys > 5) {
+                                        $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
+                                    }
+                                }
+                            } else {
+                                continue;
+                            }
                         }
                         
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
+                        
                         if (empty($arrayDiff)) {
-                            $maxNonEmptyvalue1 = $value;
                             $validationCheck = true;
                             break;
                         }
                     }
                 }
             }
-            // if ($validationCheck == false) {
-            //     $missingColumns = implode(', ', $arrayDiff);
-            //     return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
-            // }
         } catch (\Exception $e) {
-            // dd($e->getMessage());
             return redirect()->back()->with('error', $e->getMessage());
         }
 

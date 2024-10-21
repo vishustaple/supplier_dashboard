@@ -4,20 +4,11 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\{DB, Log};
 use Illuminate\Database\QueryException;
-use PhpOffice\PhpSpreadsheet\Reader\Xls;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{
-    Order,
-    Account,
-    OrderDetails,
-    UploadedFiles,
-    ManageColumns,
-};
+use App\Models\{Order, Account, OrderDetails, UploadedFiles, ManageColumns};
 
 class ProcessUploadedFiles extends Command
 {
@@ -218,10 +209,7 @@ class ProcessUploadedFiles extends Command
 
                         for ($i = 0; $i <= $sheetCount; $i++) {
                             $count = $maxNonEmptyCount = 0;
-                            
-                            // if ($fileValue->supplier_id == 5 && $i == 1) {
-                            //     continue;
-                            // }
+
                             if (($sheetCount == 1 && $i == 1 && $fileValue->supplier_id != 5) || ($fileValue->supplier_id == 5 && $i == 0) || ($fileValue->supplier_id == 7 && $i != 2)) {
                                 continue;
                             }
@@ -238,8 +226,11 @@ class ProcessUploadedFiles extends Command
 
                             foreach ($workSheetArray as $key=>$value) {
                                 $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
-                                    return !empty($item);
-                                }, ARRAY_FILTER_USE_BOTH));
+                                            return !empty($item);
+                                        },
+                                        ARRAY_FILTER_USE_BOTH
+                                    )
+                                );
                                             
                                 /** Clean up the values */
                                 $cleanedArray = array_map(function ($values) {
@@ -247,19 +238,19 @@ class ProcessUploadedFiles extends Command
                                     return trim(str_replace(["\r", "\n"], '', $values));
                                 }, $finalExcelKeyArray1);
         
-                                if ($fileValue->supplier_id == 7) {
-                                    foreach ($cleanedArray as $keys => $valuess) {
-                                        if ($keys > 5) {
-                                            $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
-                                        }
-                                    }
-                                }
-        
                                 if (isset($suppliers[$fileValue->supplier_id])) {
                                     $supplierValues = $suppliers[$fileValue->supplier_id];
-
                                     if ($fileValue->supplier_id == 7) {
-                                        $supplierValues = array_slice($supplierValues, 0, 6, true);
+                                        $supplierValues = array_slice($supplierValues, 0, 6, true);                        
+                                        if (isset($cleanedArray[5]) && $cleanedArray[5] == $supplierValues[5]) {
+                                            foreach ($cleanedArray as $keys => $valuess) {
+                                                if ($keys > 5) {
+                                                    $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
+                                                }
+                                            }
+                                        } else {
+                                            continue;
+                                        }
                                     }
 
                                     $arrayDiff = array_diff($supplierValues, $cleanedArray);
@@ -625,13 +616,21 @@ class ProcessUploadedFiles extends Command
                                         'cron' => 5
                                     ]);
 
-                                    DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->insert($excelInsertArray);
+                                    DB::table(
+                                        DB::table('supplier_tables')
+                                        ->select('table_name')
+                                        ->where('supplier_id', $fileValue->supplier_id)
+                                        ->first()
+                                        ->table_name
+                                    )
+                                    ->insert($excelInsertArray);
                                     
                                     if ($fileValue->supplier_id != 7) {
                                         if (isset($orderDetailsArray) && !empty($orderDetailsArray)) {
                                             DB::table('order_details')->insert($orderDetailsArray);
                                         }
                                     }
+
                                     DB::table('order_product_details')->insert($finalInsertArray);
                                 } catch (QueryException $e) {   
                                     Log::error('Error in YourScheduledTask: ' . $e->getMessage());
@@ -645,22 +644,26 @@ class ProcessUploadedFiles extends Command
                         DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 6]);
     
                         $this->info('Uploaded files processed successfully.');
-                    } catch (QueryException $e) {   
+                    } catch (QueryException $e) { 
+                        Log::error("Database updation failed: " . $e->getMessage());
                         echo "Database updation failed: " . $e->getMessage();
                         die;
                     }
                 } catch (\Exception $e) {
                     /** Update the 'cron' field three after processing done */
                     // DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 1]);
+                    Log::error("Error loading spreadsheet: " . $e->getMessage());
                     echo "Error loading spreadsheet: " . $e->getMessage();
                 }
             } else {
                 echo "No file left to process.";
             }
         } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            Log::error("Error loading spreadsheet: " . $e->getMessage());
             echo "Error loading spreadsheet: " . $e->getMessage();
             die;
         } catch (QueryException $e) {   
+            Log::error("Database table attachments select query failed: " . $e->getMessage());
             echo "Database table attachments select query failed: " . $e->getMessage();
             die;
         }  

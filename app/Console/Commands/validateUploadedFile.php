@@ -52,7 +52,7 @@ class validateUploadedFile extends Command
             } elseif ($inputFileType === 'Xls') {
                 $reader = new Xls();
             } else {
-                // throw new Exception('Unsupported file type: ' . $inputFileType);
+                Log('Unsupported file type: ' . $inputFileType);
             }
             
             $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
@@ -67,7 +67,7 @@ class validateUploadedFile extends Command
                 
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 $maxNonEmptyCount = 0;
-
+                
                 foreach ($spreadSheets->toArray() as $key=>$value) {
                     $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                         return !empty($item);
@@ -79,16 +79,9 @@ class validateUploadedFile extends Command
                         return str_replace(["\r", "\n"], '', $values);
                     }, $finalExcelKeyArray1);
 
-                    if ($fileValue->supplier_id == 7) {
-                        foreach ($cleanedArray as $keys => $valuess) {
-                            if ($keys > 5) {
-                                $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
-                            }
-                        }
-                    }
-
                     if (isset($suppliers[$fileValue->supplier_id])) {
-                        $supplierValues = $suppliers[$fileValue->supplier_id];
+                        $supplierValues = $suppliers[$fileValue->supplierselect];
+                        
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
                         if (empty($arrayDiff)) {
@@ -191,7 +184,7 @@ class validateUploadedFile extends Command
                     }
                 }
             }
-            // dd($fileValue);
+
             /** Update cron two means start processing data into excel */
             DB::table('attachments')->where('id', $fileValue->id)
             ->update(['cron' => 11]);
