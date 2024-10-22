@@ -132,8 +132,16 @@
                                 <td>
                                     <input type="text" class="form-control form-control-sm commission" name="commission[]" id="" aria-describedby="helpId" placeholder=""  required />
                                 </td>
-                                <td>
-                                    <input type="text" name="date[]" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" required>
+                                <td class="row">
+                                    <div class="col-6">
+                                        <!-- <label for="startdate">Select Start Date:</label> -->
+                                        <input class="form-control startdate" id="start_date" name="start_date[]" placeholder="Enter Your Start Date " >
+                                    </div>  
+                                    <div class="col-6">
+                                        <!-- <label for="enddate">Select End Date:</label> -->
+                                        <input class="form-control enddate" id="end_date" name="end_date[]" placeholder="Enter Your End Date " >
+                                    </div>
+                                    <!-- <input type="text" name="date[]" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" required> -->
                                 </td>
                                 <td>
                                     
@@ -258,18 +266,48 @@
             }
 
             function setDate(count=''){
-                $('.dateRangePicker'+count+'').daterangepicker({  
+                 // Start Date Picker with custom ranges
+                $('.startdate'+count+'').daterangepicker({
                     autoApply: true,
                     showDropdowns: true,
+                    singleDatePicker: true,
+                    locale: {
+                        format: 'MM/DD/YYYY'
+                    },
                     minYear: moment().subtract(7, 'years').year(),
                     maxYear: moment().add(7, 'years').year(),
-                    // maxDate: moment(),
                     ranges: {
                         'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
                         'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
                         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                         'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                     }
+                }, function(start, end, label) {
+                    // If a custom range is selected, populate both startDate and endDate
+                    if (
+                        label === 'Last Year' ||
+                        label === 'Last Month' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last 6 Months'
+                    ) {
+                        $('.startdate'+count+'').val(start.format('MM/DD/YYYY')); // Set start date
+                        $('.enddate'+count+'').val(end.format('MM/DD/YYYY')); // Set end date
+                    } else {
+                        // If a normal date is picked, only set the startDate
+                        $('.startdate'+count+'').val(start.format('MM/DD/YYYY'));
+                    }
+                });
+
+                // End Date Picker - Simple calendar
+                $('.enddate'+count+'').daterangepicker({
+                    autoApply: true,
+                    showDropdowns: true,
+                    singleDatePicker: true,
+                    locale: {
+                        format: 'MM/DD/YYYY'
+                    }
+                }, function(start) {
+                    $('.enddate'+count+'').val(start.format('MM/DD/YYYY')); // Manually set the selected date for end date
                 });
             }
 
@@ -279,7 +317,7 @@
             $('#add_commission').on('click', function(){
                 // Your existing code to append rows to the table
                 var count = $('#commission_table tbody tr').length + 1;
-                $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountNames mySelectAccountName'+count+'" name="account_name[]" required><option value="">Select</option></select></td><td><select class="mySelectSupplier'+count+' form-control-sm" name="supplier[]" aria-label="Default select example" required><option selected>--select--</option></select></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm" required><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" required /></td><td><input type="text" name="date[]" readonly="readonly" class="dateRangePickers dateRangePicker'+count+' form-control" placeholder="Select Date Range" required></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></div></td></tr>');
+                $('#commission_table').append('<tr><td><input type="hidden" class="count" value="'+count+'"><select class="mySelectAccountNames mySelectAccountName'+count+'" name="account_name[]" required><option value="">Select</option></select></td><td><select class="mySelectSupplier'+count+' form-control-sm" name="supplier[]" aria-label="Default select example" required><option selected>--select--</option></select></td><td><select id="selectBox" name="sales_rep[]" class="mySelectSalesRep'+count+' form-control-sm" required><option value="" selected>Select</option>@if(isset($salesRepersantative))@foreach($salesRepersantative as $salesRep)<option value="{{ $salesRep->id }}">{{ $salesRep->first_name ." ". $salesRep->last_name }}</option> @endforeach @endif </select></td><td><input type="text" class="form-control form-control-sm commission'+count+'" name="commission[]" id="" aria-describedby="helpId" placeholder="" required /></td><td class="row"><div class="col-6"><input class="form-control dateRangePickers startdate'+count+'" required id="start_date" name="start_date[]" placeholder="Enter Your Start Date " ></div> <div class="col-6"><input class="form-control dateRangePickers enddate'+count+'" required id="end_date" name="end_date[]" placeholder="Enter Your End Date " ></div></td><td><div class="d-flex"><button type="button" class="removeRowBtn btn btn-danger"><i class="fa-solid fa-xmark"></i></button></div></td></tr>');
 
                 setDate(count);
                 selectCustomer(count);

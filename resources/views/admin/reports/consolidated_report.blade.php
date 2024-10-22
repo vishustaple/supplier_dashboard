@@ -333,7 +333,7 @@
                 // If a custom range is selected, populate both startDate and endDate
                 if (
                     label === 'Last Year' ||
-                    label === 'Last Quarter' ||
+                    label === 'Last Month' ||
                     label === 'Last Quarter' ||
                     label === 'Last 6 Months'
                 ) {

@@ -29,10 +29,6 @@
             margin-top: 20%;
         }
     </style>
-
-    <!-- Include Date Range Picker JavaScript -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
     <script>
         $(document).ready(function() {
             // Button click event
