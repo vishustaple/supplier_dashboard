@@ -69,47 +69,11 @@
                         </form>
                     </div>
                 </div>
-                <table class="table power_bi_table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Title</th>
-                            <th scope="col" style="width: 70%;">Embeded Code</th>
-                            <th scope="col">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if($data)
-                            @foreach($data as $key => $value)
-                                @if($value->deleted == 1)
-                                    <tr class="text-danger">
-                                        <td>{{ $value->title }}</td>
-                                        <td>{{ $value->iframe }}</td>
-                                        <td></td>
-                                    </tr>
-                                @else
-                                    <tr>
-                                        <td>{{ $value->title }}</td>
-                                        <td>{{ $value->iframe }}</td>
-                                        <td>
-                                            <div class="row justify-content-start">
-                                                <div class="col-auto px-0">
-                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-id="{{ $value->id }}" data-title="{{ $value->title }}" data-iframe="{{ $value->iframe }}" data-bs-target="#editStaticBackdrop">
-                                                        <i class="fa fa-pencil-square" aria-hidden="true"></i>
-                                                    </button>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <a class="btn btn-danger" href="javascript:void(0);" onclick="deletePowerBI('{{ $value->id }}', '{{ $value->title }}')">
-                                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
+                <div class="form-group form-check ml-2">
+                    <input type="checkbox" value="1" class="checkbox form-check-input" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">Show Only Deleted Report</label>
+                </div>
+                <table class="table power_bi_table" id="power_bi_data"></table>
         @include('layout.footer')
         </div>
     </div>
@@ -124,6 +88,63 @@
         }
     </style>
     <script>
+        $('#exampleCheck1').change(function(){
+            $('#power_bi_data').DataTable().ajax.reload();
+            powerbidataTable.draw();
+        });
+
+        function hideColumns() {
+            if ($('#exampleCheck1:checked').val() == 1) {
+                powerbidataTable.column('id:name').visible(false);
+                powerbidataTable.column('deleted_at:name').visible(true);
+            } else {
+                powerbidataTable.column('id:name').visible(true);
+                powerbidataTable.column('deleted_at:name').visible(false);
+            }
+        }
+
+        // DataTable initialization
+        var powerbidataTable = $('#power_bi_data').DataTable({
+            oLanguage: {
+                sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
+            },
+            processing: true,
+            serverSide: true,
+            lengthMenu: [40],
+            searching: false,
+            paging: true,
+            pageLength: 40,
+            ajax: {
+                url: '{{ route("power_bi.show.ajax") }}',
+                type: 'POST',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: function (d) {
+                    d.check = $('#exampleCheck1:checked').val();
+                },
+            },
+
+            columns: [
+                { data: 'title', name: 'title', title: 'Title' },
+                { data: 'iframe', name: 'iframe' ,title: 'Embeded Code' },
+                { data: 'deleted_at', name: 'deleted_at', title: 'deleted_at' },
+                { data: 'id', name: 'id', title: 'Action', orderable: false, searchable: false },
+            ],
+
+            rowCallback: function(row, data, index) {
+                // Loop through each cell in the row
+                $('td', row).each(function() {
+                    // Check if the cell contains a button with a specific class
+                    if ($(row).find('div.delete').length === 0) {
+                        $(row).css('background-color','#f09b9b');
+                    }
+                });
+            },
+
+            fnDrawCallback: function( oSettings ) {
+                hideColumns();
+            },
+        });
+
         document.getElementById('editStaticBackdrop').addEventListener('show.bs.modal', function (event) {
             $('#powerbi_id').val(event.relatedTarget.getAttribute('data-id'));
             $('input[name="titles"]').val(event.relatedTarget.getAttribute('data-title'));

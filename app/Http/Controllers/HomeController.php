@@ -2,19 +2,27 @@
     namespace App\Http\Controllers;
 
     use Exception;
-    use Illuminate\Support\Str;
+    use Illuminate\Support\{
+        Str,
+        Carbon,
+    };
     use Illuminate\Http\Request;
-    use Illuminate\Support\Carbon;
-    use App\Models\{User, Permission};
-    use Illuminate\Support\Facades\DB;
-    use Illuminate\Support\Facades\Log;
-    use Illuminate\Support\Facades\Auth;
-    use Illuminate\Support\Facades\Mail;
-    use Illuminate\Support\Facades\Http;
-    use Illuminate\Support\Facades\Crypt;
-    use Illuminate\Support\Facades\Session;
+    use App\Models\{
+        User,
+        Permission,
+        ShowPowerBi
+    };
+    use Illuminate\Support\Facades\{
+        DB,
+        Log,
+        Auth,
+        Mail,
+        Http,
+        Crypt,
+        Session,
+        Validator,
+    };
     use Illuminate\Database\QueryException;
-    use Illuminate\Support\Facades\Validator;
 
 
     class HomeController extends Controller
@@ -35,8 +43,15 @@
 
         public function showPowerBi() {
             $pageTitle = 'Power Bi';
-            $data = DB::table('show_power_bi')->select('id', 'title', 'iframe', 'deleted')->get();
+            $data = DB::table('show_power_bi')->select('id', 'title', 'iframe', 'deleted', 'deleted_at')->get();
             return view('admin.power_bi', compact('pageTitle', 'data'));
+        }
+
+        public function showPowerBiAjax(Request $request) {
+            if ($request->ajax()) {
+                $formatuserdata = ShowPowerBi::getFilterdData($request->all());
+                return response()->json($formatuserdata);
+            }
         }
 
         public function userview() {    
@@ -472,7 +487,10 @@
 
                 DB::table('show_power_bi')
                 ->where('id', $id)
-                ->update(['deleted' => 1]);
+                ->update([
+                    'deleted' => 1,
+                    'deleted_at' => Carbon::now()->format('Y-m-d H:i:s')
+                ]);
 
                 return redirect()->route('power_bi.show');
             } catch (QueryException $e) {

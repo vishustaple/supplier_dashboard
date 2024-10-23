@@ -128,6 +128,7 @@ Route::group(['prefix' => 'admin'], function () {
 
 
         Route::get('/powerbi', [HomeController::class, 'showPowerBi'])->name('power_bi.show');
+        Route::post('/powerbi/ajax', [HomeController::class, 'showPowerBiAjax'])->name('power_bi.show.ajax');
         Route::post('/powerbi/add', [HomeController::class, 'powerBiAdd'])->name('powerbi.add');
         Route::post('/powerbi/edit', [HomeController::class, 'powerBiEdit'])->name('powerbi.update');
         Route::get('/powerbi/report', [HomeController::class, 'powerBiReport'])->name('powerbi.report');
