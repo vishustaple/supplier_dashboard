@@ -134,7 +134,7 @@
             swal.fire({
                 title: title,
                 text: "Are you sure you want to delete this report?",
-                icon: "error",
+                icon: "question",
                 showCancelButton: true,
                 confirmButtonText: 'YES',
                 cancelButtonText: 'NO',
