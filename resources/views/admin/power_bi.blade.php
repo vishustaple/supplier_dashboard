@@ -98,7 +98,7 @@
                                                     </button>
                                                 </div>
                                                 <div class="col-auto">
-                                                    <a class="btn btn-danger" href="javascript:void(0);" onclick="deletePowerBI('{{ $value->id }}')">
+                                                    <a class="btn btn-danger" href="javascript:void(0);" onclick="deletePowerBI('{{ $value->id }}', '{{ $value->title }}')">
                                                         <i class="fa fa-trash" aria-hidden="true"></i>
                                                     </a>
                                                 </div>
@@ -130,9 +130,9 @@
             $('textarea[name="iframes"]').val(event.relatedTarget.getAttribute('data-iframe'));
         });
 
-        function deletePowerBI(id) {
+        function deletePowerBI(id, title='') {
             swal.fire({
-                title: "Power Bi Report",
+                title: title,
                 text: "Are you sure you want to delete this report?",
                 icon: "error",
                 showCancelButton: true,
