@@ -486,8 +486,8 @@ class Order extends Model
 
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('rebate', function($join) {
-            $join->on('m2.account_name', '=', 'rebate.account_name')
-            ->on('m2.category_supplier', '=', 'rebate.supplier');
+            $join->on('m2.account_name', '=', 'rebate.account_name');
+            // ->on('m2.category_supplier', '=', 'rebate.supplier');
         })
 
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
