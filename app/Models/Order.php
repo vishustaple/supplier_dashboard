@@ -941,7 +941,7 @@ class Order extends Model
                 SUM(`commissions_rebate_detail`.`commissions`) AS `commissionss`,
                 SUM(`commissions_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
                 `commissions_rebate_detail`.`commissions_percentage` AS `commissions`,
-                `commissions_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
+                `commissions_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`
             ");
         }
 
