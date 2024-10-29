@@ -929,7 +929,7 @@ class Order extends Model
         } else {
             /** Create query for normal data retrieval with aggregated columns */
             $query = CommissionRebateDetail::query()->selectRaw("
-                `commissions_rebate_detail`.`paid` as paid
+                `commissions_rebate_detail`.`paid` as paid,
                 `commissions_rebate_detail`.`month` as month,
                 `suppliers`.`supplier_name` AS `supplier_name`,
                 `commissions_rebate_detail`.`quarter` as quarter,
