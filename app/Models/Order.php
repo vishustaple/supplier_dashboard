@@ -57,10 +57,11 @@ class Order extends Model
         $startDate4 = $monthDates[9]['start_date'];
         $endDate4 = $monthDates[11]['end_date'];
 
-        $query = DB::table('master_account_detail')->select('master_account_detail.account_number as account_number', 'master_account_detail.category_supplier as supplier');
+        $query = DB::table('master_account_detail')->select('master_account_detail.account_number as account_number', 'customer_suppliers.supplier_id as supplier')
+        ->join('customer_suppliers', 'customer_suppliers.customer_id', '=', 'master_account_detail.customer_id');
 
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
-            $query->whereIn('master_account_detail.category_supplier', $filter['supplier']);
+            $query->whereIn('customer_suppliers.supplier_id', $filter['supplier']);
         } else {
             if ($csv == true) {
                 $finalArray['heading'] = [
