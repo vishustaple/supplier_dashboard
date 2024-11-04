@@ -18,6 +18,7 @@ class ShowPowerBi extends Model
             1 => 'iframe',
             2 => 'deleted_at',
             3 => 'id',
+
         ];
 
         $query = self::query() /** Eager load relationships */
@@ -27,8 +28,15 @@ class ShowPowerBi extends Model
             'iframe',	
             'deleted',	
             'deleted_at',
-        );
-         
+            'created_by',
+            'deleted_by',
+            'first_name',
+            'last_name',
+        )
+        
+        ->join('users', 'users.id', '=', 'show_power_bi.deleted_by');
+        // ->join('users', 'users.id', '=', 'show_power_bi.created_by');
+
         /** Get total records count (without filtering) */
         $totalRecords = $query->getQuery()->getCountForPagination();
 
@@ -66,6 +74,7 @@ class ShowPowerBi extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
+            $formatuserdata[$key]['deleted_by'] = $data->first_name.' '.$data->last_name;
             $formatuserdata[$key]['title'] = $data->title;
             $formatuserdata[$key]['iframe'] = htmlspecialchars($data->iframe);
             $formatuserdata[$key]['deleted_at'] = ($data->deleted_at != null) ? (Carbon::parse($data->deleted_at)->format('d/m/Y')) : ('');

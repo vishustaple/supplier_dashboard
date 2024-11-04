@@ -420,6 +420,7 @@
 
                 DB::table('show_power_bi')
                 ->insert([
+                    'created_by' => Auth::id(),
                     'title' => $request->input('title'),
                     'iframe' => $request->input('iframe'),
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -489,6 +490,7 @@
                 ->where('id', $id)
                 ->update([
                     'deleted' => 1,
+                    'deleted_by' => Auth::id(),
                     'deleted_at' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
 
