@@ -80,7 +80,7 @@ class validateUploadedFile extends Command
                     }, $finalExcelKeyArray1);
 
                     if (isset($suppliers[$fileValue->supplier_id])) {
-                        $supplierValues = $suppliers[$fileValue->supplierselect];
+                        $supplierValues = $suppliers[$fileValue->supplier_id];
                         
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
