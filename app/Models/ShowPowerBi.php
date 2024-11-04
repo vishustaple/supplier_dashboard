@@ -23,7 +23,7 @@ class ShowPowerBi extends Model
 
         $query = self::query() /** Eager load relationships */
         ->select(
-            'id',	
+            'show_power_bi.id as id',	
             'title',	
             'iframe',	
             'deleted',	
