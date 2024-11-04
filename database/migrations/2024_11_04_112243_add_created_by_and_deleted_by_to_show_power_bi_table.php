@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('show_power_bi', function (Blueprint $table) {
-            $table->unsignedBigInteger('created_by')->nullable()->after('column_name'); // Adjust column_name
+            $table->unsignedBigInteger('created_by')->nullable()->after('deleted_at'); // Adjust column_name
             $table->unsignedBigInteger('deleted_by')->nullable()->after('created_by');
         });
     }
