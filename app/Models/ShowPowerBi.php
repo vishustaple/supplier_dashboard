@@ -34,7 +34,7 @@ class ShowPowerBi extends Model
             'last_name',
         )
         
-        ->join('users', 'users.id', '=', 'show_power_bi.deleted_by');
+        ->leftJoin('users', 'users.id', '=', 'show_power_bi.deleted_by');
         // ->join('users', 'users.id', '=', 'show_power_bi.created_by');
 
         /** Get total records count (without filtering) */
