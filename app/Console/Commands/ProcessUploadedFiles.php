@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\{DB, Log};
+use Illuminate\Support\Facades\{DB, File, Log};
 use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
@@ -31,6 +31,30 @@ class ProcessUploadedFiles extends Command
      */
     public function handle()
     {
+        $userFileExist = DB::table('consolidated_file')
+        ->select('id', 'file_name')
+        ->where('delete_check', 1)
+        ->get();
+
+        if ($userFileExist->isNotEmpty()) {
+            foreach ($userFileExist as $key => $value) {
+                if (File::exists(storage_path('app/' . $value->file_name))) {
+                    try {
+                        File::delete(storage_path('app/' . $value->file_name));
+                        
+                        /** Delete the database record after the file deletion */
+                        DB::table('consolidated_file')
+                            ->where('id', $value->id)
+                            ->delete();
+                    } catch (\Exception $e) {
+                        Log::error('Error deleting file: ' . $e->getMessage());
+                    }
+                } else {
+                    session()->flash('error', 'File not found.');
+                }
+            }
+        }
+
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
 

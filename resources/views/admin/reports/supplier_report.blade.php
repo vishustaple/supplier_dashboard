@@ -846,8 +846,8 @@
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            $('#startDates').text($('#enddate').data('daterangepicker').startDate.format('MM/DD/YYYY'));
-            $('#endDates').text($('#enddate').data('daterangepicker').endDate.format('MM/DD/YYYY'));
+            $('#startDates').text(moment($('#startdate').val(), 'MM/DD/YYYY').format('MM/DD/YYYY'));
+            $('#endDates').text(moment($('#enddate').val(), 'MM/DD/YYYY').format('MM/DD/YYYY'));
             $('.header_bar').attr('style', 'display:flex !important;');
 
             // Initiate DataTable AJAX request
@@ -929,8 +929,8 @@
                     // Pass date range and supplier ID when making the request
                     d.supplier = $('#supplier').val();
                     d.rebate_check = $('input[name="rebate_check"]:checked').val();
-                    d.end_date = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD');
-                    d.start_date = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD');
+                    d.end_date = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
+                    d.start_date = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
                 },
             },
 
@@ -974,8 +974,8 @@
         function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download
             var csvUrl = '{{ route("report.export-supplier_report-csv") }}', order = supplierDataTable.order(),
-            start = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
-            end = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD'),
+            start = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'),
+            end = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'),
             rebate_check = $('input[name="rebate_check"]:checked').val();
 
             // Add query parameters for date range and supplier ID

@@ -275,7 +275,7 @@
                 searching: false, 
                 pageLength: 40,
                 ajax: {
-                    url: '{{ route('report.filter') }}',
+                    url: '{{ route("report.filter") }}',
                     type: 'POST',
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
@@ -356,7 +356,7 @@
 
         function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route('report.export-csv') }}';
+            var csvUrl = '{{ route("report.export-csv") }}';
 
             var checkedValues = [];
             $('.checkboxs:checked').each(function() {

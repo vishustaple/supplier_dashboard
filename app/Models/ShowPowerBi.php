@@ -32,18 +32,17 @@ class ShowPowerBi extends Model
             'deleted_by',
             'first_name',
             'last_name',
-        )
-        
-        ->leftJoin('users', 'users.id', '=', 'show_power_bi.deleted_by');
-        // ->join('users', 'users.id', '=', 'show_power_bi.created_by');
+        );
 
         /** Get total records count (without filtering) */
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         if (isset($filter['check']) && $filter['check'] == 1) {
-            $query->where('deleted', $filter['check']);
+            $query->leftJoin('users', 'users.id', '=', 'show_power_bi.deleted_by')
+            ->where('deleted', $filter['check']);
         } else {
-            $query->where('deleted', 0);
+            $query->join('users', 'users.id', '=', 'show_power_bi.created_by')
+            ->where('deleted', 0);
         }
 
         /** Search functionality */
@@ -75,6 +74,7 @@ class ShowPowerBi extends Model
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
             $formatuserdata[$key]['deleted_by'] = $data->first_name.' '.$data->last_name;
+            $formatuserdata[$key]['created_by'] = $data->first_name.' '.$data->last_name;
             $formatuserdata[$key]['title'] = $data->title;
             $formatuserdata[$key]['iframe'] = htmlspecialchars($data->iframe);
             $formatuserdata[$key]['deleted_at'] = ($data->deleted_at != null) ? (Carbon::parse($data->deleted_at)->format('d/m/Y')) : ('');

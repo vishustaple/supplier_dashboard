@@ -98,10 +98,12 @@
                 powerbidataTable.column('id:name').visible(false);
                 powerbidataTable.column('deleted_at:name').visible(true);
                 powerbidataTable.column('deleted_by:name').visible(true);
+                powerbidataTable.column('created_by:name').visible(false);
             } else {
                 powerbidataTable.column('id:name').visible(true);
                 powerbidataTable.column('deleted_at:name').visible(false);
                 powerbidataTable.column('deleted_by:name').visible(false);
+                powerbidataTable.column('created_by:name').visible(true);
             }
         }
 
@@ -129,6 +131,7 @@
                 { data: 'title', name: 'title', title: 'Title' },
                 { data: 'iframe', name: 'iframe' ,title: 'Embeded Code' },
                 { data: 'deleted_at', name: 'deleted_at', title: 'Deleted At' },
+                { data: 'created_by', name: 'created_by', title: 'Created By',  orderable: false, searchable: false },
                 { data: 'deleted_by', name: 'deleted_by', title: 'Deleted By',  orderable: false, searchable: false },
                 { data: 'id', name: 'id', title: 'Action', orderable: false, searchable: false },
             ],

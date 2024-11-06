@@ -8,6 +8,7 @@
                     <h3 class="mb-0 ">{{ $pageTitle }}</h3>
                 </div>
                 <div id="error"></div>
+                <div id="successMessages"></div>
                 <form  id="import_form"  enctype="multipart/form-data">
                     @csrf
                     <div class="row align-items-start border-bottom pb-3 mb-4">
@@ -55,7 +56,12 @@
                                     <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
                                     <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-1 fa-file-pdf"></i>PDF</button>
                                     <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download</button>
-                                    <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
+                                    @if($consolidatedFile)
+                                        <a class="btn-success px-3 btn m-1" href="{{ route('report.download-user-file', ['file' => $consolidatedFile]) }}">Download Genrated Report</a>
+                                        <!-- <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button> -->
+                                    @else
+                                        <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -189,23 +195,32 @@
                                 end_date: moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD') 
                             },
                             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                            xhrFields: { responseType: 'blob' },
-                            success: function(data, status, xhr) {
-                                var blob = new Blob([data], { type: 'text/csv' });
-                                var link = document.createElement('a');
-                                link.href = window.URL.createObjectURL(blob);
-                                var now = new Date();
-                                var dateStr = now.getFullYear() + "-" +
-                                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
-                                ("0" + now.getDate()).slice(-2) + "_" +
-                                ("0" + now.getHours()).slice(-2) + "-" +
-                                ("0" + now.getMinutes()).slice(-2) + "-" +
-                                ("0" + now.getSeconds()).slice(-2);
-                                link.download = 'Consolidated_Account_Report_' + dateStr + '.csv';
-                                link.click();
-                                button.disabled = false;
-                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
+                            // xhrFields: { responseType: 'blob' },
+                            success: function (response) {
+                                $('#successMessages').html('');
+                                $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.message+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                                setTimeout(function () {
+                                    $('#successMessages').fadeOut();
+                                    window.location.reload();
+                                }, 5000);
+                                // alert(response.message); // Display the response message
                             },
+                            // success: function(data, status, xhr) {
+                                // var blob = new Blob([data], { type: 'text/csv' });
+                                // var link = document.createElement('a');
+                                // link.href = window.URL.createObjectURL(blob);
+                                // var now = new Date();
+                                // var dateStr = now.getFullYear() + "-" +
+                                // ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                // ("0" + now.getDate()).slice(-2) + "_" +
+                                // ("0" + now.getHours()).slice(-2) + "-" +
+                                // ("0" + now.getMinutes()).slice(-2) + "-" +
+                                // ("0" + now.getSeconds()).slice(-2);
+                                // link.download = 'Consolidated_Account_Report_' + dateStr + '.csv';
+                                // link.click();
+                                // button.disabled = false;
+                                // button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
+                            // },
                             error: function(xhr, status, error) {
                                 button.disabled = false;
                                 button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
