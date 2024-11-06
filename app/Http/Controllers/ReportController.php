@@ -17,6 +17,7 @@ use App\Models\{
     SalesTeam,
     CategorySupplier,
 };
+use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -109,17 +110,21 @@ class ReportController extends Controller
             }
 
             $user = Auth::user(); /** Assuming you have the authenticated user */
+
             $userFileExist = DB::table('consolidated_file')
-            ->select('file_name')
+            ->select('file_name', 'user_id')
             ->where('user_id', $user->id)
             ->first();
+
             if ($userFileExist) {
-                $fileName = $userFileExist->file_name;
+                $fileName = $userFileExist->file_name ?? null;
+                $userId = $userFileExist->user_id ?? null;
             } else {
                 $fileName = null;
+                $userId = null;
             }
             
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'consolidatedFile' => $fileName]);
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'consolidatedFile' => $fileName, 'file_user_id' => $userId]);
         } else {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get()]);
         }
@@ -885,9 +890,36 @@ class ReportController extends Controller
         ];
 
         $user = Auth::user(); /** Assuming you have the authenticated user */
-        
+
+        $userFileExist = DB::table('consolidated_file')
+        ->select('user_id', 'file_name')
+        ->where('user_id', $user->id)
+        ->first();
+
+        if ($userFileExist) {
+            if (File::exists('app/' . $userFileExist->file_name)) {
+                try {
+                    File::delete('app/' . $userFileExist->file_name);
+                    DB::table('consolidated_file')
+                        ->where('user_id', $userFileExist->user_id)
+                        ->delete();
+                } catch (\Exception $e) {
+                    /** Log or handle the error */
+                    Log::error('Error deleting file: ' . $e->getMessage());
+                    session()->flash('error', 'Error deleting file: ' . $e->getMessage());
+                }
+            }
+        }
+
+        $insertId = DB::table('consolidated_file')
+        ->insertGetId([
+            'user_id' => $user->id,
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+        ]);
+
         /** Dispatch the job */
-        ExportConsolidatedReport::dispatch($filter, $user->id);
+        ExportConsolidatedReport::dispatch($filter, $user->id, $insertId);
 
         return response()->json([
             'message' => 'Your export is being processed. You will be notified when it is ready for download.',

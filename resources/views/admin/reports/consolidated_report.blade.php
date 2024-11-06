@@ -57,8 +57,10 @@
                                     <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-1 fa-file-pdf"></i>PDF</button>
                                     <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download</button>
                                     @if($consolidatedFile)
-                                        <a class="btn-success px-3 btn m-1" href="{{ route('report.download-user-file', ['file' => $consolidatedFile]) }}">Download Genrated Report</a>
+                                        <a class="btn-success px-3 btn m-1" href="{{ route('report.download-user-file', ['file' => $consolidatedFile]) }}"><i class="fa-solid me-1 fa-file-csv"></i>Download Genrated Report</a>
                                         <!-- <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button> -->
+                                    @elseif($file_user_id)
+                                        <button class="btn-success px-3 btn m-1 disabled" href=""><i class="fa-solid me-1 fa-file-csv"></i>Download Genrated Report</button>
                                     @else
                                         <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
                                     @endif

@@ -28,15 +28,17 @@ class ExportConsolidatedReport implements ShouldQueue
 
     public $filter;
     public $userId;
+    public $fileId;
     public $filePath;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($filter, $userId)
+    public function __construct($filter, $userId, $fileId)
     {
         $this->filter = $filter;
         $this->userId = $userId;
+        $this->fileId = $fileId;
         $this->filePath = 'Consolidated_Report_' . now()->format('YmdHis') . '.csv';
     }
 
@@ -45,26 +47,6 @@ class ExportConsolidatedReport implements ShouldQueue
      */
     public function handle(): void
     {
-        $userFileExist = DB::table('consolidated_file')
-        ->select('user_id', 'file_name')
-        ->where('user_id', $this->userId)
-        ->first();
-
-        if ($userFileExist) {
-            if (File::exists('app/' . $userFileExist->file_name)) {
-                try {
-                    File::delete('app/' . $userFileExist->file_name);
-                    DB::table('consolidated_file')
-                        ->where('user_id', $userFileExist->user_id)
-                        ->delete();
-                } catch (\Exception $e) {
-                    /** Log or handle the error */
-                    Log::error('Error deleting file: ' . $e->getMessage());
-                    session()->flash('error', 'Error deleting file: ' . $e->getMessage());
-                }
-            }
-        }
-
         Log::info('Queue started for exporting consolidated report.');
         /** Open a writable stream in storage */
         $stream = fopen(storage_path('app/' . $this->filePath), 'w');
@@ -105,10 +87,9 @@ class ExportConsolidatedReport implements ShouldQueue
 
         /** Notify the user after file creation */
         DB::table('consolidated_file')
-        ->insert([
-            'user_id' => $this->userId,
+        ->where('id', $this->fileId)
+        ->update([
             'file_name' => $this->filePath,
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
         ]);
     }
