@@ -235,34 +235,34 @@
 
             // Function to update checked values and check for supplier ID
             function updateCheckedValues() {
-                checkedValuess = []; // Clear the array
-                $('.checkboxs:checked').each(function() {
-                    checkedValuess.push($(this).val());
-                });
+                // checkedValuess = []; // Clear the array
+                // $('.checkboxs:checked').each(function() {
+                //     checkedValuess.push($(this).val());
+                // });
 
-                var supplierIdToCheck = 3; // Replace with the supplier ID you want to check
-                var supplierIdToCheck1 = 'all'; // Replace with the supplier ID you want to check
-                checkedAccounts = [];
+                // var supplierIdToCheck = 3; // Replace with the supplier ID you want to check
+                // var supplierIdToCheck1 = 'all'; // Replace with the supplier ID you want to check
+                // checkedAccounts = [];
 
-                if (checkedValuess.includes(supplierIdToCheck.toString())) { // Convert to string for comparison
-                    $('#selectAllAccounts').hide();
-                    $('#selectAllAccounts').prop('checked', false)
-                    $('#consolidated_supplier_data').DataTable().ajax.reload();
-                } else if (checkedValuess.includes(supplierIdToCheck1.toString())) {
-                    $('#selectAllAccounts').hide();
-                    $('#selectAllAccounts').prop('checked', false)
-                    $('#consolidated_supplier_data').DataTable().ajax.reload();
-                } else {
-                    $('#selectAllAccounts').show();
-                    $('#selectAllAccounts').prop('checked', false)
-                    $('#consolidated_supplier_data').DataTable().ajax.reload();
-                }
+                // if (checkedValuess.includes(supplierIdToCheck.toString())) { // Convert to string for comparison
+                //     $('#selectAllAccounts').hide();
+                //     $('#selectAllAccounts').prop('checked', false)
+                //     $('#consolidated_supplier_data').DataTable().ajax.reload();
+                // } else if (checkedValuess.includes(supplierIdToCheck1.toString())) {
+                //     $('#selectAllAccounts').hide();
+                //     $('#selectAllAccounts').prop('checked', false)
+                //     $('#consolidated_supplier_data').DataTable().ajax.reload();
+                // } else {
+                    // $('#selectAllAccounts').show();
+                    // $('#selectAllAccounts').prop('checked', false)
+                    // $('#consolidated_supplier_data').DataTable().ajax.reload();
+                // }
             }
 
             // Attach the change event to checkboxes
-            $('.checkboxs').change(function() {
-                updateCheckedValues();
-            });
+            // $('.checkboxs').change(function() {
+            //     updateCheckedValues();
+            // });
 
             $('#select_dates').on('change', function(){
                 var selectValue = $(this).val();
