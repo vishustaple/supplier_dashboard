@@ -47,6 +47,9 @@ class ExportConsolidatedReport implements ShouldQueue
      */
     public function handle(): void
     {
+        /** Increasing the memory limit becouse memory limit issue */
+        ini_set('memory_limit', '1024M');
+        
         Log::info('Queue started for exporting consolidated report.');
         /** Open a writable stream in storage */
         $stream = fopen(storage_path('app/' . $this->filePath), 'w');
