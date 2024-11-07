@@ -47,53 +47,54 @@ class ExportConsolidatedReport implements ShouldQueue
      */
     public function handle(): void
     {
-        /** Increasing the memory limit becouse memory limit issue */
-        ini_set('memory_limit', '1024M');
         
-        Log::info('Queue started for exporting consolidated report.');
-        /** Open a writable stream in storage */
-        $stream = fopen(storage_path('app/' . $this->filePath), 'w');
-        $csvWriter = Writer::createFromStream($stream);
+        // /** Open a writable stream in storage */
+        // $stream = fopen(storage_path('app/' . $this->filePath), 'w');
+        // $csvWriter = Writer::createFromStream($stream);
 
-        /** Fetch data in chunks to avoid memory overload */
-        $data = Order::getConsolidatedDownloadData($this->filter);
+        
 
         /** Create a new CSV writer instance */
-        $csvWriter = Writer::createFromStream($stream);
+        // $csvWriter = Writer::createFromStream($stream);
         
-        $previousKeys = [];
+        // $previousKeys = [];
  
-        /** Loop through data */
-        foreach ($data as $row) {
-            $currentKeys = array_keys($row);
+        // /** Loop through data */
+        // foreach ($data as $row) {
+        //     $currentKeys = array_keys($row);
  
-            /** Check if the keys have changed */
-            if ($currentKeys !== $previousKeys) {
-                /** If keys have changed, insert the new heading row */
-                $csvWriter->insertOne($currentKeys);
-                $previousKeys = $currentKeys;
-            }
+        //     /** Check if the keys have changed */
+        //     if ($currentKeys !== $previousKeys) {
+        //         /** If keys have changed, insert the new heading row */
+        //         $csvWriter->insertOne($currentKeys);
+        //         $previousKeys = $currentKeys;
+        //     }
 
-            /** Reorder the current row according to the current keys */
-            $orderedRow = [];
-            foreach ($currentKeys as $key) {
-                $orderedRow[] = $row[$key] ?? '';
-            }
+        //     /** Reorder the current row according to the current keys */
+        //     $orderedRow = [];
+        //     foreach ($currentKeys as $key) {
+        //         $orderedRow[] = $row[$key] ?? '';
+        //     }
  
-            /** Insert the data row */
-            $csvWriter->insertOne($orderedRow);
-        }
+        //     /** Insert the data row */
+        //     $csvWriter->insertOne($orderedRow);
+        // }
+        
+        Log::info('Queue started for exporting consolidated report.');
+
+        /** Fetch data in chunks to avoid memory overload */
+        $fileCreatedCheck = Order::getConsolidatedDownloadDataSecond($this->filter, $this->filePath);
 
         Log::info('Export completed. CSV file created at: ');
 
-        fclose($stream);
-
-        /** Notify the user after file creation */
-        DB::table('consolidated_file')
-        ->where('id', $this->fileId)
-        ->update([
-            'file_name' => $this->filePath,
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-        ]);
+        if ($fileCreatedCheck) {
+            /** Notify the user after file creation */
+            DB::table('consolidated_file')
+            ->where('id', $this->fileId)
+            ->update([
+                'file_name' => $this->filePath,
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
+        }
     }
 }

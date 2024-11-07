@@ -38,6 +38,7 @@ return [
             'driver' => 'database',
             'table' => 'jobs',
             'queue' => 'default',
+            'timeout' => 3600,  // Set the timeout in seconds
             'retry_after' => 90,
             'after_commit' => false,
         ],

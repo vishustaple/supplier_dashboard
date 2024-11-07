@@ -880,6 +880,55 @@ class ReportController extends Controller
         return $response;
     }
 
+    public function checkConsolidatedReport(Request $request) {
+        $userFileExists = DB::table('consolidated_file')
+            ->select('id', 'file_name')
+            ->where('delete_check', 1)
+            ->get();
+
+        if ($userFileExists->isNotEmpty()) {
+            foreach ($userFileExists as $value) {
+                if (File::exists(storage_path('app/' . $value->file_name))) {
+                    try {
+                        File::delete(storage_path('app/' . $value->file_name));
+                        
+                        /** Delete the database record after the file deletion */
+                        DB::table('consolidated_file')
+                            ->where('id', $value->id)
+                            ->delete();
+                    } catch (\Exception $e) {
+                        Log::error('Error deleting file: ' . $e->getMessage());
+                    }
+                }
+            }
+        }
+
+        $user = Auth::user(); /** Assuming you have the authenticated user */
+
+        $userFileExist = DB::table('consolidated_file')
+        ->select('file_name', 'user_id')
+        ->where('user_id', $user->id)
+        ->first();
+
+        if ($userFileExist) {
+            $fileName = $userFileExist->file_name ?? '';
+            $userId = $userFileExist->user_id ?? '';
+
+            return response()->json([
+                'success' => true,
+                'fileName' => $fileName
+            ]);
+        } else {
+            $fileName = '';
+            $userId = '';
+        }
+
+        return response()->json([
+            'error' => true,
+            'fileName' => $fileName
+        ]);
+    }
+
     public function exportConsolidatedDownload(Request $request) {
         /** Fetch data using the parameters and transform it into CSV format */
         $filter = [

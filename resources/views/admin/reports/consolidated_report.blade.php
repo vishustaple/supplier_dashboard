@@ -48,19 +48,18 @@
                                 </div>
                                
                                 <div class="col-md-5 mt-1 mb-0 ms-auto text-end">
-                                <div class="card bg-light mb-3 ms-3" style=" display: none;">
-                                    <div class="card-body">
-                                        <p class="card-text d-flex justify-content-between"><b>Test: </b></p>
+                                    <div class="card bg-light mb-3 ms-3" style=" display: none;">
+                                        <div class="card-body">
+                                            <p class="card-text d-flex justify-content-between"><b>Test: </b></p>
+                                        </div>
                                     </div>
-                                </div>
                                     <button id="submitBtn" class="btn btn-primary m-1">Submit</button>
                                     <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-1 fa-file-pdf"></i>PDF</button>
                                     <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download</button>
                                     @if($consolidatedFile)
-                                        <a class="btn-success px-3 btn m-1" href="{{ route('report.download-user-file', ['file' => $consolidatedFile]) }}"><i class="fa-solid me-1 fa-file-csv"></i>Download Genrated Report</a>
-                                        <!-- <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button> -->
+                                        <a class="btn-success px-3 btn m-1" id="downloadLinkReport" href="{{ route('report.download-user-file', ['file' => $consolidatedFile]) }}"><i class="fa-solid me-1 fa-file-csv"></i>Download Genrated Report</a>
                                     @elseif($file_user_id)
-                                        <button class="btn-success px-3 btn m-1 disabled" href=""><i class="fa-solid me-1 fa-file-csv"></i>Download Genrated Report</button>
+                                        <button id="queProcess" class="btn-success px-3 btn m-1 disabled" href=""><i class="fa-solid me-1 fa-file-csv"></i>Download Genrated Report</button>
                                     @else
                                         <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
                                     @endif
@@ -136,6 +135,43 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+             // Check if the button with a specific ID exists
+             if ($('#queProcess').length > 0) {
+                // Set the interval time (in milliseconds)
+                var intervalTime = 2000; // 5 seconds
+
+                // Set the interval and store the interval ID so you can clear it later
+                var intervalId = setInterval(function() {
+                    // Perform your AJAX request
+                    $.ajax({
+                        url: '{{ route("consolidated-report.check") }}', // Set the endpoint for the request
+                        type: 'GET', // Specify the request type (GET, POST, etc.)
+                        success: function(response) {
+                            if (response.success && response.fileName) {
+                                $('#queProcess').remove();
+
+                                var consolidatedFile = response.fileName; // Pass the PHP variable to JS
+                                var downloadUrl = "{{ url('admin/report/download-user-file') }}/" + consolidatedFile; // Build the URL dynamically
+
+                                if ($('#downloadCsvBtn').length > 0) {
+                                    $('#downloadLinkReport').remove();
+                                    $('#downloadCsvBtn').after('<a class="btn-success px-3 btn m-1" id="downloadLinkReport" href="' + downloadUrl + '"><i class="fa-solid me-1 fa-file-csv"></i>Download Generated Report</a>');
+                                }
+
+                                // Stop the interval once the file is ready
+                                clearInterval(intervalId);
+                            }
+
+                            console.log('Request successful:', response);
+                            // You can handle the response here
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Request failed:', error);
+                            // You can handle errors here
+                        }
+                    });
+                }, intervalTime);
+            }
             var defaultStartDate = moment().subtract(1, 'month').startOf('month'); // Default start date (1 month ago)
             var defaultEndDate = moment(); // Default end date (today)
             
@@ -201,10 +237,50 @@
                             success: function (response) {
                                 $('#successMessages').html('');
                                 $('#successMessages').append('<div class="alert alert-success alert-dismissible fade show" role="alert">'+response.message+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                                setTimeout(function () {
-                                    $('#successMessages').fadeOut();
-                                    window.location.reload();
-                                }, 5000);
+                                $('#downloadButton').remove();
+
+                                if ($('#downloadCsvBtn').length > 0) {
+                                    // Append a new button after the existing button
+                                    $('#downloadCsvBtn').after('<button id="queProcess" class="btn-success px-3 btn m-1 disabled" href=""><i class="fa-solid me-1 fa-file-csv"></i>Download Genrated Report</button>');
+                                }
+
+                                // Check if the button with a specific ID exists
+                                if ($('#queProcess').length > 0) {
+                                    // Set the interval time (in milliseconds)
+                                    var intervalTime = 2000; // 5 seconds
+
+                                    // Set the interval and store the interval ID so you can clear it later
+                                    var intervalId = setInterval(function() {
+                                        // Perform your AJAX request
+                                        $.ajax({
+                                            url: '{{ route("consolidated-report.check") }}', // Set the endpoint for the request
+                                            type: 'GET', // Specify the request type (GET, POST, etc.)
+                                            success: function(response) {
+                                                if (response.success && response.fileName) {
+                                                    $('#queProcess').remove();
+
+                                                    var consolidatedFile = response.fileName; // Pass the PHP variable to JS
+                                                    var downloadUrl = "{{ url('admin/report/download-user-file') }}/" + consolidatedFile; // Build the URL dynamically
+
+                                                    if ($('#downloadCsvBtn').length > 0) {
+                                                        $('#downloadLinkReport').remove();
+                                                        $('#downloadCsvBtn').after('<a class="btn-success px-3 btn m-1" id="downloadLinkReport" href="' + downloadUrl + '"><i class="fa-solid me-1 fa-file-csv"></i>Download Generated Report</a>');
+                                                    }
+
+                                                    // Stop the interval once the file is ready
+                                                    clearInterval(intervalId);
+                                                }
+
+                                                console.log('Request successful:', response);
+                                                // You can handle the response here
+                                            },
+                                            error: function(xhr, status, error) {
+                                                console.error('Request failed:', error);
+                                                // You can handle errors here
+                                            }
+                                        });
+                                    }, intervalTime);
+                                }
                                 // alert(response.message); // Display the response message
                             },
                             // success: function(data, status, xhr) {
@@ -230,6 +306,14 @@
                             }
                         });
                     }
+                }
+            });
+
+            $('#downloadLinkReport').click(function(){
+                $(this).remove();
+                if ($('#downloadCsvBtn').length > 0) {
+                    // Append a new button after the existing button
+                    $('#downloadCsvBtn').after('<button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>');
                 }
             });
 

@@ -6,6 +6,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use League\Csv\Writer;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class Order extends Model
@@ -1334,7 +1335,7 @@ class Order extends Model
 
     public static function getConsolidatedDownloadData($filter=[]) {
         /** Increasing the memory limit becouse memory limit issue */
-        ini_set('memory_limit', '7024M');
+        // ini_set('memory_limit', '25024M');
         $query = self::query()
         ->selectRaw("
             `order_product_details`.`key` as `key`,
@@ -1364,6 +1365,7 @@ class Order extends Model
         }
 
         $queryData = $query->get();
+        // dd($query->toSql(), $query->getBindings());
         // dd($queryData);
         $stapleColumnArray = [
             "Div",
@@ -1453,6 +1455,161 @@ class Order extends Model
         // dd($query->toSql(), $query->getBindings());
 
         return $finalArray;
+    }
+
+    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath)
+    {
+        /** Increasing the memory limit becouse memory limit issue */
+        ini_set('memory_limit', '7024M');
+
+        $query = self::query()
+            ->selectRaw("
+                `order_product_details`.`key` as `key`,
+                `order_product_details`.`order_id` as `id`,
+                `order_product_details`.`value` as `value`
+            ");
+
+        $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+            ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+
+        /** Year and quarter filter here */
+        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+            $endDate = $filter['end_date'];
+            $startDate = $filter['start_date'];
+            $query->whereBetween('orders.date', [$startDate, $endDate]);
+        }
+
+        /** Filter by account name if provided */
+        if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+            $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+        }
+
+        /** Filter for specific supplier IDs */
+        if (isset($filter['supplier_id'])) {
+            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+        }
+
+        /** Define CSV header based on your columns */
+        $stapleColumnArray = [
+            "Div",
+            "Master_Customer_Number",
+            "Master Customer Name",
+            "Bill To Number",
+            "Bill To Name",
+            "Ship To Number",
+            "Ship To Name",
+            "Ship To Line1 Address",
+            "Ship To Line2 Address",
+            "Ship To Line3 Address",
+            "Ship To City",
+            "Ship To State",
+            "Ship To Zip",
+            "Vendor Part Number",
+            "Item Description",
+            "Primary Product Hierarchy",
+            "Diversity",
+            "Diversity Code",
+            "Diversity Sub Type Cd",
+            "Selling Unit Measure Qty",
+            "Vendor Name",
+            "Recycled Flag",
+            "Recycled %",
+            "Product Post Consumer Content %",
+            "Remanufactured/Refurbished Flag",
+            "ECO Feature",
+            "ECO Sub Feature",
+            "ECO",
+            "Budget Center Name",
+            "Invoice Date",
+            "Invoice Number",
+            "On Contract?",
+            "Order Contact",
+            "Order Contact Phone Number",
+            "Order Date",
+            "Order Method Description",
+            "Order Number",
+            "Payment Method Code1",
+            "Payment Method Code",
+            "Sell UOM",
+            "Ship To Contact",
+            "Shipped Date",
+            "SKU",
+            "Transaction Source System1",
+            "Transaction Source System",
+            "Group1",
+            "Group",
+            "Qty",
+            "Adj Gross Sales",
+            "Avg Sell Price"
+        ];
+
+        /** Open a writable stream in storage */
+        $stream = fopen(storage_path('app/' . $filePath), 'w');
+
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+
+        /** Process the query in chunks to avoid memory issues */
+        $query->chunk(2000000, function ($queryData) use ($stapleColumnArray, $filter, $csvWriter) {
+            if ($filter['supplier_id'] == 4) {
+                $finalArray = [];
+                foreach ($stapleColumnArray as $keys => $values) {
+                    foreach ($queryData as $key => $value) {
+                        if ($values == rtrim($value->key, " ID") || ($values == 'Group1' && $value->key == 'Group ID1')) {
+                            /** Prepare the final array for CSV */
+                            if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                                $finalArray[$value->id][$values] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                            } else {
+                                $finalArray[$value->id][$values] = $value->value;
+                            }
+                        } else if (empty($finalArray[$value->id][$values])) {
+                            $finalArray[$value->id][$values] = '';
+                        } else {
+    
+                        }
+                    }
+                } 
+            } else {
+                $finalArray = [];
+                foreach ($queryData as $key => $value) {         
+                    /** Prepare the final array for CSV */
+                    if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                        $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                    } else {
+                        $finalArray[$value->id][$value->key] = $value->value;
+                    }
+                }
+            }
+
+            $previousKeys = [];
+ 
+            /** Loop through data */
+            foreach ($finalArray as $row) {
+                $currentKeys = array_keys($row);
+    
+                /** Check if the keys have changed */
+                if ($currentKeys !== $previousKeys) {
+                    /** If keys have changed, insert the new heading row */
+                    $csvWriter->insertOne($currentKeys);
+                    $previousKeys = $currentKeys;
+                }
+
+                /** Reorder the current row according to the current keys */
+                $orderedRow = [];
+                foreach ($currentKeys as $key) {
+                    $orderedRow[] = $row[$key] ?? '';
+                }
+    
+                /** Insert the data row */
+                $csvWriter->insertOne($orderedRow);
+            }
+
+            unset($finalArray);
+        });
+
+        fclose($stream);
+
+        return true;
     }
 
     public static function operationalAnomalyReportFilterdData($filter=[], $csv=false) {
