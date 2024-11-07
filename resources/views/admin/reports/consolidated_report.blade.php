@@ -181,7 +181,8 @@
             // Set the default end date in the input
             $('#enddate').val(defaultEndDate.format('MM/DD/YYYY'));
 
-            $('#downloadButton').on('click', function(e) {
+            $(document).on('click', '#downloadButton', function(e) {
+            // $('#downloadButton').on('click', function(e) {
                 e.preventDefault();
                 // Get all checked checkboxes within the DataTable
                 var oldselect = 0,
@@ -309,7 +310,7 @@
                 }
             });
 
-            $('#downloadLinkReport').click(function(){
+            $(document).on('click', '#downloadLinkReport', function() {
                 $(this).remove();
                 if ($('#downloadCsvBtn').length > 0) {
                     // Append a new button after the existing button
