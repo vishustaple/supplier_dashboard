@@ -260,7 +260,7 @@
                                                     $('#queProcess').remove();
 
                                                     var consolidatedFile = response.fileName; // Pass the PHP variable to JS
-                                                    var downloadUrl = "{{ url('admin/report/download-user-file') }}/" + consolidatedFile; // Build the URL dynamically
+                                                    var downloadUrl = "{{ url('admin/reports/consolidated/consolidate-report') }}/" + consolidatedFile; // Build the URL dynamically
 
                                                     if ($('#downloadCsvBtn').length > 0) {
                                                         $('#downloadLinkReport').remove();

@@ -120,7 +120,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/report/consolidated/filter', [ReportController::class, 'consolidatedReportFilter'])->name('consolidated-report.filter');
         Route::get('/reports/consolidated/csv', [ReportController::class, 'exportConsolidatedCsv'])->name('consolidated-report.export-csv');        
         Route::post('/reports/consolidated/download', [ReportController::class, 'exportConsolidatedDownload'])->name('consolidated-report.download');        
-        Route::get('/reports/consolidated/consolidate-report{file}', [ReportController::class, 'downloadUserFileData'])->name('report.download-user-file');        
+        Route::get('/reports/consolidated/consolidate-report/{file}', [ReportController::class, 'downloadUserFileData'])->name('report.download-user-file');        
         Route::get('/reports/consolidated/check-report-link', [ReportController::class, 'checkConsolidatedReport'])->name('consolidated-report.check');        
 
         /** Report Section End */
