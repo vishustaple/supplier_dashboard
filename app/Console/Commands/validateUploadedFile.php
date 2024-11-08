@@ -70,14 +70,10 @@ class validateUploadedFile extends Command
             ])
             ->get();
 
-            print_r($columnValues);
-
             /** Creating the date array using "columnValues" */
             foreach ($columnValues as $key => $value) {
                 $columnArray[$value->supplier_id]['invoice_date'] = $value->label;
             }
-                
-            dd($columnArray);
 
             /** Checking the all sheets of excel using loop */
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
