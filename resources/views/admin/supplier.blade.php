@@ -624,6 +624,10 @@
                             $('#editerrorMessage').html('');
                             $('#editerrorMessage').append('<div class="alert alert-danger m-2 alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
                             $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        } else {
+                            $('#editsuccessMessage').html('');
+                            $('#editsuccessMessage').append('<div class="alert alert-success m-2 alert-dismissible fade show" role="alert">Supplier created successfully <button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
                         }
 
                         if (response.success) {

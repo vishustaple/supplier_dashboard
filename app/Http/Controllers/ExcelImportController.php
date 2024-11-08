@@ -452,6 +452,8 @@ class ExcelImportController extends Controller
             'category' => $request->input('category'),
             'supplier_name' => $request->input('supplier_name'),
         ]);
+
+        return response()->json(['success' => true], 200);
     }
 
     public function addSupplierMain(Request $request) {
@@ -701,6 +703,13 @@ class ExcelImportController extends Controller
         if (!$tableName) {
             $supplierName = DB::table('suppliers')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
             $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
+            DB::table('supplier_tables')
+            ->insert([
+                'table_name' => $tableName,
+                'supplier_id' => $request->input('supplier_id'),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
         } else {
             $tableName = $tableName->table_name;
         }
@@ -793,6 +802,13 @@ class ExcelImportController extends Controller
         if (!$tableName) {
             $supplierName = DB::table('suppliers')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
             $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
+            DB::table('supplier_tables')
+            ->insert([
+                'table_name' => $tableName,
+                'supplier_id' => $request->input('supplier_id'),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
         } else {
             $tableName = $tableName->table_name;
         }

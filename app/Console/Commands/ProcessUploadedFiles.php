@@ -216,14 +216,14 @@ class ProcessUploadedFiles extends Command
                             $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
                         }
                         
-                        $supplierFilesNamesArray = [
-                            1 => 'Usage By Location and Item',
-                            2 => 'Invoice Detail Report',
-                            4 => 'All Shipped Order Detail',
-                            5 => 'Centerpoint_Summary_Report',
-                            6 => 'Blad1',
-                            7 => 'Weekly Sales Account Summary', 
-                        ];
+                        // $supplierFilesNamesArray = [
+                        //     1 => 'Usage By Location and Item',
+                        //     2 => 'Invoice Detail Report',
+                        //     4 => 'All Shipped Order Detail',
+                        //     5 => 'Centerpoint_Summary_Report',
+                        //     6 => 'Blad1',
+                        //     7 => 'Weekly Sales Account Summary', 
+                        // ];
 
                         DB::table('attachments')
                         ->where('id', $fileValue->id)
@@ -238,15 +238,15 @@ class ProcessUploadedFiles extends Command
                                 continue;
                             }
 
-                            if ($fileValue->supplier_id != 3) {
-                                $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$fileValue->supplier_id]);
-                            }
-
-                            if (isset($sheet) && $sheet) {
-                                $workSheetArray = $sheet->toArray();
-                            } else {
-                                $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
-                            }
+                            // if ($fileValue->supplier_id != 3) {
+                            //     $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$fileValue->supplier_id]);
+                            // }
+                            // dd("hello");
+                            // if (isset($sheet) && $sheet) {
+                            //     $workSheetArray = $sheet->toArray();
+                            // } else {
+                            $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
+                            // }
 
                             foreach ($workSheetArray as $key=>$value) {
                                 $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
@@ -286,11 +286,11 @@ class ProcessUploadedFiles extends Command
                                     }
                                 }
                             }
-                            
+
                             if (!isset($maxNonEmptyValue)) {
                                 continue;
                             }
-                            
+
                             if ($fileValue->supplier_id == 7) {
                                 $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
                                 if (!empty($supplierYear)) {
@@ -342,7 +342,7 @@ class ProcessUploadedFiles extends Command
                             if ($fileValue->supplier_id == 2) {
                                $graingerCount = $startIndex + 1;
                             }
-                         
+
                             foreach ($workSheetArray as $key => $row) {
                                 if ($key > $startIndex) {
                                     $workSheetArray1[] = $row;
@@ -411,7 +411,7 @@ class ProcessUploadedFiles extends Command
                                         }
                                     }
 
-                                    if (in_array($fileValue->supplier_id, [1, 4, 5, 6]) || count($columnArray[$fileValue->supplier_id]) <= 5) {
+                                    if (!in_array($fileValue->supplier_id, [2, 3, 7]) || count($columnArray[$fileValue->supplier_id]) <= 5) {
                                         if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                             $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                             if (empty($customers)) {
