@@ -145,9 +145,9 @@ class validateUploadedFile extends Command
 
                 /** Getting date column index */
                 if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
-                    dd($columnArray[$fileValue->supplier_id]['invoice_date']);
-                    
+                    print_r($cleanedArray);
                     $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $cleanedArray);
+                    dd($keyInvoiceDate);
                 }
 
                 if (!empty($keyInvoiceDate)) {
