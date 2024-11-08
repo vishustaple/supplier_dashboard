@@ -98,16 +98,16 @@ class validateUploadedFile extends Command
                     if (isset($suppliers[$fileValue->supplier_id])) {
                         /** Getting the supplier required columns */
                         $supplierValues = $suppliers[$fileValue->supplier_id];
-                        // if ($fileValue->supplier_id == 4) {
-                        //     /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
-                        //     $groupIndex = array_search('Group ID', $cleanedArray);
-                        //     $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
-                        //     $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+                        if ($fileValue->supplier_id == 4) {
+                            /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                            $groupIndex = array_search('Group ID', $cleanedArray);
+                            $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                            $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
 
-                        //     $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
-                        //     $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
-                        //     $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
-                        // }
+                            $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
+                            $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                            $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                        }
 
                         /** Checking the difference of supplier excel file columns and database columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
@@ -156,6 +156,7 @@ class validateUploadedFile extends Command
                     foreach ($spreadSheets->toArray() as $key => $row) {
                         if($key > $startIndex){
                             if (!empty($row[$keyInvoiceDate])) {
+                                dd($row[$keyInvoiceDate]);
                                 if ($fileValue->supplier_id == 4) {
                                     $date = explode("-", $row[$keyInvoiceDate]);
                                     if(count($date) <= 2){
