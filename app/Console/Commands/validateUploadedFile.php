@@ -145,19 +145,13 @@ class validateUploadedFile extends Command
 
                 /** Getting date column index */
                 if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
-                    print_r($cleanedArray);
                     $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $cleanedArray);
-                    dd($keyInvoiceDate);
                 }
 
                 if (!empty($keyInvoiceDate)) {
                     foreach ($spreadSheets->toArray() as $key => $row) {
-                        print_r($row);
                         if($key > $startIndex){
                             if (!empty($row[$keyInvoiceDate])) {
-                                print_r($row);
-                                print_r($keyInvoiceDate);
-                                dd($row[$keyInvoiceDate]);
                                 if ($fileValue->supplier_id == 4) {
                                     $date = explode("-", $row[$keyInvoiceDate]);
                                     if(count($date) <= 2){
