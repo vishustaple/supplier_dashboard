@@ -70,11 +70,15 @@ class validateUploadedFile extends Command
             ])
             ->get();
 
+            print_r($columnValues);
+
             /** Creating the date array using "columnValues" */
             foreach ($columnValues as $key => $value) {
                 $columnArray[$value->supplier_id]['invoice_date'] = $value->label;
             }
                 
+            dd($columnArray);
+
             /** Checking the all sheets of excel using loop */
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 /** Compairing date of excel sheet data using loop */
@@ -94,16 +98,16 @@ class validateUploadedFile extends Command
                     if (isset($suppliers[$fileValue->supplier_id])) {
                         /** Getting the supplier required columns */
                         $supplierValues = $suppliers[$fileValue->supplier_id];
-                        if ($fileValue->supplier_id == 4) {
-                            /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
-                            $groupIndex = array_search('Group ID', $cleanedArray);
-                            $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
-                            $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+                        // if ($fileValue->supplier_id == 4) {
+                        //     /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                        //     $groupIndex = array_search('Group ID', $cleanedArray);
+                        //     $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                        //     $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
 
-                            $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
-                            $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
-                            $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
-                        }
+                        //     $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
+                        //     $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                        //     $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                        // }
 
                         /** Checking the difference of supplier excel file columns and database columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
@@ -179,7 +183,9 @@ class validateUploadedFile extends Command
                                     if ($fileExist->count() > 0) {
                                         /** Update cron ten means duplicate data into the excel file */
                                         DB::table('attachments')->where('id', $fileValue->id)
-                                        ->update(['cron' => 10]);
+                                        ->update([
+                                            'cron' => 10
+                                        ]);
                                         die;
                                     }
                                 }
@@ -204,7 +210,9 @@ class validateUploadedFile extends Command
                             /** Update cron ten means duplicate data into the excel file */
                             DB::table('attachments')
                             ->where('id', $fileValue->id)
-                            ->update(['cron' => 10]);
+                            ->update([
+                                'cron' => 10
+                            ]);
                             die;
                         }
                     }
