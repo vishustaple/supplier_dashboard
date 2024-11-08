@@ -349,7 +349,7 @@ class ProcessUploadedFiles extends Command
                                     }
                                 }
 
-                                if (in_array($fileValue->supplier_id, [1, 4, 5, 6]) || count($columnArray[$fileValue->supplier_id]) <= 5) {
+                                if (!in_array($fileValue->supplier_id, [2, 3, 7]) || count($columnArray[$fileValue->supplier_id]) <= 5) {
                                     $customerId = DB::table('customers')
                                     ->where('customer_name', $row[$keyCustomerName])
                                     ->first();
