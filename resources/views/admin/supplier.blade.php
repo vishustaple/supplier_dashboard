@@ -21,7 +21,7 @@
                 }
             </style>
             <div class="container">
-                <input type="hidden" value="all" id="show"/>
+                <input type="hidden" value="1" id="show"/>
                 <div class="modal fade" data-bs-backdrop="static" id="editSupplierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -43,7 +43,15 @@
                                         <input type="text" class="form-control" name="category" id="category" required>
                                     </div>
                                     <div class="mb-3">
+                                        <label for="category" class="form-label">Show/Hide Supplier On All Webite</label>
                                         <select class="form-select" name="show" id="shows" aria-label="Default select example" required>
+                                            <option value="1">Hide</option>
+                                            <option value="0">Show</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="category" class="form-label">Show/Hide Supplier</label>
+                                        <select class="form-select" name="hide_show" id="hide_show" aria-label="Default select example" required>
                                             <option value="0">Hide</option>
                                             <option value="1">Show</option>
                                         </select>
@@ -79,8 +87,15 @@
                                         <input type="text" class="form-control" name="category" id="category" required>
                                     </div>
                                     <div class="mb-3 col-6">
-                                    <label for="category" class="form-label">Show/Hide Supplier</label>
+                                    <label for="category" class="form-label">Show/Hide Supplier On All Webite</label>
                                         <select class="form-select" name="show" aria-label="Default select example" required>
+                                            <option value="1">Hide</option>
+                                            <option value="0">Show</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3 col-6">
+                                    <label for="category" class="form-label">Show/Hide Supplier</label>
+                                        <select class="form-select" name="hide_show" aria-label="Default select example" required>
                                             <option value="0">Hide</option>
                                             <option value="1">Show</option>
                                         </select>

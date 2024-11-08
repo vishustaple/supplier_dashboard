@@ -437,6 +437,7 @@ class ExcelImportController extends Controller
         $validator = Validator::make($request->all(),
             [
                 'show' => 'required',
+                'hide_show' => 'required',
                 'category' => 'required',
                 'supplier_name' => 'required',
             ],
@@ -449,6 +450,7 @@ class ExcelImportController extends Controller
         CategorySupplier::create([
             'created_by' => Auth::id(),
             'show' => $request->input('show'),
+            'hide_show' => $request->input('show'),
             'category' => $request->input('category'),
             'supplier_name' => $request->input('supplier_name'),
         ]);
@@ -520,6 +522,7 @@ class ExcelImportController extends Controller
         $validator = Validator::make($request->all(),
             [
                 'show' => 'required',
+                'hide_show' => 'required',
                 'category' => 'required',
                 'supplier_name' => 'required',
                 'supplier_id' => 'required',
@@ -532,6 +535,7 @@ class ExcelImportController extends Controller
 
         CategorySupplier::where('id', $request->input('supplier_id'))
         ->update([
+            'show' => $request->input('show'),
             'hide_show' => $request->input('show'),
             'category' => $request->input('category'),
             'supplier_name' => $request->input('supplier_name'),
