@@ -669,6 +669,7 @@
                 $('#supplier_id').val(button.getAttribute('data-id'));
                 $('#supplier_name').val(button.getAttribute('data-supplier_name'));
                 $('#category').val(button.getAttribute('data-category'));
+                $('#hide_show').val(button.getAttribute('data-hide_show'));
                 $('#shows').val(button.getAttribute('data-show'));
             });
 
