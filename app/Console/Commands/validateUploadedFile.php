@@ -152,6 +152,8 @@ class validateUploadedFile extends Command
                     foreach ($spreadSheets->toArray() as $key => $row) {
                         if($key > $startIndex){
                             if (!empty($row[$keyInvoiceDate])) {
+                                print_r($row);
+                                print_r($keyInvoiceDate);
                                 dd($row[$keyInvoiceDate]);
                                 if ($fileValue->supplier_id == 4) {
                                     $date = explode("-", $row[$keyInvoiceDate]);
