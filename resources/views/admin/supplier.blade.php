@@ -43,7 +43,7 @@
                                         <input type="text" class="form-control" name="category" id="category" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="category" class="form-label">Show/Hide Supplier On All Webite</label>
+                                        <label for="category" class="form-label">Show/Hide Supplier On Webite</label>
                                         <select class="form-select" name="show" id="shows" aria-label="Default select example" required>
                                             <option value="1">Hide</option>
                                             <option value="0">Show</option>
@@ -87,7 +87,7 @@
                                         <input type="text" class="form-control" name="category" id="category" required>
                                     </div>
                                     <div class="mb-3 col-6">
-                                    <label for="category" class="form-label">Show/Hide Supplier On All Webite</label>
+                                    <label for="category" class="form-label">Show/Hide Supplier On Webite</label>
                                         <select class="form-select" name="show" aria-label="Default select example" required>
                                             <option value="1">Hide</option>
                                             <option value="0">Show</option>

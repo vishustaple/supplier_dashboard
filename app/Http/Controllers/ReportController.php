@@ -938,90 +938,95 @@ class ReportController extends Controller
             'end_date' => $request->input('end_date')
         ];
 
-        $user = Auth::user(); /** Assuming you have the authenticated user */
+        $smallDataCheck = $request->input('small_data');
 
-        $userFileExist = DB::table('consolidated_file')
-        ->select('user_id', 'file_name')
-        ->where('user_id', $user->id)
-        ->first();
+        if (isset($smallDataCheck) && $smallDataCheck == 1) {
+            /** Increasing the memory limit becouse memory limit issue */
+            ini_set('memory_limit', '1024M');
 
-        if ($userFileExist) {
-            if (File::exists('app/' . $userFileExist->file_name)) {
-                try {
-                    File::delete('app/' . $userFileExist->file_name);
-                    DB::table('consolidated_file')
-                        ->where('user_id', $userFileExist->user_id)
-                        ->delete();
-                } catch (\Exception $e) {
-                    /** Log or handle the error */
-                    Log::error('Error deleting file: ' . $e->getMessage());
-                    session()->flash('error', 'Error deleting file: ' . $e->getMessage());
+            $data = Order::getConsolidatedDownloadData($filter);
+
+            /** Create a stream for output */
+            $stream = fopen('php://temp', 'w+');
+
+            /** Create a new CSV writer instance */
+            $csvWriter = Writer::createFromStream($stream);
+            
+            $previousKeys = [];
+
+            /** Loop through data */
+            foreach ($data as $row) {
+                $currentKeys = array_keys($row);
+
+                /** Check if the keys have changed */
+                if ($currentKeys !== $previousKeys) {
+                    /** If keys have changed, insert the new heading row */
+                    $csvWriter->insertOne($currentKeys);
+                    $previousKeys = $currentKeys;
+                }
+
+                /** Reorder the current row according to the current keys */
+                $orderedRow = [];
+                foreach ($currentKeys as $key) {
+                    $orderedRow[] = $row[$key] ?? '';
+                }
+
+                /** Insert the data row */
+                $csvWriter->insertOne($orderedRow);
+            }
+
+            /** Rewind the stream pointer */
+            rewind($stream);
+
+            /** Create a streamed response with the CSV data */
+            $response = new StreamedResponse(function () use ($stream) {
+                fpassthru($stream);
+            });
+
+            /** Set headers for CSV download */
+            $response->headers->set('Content-Type', 'text/csv');
+            $response->headers->set('Content-Disposition', 'attachment; filename="Consolidated_Report_'.now()->format('YmdHis').'.csv"');
+        
+            /** return $csvResponse; */
+            return $response;
+            
+        } else {
+            $user = Auth::user(); /** Assuming you have the authenticated user */
+
+            $userFileExist = DB::table('consolidated_file')
+            ->select('user_id', 'file_name')
+            ->where('user_id', $user->id)
+            ->first();
+    
+            if ($userFileExist) {
+                if (File::exists('app/' . $userFileExist->file_name)) {
+                    try {
+                        File::delete('app/' . $userFileExist->file_name);
+                        DB::table('consolidated_file')
+                            ->where('user_id', $userFileExist->user_id)
+                            ->delete();
+                    } catch (\Exception $e) {
+                        /** Log or handle the error */
+                        Log::error('Error deleting file: ' . $e->getMessage());
+                        session()->flash('error', 'Error deleting file: ' . $e->getMessage());
+                    }
                 }
             }
-        }
-
-        $insertId = DB::table('consolidated_file')
-        ->insertGetId([
-            'user_id' => $user->id,
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-        ]);
-
-        /** Dispatch the job */
-        ExportConsolidatedReport::dispatch($filter, $user->id, $insertId);
-
-        return response()->json([
-            'message' => 'Your export is being processed. You will be notified when it is ready for download.',
-        ]);
-
-        // /** Increasing the memory limit becouse memory limit issue */
-        // ini_set('memory_limit', '1024M');
-
-        // $data = Order::getConsolidatedDownloadData($filter);
-
-        // /** Create a stream for output */
-        // $stream = fopen('php://temp', 'w+');
-
-        // /** Create a new CSV writer instance */
-        // $csvWriter = Writer::createFromStream($stream);
-        
-        // $previousKeys = [];
-
-        // /** Loop through data */
-        // foreach ($data as $row) {
-        //     $currentKeys = array_keys($row);
-
-        //     /** Check if the keys have changed */
-        //     if ($currentKeys !== $previousKeys) {
-        //         /** If keys have changed, insert the new heading row */
-        //         $csvWriter->insertOne($currentKeys);
-        //         $previousKeys = $currentKeys;
-        //     }
-
-        //     /** Reorder the current row according to the current keys */
-        //     $orderedRow = [];
-        //     foreach ($currentKeys as $key) {
-        //         $orderedRow[] = $row[$key] ?? '';
-        //     }
-
-        //     /** Insert the data row */
-        //     $csvWriter->insertOne($orderedRow);
-        // }
-
-        // /** Rewind the stream pointer */
-        // rewind($stream);
-
-        // /** Create a streamed response with the CSV data */
-        // $response = new StreamedResponse(function () use ($stream) {
-        //     fpassthru($stream);
-        // });
-
-        // /** Set headers for CSV download */
-        // $response->headers->set('Content-Type', 'text/csv');
-        // $response->headers->set('Content-Disposition', 'attachment; filename="Consolidated_Report_'.now()->format('YmdHis').'.csv"');
     
-        // /** return $csvResponse; */
-        // return $response;
+            $insertId = DB::table('consolidated_file')
+            ->insertGetId([
+                'user_id' => $user->id,
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
+    
+            /** Dispatch the job */
+            ExportConsolidatedReport::dispatch($filter, $user->id, $insertId);
+    
+            return response()->json([
+                'message' => 'Your export is being processed. You will be notified when it is ready for download.',
+            ]);    
+        }
     }
 
     public function downloadUserFileData($file) {

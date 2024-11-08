@@ -46,40 +46,7 @@ class ExportConsolidatedReport implements ShouldQueue
      * Execute the job.
      */
     public function handle(): void
-    {
-        
-        // /** Open a writable stream in storage */
-        // $stream = fopen(storage_path('app/' . $this->filePath), 'w');
-        // $csvWriter = Writer::createFromStream($stream);
-
-        
-
-        /** Create a new CSV writer instance */
-        // $csvWriter = Writer::createFromStream($stream);
-        
-        // $previousKeys = [];
- 
-        // /** Loop through data */
-        // foreach ($data as $row) {
-        //     $currentKeys = array_keys($row);
- 
-        //     /** Check if the keys have changed */
-        //     if ($currentKeys !== $previousKeys) {
-        //         /** If keys have changed, insert the new heading row */
-        //         $csvWriter->insertOne($currentKeys);
-        //         $previousKeys = $currentKeys;
-        //     }
-
-        //     /** Reorder the current row according to the current keys */
-        //     $orderedRow = [];
-        //     foreach ($currentKeys as $key) {
-        //         $orderedRow[] = $row[$key] ?? '';
-        //     }
- 
-        //     /** Insert the data row */
-        //     $csvWriter->insertOne($orderedRow);
-        // }
-        
+    {    
         Log::info('Queue started for exporting consolidated report.');
 
         /** Fetch data in chunks to avoid memory overload */
