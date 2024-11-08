@@ -31,6 +31,7 @@ class HomeController extends Controller
 {
     public function __construct()
     {
+        $this->middleware('permission:PowerBi Reports')->only(['powerBiReport']);
         $this->middleware('permission:Manage Users')->only(['userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
         $this->middleware('permission:Manage Power BI Reports')->only(['showPowerBi', 'powerBiAdd', 'powerBiEdit', 'powerBiDelete', '']);
     }
