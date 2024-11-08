@@ -150,6 +150,7 @@ class validateUploadedFile extends Command
 
                 if (!empty($keyInvoiceDate)) {
                     foreach ($spreadSheets->toArray() as $key => $row) {
+                        print_r($row);
                         if($key > $startIndex){
                             if (!empty($row[$keyInvoiceDate])) {
                                 print_r($row);
