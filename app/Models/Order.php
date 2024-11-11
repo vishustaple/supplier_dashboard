@@ -1485,8 +1485,12 @@ class Order extends Model
         }
 
         /** Filter for specific supplier IDs */
-        if (isset($filter['supplier_id'])) {
+        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+        } elseif (isset($filter['supplier_id'])) {
             $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+        } else {
+
         }
 
         /** Define CSV header based on your columns */
