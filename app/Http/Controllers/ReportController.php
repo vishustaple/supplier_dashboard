@@ -932,6 +932,7 @@ class ReportController extends Controller
     public function exportConsolidatedDownload(Request $request) {
         /** Fetch data using the parameters and transform it into CSV format */
         $filter = [
+            'checkedAllAccount' => $request->input('checkedAllAccount'),
             'account_name' => $request->input('account_name'),
             'supplier_id' => $request->input('supplier_id'),
             'start_date' => $request->input('start_date'),
@@ -989,7 +990,7 @@ class ReportController extends Controller
         
             /** return $csvResponse; */
             return $response;
-            
+
         } else {
             $user = Auth::user(); /** Assuming you have the authenticated user */
 

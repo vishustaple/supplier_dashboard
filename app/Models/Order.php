@@ -1354,15 +1354,40 @@ class Order extends Model
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
-        /** Filter by account name if provided */
-        if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
-            $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+        /** Filter for specific supplier IDs */
+        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            if ($filter['checkedAllAccount'] == 1) {
+                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+            } else {
+                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                /** Filter by account name if provided */
+                if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+                    $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+                }
+            }
+        } elseif (isset($filter['supplier_id'])) {
+            if ($filter['checkedAllAccount'] == 1) {
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+            } else {
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+                /** Filter by account name if provided */
+                if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+                    $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+                }
+            }
+        } else {
+
         }
 
-        /** Filter for specific supplier IDs */
-        if (isset($filter['supplier_id'])) {
-            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
-        }
+        // /** Filter by account name if provided */
+        // if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+        //     $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+        // }
+
+        // /** Filter for specific supplier IDs */
+        // if (isset($filter['supplier_id'])) {
+        //     $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+        // }
 
         $queryData = $query->get();
         // dd($query->toSql(), $query->getBindings());
@@ -1479,16 +1504,29 @@ class Order extends Model
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
-        /** Filter by account name if provided */
-        if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
-            $query->whereIn('master_account_detail.account_name', $filter['account_name']);
-        }
+       
 
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+            if ($filter['checkedAllAccount'] == 1) {
+                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+            } else {
+                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                /** Filter by account name if provided */
+                if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+                    $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+                }
+            }
         } elseif (isset($filter['supplier_id'])) {
-            $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+            if ($filter['checkedAllAccount'] == 1) {
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+            } else {
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+                /** Filter by account name if provided */
+                if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+                    $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+                }
+            }
         } else {
 
         }
