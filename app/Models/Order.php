@@ -1488,11 +1488,11 @@ class Order extends Model
         ini_set('memory_limit', '7024M');
 
         $query = self::query()
-            ->selectRaw("
-                `order_product_details`.`key` as `key`,
-                `order_product_details`.`order_id` as `id`,
-                `order_product_details`.`value` as `value`
-            ");
+        ->selectRaw("
+            `order_product_details`.`key` as `key`,
+            `order_product_details`.`order_id` as `id`,
+            `order_product_details`.`value` as `value`
+        ");
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
             ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
@@ -1508,39 +1508,27 @@ class Order extends Model
 
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            $allSupplier = DB::table('suppliers')
+            ->where('show', 0)
+            ->pluck('supplier_id')
+            ->toArray();
+
             if ($filter['checkedAllAccount'] == 1) {
-                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                $query->whereIn('orders.supplier_id', $allSupplier);
             } else {
-                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                $query->whereIn('orders.supplier_id', $allSupplier);
+
                 /** Filter by account name if provided */
                 if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
                     $query->whereIn('master_account_detail.account_name', $filter['account_name']);
                 }
             }
         } elseif (isset($filter['supplier_id'])) {
-            if (count($filter['supplier_id']) == 1 && in_array(1, $filter['supplier_id'])) {
-                $chunk = 15 * 100000;
-            }
+            $count = DB::table('supplier_fields')
+            ->whereIn('supplier_id', $filter['supplier_id'])
+            ->count();
 
-            if (count($filter['supplier_id']) == 1 && in_array(2, $filter['supplier_id'])) {
-                $chunk = 30 * 100000;
-            }
-
-            if (count($filter['supplier_id']) == 1 && in_array(3, $filter['supplier_id'])) {
-                $chunk = 27 * 100000;
-            }
-
-            if (count($filter['supplier_id']) == 1 && in_array(4, $filter['supplier_id'])) {
-                $chunk = 46 * 10000;
-            }
-
-            if (count($filter['supplier_id']) == 1 && in_array(5, $filter['supplier_id'])) {
-                $chunk = 25 * 100000;
-            }
-
-            if (count($filter['supplier_id']) == 1 && in_array(6, $filter['supplier_id'])) {
-                $chunk = 51 * 10000;
-            }
+            $chunk = $count * 100000;
 
             if ($filter['checkedAllAccount'] == 1) {
                 $query->whereIn('orders.supplier_id', $filter['supplier_id']);
