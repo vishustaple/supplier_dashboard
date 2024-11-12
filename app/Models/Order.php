@@ -1504,7 +1504,7 @@ class Order extends Model
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
-       
+        $chunk = 200000;
 
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
@@ -1518,6 +1518,30 @@ class Order extends Model
                 }
             }
         } elseif (isset($filter['supplier_id'])) {
+            if (count($filter['supplier_id']) == 1 && in_array(1, $filter['supplier_id'])) {
+                $chunk = 15 * 100000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(2, $filter['supplier_id'])) {
+                $chunk = 30 * 100000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(3, $filter['supplier_id'])) {
+                $chunk = 27 * 100000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(4, $filter['supplier_id'])) {
+                $chunk = 46 * 10000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(5, $filter['supplier_id'])) {
+                $chunk = 25 * 100000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(6, $filter['supplier_id'])) {
+                $chunk = 51 * 10000;
+            }
+
             if ($filter['checkedAllAccount'] == 1) {
                 $query->whereIn('orders.supplier_id', $filter['supplier_id']);
             } else {
@@ -1592,7 +1616,7 @@ class Order extends Model
         $csvWriter = Writer::createFromStream($stream);
 
         /** Process the query in chunks to avoid memory issues */
-        $query->chunk(2000000, function ($queryData) use ($stapleColumnArray, $filter, $csvWriter) {
+        $query->chunk($chunk, function ($queryData) use ($stapleColumnArray, $filter, $csvWriter) {
             if ($filter['supplier_id'] == 4) {
                 $finalArray = [];
                 foreach ($stapleColumnArray as $keys => $values) {
