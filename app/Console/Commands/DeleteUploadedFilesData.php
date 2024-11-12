@@ -38,22 +38,10 @@ class DeleteUploadedFilesData extends Command
         ->select('supplier_id', 'table_name')
         ->get();
 
+        /** Array of different supplires table */
         foreach ($supplierTable as $key => $value) {
             $supplierTableArray[$value->supplier_id] = $value->table_name;
         }
-
-        dd($supplierTableArray);
-
-        /** Array of different supplires table */
-        $supplierTableArray = [
-            1 => 'g_and_t_laboratories_charles_river_order',
-            2 => 'grainger_order',
-            3 => 'office_depot_order',
-            4 => 'staples_orders_data',
-            5 => 'wb_mason_order',
-            6 => 'lyreco_order',
-            7 => 'odp_order',
-        ];
 
         if (isset($fileData->id) && !empty($fileData->id)) {
             /** Update delete two means start deleting data into excel */
@@ -67,26 +55,23 @@ class DeleteUploadedFilesData extends Command
                 
                 /** Delete records from OrderDetails table */
                 DB::table('order_details')->where('attachment_id', $id)->delete();
+                if ($fileData->supplier_id == 4) {
+                    /** Delete records from Suppliers Orders table */
+                    DB::table('staples_order')
+                    ->where('attachment_id', $id)
+                    ->delete();
 
-                    if ($fileData->supplier_id == 4) {
-                        /** Delete records from Suppliers Orders table */
-                        DB::table('staples_order')
-                        ->where('attachment_id', $id)
-                        ->delete();
-
-                        /** Delete records from Suppliers Orders table */
-                        DB::table($supplierTableArray[$fileData->supplier_id])
-                        ->where('attachment_id', $id)
-                        ->delete();
-                    } else {
-                        /** Delete records from Suppliers Orders table */
-                        DB::table($supplierTableArray[$fileData->supplier_id])
-                        ->where('attachment_id', $id)
-                        ->delete();
-                    }
-                    
-                // }
-    
+                    /** Delete records from Suppliers Orders table */
+                    DB::table($supplierTableArray[$fileData->supplier_id])
+                    ->where('attachment_id', $id)
+                    ->delete();
+                } else {
+                    /** Delete records from Suppliers Orders table */
+                    DB::table($supplierTableArray[$fileData->supplier_id])
+                    ->where('attachment_id', $id)
+                    ->delete();
+                }    
+                
                 if (File::exists($filePath)) {
                     try {
                         // unlink($fileToDelete);
