@@ -52,7 +52,10 @@ class DeleteUploadedFilesData extends Command
                 $destinationPath = public_path('/excel_sheets');
                 $filePath = $destinationPath.'/'.$fileData->file_name;
                 $fileData->save();
-                
+
+                /** Delete records from UploadedFiles table */
+                UploadedFiles::where('id', $id)->delete();
+
                 /** Delete records from OrderDetails table */
                 DB::table('order_details')->where('attachment_id', $id)->delete();
                 if ($fileData->supplier_id == 4) {
