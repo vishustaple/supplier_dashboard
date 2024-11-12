@@ -1482,7 +1482,7 @@ class Order extends Model
         return $finalArray;
     }
 
-    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath)
+    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath = null)
     {
         /** Increasing the memory limit becouse memory limit issue */
         ini_set('memory_limit', '7024M');
