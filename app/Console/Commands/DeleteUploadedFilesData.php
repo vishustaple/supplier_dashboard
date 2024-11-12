@@ -33,7 +33,17 @@ class DeleteUploadedFilesData extends Command
     {
         /** Selecting the file data row using table id */
         $fileData = UploadedFiles::where('delete', 1)->first();
-        
+
+        $supplierTable = DB::table('supplier_tables')
+        ->select('supplier_id', 'table_name')
+        ->get();
+
+        foreach ($supplierTable as $key => $value) {
+            $supplierTableArray[$value->supplier_id] = $value->table_name;
+        }
+
+        dd($supplierTableArray);
+
         /** Array of different supplires table */
         $supplierTableArray = [
             1 => 'g_and_t_laboratories_charles_river_order',
