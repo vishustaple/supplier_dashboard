@@ -1610,9 +1610,9 @@ class Order extends Model
                 $finalArray = [];
                 foreach ($stapleColumnArray as $keys => $values) {
                     foreach ($queryData as $key => $value) {
-                        if ($values == rtrim($value->key, " ID") || ($values == 'Group1' && $value->key == 'Group ID1')) {
+                        if ($values == rtrim($value->label, " ID") || ($values == 'Group1' && $value->label == 'Group ID1')) {
                             /** Prepare the final array for CSV */
-                            if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                            if (preg_match('/\bdate\b/i', $value->label) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
                                 $finalArray[$value->id][$values] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                             } else {
                                 $finalArray[$value->id][$values] = $value->value;
@@ -1628,10 +1628,10 @@ class Order extends Model
                 $finalArray = [];
                 foreach ($queryData as $key => $value) {         
                     /** Prepare the final array for CSV */
-                    if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
-                        $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                    if (preg_match('/\bdate\b/i', $value->label) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                        $finalArray[$value->id][$value->label] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                     } else {
-                        $finalArray[$value->id][$value->key] = $value->value;
+                        $finalArray[$value->id][$value->label] = $value->value;
                     }
                 }
             }
