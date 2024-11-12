@@ -303,7 +303,7 @@
                 $(this).remove();
                 if ($('#downloadCsvBtn').length > 0) {
                     // Append a new button after the existing button
-                    $('#downloadCsvBtn').after('<button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>');
+                    $('#downloadCsvBtn').after('<button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Large Selected Account Data</button>');
                 }
             });
 
