@@ -1488,14 +1488,15 @@ class Order extends Model
         ini_set('memory_limit', '7024M');
 
         $query = self::query()
-        ->selectRaw("
-            `order_product_details`.`key` as `key`,
-            `order_product_details`.`order_id` as `id`,
-            `order_product_details`.`value` as `value`
-        ");
+        ->selectRaw(
+            "`order_details`.`order_id` as `id`,
+            `supplier_fields`.`label` as `label`,
+            `order_details`.`value` as `value`"
+        );
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-            ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+        ->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id')
+        ->leftJoin('supplier_fields', 'order_details.supplier_field_id', '=', 'supplier_fields.id');
 
         /** Year and quarter filter here */
         if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
