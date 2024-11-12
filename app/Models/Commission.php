@@ -12,7 +12,6 @@ class Commission extends Model
 
     protected $table = 'commissions';
 
-    
      /**
      * The attributes that are mass assignable.
      *
@@ -70,10 +69,8 @@ class Commission extends Model
             });
         }
 
-        
-
+        /** Order by column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
@@ -81,8 +78,8 @@ class Commission extends Model
 
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
+        /** Get paginated results based on start, length */
         if (isset($filter['start']) && isset($filter['length'])) {
-            /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
@@ -93,11 +90,11 @@ class Commission extends Model
 
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
+            $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
+            $formatuserdata[$key]['account_name'] = $data->account_name;
+            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['customer_name'] = $data->customer_name;
             $formatuserdata[$key]['customer_number'] = $data->customer_number;
-            $formatuserdata[$key]['account_name'] = $data->account_name;
-            $formatuserdata[$key]['sales_rep'] = $data->sales_rep;
-            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['commissions'] = $data->commissions.'%';
             $formatuserdata[$key]['start_date'] = date('m/d/Y', strtotime($data->start_date));
             $formatuserdata[$key]['end_date'] = date('m/d/Y', strtotime($data->end_date)); /**date_format */
@@ -106,9 +103,13 @@ class Commission extends Model
             $end_date = date("m/d/Y", strtotime($data->end_date)); /** Convert to mm/dd/yyyy format */
             
             /** To create a date range for the same day, just concatenate the start date */
-            $date_range = $start_date . " - " . $end_date;
+            // $date_range = $start_date . " - " . $end_date;
 
-            $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit Commission" class="edit_commission" data-id="'.$data->id.'" data-date="'.$date_range.'" data-commissions="'.$data->commissions.'" data-status="'.$data->status.'" href="#" data-bs-toggle="modal" data-bs-target="#editCommissionModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+// <<<<<<< HEAD
+            $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit Commission" class="edit_commission" data-id="'.$data->id.'" data-commissions="'.$data->commissions.'" data-status="'.$data->status.'" data-start_date="'.$start_date.'" data-end_date="'.$end_date.'" href="#" data-bs-toggle="modal" data-bs-target="#editCommissionModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+// =======
+            // $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"> <a title="Edit Commission" class="edit_commission" data-id="'.$data->id.'" data-start_date="'.$start_date.'" data-end_date="'.$end_date.'" data-commission="'.$data->commission.'" data-status="'.$data->status.'" href="#" data-bs-toggle="modal" data-bs-target="#editCommissionModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+// >>>>>>> main
             
             if ($data->status == 1) {
                 $formatuserdata[$key]['status'] = 'Active';

@@ -2,13 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use DateTime;
 use Mpdf\Mpdf;
 use League\Csv\Writer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\ExportConsolidatedReport;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use App\Models\{Order, Account, SalesTeam, CategorySupplier};
+use App\Models\{
+    Order,
+    Account,
+    SalesTeam,
+    CategorySupplier,
+};
+use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -67,7 +78,44 @@ class ReportController extends Controller
         } elseif ($reportType == 'commission_report') {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'sales_rep' => SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'), 'commissions.sales_rep as id')->leftJoin('commissions', 'commissions.sales_rep', '=', 'sales_team.id')->groupBy('commissions.sales_rep')->get()]);
         } elseif ($reportType == 'consolidated_report') {
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get()]);
+            $userFileExists = DB::table('consolidated_file')
+            ->select('id', 'file_name')
+            ->where('delete_check', 1)
+            ->get();
+
+            if ($userFileExists->isNotEmpty()) {
+                foreach ($userFileExists as $value) {
+                    if (File::exists(storage_path('app/' . $value->file_name))) {
+                        try {
+                            File::delete(storage_path('app/' . $value->file_name));
+                            
+                            /** Delete the database record after the file deletion */
+                            DB::table('consolidated_file')
+                                ->where('id', $value->id)
+                                ->delete();
+                        } catch (\Exception $e) {
+                            Log::error('Error deleting file: ' . $e->getMessage());
+                        }
+                    }
+                }
+            }
+
+            $user = Auth::user(); /** Assuming you have the authenticated user */
+
+            $userFileExist = DB::table('consolidated_file')
+            ->select('file_name', 'user_id')
+            ->where('user_id', $user->id)
+            ->first();
+
+            if ($userFileExist) {
+                $fileName = $userFileExist->file_name ?? null;
+                $userId = $userFileExist->user_id ?? null;
+            } else {
+                $fileName = null;
+                $userId = null;
+            }
+            
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'consolidatedFile' => $fileName, 'file_user_id' => $userId]);
         } else {
             return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get()]);
         }
@@ -823,63 +871,174 @@ class ReportController extends Controller
         return $response;
     }
 
+    public function checkConsolidatedReport(Request $request) {
+        $userFileExists = DB::table('consolidated_file')
+            ->select('id', 'file_name')
+            ->where('delete_check', 1)
+            ->get();
+
+        if ($userFileExists->isNotEmpty()) {
+            foreach ($userFileExists as $value) {
+                if (File::exists(storage_path('app/' . $value->file_name))) {
+                    try {
+                        File::delete(storage_path('app/' . $value->file_name));
+                        
+                        /** Delete the database record after the file deletion */
+                        DB::table('consolidated_file')
+                            ->where('id', $value->id)
+                            ->delete();
+                    } catch (\Exception $e) {
+                        Log::error('Error deleting file: ' . $e->getMessage());
+                    }
+                }
+            }
+        }
+
+        $user = Auth::user(); /** Assuming you have the authenticated user */
+
+        $userFileExist = DB::table('consolidated_file')
+        ->select('file_name', 'user_id')
+        ->where('user_id', $user->id)
+        ->first();
+
+        if ($userFileExist) {
+            $fileName = $userFileExist->file_name ?? '';
+            $userId = $userFileExist->user_id ?? '';
+
+            return response()->json([
+                'success' => true,
+                'fileName' => $fileName
+            ]);
+        } else {
+            $fileName = '';
+            $userId = '';
+        }
+
+        return response()->json([
+            'error' => true,
+            'fileName' => $fileName
+        ]);
+    }
+
     public function exportConsolidatedDownload(Request $request) {
         /** Fetch data using the parameters and transform it into CSV format */
         $filter = [
+            'checkedAllAccount' => $request->input('checkedAllAccount'),
             'account_name' => $request->input('account_name'),
             'supplier_id' => $request->input('supplier_id'),
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date')
         ];
 
-        /** Increasing the memory limit becouse memory limit issue */
-        ini_set('memory_limit', '1024M');
+        $smallDataCheck = $request->input('small_data');
 
-        $data = Order::getConsolidatedDownloadData($filter);
+        if (isset($smallDataCheck) && $smallDataCheck == 1) {
+            /** Increasing the memory limit becouse memory limit issue */
+            ini_set('memory_limit', '1024M');
 
-        /** Create a stream for output */
-        $stream = fopen('php://temp', 'w+');
+            $data = Order::getConsolidatedDownloadData($filter);
 
-        /** Create a new CSV writer instance */
-        $csvWriter = Writer::createFromStream($stream);
+            /** Create a stream for output */
+            $stream = fopen('php://temp', 'w+');
+
+            /** Create a new CSV writer instance */
+            $csvWriter = Writer::createFromStream($stream);
+            
+            $previousKeys = [];
+
+            /** Loop through data */
+            foreach ($data as $row) {
+                $currentKeys = array_keys($row);
+
+                /** Check if the keys have changed */
+                if ($currentKeys !== $previousKeys) {
+                    /** If keys have changed, insert the new heading row */
+                    $csvWriter->insertOne($currentKeys);
+                    $previousKeys = $currentKeys;
+                }
+
+                /** Reorder the current row according to the current keys */
+                $orderedRow = [];
+                foreach ($currentKeys as $key) {
+                    $orderedRow[] = $row[$key] ?? '';
+                }
+
+                /** Insert the data row */
+                $csvWriter->insertOne($orderedRow);
+            }
+
+            /** Rewind the stream pointer */
+            rewind($stream);
+
+            /** Create a streamed response with the CSV data */
+            $response = new StreamedResponse(function () use ($stream) {
+                fpassthru($stream);
+            });
+
+            /** Set headers for CSV download */
+            $response->headers->set('Content-Type', 'text/csv');
+            $response->headers->set('Content-Disposition', 'attachment; filename="Consolidated_Report_'.now()->format('YmdHis').'.csv"');
         
-        $previousKeys = [];
+            /** return $csvResponse; */
+            return $response;
 
-        /** Loop through data */
-        foreach ($data as $row) {
-            $currentKeys = array_keys($row);
+        } else {
+            $user = Auth::user(); /** Assuming you have the authenticated user */
 
-            /** Check if the keys have changed */
-            if ($currentKeys !== $previousKeys) {
-                /** If keys have changed, insert the new heading row */
-                $csvWriter->insertOne($currentKeys);
-                $previousKeys = $currentKeys;
-            }
-
-            /** Reorder the current row according to the current keys */
-            $orderedRow = [];
-            foreach ($currentKeys as $key) {
-                $orderedRow[] = $row[$key] ?? '';
-            }
-
-            /** Insert the data row */
-            $csvWriter->insertOne($orderedRow);
-        }
-
-        /** Rewind the stream pointer */
-        rewind($stream);
-
-        /** Create a streamed response with the CSV data */
-        $response = new StreamedResponse(function () use ($stream) {
-            fpassthru($stream);
-        });
-
-        /** Set headers for CSV download */
-        $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename="Consolidated_Report_'.now()->format('YmdHis').'.csv"');
+            $userFileExist = DB::table('consolidated_file')
+            ->select('user_id', 'file_name')
+            ->where('user_id', $user->id)
+            ->first();
     
-        /** return $csvResponse; */
-        return $response;
+            if ($userFileExist) {
+                if (File::exists('app/' . $userFileExist->file_name)) {
+                    try {
+                        File::delete('app/' . $userFileExist->file_name);
+                        DB::table('consolidated_file')
+                            ->where('user_id', $userFileExist->user_id)
+                            ->delete();
+                    } catch (\Exception $e) {
+                        /** Log or handle the error */
+                        Log::error('Error deleting file: ' . $e->getMessage());
+                        session()->flash('error', 'Error deleting file: ' . $e->getMessage());
+                    }
+                }
+            }
+    
+            $insertId = DB::table('consolidated_file')
+            ->insertGetId([
+                'user_id' => $user->id,
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
+    
+            /** Dispatch the job */
+            ExportConsolidatedReport::dispatch($filter, $user->id, $insertId);
+    
+            return response()->json([
+                'message' => 'Your export is being processed. You will be notified when it is ready for download.',
+            ]);    
+        }
+    }
+
+    public function downloadUserFileData($file) {
+        $filePath = $file;  /** Remove 'app/' prefix here */
+
+        /** Update database record */
+        DB::table('consolidated_file')
+            ->where('file_name', $file)
+            ->update([
+                'delete_check' => 1
+            ]);
+    
+        /** Check if the file exists within the storage/app directory */
+        if (!Storage::exists($filePath)) {
+            /** Redirect back with an error message */
+            return redirect()->back()->with('error', 'File not found.');
+            // abort(404, 'File not found.');
+        }
+    
+        return Storage::download($filePath);
     }
 
     public function operationalAnomalyReportFilter(Request $request) {

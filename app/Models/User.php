@@ -16,15 +16,15 @@ class User extends Authenticatable
     const USER_TYPE_ADMIN = 2;
     const USER_TYPE_USER = 3;
 
-    public function permissions(){
+    public function permissions() {
         return $this->belongsToMany(Permission::class);
     }
 
-    public function uploadedFiles(){
+    public function uploadedFiles() {
         return $this->hasMany(UploadedFiles::class);
     }
 
-    public function hasPermission($permission){
+    public function hasPermission($permission) {
         return $this->permissions()->where('name', $permission)->exists();
     }
 
@@ -41,7 +41,6 @@ class User extends Authenticatable
         'last_name',
         'first_name',
         'remember_token',
-
     ];
 
     /**
@@ -60,7 +59,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'email_verified_at' => 'datetime',
     ];
 }

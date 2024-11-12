@@ -4,13 +4,11 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{DB, File, Log};
 use Illuminate\Database\QueryException;
-use PhpOffice\PhpSpreadsheet\Reader\Xls;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{Order, Account, UploadedFiles, ManageColumns};
+use App\Models\{Order, Account, OrderDetails, UploadedFiles, ManageColumns};
 
 class ProcessUploadedFiles extends Command
 {
@@ -33,6 +31,30 @@ class ProcessUploadedFiles extends Command
      */
     public function handle()
     {
+        $userFileExist = DB::table('consolidated_file')
+        ->select('id', 'file_name')
+        ->where('delete_check', 1)
+        ->get();
+
+        if ($userFileExist->isNotEmpty()) {
+            foreach ($userFileExist as $key => $value) {
+                if (File::exists(storage_path('app/' . $value->file_name))) {
+                    try {
+                        File::delete(storage_path('app/' . $value->file_name));
+                        
+                        /** Delete the database record after the file deletion */
+                        DB::table('consolidated_file')
+                            ->where('id', $value->id)
+                            ->delete();
+                    } catch (\Exception $e) {
+                        Log::error('Error deleting file: ' . $e->getMessage());
+                    }
+                } else {
+                    session()->flash('error', 'File not found.');
+                }
+            }
+        }
+
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
 
@@ -125,15 +147,6 @@ class ProcessUploadedFiles extends Command
                     } else {
                         $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
                     }
-                    
-                    $supplierFilesNamesArray = [
-                        1 => 'Usage By Location and Item',
-                        2 => 'Invoice Detail Report',
-                        4 => 'All Shipped Order Detail',
-                        5 => 'Centerpoint_Summary_Report',
-                        6 => 'Blad1',
-                        7 => 'Weekly Sales Account Summary', 
-                    ];
 
                     /** Updating the file upload status */
                     DB::table('attachments')
@@ -150,14 +163,80 @@ class ProcessUploadedFiles extends Command
                             continue;
                         }
 
-                        if ($fileValue->supplier_id != 3) {
-                            $sheet = $spreadSheet->getSheetByName($supplierFilesNamesArray[$fileValue->supplier_id]);
+                        DB::table('attachments')
+                        ->where('id', $fileValue->id)
+                        ->update([
+                            'cron' => 4
+                        ]);
+
+                        $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
+
+                        foreach ($workSheetArray as $key=>$value) {
+                            $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
+                                        return !empty($item);
+                                    },
+                                    ARRAY_FILTER_USE_BOTH
+                                )
+                            );
+                                        
+                            /** Clean up the values */
+                            $cleanedArray = array_map(function ($values) {
+                                /** Remove line breaks and trim whitespace */
+                                return trim(str_replace(["\r", "\n"], '', $values));
+                            }, $finalExcelKeyArray1);
+    
+                            if (isset($suppliers[$fileValue->supplier_id])) {
+                                $supplierValues = $suppliers[$fileValue->supplier_id];
+                                if ($fileValue->supplier_id == 7) {
+                                    $supplierValues = array_slice($supplierValues, 0, 6, true);                        
+                                    if (isset($cleanedArray[5]) && $cleanedArray[5] == $supplierValues[5]) {
+                                        foreach ($cleanedArray as $keys => $valuess) {
+                                            if ($keys > 5) {
+                                                $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
+                                            }
+                                        }
+                                    } else {
+                                        continue;
+                                    }
+                                }
+
+                                $arrayDiff = array_diff($supplierValues, $cleanedArray);
+
+                                if (empty($arrayDiff)) {
+                                    $maxNonEmptyValue = $value;
+                                    $startIndexValueArray = $key;
+                                    break;
+                                }
+                            }
                         }
 
-                        if (isset($sheet) && $sheet) {
-                            $workSheetArray = $sheet->toArray();
-                        } else {
-                            $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
+                        if (!isset($maxNonEmptyValue)) {
+                            continue;
+                        }
+
+                        if ($fileValue->supplier_id == 7) {
+                            $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
+                            if (!empty($supplierYear)) {
+                                $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('attachment_id')->first();
+                                if (isset($dataIdForDeleteDuplicateData->attachment_id) && !empty($dataIdForDeleteDuplicateData->attachment_id)) {
+                                    DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
+                                    DB::table('order_product_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
+                                    DB::table('order_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
+                                    DB::table('orders')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
+                                }
+                            }
+                        }
+
+                        if ($fileValue->supplier_id == 4) {
+                            $columnArray2[$fileValue->supplier_id]["Group ID1"] = 'group_id';
+                            $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
+                            $columnArray2[$fileValue->supplier_id]["Transaction Source System1"] = 'transaction_source_system';
+                            $maxNonEmptyValue[36] = "Payment Method Code1";
+                            $maxNonEmptyValue[37] = "Payment Method Code";
+                            $maxNonEmptyValue[42] = "Transaction Source System1";
+                            $maxNonEmptyValue[43] = "Transaction Source System";
+                            $maxNonEmptyValue[44] = "Group ID1";
+                            $maxNonEmptyValue[45] = "Group ID";
                         }
 
                         foreach ($workSheetArray as $key=>$value) {
@@ -564,49 +643,52 @@ class ProcessUploadedFiles extends Command
                                     continue;
                                 }
                             }
-                        }
 
-                        /** For memory optimization we unset the workSheetArray1 and count */
-                        unset($workSheetArray1, $count);
-                        
-                        if (isset($finalInsertArray) && !empty($finalInsertArray)) {
-                            try {
-                                /** Updating the file upload status */
-                                DB::table('attachments')
-                                ->where('id', $fileValue->id)
-                                ->update([
-                                    'cron' => 5
-                                ]);
+                            /** For memory optimization we unset the workSheetArray1 and count */
+                            unset($workSheetArray1, $count);
+                            
+                            if (isset($finalInsertArray) && !empty($finalInsertArray)) {
+                                try {
+                                    /** Updating the file upload status */
+                                    DB::table('attachments')
+                                    ->where('id', $fileValue->id)
+                                    ->update([
+                                        'cron' => 5
+                                    ]);
 
-                                /** Inserting the data into the spacific supplier table */
-                                DB::table(
-                                    DB::table('supplier_tables')
-                                    ->select('table_name')
-                                    ->where(
-                                        'supplier_id',
-                                        $fileValue->supplier_id
+                                    /** Inserting the data into the spacific supplier table */
+                                    DB::table(
+                                        DB::table('supplier_tables')
+                                        ->select('table_name')
+                                        ->where(
+                                            'supplier_id',
+                                            $fileValue->supplier_id
+                                        )
+                                        ->first()
+                                        ->table_name
                                     )
-                                    ->first()
-                                    ->table_name
-                                )
-                                ->insert($excelInsertArray);
+                                    ->insert($excelInsertArray);
 
-                                /** Inserting the data into the order detail table */
-                                DB::table('order_details')
-                                ->insert($finalInsertArray);
-                            } catch (QueryException $e) {
-                                /** Handling the QueryException using try catch */
-                                Log::error('Error in YourScheduledTask: ' . $e->getMessage());
-                                echo "Database insertion failed: " . $e->getMessage();
+                                    /** Inserting the data into the order detail table */
+                                    DB::table('order_details')
+                                    ->insert($finalInsertArray);
+                                } catch (QueryException $e) {
+                                    /** Handling the QueryException using try catch */
+                                    Log::error('Error in YourScheduledTask: ' . $e->getMessage());
+                                    echo "Database insertion failed: " . $e->getMessage();
+                                }
                             }
-                        }
 
-                        /** For memory optimization we unset the finalInsertArray and excelInsertArray */
-                        unset($finalInsertArray, $excelInsertArray);
+                            /** For memory optimization we unset the finalInsertArray and excelInsertArray */
+                            unset($finalInsertArray, $excelInsertArray);
+                        }
                     }
+
                     try {
                         /** Update the 'cron' field six after processing done */
-                        DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 6]);
+                        DB::table('attachments')
+                        ->where('id', $fileValue->id)
+                        ->update(['cron' => 6]);
 
                         $this->info('Uploaded files processed successfully.');
                     } catch (QueryException $e) {
@@ -619,6 +701,7 @@ class ProcessUploadedFiles extends Command
                     /** Handling the Exception using try catch */
                     Log::error('Exception loading spreadsheet: ' . $e->getMessage());
                     echo "Error loading spreadsheet: " . $e->getMessage();
+                    die;
                 }
             } else {
                 echo "No file left to process.";

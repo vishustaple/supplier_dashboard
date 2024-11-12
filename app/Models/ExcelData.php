@@ -21,11 +21,11 @@ class ExcelData extends Model
         'supplier_field_id',
         'value',
         'order_id',
+        'attachment_id',
     ];
 
     /** Define the relationship with the Supplier model */
-    public function order()
-    {
+    public function order() {
         return $this->belongsTo(order::class);
     }
 }

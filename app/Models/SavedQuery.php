@@ -11,7 +11,7 @@ class SavedQuery extends Model
 
     protected $fillable = ['query', 'title', 'created_by'];
 
-    public function users(){
+    public function users() {
         return $this->belongsTo(User::class, 'created_by');
     }
 }

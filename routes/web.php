@@ -2,16 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
-    SavedQueryController,
-    ExcelImportController,
-    SalesTeamController,
-    RebateController,
-    CommissionController,
-    CatalogController,
-    ReportController,
     HomeController,
+    RebateController,
+    ReportController,
+    CatalogController,
+    AccountController,
+    SalesTeamController,
+    SavedQueryController,
+    CommissionController,
+    ExcelImportController,
     CategorySupplierController,
-    AccountController
 };
 
 use Illuminate\Support\Facades\Auth; 
@@ -58,7 +58,6 @@ Route::group(['prefix' => 'admin'], function () {
         Route::delete('/queries/delete/{query}', [SavedQueryController::class, 'destroy'])->name('queries.destroy');
         
 
-        Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::get('/supplier', [ExcelImportController::class, 'allSupplier'])->name('supplier');
         Route::get('/supplier/{id?}', [ExcelImportController::class, 'showSupplier'])->name('supplier.show');
         Route::post('/suppliers/edit', [ExcelImportController::class, 'editSupplierName'])->name('supplier.edit');
@@ -113,11 +112,18 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/report/consolidated/filter', [ReportController::class, 'consolidatedReportFilter'])->name('consolidated-report.filter');
         Route::get('/reports/consolidated/csv', [ReportController::class, 'exportConsolidatedCsv'])->name('consolidated-report.export-csv');        
         Route::post('/reports/consolidated/download', [ReportController::class, 'exportConsolidatedDownload'])->name('consolidated-report.download');        
+        Route::get('/reports/consolidated/consolidate-report/{file}', [ReportController::class, 'downloadUserFileData'])->name('report.download-user-file');        
+        Route::get('/reports/consolidated/check-report-link', [ReportController::class, 'checkConsolidatedReport'])->name('consolidated-report.check');        
+
         /** Report Section End */
     
         //not in use now this route     
         Route::get('/userlist', [HomeController::class, 'userview'])->name('user.show');
+
+
+
         Route::get('/powerbi', [HomeController::class, 'showPowerBi'])->name('power_bi.show');
+        Route::post('/powerbi/ajax', [HomeController::class, 'showPowerBiAjax'])->name('power_bi.show.ajax');
         Route::post('/powerbi/add', [HomeController::class, 'powerBiAdd'])->name('powerbi.add');
         Route::post('/powerbi/edit', [HomeController::class, 'powerBiEdit'])->name('powerbi.update');
         Route::get('/powerbi/report', [HomeController::class, 'powerBiReport'])->name('powerbi.report');

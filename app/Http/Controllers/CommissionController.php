@@ -61,6 +61,8 @@ class CommissionController extends Controller
         if ($request->ajax()) {
             /** Getting form data using methos request */
             $date = $request->input('date');
+            $start_date = $request->input('start_date');
+            $end_date = $request->input('end_date');
             $supplier = $request->input('supplier');
             $salesRep = $request->input('sales_rep');
             $commissions = $request->input('commissions');
@@ -148,10 +150,11 @@ class CommissionController extends Controller
         if ($request->ajax()) {
             try {
                 $updateCommission = Commission::where('id', $request->commission_id)
-                ->update(['commissions' => $request->commissions,
-                    'start_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[0])),"Y-m-d H:i:s"),
-                    'end_date' => date_format(date_create(trim(explode(" - ", $request->input('date'))[1])),"Y-m-d H:i:s"),
-                    'status' => $request->status
+                ->update([
+                    'status' => $request->status,
+                    'commission' => $request->commission,
+                    'end_date' => date_format(date_create(trim($request->input('end_date'))), "Y-m-d H:i:s"),
+                    'start_date' => date_format(date_create(trim($request->input('start_date'))), "Y-m-d H:i:s"),
                 ]);
                 
                 if($updateCommission){

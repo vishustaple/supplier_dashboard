@@ -57,9 +57,16 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Date</label>
-                                    <input type="text" name="date" id="commission_date" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" required>
+                                <div class="form-group row">
+                                    <div class="col-6">
+                                        <label for="startdate">Select Start Date:</label>
+                                        <input class="form-control startdate" id="start_date" name="start_date" placeholder="Enter Your Start Date " >
+                                    </div>  
+                                    <div class="col-6">
+                                        <label for="enddate">Select End Date:</label>
+                                        <input class="form-control enddate" id="end_date" name="end_date" placeholder="Enter Your End Date " >
+                                    </div>
+                                    <!-- <input type="hidden" name="date" id="commission_date" class="dateRangePickers dateRangePicker form-control" placeholder="Select Date Range" readonly="readonly" required> -->
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -147,39 +154,75 @@
             window.open(csvUrl, '_blank');
         }
 
-        $('.dateRangePicker').daterangepicker({
+        // Start Date Picker with custom ranges
+        $('.startdate').daterangepicker({
             autoApply: true,
             showDropdowns: true,
+            singleDatePicker: true,
+            locale: {
+                format: 'MM/DD/YYYY'
+            },
             minYear: moment().subtract(7, 'years').year(),
             maxYear: moment().add(7, 'years').year(),
-            // maxDate: moment(),
             ranges: {
                 'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
                 'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                 'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
             }
+        }, function(start, end, label) {
+            // If a custom range is selected, populate both startDate and endDate
+            if (
+                label === 'Last Year' ||
+                label === 'Last Month' ||
+                label === 'Last Quarter' ||
+                label === 'Last 6 Months'
+            ) {
+                $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+            } else {
+                // If a normal date is picked, only set the startDate
+                $('#startdate').val(start.format('MM/DD/YYYY'));
+            }
         });
-        
+
+        // End Date Picker - Simple calendar
+        $('.enddate').daterangepicker({
+            autoApply: true,
+            showDropdowns: true,
+            singleDatePicker: true,
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        }, function(start) {
+            $('#enddate').val(start.format('MM/DD/YYYY')); // Manually set the selected date for end date
+        });
+    
         var myModal = document.getElementById('editCommissionModal');
         myModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget, // Button that triggered the modal
             id = button.getAttribute('data-id'), // Extract value from data-* attributes
             commissionNumber = button.getAttribute('data-commissions'),
-            date = button.getAttribute('data-date'),
+            start_date = button.getAttribute('data-start_date'),
+            end_date = button.getAttribute('data-end_date'),
+            // date = button.getAttribute('data-date'),
             commissionStatus = button.getAttribute('data-status'),
             
             // Getting input using ids
             commissionId = document.getElementById('commission_id'),
             commissions = document.getElementById('commissions'),
-            commissionDate = document.getElementById('commission_date'),
+            commissionStartDate = document.getElementById('start_date'),
+            commissionEndDate = document.getElementById('end_date'),
+            // commissionDate = document.getElementById('commission_date'),
             commissionChecked = document.getElementById('checked'),
             unChecked = document.getElementById('unchecked');
 
             // Set the value of the input element
             commissionId.value = id,
             commissions.value = commissionNumber,
-            commissionDate.value = date;
+            // commissionDate.value = date;
+            commissionStartDate.value = start_date;
+            commissionEndDate.value = end_date;
             if (commissionStatus == 1) {
                 checked.checked  = true;
             } else {
@@ -190,16 +233,23 @@
         $("#edit_commission_name").on('submit', function (e){
             e.preventDefault();
             commissions = document.getElementById('commissions'),
-            commissionDate = document.getElementById('commission_date');
+            commissionStartDate = document.getElementById('start_date');
+            commissionEndDate = document.getElementById('end_date');
+            // commissionDate = document.getElementById('commission_date');
             if (commissions.value.trim() == '') {
                 $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please add commissions <button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
                 return;
             }
 
-            if (commissionDate.value == '') {
-                $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please select date<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+            if (commissionStartDate.value == '') {
+                $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please select start date<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
                 return;
-            } 
+            }
+            
+            if (commissionEndDate.value == '') {
+                $('#editerrorMessage').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">Please select end date<button type="button" class="close" data-dismiss="alert" aria-label="Close" id="closeerrorMessage"><span aria-hidden="true">&times;</span></button></div>');
+                return;
+            }
 
             var formData = new FormData($('#edit_commission_name')[0]);
             $.ajax({

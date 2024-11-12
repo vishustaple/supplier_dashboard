@@ -127,7 +127,7 @@ class Account extends Model
 
         /** Get total records count (without filtering) */
         $totalRecords = $query->getQuery()->getCountForPagination();
-
+        
         /** Order by column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -249,8 +249,8 @@ class Account extends Model
             $query->orWhere('suppliers.supplier_name', 'LIKE', '%' . $searchTerm . '%');
         }
 
+        /** Order by column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
-            /** Order by column and direction */
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
@@ -259,8 +259,8 @@ class Account extends Model
         /** Get filtered records count */
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
+        /** Get paginated results based on start, length */
         if (isset($filter['start']) && isset($filter['length'])) {
-            /** Get paginated results based on start, length */
             $filteredData = $query->skip($filter['start'])->take($filter['length'])->get();
         } else {
             $filteredData = $query->get();
@@ -446,10 +446,10 @@ class Account extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            $formatuserdata[$key]['customer_name'] = $data->customer_name;
-            $formatuserdata[$key]['account_number'] = $data->account_number;
             $formatuserdata[$key]['account_name'] = $data->account_name;
+            $formatuserdata[$key]['customer_name'] = $data->customer_name;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
+            $formatuserdata[$key]['account_number'] = $data->account_number;
             $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
            
             if ($data->supplier_id == 3) {
@@ -503,7 +503,6 @@ class Account extends Model
         ->whereNotNull('master_account_detail.account_name')
         ->where('master_account_detail.account_name', '!=', '');
         $query->whereNotNull('rebate.volume_rebate');
-        // dd($query->get()->toArray());
          
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
@@ -541,10 +540,10 @@ class Account extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            $formatuserdata[$key]['customer_name'] = $data->customer_name;
-            $formatuserdata[$key]['account_number'] = $data->account_number;
             $formatuserdata[$key]['account_name'] = $data->account_name;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
+            $formatuserdata[$key]['customer_name'] = $data->customer_name;
+            $formatuserdata[$key]['account_number'] = $data->account_number;
             $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
 
             if ($data->supplier_id == 3) {

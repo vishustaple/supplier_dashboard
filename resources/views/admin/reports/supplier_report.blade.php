@@ -35,11 +35,20 @@
                             <label class="form-check-label" id="incentive_rebate_check_label" for="incentive_rebate_check">Incentive Rebate</label>
                         </div>
                     </div>
-                    <div class="form-group relative col-md-3 mb-0">  
+                    <!-- <div class="form-group relative col-md-3 mb-0">  
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                    </div> -->
+                    <div class="form-group relative  mb-3 row">
+                        <div class="col-6">
+                            <label for="startdate">Select Start Date:</label>
+                            <input class="form-control" id="startdate" name="dates" placeholder="Enter Your Start Date " >
+                        </div>  
+                        <div class="col-6">
+                            <label for="enddate">Select End Date:</label>
+                            <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
+                        </div>
                     </div>
-                   
                     <div class="col-5 mt-2 text-end">
                         <button type="submit" class="btn btn-primary m-1">Submit</button>
                         <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
@@ -50,7 +59,8 @@
         </div>
         <div class="row justify-content-end py-3 header_bar" style="display:none !important;">
             <div class="col-md-4 card shadow border-0">
-                <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_amount"></b></h6>
+            <h6 class="d-flex total_amount_header justify-content-between">Total Spend: <b style="color:#000;" id="total_spend"></b></h6>
+                <h6 class="d-flex total_amount_header justify-content-between">Qualified Spend: <b style="color:#000;" id="qualified_spend"></b></h6>
                 <h6 class="d-flex volume_rebate_header justify-content-between">Total Volume Rebate: <b style="color:#000;" id="volume_rebate"></b></h6>
                 <h6 class="d-flex incentive_rebate_header justify-content-between">Total Incentive Rebate: <b style="color:#000;" id="incentive_rebate"></b></h6>
                 <h6 class="d-flex justify-content-between">Start Date: <b style="color:#000;" id="startDates"></b></h6>
@@ -92,6 +102,15 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script>
     $(document).ready(function() {
+        var defaultStartDate = moment().subtract(1, 'month').startOf('month'), // Default start date (1 month ago)
+        defaultEndDate = moment(); // Default end date (today)
+        
+        // Set the default start date in the input
+        $('#startdate').val(defaultStartDate.format('MM/DD/YYYY'));
+        
+        // Set the default end date in the input
+        $('#enddate').val(defaultEndDate.format('MM/DD/YYYY'));
+
         $('#select_dates').on('change', function(){
             var selectValue = $(this).val();
             
@@ -127,13 +146,32 @@
                 'Quarter 3': [startOfQuarter3, endOfQuarter3],
                 'Quarter 4': [startOfQuarter4, endOfQuarter4],
             };
-            $('#enddate').daterangepicker({
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
                 showCustomRangeLabel: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label == 'Quarter 1' || 
+                    label == 'Quarter 2' || 
+                    label == 'Quarter 3' || 
+                    label == 'Quarter 4' || 
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
             });
 
         } else if (selectedValues == 2) {
@@ -158,13 +196,32 @@
                 'Quarter 3': [startOfQuarter3, endOfQuarter3],
                 'Quarter 4': [startOfQuarter4, endOfQuarter4],
             };
-            $('#enddate').daterangepicker({
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
                 showCustomRangeLabel: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label == 'Quarter 1' || 
+                    label == 'Quarter 2' || 
+                    label == 'Quarter 3' || 
+                    label == 'Quarter 4' || 
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
             });
 
         } else if (selectedValues == 3) {
@@ -190,13 +247,32 @@
                 'Quarter 4': [startOfQuarter4, endOfQuarter4],
             };
 
-            $('#enddate').daterangepicker({
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
                 showCustomRangeLabel: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label == 'Quarter 1' || 
+                    label == 'Quarter 2' || 
+                    label == 'Quarter 3' || 
+                    label == 'Quarter 4' || 
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
             });
         } else if (selectedValues == 4) {
             ranges = {
@@ -205,13 +281,32 @@
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                 'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
             };
-            $('#enddate').daterangepicker({
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
                 showCustomRangeLabel: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label == 'Quarter 1' || 
+                    label == 'Quarter 2' || 
+                    label == 'Quarter 3' || 
+                    label == 'Quarter 4' || 
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
             });
 
         } else if (selectedValues == 5) {
@@ -235,13 +330,32 @@
                 'Quarter 3': [startOfQuarter3, endOfQuarter3],
                 'Quarter 4': [startOfQuarter4, endOfQuarter4],
             };
-            $('#enddate').daterangepicker({
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
                 showCustomRangeLabel: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label == 'Quarter 1' || 
+                    label == 'Quarter 2' || 
+                    label == 'Quarter 3' || 
+                    label == 'Quarter 4' || 
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
             });
 
         } else if (selectedValues == 6) {
@@ -265,13 +379,32 @@
                 'Quarter 3': [startOfQuarter3, endOfQuarter3],
                 'Quarter 4': [startOfQuarter4, endOfQuarter4],
             };
-            $('#enddate').daterangepicker({
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
                 showCustomRangeLabel: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label == 'Quarter 1' || 
+                    label == 'Quarter 2' || 
+                    label == 'Quarter 3' || 
+                    label == 'Quarter 4' || 
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
             });
 
         } else {
@@ -281,13 +414,32 @@
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                 'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
             };
-            $('#enddate').daterangepicker({
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
                 showCustomRangeLabel: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label == 'Quarter 1' || 
+                    label == 'Quarter 2' || 
+                    label == 'Quarter 3' || 
+                    label == 'Quarter 4' || 
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
             });
         }
 
@@ -326,13 +478,32 @@
                 'Quarter 4': [startOfQuarter4, endOfQuarter4],
             };
 
-            $('#enddate').daterangepicker({
+            $('#startdate').daterangepicker({
                 autoApply: true,
                 showDropdowns: true,
+                singleDatePicker: true,
                 showCustomRangeLabel: true,
                 minYear: moment().subtract(7, 'years').year(),
                 maxYear: moment().add(7, 'years').year(),
                 ranges: ranges,
+            }, function(start, end, label) {
+                // If a custom range is selected, populate both startDate and endDate
+                if (
+                    label == 'Quarter 1' || 
+                    label == 'Quarter 2' || 
+                    label == 'Quarter 3' || 
+                    label == 'Quarter 4' || 
+                    label === 'Last Year' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last Quarter' ||
+                    label === 'Last 6 Months'
+                ) {
+                    $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                    $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                } else {
+                    // If a normal date is picked, only set the startDate
+                    $('#startdate').val(start.format('MM/DD/YYYY'));
+                }
             });
         });
         
@@ -364,13 +535,32 @@
                     'Quarter 4': [startOfQuarter4, endOfQuarter4],
                 };
 
-                $('#enddate').daterangepicker({
+                $('#startdate').daterangepicker({
                     autoApply: true,
                     showDropdowns: true,
+                    singleDatePicker: true,
                     showCustomRangeLabel: true,
                     minYear: moment().subtract(7, 'years').year(),
                     maxYear: moment().add(7, 'years').year(),
                     ranges: ranges,
+                }, function(start, end, label) {
+                    // If a custom range is selected, populate both startDate and endDate
+                    if (
+                        label == 'Quarter 1' || 
+                        label == 'Quarter 2' || 
+                        label == 'Quarter 3' || 
+                        label == 'Quarter 4' || 
+                        label === 'Last Year' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last 6 Months'
+                    ) {
+                        $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                        $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                    } else {
+                        // If a normal date is picked, only set the startDate
+                        $('#startdate').val(start.format('MM/DD/YYYY'));
+                    }
                 });
             } else if (selectedValue == 2) {
                 // grainer
@@ -394,13 +584,32 @@
                     'Quarter 3': [startOfQuarter3, endOfQuarter3],
                     'Quarter 4': [startOfQuarter4, endOfQuarter4],
                 };
-                $('#enddate').daterangepicker({
+                $('#startdate').daterangepicker({
                     autoApply: true,
                     showDropdowns: true,
+                    singleDatePicker: true,
                     showCustomRangeLabel: true,
                     minYear: moment().subtract(7, 'years').year(),
                     maxYear: moment().add(7, 'years').year(),
                     ranges: ranges,
+                }, function(start, end, label) {
+                    // If a custom range is selected, populate both startDate and endDate
+                    if (
+                        label == 'Quarter 1' || 
+                        label == 'Quarter 2' || 
+                        label == 'Quarter 3' || 
+                        label == 'Quarter 4' || 
+                        label === 'Last Year' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last 6 Months'
+                    ) {
+                        $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                        $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                    } else {
+                        // If a normal date is picked, only set the startDate
+                        $('#startdate').val(start.format('MM/DD/YYYY'));
+                    }
                 });
             } else if (selectedValue == 3) {
                 // Office Depot
@@ -436,13 +645,32 @@
                     'Quarter 3': [startOfQuarter3, endOfQuarter3],
                     'Quarter 4': [startOfQuarter4, endOfQuarter4],
                 };
-                $('#enddate').daterangepicker({
+                $('#startdate').daterangepicker({
                     autoApply: true,
                     showDropdowns: true,
+                    singleDatePicker: true,
                     showCustomRangeLabel: true,
                     minYear: moment().subtract(7, 'years').year(),
                     maxYear: moment().add(7, 'years').year(),
                     ranges: ranges,
+                }, function(start, end, label) {
+                    // If a custom range is selected, populate both startDate and endDate
+                    if (
+                        label == 'Quarter 1' || 
+                        label == 'Quarter 2' || 
+                        label == 'Quarter 3' || 
+                        label == 'Quarter 4' || 
+                        label === 'Last Year' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last 6 Months'
+                    ) {
+                        $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                        $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                    } else {
+                        // If a normal date is picked, only set the startDate
+                        $('#startdate').val(start.format('MM/DD/YYYY'));
+                    }
                 });
             } else if (selectedValue == 4) {
                 ranges = {
@@ -454,6 +682,7 @@
                 $('#enddate').daterangepicker({
                     autoApply: true,
                     showDropdowns: true,
+                    singleDatePicker: true,
                     showCustomRangeLabel: true,
                     minYear: moment().subtract(7, 'years').year(),
                     maxYear: moment().add(7, 'years').year(),
@@ -481,13 +710,32 @@
                     'Quarter 3': [startOfQuarter3, endOfQuarter3],
                     'Quarter 4': [startOfQuarter4, endOfQuarter4],
                 };
-                $('#enddate').daterangepicker({
+                $('#startdate').daterangepicker({
                     autoApply: true,
                     showDropdowns: true,
+                    singleDatePicker: true,
                     showCustomRangeLabel: true,
                     minYear: moment().subtract(7, 'years').year(),
                     maxYear: moment().add(7, 'years').year(),
                     ranges: ranges,
+                }, function(start, end, label) {
+                    // If a custom range is selected, populate both startDate and endDate
+                    if (
+                        label == 'Quarter 1' || 
+                        label == 'Quarter 2' || 
+                        label == 'Quarter 3' || 
+                        label == 'Quarter 4' || 
+                        label === 'Last Year' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last 6 Months'
+                    ) {
+                        $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                        $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                    } else {
+                        // If a normal date is picked, only set the startDate
+                        $('#startdate').val(start.format('MM/DD/YYYY'));
+                    }
                 });
             } else if (selectedValue == 6) {
                 // lyrco
@@ -511,13 +759,32 @@
                     'Quarter 3': [startOfQuarter3, endOfQuarter3],
                     'Quarter 4': [startOfQuarter4, endOfQuarter4],
                 };
-                $('#enddate').daterangepicker({
+                $('#startdate').daterangepicker({
                     autoApply: true,
                     showDropdowns: true,
+                    singleDatePicker: true,
                     showCustomRangeLabel: true,
                     minYear: moment().subtract(7, 'years').year(),
                     maxYear: moment().add(7, 'years').year(),
                     ranges: ranges,
+                }, function(start, end, label) {
+                    // If a custom range is selected, populate both startDate and endDate
+                    if (
+                        label == 'Quarter 1' || 
+                        label == 'Quarter 2' || 
+                        label == 'Quarter 3' || 
+                        label == 'Quarter 4' || 
+                        label === 'Last Year' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last 6 Months'
+                    ) {
+                        $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                        $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                    } else {
+                        // If a normal date is picked, only set the startDate
+                        $('#startdate').val(start.format('MM/DD/YYYY'));
+                    }
                 });
             } else {
                 ranges = {
@@ -526,13 +793,32 @@
                     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                     'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                 };
-                $('#enddate').daterangepicker({
+                $('#startdate').daterangepicker({
                     autoApply: true,
                     showDropdowns: true,
+                    singleDatePicker: true,
                     showCustomRangeLabel: true,
                     minYear: moment().subtract(7, 'years').year(),
                     maxYear: moment().add(7, 'years').year(),
                     ranges: ranges,
+                }, function(start, end, label) {
+                    // If a custom range is selected, populate both startDate and endDate
+                    if (
+                        label == 'Quarter 1' || 
+                        label == 'Quarter 2' || 
+                        label == 'Quarter 3' || 
+                        label == 'Quarter 4' || 
+                        label === 'Last Year' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last Quarter' ||
+                        label === 'Last 6 Months'
+                    ) {
+                        $('#startdate').val(start.format('MM/DD/YYYY')); // Set start date
+                        $('#enddate').val(end.format('MM/DD/YYYY')); // Set end date
+                    } else {
+                        // If a normal date is picked, only set the startDate
+                        $('#startdate').val(start.format('MM/DD/YYYY'));
+                    }
                 });
             }
 
@@ -560,8 +846,8 @@
         // Button click event
         $('#import_form').on('submit', function () {
             event.preventDefault();
-            $('#startDates').text($('#enddate').data('daterangepicker').startDate.format('MM/DD/YYYY'));
-            $('#endDates').text($('#enddate').data('daterangepicker').endDate.format('MM/DD/YYYY'));
+            $('#startDates').text(moment($('#startdate').val(), 'MM/DD/YYYY').format('MM/DD/YYYY'));
+            $('#endDates').text(moment($('#enddate').val(), 'MM/DD/YYYY').format('MM/DD/YYYY'));
             $('.header_bar').attr('style', 'display:flex !important;');
 
             // Initiate DataTable AJAX request
@@ -569,6 +855,10 @@
         });
 
         function setPercentage() {
+            if ($('.total_amount').val() != null) {
+                $('#total_spend').text($('.total_amount').val());
+            }
+
             var selectedValues = $('#supplier').val();
         
             if (selectedValues == 3) {
@@ -581,12 +871,12 @@
                 $('#incentive_rebate_check').prop('checked', false);
             }
 
-            var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="total_amount">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
+            var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="qualified_spend">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
             hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
             hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
-            totalAmount = $html.find('.total_amount').val();
+            totalAmount = $html.find('.qualified_spend').val();
 
-            $('#total_amount').text('$'+totalAmount);
+            $('#qualified_spend').text('$'+totalAmount);
 
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
@@ -609,6 +899,18 @@
             }
         }
 
+        // End Date Picker - Simple calendar
+        $('#enddate').daterangepicker({
+            autoApply: true,
+            showDropdowns: true,
+            singleDatePicker: true,
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        }, function(start) {
+            $('#enddate').val(start.format('MM/DD/YYYY')); // Manually set the selected date for end date
+        });
+
         // DataTable initialization
         var supplierDataTable = $('#supplier_report_data').DataTable({
             oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
@@ -627,8 +929,8 @@
                     // Pass date range and supplier ID when making the request
                     d.supplier = $('#supplier').val();
                     d.rebate_check = $('input[name="rebate_check"]:checked').val();
-                    d.end_date = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD');
-                    d.start_date = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD');
+                    d.end_date = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
+                    d.start_date = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
                 },
             },
 
@@ -667,11 +969,13 @@
             downloadCsv();
         });
 
+    
+
         function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download
             var csvUrl = '{{ route("report.export-supplier_report-csv") }}', order = supplierDataTable.order(),
-            start = $('#enddate').data('daterangepicker').startDate.format('YYYY-MM-DD'),
-            end = $('#enddate').data('daterangepicker').endDate.format('YYYY-MM-DD'),
+            start = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'),
+            end = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'),
             rebate_check = $('input[name="rebate_check"]:checked').val();
 
             // Add query parameters for date range and supplier ID

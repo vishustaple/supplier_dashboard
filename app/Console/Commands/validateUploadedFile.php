@@ -92,7 +92,6 @@ class validateUploadedFile extends Command
 
                     /** If suppliers having required columns */
                     if (isset($suppliers[$fileValue->supplier_id])) {
-                        /** Getting the supplier required columns */
                         $supplierValues = $suppliers[$fileValue->supplier_id];
                         if ($fileValue->supplier_id == 4) {
                             /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */

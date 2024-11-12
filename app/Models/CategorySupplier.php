@@ -32,8 +32,9 @@ class CategorySupplier extends Model
 
         $query = self::select([
             'suppliers.id as id',
-            'suppliers.hide_show as hide_show',
+            'suppliers.show as show',
             'suppliers.category as category',
+            'suppliers.hide_show as hide_show',
             'supplier_contacts.email as email',
             'supplier_contacts.phone as phone',
             'supplier_contacts.status as status',
@@ -103,8 +104,8 @@ class CategorySupplier extends Model
                 'category' => $suppliers->category,
                 'status' => (($suppliers->status == 1) ? ('Active') : ((isset($suppliers->status)) ? ('In-active') : (''))),
                 'show' => '<div class="form-check"><input data-id="'.$suppliers->id.'" class="form-check-input checkboxMain" type="checkbox" value="1" aria-label="..." '.(($suppliers->hide_show == 1) ? ('checked') : ('')).'></div>',
-                'edit' => '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a title="Edit Account" class="" id="edit_account" data-id="'.$suppliers->id.'" data-supplier_name="'.$suppliers->supplier_name.'" data-category="'.$suppliers->category.'" data-show="'.$suppliers->hide_show.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit Supplier</a><a title="Edit File Format" class="" id="edit_format" data-id="'.$suppliers->id.'" href="#" data-bs-toggle="modal" data-bs-target="'.(!empty(($suppliers->manage_columns_id)) ? ('#editSupplierFileFormatModal') : ('#addSupplierFileFormatModal')).'"><i class="fa fa-file-excel" aria-hidden="true"></i>'.(!empty(($suppliers->manage_columns_id)) ? ('Edit') : ('Add')).' File Format</a>'.
-                (!empty(($suppliers->manage_columns_id)) ? ('<a title="Delete File Format" class="delete_format" data-id="'.$suppliers->id.'" href="#"><i class="fa fa-trash" aria-hidden="true"></i>Delete File Format</a>') : ('')).'</div></div>'
+                'edit' => '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a title="Edit Account" class="" id="edit_account" data-id="'.$suppliers->id.'" data-supplier_name="'.$suppliers->supplier_name.'" data-category="'.$suppliers->category.'" data-hide_show="'.$suppliers->hide_show.'" data-show="'.$suppliers->show.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit Supplier</a><a title="Edit File Format" class="" id="edit_format" data-id="'.$suppliers->id.'" href="#" data-bs-toggle="modal" data-bs-target="'.(!empty(($suppliers->manage_columns_id)) ? ('#editSupplierFileFormatModal') : ('#addSupplierFileFormatModal')).'"><i class="fa fa-file-excel" aria-hidden="true"></i>'.(!empty(($suppliers->manage_columns_id)) ? ('Edit') : ('Add')).' File Format </a>'.
+                (!empty(($suppliers->manage_columns_id)) ? ('<a title="Delete File Format" class="delete_format" data-id="'.$suppliers->id.'" href="#"><i class="fa fa-trash" aria-hidden="true"></i>Delete File Format </a>') : ('')).'</div></div>'
             ];
         }
         

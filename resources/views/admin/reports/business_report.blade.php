@@ -94,9 +94,6 @@
             padding: 0px;
         }
     </style>
-    <!-- Include Date Range Picker JavaScript -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
@@ -229,6 +226,8 @@
                         },
                         cache: true
                     },
+                    placeholder: "Select an account",
+                    allowClear: true,
                     minimumInputLength: 1
                 }).on('select2:select', function (e) {
                     var accountName = e.params.data.id;
@@ -276,7 +275,7 @@
                 searching: false, 
                 pageLength: 40,
                 ajax: {
-                    url: '{{ route('report.filter') }}',
+                    url: '{{ route("report.filter") }}',
                     type: 'POST',
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
@@ -357,7 +356,7 @@
 
         function downloadCsv() {
             // You can customize this URL to match your backend route for CSV download
-            var csvUrl = '{{ route('report.export-csv') }}';
+            var csvUrl = '{{ route("report.export-csv") }}';
 
             var checkedValues = [];
             $('.checkboxs:checked').each(function() {

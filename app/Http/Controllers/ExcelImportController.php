@@ -128,20 +128,20 @@ class ExcelImportController extends Controller
                         return trim(str_replace(["\r", "\n"], '', $values));
                     }, $finalExcelKeyArray1);
 
-                    /** Handle case of office depot weekly excel file */
-                    if ($request->supplierselect == 7) {
-                        foreach ($cleanedArray as $keys => $valuess) {
-                            if ($keys > 5) {
-                                $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
-                            }
-                        }
-                    }
-
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
-                       
+                        /** Handle case of office depot weekly excel file */
                         if ($request->supplierselect == 7) {
-                            $supplierValues = array_slice($supplierValues, 0, 6, true);
+                            $supplierValues = array_slice($supplierValues, 0, 6, true);                        
+                            if (isset($cleanedArray[5]) && $cleanedArray[5] == $supplierValues[5]) {
+                                foreach ($cleanedArray as $keys => $valuess) {
+                                    if ($keys > 5) {
+                                        $cleanedArray[$keys] = trim("year_" . substr($cleanedArray[$keys], - 2));
+                                    }
+                                }
+                            } else {
+                                continue;
+                            }
                         }
                         
                         if ($request->supplierselect == 4) {
@@ -428,6 +428,7 @@ class ExcelImportController extends Controller
         $validator = Validator::make($request->all(),
             [
                 'show' => 'required',
+                'hide_show' => 'required',
                 'category' => 'required',
                 'supplier_name' => 'required',
             ],
@@ -440,9 +441,12 @@ class ExcelImportController extends Controller
         CategorySupplier::create([
             'created_by' => Auth::id(),
             'show' => $request->input('show'),
+            'hide_show' => $request->input('show'),
             'category' => $request->input('category'),
             'supplier_name' => $request->input('supplier_name'),
         ]);
+
+        return response()->json(['success' => true], 200);
     }
 
     public function addSupplierMain(Request $request) {
@@ -509,6 +513,7 @@ class ExcelImportController extends Controller
         $validator = Validator::make($request->all(),
             [
                 'show' => 'required',
+                'hide_show' => 'required',
                 'category' => 'required',
                 'supplier_name' => 'required',
                 'supplier_id' => 'required',
@@ -521,6 +526,7 @@ class ExcelImportController extends Controller
 
         CategorySupplier::where('id', $request->input('supplier_id'))
         ->update([
+            'show' => $request->input('show'),
             'hide_show' => $request->input('show'),
             'category' => $request->input('category'),
             'supplier_name' => $request->input('supplier_name'),
@@ -697,6 +703,13 @@ class ExcelImportController extends Controller
         if (!$tableName) {
             $supplierName = DB::table('suppliers')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
             $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
+            DB::table('supplier_tables')
+            ->insert([
+                'table_name' => $tableName,
+                'supplier_id' => $request->input('supplier_id'),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
         } else {
             $tableName = $tableName->table_name;
         }
@@ -796,6 +809,13 @@ class ExcelImportController extends Controller
         if (!$tableName) {
             $supplierName = DB::table('suppliers')->select('supplier_name')->where('id', $request->input('supplier_id'))->first();
             $tableName = preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $supplierName->supplier_name))));
+            DB::table('supplier_tables')
+            ->insert([
+                'table_name' => $tableName,
+                'supplier_id' => $request->input('supplier_id'),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
         } else {
             $tableName = $tableName->table_name;
         }

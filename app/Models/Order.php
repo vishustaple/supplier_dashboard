@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use datetime;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use League\Csv\Writer;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class Order extends Model
@@ -21,9 +21,9 @@ class Order extends Model
     protected $fillable = [
         'date',
         'cost',
-        'attachment_id',
         'created_by',
         'supplier_id',
+        'attachment_id',
         'customer_number',
     ];
 
@@ -31,7 +31,7 @@ class Order extends Model
         return $this->hasMany(ExcelData::class);
     }
 
-    public static function getFilterdData($filter = [], $csv=false){
+    public static function getFilterdData($filter = [], $csv=false) {
         $year = $filter['year'];
         $res[1] =['January', 'February', 'March'];
         $res[2] = ['April', 'May', 'June'];
@@ -452,7 +452,7 @@ class Order extends Model
         }
     }
 
-    public static function getSupplierReportFilterdData($filter = [], $csv = false){
+    public static function getSupplierReportFilterdData($filter = [], $csv = false) {
         $orderColumnArray = [
             0 => 'suppliers.supplier_name',
             1 => 'm2.account_name',
@@ -466,23 +466,38 @@ class Order extends Model
         }
 
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
-            $query = self::query()->selectRaw(
-                "SUM(`orders`.`cost`) AS `cost`, 
+            $query = self::query()->selectRaw("
+                `orders`.`date` AS `date`,
+                SUM(`orders`.`cost`) AS `cost`, 
                 `m2`.`account_name` AS `account_name`,
-                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`,
                 `rebate`.`volume_rebate` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
-                `orders`.`date` AS `date`"
-            );
+                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
+            ");
         } else {
-            $query = self::query()->selectRaw(
-                "SUM(`orders`.`cost`) AS `cost`, 
+            $query = self::query()->selectRaw("
+                `orders`.`date` AS `date`,
+                SUM(`orders`.`cost`) AS `cost`, 
                 `m2`.`account_name` AS `account_name`,
-                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`,
-                `rebate`.`incentive_rebate` AS `incentive_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
-                `orders`.`date` AS `date`"
-            );
+                `rebate`.`incentive_rebate` AS `incentive_rebates`,
+                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`
+            ");
+        }
+
+        $query1 = self::query()->selectRaw("SUM(`orders`.`cost`) AS `cost`");
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query1->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query1->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            $totalAmount1 = 0;
+            foreach ($query1->get() as $key => $value) {
+                $totalAmount1 += $value->cost;
+            }
         }
 
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
@@ -498,6 +513,14 @@ class Order extends Model
         }
         
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
                     $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
@@ -519,12 +542,7 @@ class Order extends Model
                     );
                 }
             } 
-            $query->where('orders.supplier_id', $filter['supplier']);
-
-            /** Year and quarter filter here */
-            if (isset($filter['end_date']) && isset($filter['start_date'])) {
-                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
-            }
+           
 
             if ($filter['supplier'] == 4) {
                 $query->whereRaw("
@@ -590,9 +608,9 @@ class Order extends Model
         /** Calculating total volume rebate, total incentive rebate and total cost */
         $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
         foreach ($query->get() as $key => $value) {
+            $totalAmount += $value->cost;
             $totalVolumeRebate += $value->volume_rebate;
             $totalIncentiveRebate += $value->incentive_rebate;
-            $totalAmount += $value->cost;
         }
 
         /** For debug query */
@@ -630,13 +648,17 @@ class Order extends Model
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="total_amount"> $'.number_format($value->cost, 2);
+                    $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($value->cost, 2);
                     $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
                     $finalArray[$key]['incentive_rebate'] = '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($value->incentive_rebate, 2).' ('.(!empty($value->incentive_rebates) ? ($value->incentive_rebates.'%') : ('N/A')).')';
                 }
             }
-        }
+        } 
     
+        if(!$csv && isset($finalArray[0]) && $totalAmount1 != 0) {
+            $finalArray[0]['account_name'] .= '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">';
+        }
+
         if ($csv) {
             $startDates = date_format(date_create(trim($filter['start_date'])), 'm-d-Y');
             $endDates = date_format(date_create(trim($filter['end_date'])), 'm-d-Y');
@@ -694,7 +716,7 @@ class Order extends Model
         }
     }
 
-    public static function getCommissionReportFilterdData($filter = [], $csv = false){
+    public static function getCommissionReportFilterdData($filter = [], $csv = false) {
         $orderColumnArray = [
             0 => 'approved',
             1 => 'paid',
@@ -710,13 +732,14 @@ class Order extends Model
         ->first();
 
         $query = CommissionRebate::query()->selectRaw(
-            "GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`,
+            "`paid`,
+            `approved`,
+            SUM(`spend`) as `spend`,
+            GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`,
             SUM(`commissions`) as `commissions`,
             SUM(`volume_rebate`) as `volume_rebate`,
-            SUM(`spend`) as `spend`,
-            `approved`,
-            `paid`"
-        );
+            GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`
+        ");
 
         $query->groupBy('quarter');
 
@@ -892,7 +915,7 @@ class Order extends Model
         }
     }
 
-    public static function getCommissionReportFilterdDataSecond($filter = [], $csv = false){
+    public static function getCommissionReportFilterdDataSecond($filter = [], $csv = false) {
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
             0 => 'commissions_rebate_detail.account_name',
@@ -1039,9 +1062,13 @@ class Order extends Model
             $paid = false;
             foreach ($formatuserdata as $key => $value) {
                 if ($csv) {
-                    $finalArray[$key]['supplier'] = $value->supplier_name;
-                    $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['cost'] = $value->cost;
+                    $finalArray[$key]['paid'] = $value->paid;
+                    $finalArray[$key]['month'] = $value->month;
+                    $finalArray[$key]['quarter'] = $value->quarter;
+                    $finalArray[$key]['approved'] = $value->approved;
+                    $finalArray[$key]['commission'] = $value->commission;
+                    $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['approved_by'] = $value->approved_by;
                     $finalArray[$key]['commissions_end_date'] = date_format(date_create($value->commissions_end_date), 'm/d/Y');
                     $finalArray[$key]['commissions_start_date'] = date_format(date_create($value->commissions_start_date), 'm/d/Y');
@@ -1234,6 +1261,9 @@ class Order extends Model
             }
         }
 
+        /** Group by with order supplier id */
+        $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
+
         /** Order by specified column and direction */
         if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']]) && isset($filter['order'][0]['dir'])) {
             $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir']);
@@ -1241,18 +1271,21 @@ class Order extends Model
             $query->orderBy($orderColumnArray[0], 'asc');
         }
 
-        /** Group by with order supplier id */
-        $query->groupBy($orderColumnArray[1], 'orders.supplier_id');
+        $totalAmount = 0;
+        $query1 = $query;
+        foreach ($query1->get() as $key => $value) {
+            /** Calculating total cost */
+            $totalAmount += $value->spend;
+        }
 
         /** Get the filtered records count */
         $filteredRecords = $query->getQuery()->getCountForPagination();
-
+        
         /** Paginate the results if pagination filters are provided */
         $queryData = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-
-        $totalAmount = 0;
+        
         $finalArray = [];
         foreach ($queryData as $key => $value) {
             if($csv) {
@@ -1262,13 +1295,11 @@ class Order extends Model
                 $finalArray[$key]['spend'] = $value->spend;
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
             } else {
-                /** Calculating total cost */
-                $totalAmount += $value->spend;
-
                 /** Prepare the final array for non-CSV */
                 $finalArray[$key]['account_name'] = "
                 <div class='form-check'>
                     <input class='form-check-input' type='checkbox'>
+                    <input class='form-check-input' type='hidden' value='".$value->supplier_id."'>
                     <label class='form-check-label'>
                         ".$value->account_name."
                     </label>
@@ -1279,8 +1310,8 @@ class Order extends Model
             }
         }
         // dd($query->toSql(), $query->getBindings());
-        // dd($finalArray);
-        if(!$csv && isset($finalArray[0])) {
+        // dd($totalAmount);
+        if(!$csv && isset($finalArray[0]) && $totalAmount != 0) {
             $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
         }
         
@@ -1305,7 +1336,7 @@ class Order extends Model
 
     public static function getConsolidatedDownloadData($filter=[]) {
         /** Increasing the memory limit becouse memory limit issue */
-        ini_set('memory_limit', '1024M');
+        // ini_set('memory_limit', '25024M');
         $query = self::query()
         ->selectRaw(
             "`order_details`.`order_id` as `id`,
@@ -1325,27 +1356,44 @@ class Order extends Model
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
-        /** Filter by account name if provided */
-        if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
-            $query->whereIn('master_account_detail.account_name', $filter['account_name']);
-        }
-
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
-        } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
-            /** Filter for specified supplier IDs */
-            if (isset($filter['supplier_id'][1])) {
+            if ($filter['checkedAllAccount'] == 1) {
+                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+            } else {
+                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                /** Filter by account name if provided */
+                if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+                    $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+                }
+            }
+        } elseif (isset($filter['supplier_id'])) {
+            if ($filter['checkedAllAccount'] == 1) {
                 $query->whereIn('orders.supplier_id', $filter['supplier_id']);
             } else {
-                $query->where('orders.supplier_id', $filter['supplier_id'][0]);
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+                /** Filter by account name if provided */
+                if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+                    $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+                }
             }
         } else {
 
         }
 
-        $queryData = $query->get();
+        // /** Filter by account name if provided */
+        // if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+        //     $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+        // }
 
+        // /** Filter for specific supplier IDs */
+        // if (isset($filter['supplier_id'])) {
+        //     $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+        // }
+
+        $queryData = $query->get();
+        // dd($query->toSql(), $query->getBindings());
+        // dd($queryData);
         $stapleColumnArray = [
             "Div",
             "Master_Customer_Number",
@@ -1434,6 +1482,202 @@ class Order extends Model
         return $finalArray;
     }
 
+    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath)
+    {
+        /** Increasing the memory limit becouse memory limit issue */
+        ini_set('memory_limit', '7024M');
+
+        $query = self::query()
+            ->selectRaw("
+                `order_product_details`.`key` as `key`,
+                `order_product_details`.`order_id` as `id`,
+                `order_product_details`.`value` as `value`
+            ");
+
+        $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
+            ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+
+        /** Year and quarter filter here */
+        if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
+            $endDate = $filter['end_date'];
+            $startDate = $filter['start_date'];
+            $query->whereBetween('orders.date', [$startDate, $endDate]);
+        }
+
+        $chunk = 200000;
+
+        /** Filter for specific supplier IDs */
+        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            if ($filter['checkedAllAccount'] == 1) {
+                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+            } else {
+                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                /** Filter by account name if provided */
+                if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+                    $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+                }
+            }
+        } elseif (isset($filter['supplier_id'])) {
+            if (count($filter['supplier_id']) == 1 && in_array(1, $filter['supplier_id'])) {
+                $chunk = 15 * 100000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(2, $filter['supplier_id'])) {
+                $chunk = 30 * 100000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(3, $filter['supplier_id'])) {
+                $chunk = 27 * 100000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(4, $filter['supplier_id'])) {
+                $chunk = 46 * 10000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(5, $filter['supplier_id'])) {
+                $chunk = 25 * 100000;
+            }
+
+            if (count($filter['supplier_id']) == 1 && in_array(6, $filter['supplier_id'])) {
+                $chunk = 51 * 10000;
+            }
+
+            if ($filter['checkedAllAccount'] == 1) {
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+            } else {
+                $query->whereIn('orders.supplier_id', $filter['supplier_id']);
+                /** Filter by account name if provided */
+                if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
+                    $query->whereIn('master_account_detail.account_name', $filter['account_name']);
+                }
+            }
+        } else {
+
+        }
+
+        /** Define CSV header based on your columns */
+        $stapleColumnArray = [
+            "Div",
+            "Master_Customer_Number",
+            "Master Customer Name",
+            "Bill To Number",
+            "Bill To Name",
+            "Ship To Number",
+            "Ship To Name",
+            "Ship To Line1 Address",
+            "Ship To Line2 Address",
+            "Ship To Line3 Address",
+            "Ship To City",
+            "Ship To State",
+            "Ship To Zip",
+            "Vendor Part Number",
+            "Item Description",
+            "Primary Product Hierarchy",
+            "Diversity",
+            "Diversity Code",
+            "Diversity Sub Type Cd",
+            "Selling Unit Measure Qty",
+            "Vendor Name",
+            "Recycled Flag",
+            "Recycled %",
+            "Product Post Consumer Content %",
+            "Remanufactured/Refurbished Flag",
+            "ECO Feature",
+            "ECO Sub Feature",
+            "ECO",
+            "Budget Center Name",
+            "Invoice Date",
+            "Invoice Number",
+            "On Contract?",
+            "Order Contact",
+            "Order Contact Phone Number",
+            "Order Date",
+            "Order Method Description",
+            "Order Number",
+            "Payment Method Code1",
+            "Payment Method Code",
+            "Sell UOM",
+            "Ship To Contact",
+            "Shipped Date",
+            "SKU",
+            "Transaction Source System1",
+            "Transaction Source System",
+            "Group1",
+            "Group",
+            "Qty",
+            "Adj Gross Sales",
+            "Avg Sell Price"
+        ];
+
+        /** Open a writable stream in storage */
+        $stream = fopen(storage_path('app/' . $filePath), 'w');
+
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+
+        /** Process the query in chunks to avoid memory issues */
+        $query->chunk($chunk, function ($queryData) use ($stapleColumnArray, $filter, $csvWriter) {
+            if ($filter['supplier_id'] == 4) {
+                $finalArray = [];
+                foreach ($stapleColumnArray as $keys => $values) {
+                    foreach ($queryData as $key => $value) {
+                        if ($values == rtrim($value->key, " ID") || ($values == 'Group1' && $value->key == 'Group ID1')) {
+                            /** Prepare the final array for CSV */
+                            if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                                $finalArray[$value->id][$values] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                            } else {
+                                $finalArray[$value->id][$values] = $value->value;
+                            }
+                        } else if (empty($finalArray[$value->id][$values])) {
+                            $finalArray[$value->id][$values] = '';
+                        } else {
+    
+                        }
+                    }
+                } 
+            } else {
+                $finalArray = [];
+                foreach ($queryData as $key => $value) {         
+                    /** Prepare the final array for CSV */
+                    if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                        $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                    } else {
+                        $finalArray[$value->id][$value->key] = $value->value;
+                    }
+                }
+            }
+
+            $previousKeys = [];
+ 
+            /** Loop through data */
+            foreach ($finalArray as $row) {
+                $currentKeys = array_keys($row);
+    
+                /** Check if the keys have changed */
+                if ($currentKeys !== $previousKeys) {
+                    /** If keys have changed, insert the new heading row */
+                    $csvWriter->insertOne($currentKeys);
+                    $previousKeys = $currentKeys;
+                }
+
+                /** Reorder the current row according to the current keys */
+                $orderedRow = [];
+                foreach ($currentKeys as $key) {
+                    $orderedRow[] = $row[$key] ?? '';
+                }
+    
+                /** Insert the data row */
+                $csvWriter->insertOne($orderedRow);
+            }
+
+            unset($finalArray);
+        });
+
+        fclose($stream);
+
+        return true;
+    }
+
     public static function operationalAnomalyReportFilterdData($filter=[], $csv=false) {
         if ($filter['supplier'] == '--Select--') {
             /** Return the result along with total and filtered counts */
@@ -1511,11 +1755,11 @@ class Order extends Model
                 ->selectRaw("
                     account_name,
                     supplier_name,
-                    FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
-                    FORMAT(ten_week_avg, 2) AS ten_week_avg,
-                    FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage,
+                    FORMAT(median, 2) AS median,
                     FORMAT(`drop`, 2) AS `drop`,
-                    FORMAT(median, 2) AS median
+                    FORMAT(ten_week_avg, 2) AS ten_week_avg,
+                    FORMAT(fifty_two_wk_avg, 2) AS fifty_two_wk_avg,
+                    FORMAT(two_wk_avg_percentage, 2) AS two_wk_avg_percentage
                 ")
                 ->where('supplier_name', $filter['supplier'])
                 ->get();
@@ -1538,13 +1782,13 @@ class Order extends Model
                 ];
             } else {
                 /** Prepare the final array for non-CSV */
-                $finalArray[$a]['account_name'] = $value->account_name;
-                $finalArray[$a]['supplier_name'] = $value->supplier_name;
-                $finalArray[$a]['fifty_two_wk_avg'] = '$'.$value->fifty_two_wk_avg;
-                $finalArray[$a]['ten_week_avg'] =  '$'.$value->ten_week_avg;
-                $finalArray[$a]['two_wk_avg_percentage'] = '$'.$value->two_wk_avg_percentage;
                 $finalArray[$a]['drop'] = $value->drop.'%';
                 $finalArray[$a]['median'] = '$'.$value->median;
+                $finalArray[$a]['account_name'] = $value->account_name;
+                $finalArray[$a]['supplier_name'] = $value->supplier_name;
+                $finalArray[$a]['ten_week_avg'] = '$'.$value->ten_week_avg;
+                $finalArray[$a]['fifty_two_wk_avg'] = '$'.$value->fifty_two_wk_avg;
+                $finalArray[$a]['two_wk_avg_percentage'] = '$'.$value->two_wk_avg_percentage;
                 $a++;
             }
         }

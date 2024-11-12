@@ -13,15 +13,20 @@ class ManageColumns extends Model
     protected $table = 'supplier_fields';
 
     protected $fillable = [
-        'supplier_id',
+        'type',
+        'label',
+        'deleted',
         'required',
         'raw_label',
-        'label',
-        'type',
+        'supplier_id',
+        'required_field_id',
     ];
 
     public static function getRequiredColumns(){
-        $columnValues = DB::table('supplier_fields')->select('supplier_id', 'label')->where('deleted', 0)->get();
+        $columnValues = DB::table('supplier_fields')
+        ->select('supplier_id', 'label')
+        ->where('deleted', 0)
+        ->get();
 
         foreach ($columnValues as $value) {
             $jsArray[$value->supplier_id][] =  $value->label;
