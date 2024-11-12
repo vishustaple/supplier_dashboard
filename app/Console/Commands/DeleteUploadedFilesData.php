@@ -34,16 +34,14 @@ class DeleteUploadedFilesData extends Command
         /** Selecting the file data row using table id */
         $fileData = UploadedFiles::where('delete', 1)->first();
         
+        $supplierTable = DB::table('supplier_tables')
+        ->select('supplier_id', 'table_name')
+        ->get();
+
         /** Array of different supplires table */
-        $supplierTableArray = [
-            1 => 'g_and_t_laboratories_charles_river_order',
-            2 => 'grainger_order',
-            3 => 'office_depot_order',
-            4 => 'staples_orders_data',
-            5 => 'wb_mason_order',
-            6 => 'lyreco_order',
-            7 => 'odp_order',
-        ];
+        foreach ($supplierTable as $key => $value) {
+            $supplierTableArray[$value->supplier_id] = $value->table_name;
+        }
 
         if (isset($fileData->id) && !empty($fileData->id)) {
             /** Update delete two means start deleting data into excel */
