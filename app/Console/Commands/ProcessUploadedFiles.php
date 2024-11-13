@@ -316,7 +316,7 @@ class ProcessUploadedFiles extends Command
                                 $maxNonEmptyValue[45] = "Group ID";
                             }
 
-                            if ($fileValue->supplier_id == 18) {
+                            if ($fileValue->supplier_id == 14) {
                                 $columnArray2[$fileValue->supplier_id]["Transaction Source System1"] = 'transaction_source_system';
                                 $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
                                 $maxNonEmptyValue[38] = "Payment Method Code1";
