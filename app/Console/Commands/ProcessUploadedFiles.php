@@ -316,6 +316,15 @@ class ProcessUploadedFiles extends Command
                                 $maxNonEmptyValue[45] = "Group ID";
                             }
 
+                            if ($fileValue->supplier_id == 18) {
+                                $columnArray2[$fileValue->supplier_id]["Transaction Source System1"] = 'transaction_source_system';
+                                $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
+                                $maxNonEmptyValue[38] = "Payment Method Code1";
+                                $maxNonEmptyValue[39] = "Payment Method Code";
+                                $maxNonEmptyValue[44] = "Transaction Source System1";
+                                $maxNonEmptyValue[45] = "Transaction Source System";
+                            }
+
                             /** Clean up the values */
                             $maxNonEmptyValue = array_map(function ($value) {
                                 /** Remove line breaks and trim whitespace */
