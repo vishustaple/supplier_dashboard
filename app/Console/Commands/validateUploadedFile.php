@@ -118,13 +118,13 @@ class validateUploadedFile extends Command
 
                         /** Checking the difference if arrayDiff empty then break the loop and go to next step */
                         if (empty($arrayDiff)) {
-                            $maxNonEmptyvalue1 = $value;
+                            $maxNonEmptyvalue1 = $cleanedArray;
                             $startIndexValueArray = $key;
                             break;
                         }
                     }
                 }
-                dd($cleanedArray);
+                
                 /** If not able to get the required columns then continue */
                 if (!isset($maxNonEmptyvalue1)) {
                     continue;
