@@ -239,6 +239,16 @@ class ProcessUploadedFiles extends Command
                             $maxNonEmptyValue[45] = "Group ID";
                         }
 
+                        if ($fileValue->supplier_id == 14) {
+                            $columnArray2[$fileValue->supplier_id]["Transaction Source System1"] = 'transaction_source_system';
+                            $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
+                            $maxNonEmptyValue[38] = "Payment Method Code1";
+                            $maxNonEmptyValue[39] = "Payment Method Code";
+                            $maxNonEmptyValue[44] = "Transaction Source System1";
+                            $maxNonEmptyValue[45] = "Transaction Source System";
+                        }
+
+
                         foreach ($workSheetArray as $key=>$value) {
                             $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                                 return !empty($item);
@@ -265,6 +275,15 @@ class ProcessUploadedFiles extends Command
                                     $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
         
                                     $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
+                                    $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                                    $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                                }
+
+                                if ($fileValue->supplier_id == 14) {
+                                    /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                                    $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                                    $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+        
                                     $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
                                     $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
                                 }
