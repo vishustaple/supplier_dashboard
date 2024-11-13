@@ -124,7 +124,7 @@ class validateUploadedFile extends Command
                         }
                     }
                 }
-
+                dd($cleanedArray);
                 /** If not able to get the required columns then continue */
                 if (!isset($maxNonEmptyvalue1)) {
                     continue;
