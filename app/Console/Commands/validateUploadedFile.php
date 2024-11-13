@@ -104,6 +104,15 @@ class validateUploadedFile extends Command
                             $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
                         }
 
+                        if ($fileValue->supplier_id == 14) {
+                            /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                            $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                            $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+
+                            $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                            $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                        }
+
                         /** Checking the difference of supplier excel file columns and database columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
