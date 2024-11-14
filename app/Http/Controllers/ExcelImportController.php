@@ -268,7 +268,7 @@ class ExcelImportController extends Controller
             $id = $request->id;
         }
 
-        $supplierColumns = DB::table('supplier_fields')
+        $supplierColumns = DB::table('manage_columns')
         ->where('supplier_id', $id);
 
         $filename = DB::table('supplier_tables')
@@ -286,7 +286,7 @@ class ExcelImportController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
 
         /** Extract only the 'label' values */
-        $labels = $supplierColumns->pluck('label')->toArray();
+        $labels = $supplierColumns->pluck('field_name')->toArray();
 
         /** Set header for the 'label' column */
         $sheet->setCellValue('A1', 'Label');
