@@ -266,6 +266,12 @@ class ExcelImportController extends Controller
         ->where('supplier_id', $id)
         ->first();
         
+        if ($filename) {
+            $file = $filename->table_name;
+        } else {
+            $file = 'Sample';
+        }
+
         /** Create a new Spreadsheet */
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -283,8 +289,7 @@ class ExcelImportController extends Controller
         }
 
         /** Set headers to prompt for download */
-        $fileName = $filename->table_name.".xlsx";
-        $contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        $fileName = $file.".xlsx";
         
         /** Stream the file for download */
         $writer = new Writer($spreadsheet);
