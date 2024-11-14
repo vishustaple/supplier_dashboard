@@ -260,7 +260,7 @@ class ExcelImportController extends Controller
         }
 
         $supplierColumns = DB::table('supplier_fields')
-        ->where('supplier_id', $id);
+        ->where(['supplier_id' => $id, 'deleted' => 0]);
 
         $filename = DB::table('supplier_tables')
         ->where('supplier_id', $id)
