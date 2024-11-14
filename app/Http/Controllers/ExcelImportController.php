@@ -268,6 +268,20 @@ class ExcelImportController extends Controller
             $id = $request->id;
         }
 
+        if ($id == 7) {
+            $filename = 'weekly_office_depot_sample_file.xlsx';
+    
+            $destinationPath = public_path('/excel_sheets');
+    
+            /** Set the response headers */
+            $headers = [
+                'Content-Type' => 'application/xlsx',
+                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            ];
+            
+            return response()->download($destinationPath.'/'.$filename, $filename, $headers);
+        }
+
         $supplierColumns = DB::table('manage_columns')
         ->where('supplier_id', $id);
 
