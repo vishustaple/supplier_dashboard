@@ -13,8 +13,9 @@ use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx as Writer;
 use App\Models\{
     UploadedFiles,
     ManageColumns,
@@ -23,6 +24,7 @@ use App\Models\{
     CategorySupplier,
     RequiredFieldName,
 };
+
 
 class ExcelImportController extends Controller
 {
@@ -266,26 +268,44 @@ class ExcelImportController extends Controller
             $id = $request->id;
         }
 
-        $filename = [
-            1 => 'g_and_t_laboratories_sample.xlsx',
-            2 => 'grainger_sample.xlsx',
-            3 => 'od_sample.xlsx',
-            4 => 'staple_sample.xlsx',
-            5 => 'wb_sample.xlsx',
-            6 => 'lyreco_sample.xlsx',
-            7 => 'weekly_office_depot_sample_file.xlsx',
-            14 => 'staple_diversity.xlsx',
-        ];
+        $supplierColumns = DB::table('supplier_fields')
+        ->where('supplier_id', $id);
 
-        $destinationPath = public_path('/excel_sheets');
-
-        /** Set the response headers */
-        $headers = [
-            'Content-Type' => 'application/xlsx',
-            'Content-Disposition' => 'attachment; filename="'.$filename[$id].'"',
-        ];
+        $filename = DB::table('supplier_tables')
+        ->where('supplier_id', $id)
+        ->first();
         
-        return response()->download($destinationPath.'/'.$filename[$id], $filename[$id], $headers);
+        if ($filename) {
+            $file = $filename->table_name;
+        } else {
+            $file = 'Sample';
+        }
+
+        /** Create a new Spreadsheet */
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        /** Extract only the 'label' values */
+        $labels = $supplierColumns->pluck('label')->toArray();
+
+        /** Set header for the 'label' column */
+        $sheet->setCellValue('A1', 'Label');
+
+        /** Insert labels into a single row (starting from column A) */
+        foreach ($labels as $index => $label) {
+            /** The first label goes in column A, second in column B, and so on */
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label); /** (column, row) */
+        }
+
+        /** Set headers to prompt for download */
+        $fileName = $file.".xlsx";
+        
+        /** Stream the file for download */
+        $writer = new Writer($spreadsheet);
+        $filePath = tempnam(sys_get_temp_dir(), $fileName);
+        $writer->save($filePath);
+
+        return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
     }
 
     public function getColumns(Request $request) {
