@@ -24,6 +24,7 @@ class Order extends Model
         'created_by',
         'supplier_id',
         'attachment_id',
+        'invoice_number',
         'customer_number',
     ];
 

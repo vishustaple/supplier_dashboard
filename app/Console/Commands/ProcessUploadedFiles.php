@@ -503,12 +503,12 @@ class ProcessUploadedFiles extends Command
                                     if (!empty($columnArray[$fileValue->supplier_id]['cost'])) {
                                         $keyAmount = array_search($columnArray[$fileValue->supplier_id]['cost'], $maxNonEmptyValue);
                                     }
-
+                                    
                                     /** Here we will getting the invoice number key */
                                     if (!empty($columnArray[$fileValue->supplier_id]['invoice_no'])) {
                                         $keyInvoiceNumber = array_search($columnArray[$fileValue->supplier_id]['invoice_no'], $maxNonEmptyValue);
                                     }
-
+                                    
                                     /** Here we will getting the invoice date key */
                                     if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
                                         $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $maxNonEmptyValue);
