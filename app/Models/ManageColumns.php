@@ -26,6 +26,7 @@ class ManageColumns extends Model
         $columnValues = DB::table('supplier_fields')
         ->select('supplier_id', 'label')
         ->where('deleted', 0)
+        ->whereNotNull('required_field_id')
         ->get();
 
         foreach ($columnValues as $value) {

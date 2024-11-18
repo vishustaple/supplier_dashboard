@@ -56,11 +56,11 @@ class DeleteUploadedFilesData extends Command
                 /** Delete records from UploadedFiles table */
                 UploadedFiles::where('id', $id)->delete();
 
-                DB::table('orders')->where('attachment_id', $id)->delete();
-
+                
                 /** Delete records from OrderDetails table */
                 DB::table('order_details')->where('attachment_id', $id)->delete();
-                
+                DB::table('orders')->where('attachment_id', $id)->delete();
+
                 if ($fileData->supplier_id == 4) {
                     /** Delete records from Suppliers Orders table */
                     DB::table('staples_order')
