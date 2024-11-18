@@ -411,24 +411,24 @@ class ProcessUploadedFiles extends Command
                                         if (empty($customers)) {
                                             if (strpos($row[$keyParentName], "CenterPoint") !== false || strpos($row[$keyParentName], "centerpoint") !== false) {
                                                 Account::create([
-                                                    'parent_id' => $row[$keyParent],
-                                                    'parent_name' => $row[$keyParentName],
-                                                    'account_number' => $row[$keyCustomer],
-                                                    'account_name' => $row[$keyCustomerName],
+                                                    'parent_id' => (!empty($keyParent)) ? ($row[$keyParent]) : (''),
+                                                    'parent_name' => (!empty($keyParentName)) ? ($row[$keyParentName]) : (''),
+                                                    'account_number' => (!empty($keyCustomer)) ? ($row[$keyCustomer]) : (''),
+                                                    'account_name' => (!empty($keyCustomerName)) ? ($row[$keyCustomerName]) : (''),
                                                     'customer_id' => $insertId,
-                                                    'grandparent_id' => $row[$keyGrandParent],
+                                                    'grandparent_id' => (!empty($keyGrandParent)) ? ($row[$keyGrandParent]) : (''),
                                                     'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
-                                                    'grandparent_name' => $row[$keyGrandParentName],
+                                                    'grandparent_name' => (!empty($keyGrandParentName)) ? ($row[$keyGrandParentName]) : (''),
                                                 ]);
                                             } else {
                                                 Account::create([
                                                     'customer_id' => $insertId,
-                                                    'parent_id' => $row[$keyParent],
-                                                    'parent_name' => $row[$keyParentName],
-                                                    'account_number' => $row[$keyCustomer],
-                                                    'account_name' => $row[$keyParentName],
-                                                    'grandparent_id' => $row[$keyGrandParent],
-                                                    'grandparent_name' => $row[$keyGrandParentName],
+                                                    'parent_id' => (!empty($keyParent)) ? ($row[$keyParent]) : (''),
+                                                    'parent_name' => (!empty($keyParentName)) ? ($row[$keyParentName]) : (''),
+                                                    'account_number' => (!empty($keyCustomer)) ? ($row[$keyCustomer]) : (''),
+                                                    'account_name' => (!empty($keyParentName)) ? ($row[$keyParentName]) : (''),
+                                                    'grandparent_id' => (!empty($keyGrandParent)) ? ($row[$keyGrandParent]) : (''),
+                                                    'grandparent_name' => (!empty($keyGrandParentName)) ? ($row[$keyGrandParentName]) : (''),
                                                     'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)) ,
                                                 ]);
                                             }
@@ -436,10 +436,10 @@ class ProcessUploadedFiles extends Command
                                             Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
                                             ->update([
                                                 'customer_id' => $insertId,
-                                                'parent_id' => $row[$keyParent],
-                                                'parent_name' => $row[$keyParentName],
-                                                'grandparent_id' => $row[$keyGrandParent],
-                                                'grandparent_name' => $row[$keyGrandParentName],
+                                                'parent_id' => (!empty($keyParent)) ? ($row[$keyParent]) : (''),
+                                                'parent_name' => (!empty($keyParentName)) ? ($row[$keyParentName]) : (''),
+                                                'grandparent_id' => (!empty($keyGrandParent)) ? ($row[$keyGrandParent]) : (''),
+                                                'grandparent_name' => (!empty($keyGrandParentName)) ? ($row[$keyGrandParentName]) : (''),
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                             ]);
