@@ -209,7 +209,19 @@ class ExcelImportController extends Controller
             } catch (QueryException $e) {   
                 return response()->json(['error' => $e->getMessage()], 200);
             }
-            return response()->json(['success' => 'Excel file imported successfully!'], 200);
+
+            $suppliers = ManageColumns::getColumns();
+            $supplierValues = $suppliers[$request->supplierselect];
+            
+            $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray));
+            $missingColumns = implode(', ', $arrayDiff);
+            
+            if (!empty($arrayDiff) && $request->supplierselect != 4) {
+                return response()->json(['success' => 'Excel file imported successfully!. Missing columns '.$missingColumns.''], 200);
+            } else {
+                return response()->json(['success' => 'Excel file imported successfully!'], 200);
+            }
+            // return response()->json(['success' => 'Excel file imported successfully!'], 200);
         } else {
             return response()->json(['error' => 'Please select supplier.'], 200);
         }
