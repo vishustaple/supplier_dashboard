@@ -464,21 +464,23 @@ class ProcessUploadedFiles extends Command
                                         if (isset($keyCustomerNumber) && !empty($row[$keyCustomerNumber])) {
                                             foreach ($row as $key1 => $value) {
                                                 if(!empty($maxNonEmptyValue[$key1])) {
-                                                    if ($fileValue->supplier_id != 7) {
-                                                        if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == $date) {
-                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] =  (!empty($value)) ? Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s') : ('');
-                                                        } else {
-                                                            if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1])  && !empty($value)) { 
-                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
+                                                    if (isset($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])])) {
+                                                        if ($fileValue->supplier_id != 7) {
+                                                            if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == $date) {
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] =  (!empty($value)) ? Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s') : ('');
                                                             } else {
-                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
+                                                                if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1])  && !empty($value)) { 
+                                                                    $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
+                                                                } else {
+                                                                    $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
+                                                                }
                                                             }
-                                                        }
-                                                    } else {
-                                                        if ($key1 < 6) {
-                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
                                                         } else {
-                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim("year_" . substr($maxNonEmptyValue[$key1], - 2))]] = $value;
+                                                            if ($key1 < 6) {
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
+                                                            } else {
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim("year_" . substr($maxNonEmptyValue[$key1], - 2))]] = $value;
+                                                            }
                                                         }
                                                     }
                                                     
