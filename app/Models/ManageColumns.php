@@ -24,6 +24,7 @@ class ManageColumns extends Model
             'supplier_id',
             'field_name'
         )
+        ->whereNotNull('required_field_id')
         ->get();
 
         foreach ($columnValues as $value) {
