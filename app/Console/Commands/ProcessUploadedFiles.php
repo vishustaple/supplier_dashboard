@@ -517,7 +517,7 @@ class ProcessUploadedFiles extends Command
                                     if (isset($keyCustomerNumber) && !empty($row[$keyCustomerNumber])) {
                                         foreach ($row as $key1 => $value) {
                                             if(!empty($maxNonEmptyValue[$key1])) {
-                                                if (isset($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])])) {
+                                                if (isset($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]) || $fileValue->supplier_id == 7) {
                                                     /** Creating the excel insert array for supplier table insert using date column conditions */
                                                     if ($fileValue->supplier_id != 7) {
                                                         if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == $date) {
