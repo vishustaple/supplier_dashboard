@@ -63,7 +63,7 @@
                                     @else
                                         <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Large Selected Account Data</button>
                                     @endif
-                                    <button id="downloadButtonSmall" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Small Selected Account Data</button>
+                                    <button id="downloadButtonSmall" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
                                 </div>
                             </div>
                         </div>
@@ -381,11 +381,11 @@
                                 link.download = 'Consolidated_Account_Report_' + dateStr + '.csv';
                                 link.click();
                                 button.disabled = false;
-                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Small Selected Account Data';
+                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
                             },
                             error: function(xhr, status, error) {
                                 button.disabled = false;
-                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Small Selected Account Data';
+                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
                                 alert('File download failed!');
                             }
                         });
