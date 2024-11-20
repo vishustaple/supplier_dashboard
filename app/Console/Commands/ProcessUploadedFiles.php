@@ -148,12 +148,12 @@ class ProcessUploadedFiles extends Command
                         $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
                     }
 
-                    /** Updating the file upload status */
-                    DB::table('attachments')
-                    ->where('id', $fileValue->id)
-                    ->update([
-                        'cron' => 4
-                    ]);
+                    // /** Updating the file upload status */
+                    // DB::table('attachments')
+                    // ->where('id', $fileValue->id)
+                    // ->update([
+                    //     'cron' => 4
+                    // ]);
 
                     /** Run the for loop for excel sheets */
                     for ($i = 0; $i <= $sheetCount; $i++) {
