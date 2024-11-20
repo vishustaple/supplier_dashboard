@@ -63,7 +63,7 @@
                                     @else
                                         <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Large Selected Account Data</button>
                                     @endif
-                                    <button id="downloadButtonSmall" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Small Selected Account Data</button>
+                                    <button id="downloadButtonSmall" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
                                 </div>
                             </div>
                         </div>
@@ -381,48 +381,17 @@
                                 link.download = 'Consolidated_Account_Report_' + dateStr + '.csv';
                                 link.click();
                                 button.disabled = false;
-                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Small Selected Account Data';
+                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
                             },
                             error: function(xhr, status, error) {
                                 button.disabled = false;
-                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Small Selected Account Data';
+                                button.innerHTML = '<i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data';
                                 alert('File download failed!');
                             }
                         });
                     }
                 }
             });
-
-            // Function to update checked values and check for supplier ID
-            function updateCheckedValues() {
-                // checkedValuess = []; // Clear the array
-                // $('.checkboxs:checked').each(function() {
-                //     checkedValuess.push($(this).val());
-                // });
-
-                // var supplierIdToCheck = 3; // Replace with the supplier ID you want to check
-                // var supplierIdToCheck1 = 'all'; // Replace with the supplier ID you want to check
-                // checkedAccounts = [];
-
-                // if (checkedValuess.includes(supplierIdToCheck.toString())) { // Convert to string for comparison
-                //     $('#selectAllAccounts').hide();
-                //     $('#selectAllAccounts').prop('checked', false)
-                //     $('#consolidated_supplier_data').DataTable().ajax.reload();
-                // } else if (checkedValuess.includes(supplierIdToCheck1.toString())) {
-                //     $('#selectAllAccounts').hide();
-                //     $('#selectAllAccounts').prop('checked', false)
-                //     $('#consolidated_supplier_data').DataTable().ajax.reload();
-                // } else {
-                    // $('#selectAllAccounts').show();
-                    // $('#selectAllAccounts').prop('checked', false)
-                    // $('#consolidated_supplier_data').DataTable().ajax.reload();
-                // }
-            }
-
-            // Attach the change event to checkboxes
-            // $('.checkboxs').change(function() {
-            //     updateCheckedValues();
-            // });
 
             $('#select_dates').on('change', function(){
                 var selectValue = $(this).val();
