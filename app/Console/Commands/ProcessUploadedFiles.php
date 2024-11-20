@@ -395,7 +395,7 @@ class ProcessUploadedFiles extends Command
 
                                         if (!isset($customerId) && empty($customerId)) {
                                             $insertId = DB::table('customers')
-                                            ->insert([
+                                            ->insertGetId([
                                                 'customer_name' => $row[$keyCustomerName]
                                             ]);
 
@@ -454,7 +454,7 @@ class ProcessUploadedFiles extends Command
 
                                     if (!isset($customerId) && empty($customerId)) {
                                         $insertId = DB::table('customers')
-                                        ->insert([
+                                        ->insertGetId([
                                             'customer_name' => $row[$keyCustomerName]
                                         ]);
 
