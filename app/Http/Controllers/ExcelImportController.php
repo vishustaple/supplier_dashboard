@@ -160,6 +160,10 @@ class ExcelImportController extends Controller
                         /** Getting the difference of excel file columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
+                        if (count($arrayDiff) < count($supplierValues)) {
+                            $arrayDiff1 = $arrayDiff;
+                        }
+
                         /** Checking the difference if arrayDiff empty then break the loop and go to next step */
                         if (empty($arrayDiff)) {
                             $validationCheck = true;
@@ -171,10 +175,15 @@ class ExcelImportController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
-        
+        // dd($supplierValues, $cleanedArray, $arrayDiff, $arrayDiff1);
         /** Here we return the error into form of json */
         if ($validationCheck == false) {
-            $missingColumns = implode(', ', $arrayDiff);
+            if (isset($arrayDiff1) && !empty($arrayDiff1)) {
+                $missingColumns = implode(', ', $arrayDiff1);
+            } else {
+                $missingColumns = implode(', ', $arrayDiff1);
+            }
+            
             return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
         }
 
