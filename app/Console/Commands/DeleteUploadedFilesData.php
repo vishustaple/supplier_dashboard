@@ -45,21 +45,36 @@ class DeleteUploadedFilesData extends Command
 
         /** Selecting the file data row using table id in case of office depot weekly */
         if ($fileData->supplier_id == 7) {
-            $fileIdForUpdate = UploadedFiles::where('id','<', $fileData->id)
-            ->where([
-                'cron' => 6,
-                'delete' => 0,
-            ])
-            ->whereNull('deleted_by')
-            ->whereNull('deleted_at')
-            ->orderBy('id', 'desc')
-            ->limit(1)
+            $currentIdDetails = DB::table('odp_attachments')
+            ->where('attachment_id', $fileData->id)
             ->first();
 
-            if ($fileIdForUpdate) {
-                $fileIdForUpdate->update([
-                    'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
-                ]);
+            DB::table('odp_attachments')
+            ->where('attachment_id', $fileData->id)
+            ->delete();
+
+            $greater = DB::table('odp_attachments')
+            ->where('attachment_id','>', $fileData->id)
+            ->where('year', $currentIdDetails->year)
+            ->first();
+
+            if (!$greater) {
+                $fileIdForUpdate = UploadedFiles::where('id','<', $fileData->id)
+                ->where([
+                    'cron' => 6,
+                    'delete' => 0,
+                ])
+                ->whereNull('deleted_by')
+                ->whereNull('deleted_at')
+                ->orderBy('id', 'desc')
+                ->limit(1)
+                ->first();
+
+                if ($fileIdForUpdate) {
+                    $fileIdForUpdate->update([
+                        'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
+                    ]);
+                }
             }
         }
 

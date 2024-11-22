@@ -677,7 +677,17 @@ class ProcessUploadedFiles extends Command
                     try {
                         /** Update the 'cron' field three after processing done */
                         DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 6]);
-    
+
+                        if ($fileValue->supplier_id == 7) {
+                            DB::table('odp_attachments')
+                            ->insert([
+                                'year' => $supplierYear,
+                                'attachment_id' => $fileValue->id,
+                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                            ]);
+                        }
+                        
                         $this->info('Uploaded files processed successfully.');
                     } catch (QueryException $e) { 
                         Log::error("Database updation failed: " . $e->getMessage());
