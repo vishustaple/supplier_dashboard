@@ -31,12 +31,32 @@ class DeleteUploadedFilesData extends Command
      */
     public function handle()
     {
-        /** Selecting the file data row using table id */
+        /** Selecting the file data row using delete column */
         $fileData = UploadedFiles::where('delete', 1)->first();
 
         $supplierTable = DB::table('supplier_tables')
         ->select('supplier_id', 'table_name')
         ->get();
+
+        /** Selecting the file data row using table id in case of office depot weekly */
+        if ($fileData->supplier_id == 7) {
+            $fileIdForUpdate = UploadedFiles::where('id','<', $fileData->id)
+            ->where([
+                'cron' => 6,
+                'delete' => 0,
+            ])
+            ->whereNull('deleted_by')
+            ->whereNull('deleted_at')
+            ->orderBy('id', 'desc')
+            ->limit(1)
+            ->first();
+
+            if ($fileIdForUpdate) {
+                $fileIdForUpdate->update([
+                    'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
+                ]);
+            }
+        }
 
         /** Array of different supplires table */
         foreach ($supplierTable as $key => $value) {
