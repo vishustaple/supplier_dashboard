@@ -679,13 +679,19 @@ class ProcessUploadedFiles extends Command
                         DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 6]);
 
                         if ($fileValue->supplier_id == 7) {
-                            DB::table('odp_attachments')
-                            ->insert([
-                                'year' => $supplierYear,
-                                'attachment_id' => $fileValue->id,
-                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                            ]);
+                            $existAttachments = DB::table('odp_attachments')
+                            ->where('id', $fileValue->id)
+                            ->first();
+                            
+                            if (!$existAttachments) {
+                                DB::table('odp_attachments')
+                                ->insert([
+                                    'year' => $supplierYear,
+                                    'attachment_id' => $fileValue->id,
+                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                ]);
+                            }
                         }
                         
                         $this->info('Uploaded files processed successfully.');
