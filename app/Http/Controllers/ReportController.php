@@ -610,11 +610,12 @@ class ReportController extends Controller
             $datas1['commission_statement_text'] = 'January December';
         }
         
-        $groupedData = [];
-        echo"<pre>";
-        print_r($datas1);
-        die;
+        // echo"<pre>";
+        // print_r($datas1);
+        // die;
+        
         /** Grouping the data */
+        $groupedData = [];
         foreach ($datas1['commission_data'] as $item_key => $item) {
             $key = $item['supplier'] . '|' . $item['commissions'];
             if (!isset($groupedData[$item['account_name']][$key])) {

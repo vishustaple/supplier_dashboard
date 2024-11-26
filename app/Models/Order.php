@@ -1069,6 +1069,7 @@ class Order extends Model
                     $finalArray[$key]['approved'] = $value->approved;
                     $finalArray[$key]['commission'] = $value->commission;
                     $finalArray[$key]['supplier'] = $value->supplier_name;
+                    $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['approved_by'] = $value->approved_by;
                     $finalArray[$key]['commissions_end_date'] = date_format(date_create($value->commissions_end_date), 'm/d/Y');
                     $finalArray[$key]['commissions_start_date'] = date_format(date_create($value->commissions_start_date), 'm/d/Y');
