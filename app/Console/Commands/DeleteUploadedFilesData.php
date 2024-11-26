@@ -58,22 +58,17 @@ class DeleteUploadedFilesData extends Command
             ->where('attachment_id', $fileData->id)
             ->delete();
 
-            if (!$greater) {
+            if (!$greater && $currentIdDetails) {
                 $fileIdForUpdate = DB::table('odp_attachments')
                 ->where('attachment_id','<', $fileData->id)
                 ->where('year', $currentIdDetails->year)
-                // ->where([
-                //     'cron' => 6,
-                //     'delete' => 0,
-                // ])
-                // ->whereNull('deleted_by')
-                // ->whereNull('deleted_at')
                 ->orderBy('id', 'desc')
                 ->limit(1)
                 ->first();
 
                 if ($fileIdForUpdate) {
-                    $fileIdForUpdate->update([
+                    UploadedFiles::where('id', $fileIdForUpdate->attachment_id)
+                    ->update([
                         'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
                     ]);
                 }
