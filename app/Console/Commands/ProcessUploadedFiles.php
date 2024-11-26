@@ -220,7 +220,7 @@ class ProcessUploadedFiles extends Command
                                 $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('attachment_id')->first();
                                 if (isset($dataIdForDeleteDuplicateData->attachment_id) && !empty($dataIdForDeleteDuplicateData->attachment_id)) {
                                     DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
-                                    DB::table('order_product_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
+                                    // DB::table('order_product_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
                                     DB::table('order_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
                                     DB::table('orders')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
                                 }
@@ -710,6 +710,22 @@ class ProcessUploadedFiles extends Command
                         DB::table('attachments')
                         ->where('id', $fileValue->id)
                         ->update(['cron' => 6]);
+
+                        if ($fileValue->supplier_id == 7) {
+                            $existAttachments = DB::table('odp_attachments')
+                            ->where('attachment_id', $fileValue->id)
+                            ->first();
+                            
+                            if (!$existAttachments) {
+                                DB::table('odp_attachments')
+                                ->insert([
+                                    'year' => $supplierYear,
+                                    'attachment_id' => $fileValue->id,
+                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                ]);
+                            }
+                        }
 
                         $this->info('Uploaded files processed successfully.');
                     } catch (QueryException $e) {

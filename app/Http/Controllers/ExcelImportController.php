@@ -134,7 +134,8 @@ class ExcelImportController extends Controller
                         $supplierValues = $suppliers[$request->supplierselect];
                         /** Handle case of office depot weekly excel file */
                         if ($request->supplierselect == 7) {
-                            $supplierValues = array_slice($supplierValues, 0, 6, true);                        
+                            $supplierValues = array_slice($supplierValues, 0, 6, true);
+                            $cleanedArray2 = $cleanedArray;                        
                             if (isset($cleanedArray[5]) && $cleanedArray[5] == $supplierValues[5]) {
                                 foreach ($cleanedArray as $keys => $valuess) {
                                     if ($keys > 5) {
@@ -181,7 +182,7 @@ class ExcelImportController extends Controller
             if (isset($arrayDiff1) && !empty($arrayDiff1)) {
                 $missingColumns = implode(', ', $arrayDiff1);
             } else {
-                $missingColumns = implode(', ', $arrayDiff1);
+                $missingColumns = implode(', ', $arrayDiff);
             }
             
             return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
@@ -221,16 +222,22 @@ class ExcelImportController extends Controller
 
             $suppliers = ManageColumns::getColumns();
             $supplierValues = $suppliers[$request->supplierselect];
+
+            if ($request->supplierselect == 7) {
+                $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray2));
+            } else {
+                $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray));
+            }
             
-            $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray));
+            $column = (count($arrayDiff) > 1) ? ('columns') : ('column');
+
             $missingColumns = implode(', ', $arrayDiff);
             
             if (!empty($arrayDiff) && $request->supplierselect != 4) {
-                return response()->json(['success' => 'Excel file imported successfully!. Missing columns '.$missingColumns.''], 200);
+                return response()->json(['success' => 'Excel file imported successfully!. Missing '.$column.' '.$missingColumns.''], 200);
             } else {
                 return response()->json(['success' => 'Excel file imported successfully!'], 200);
             }
-            // return response()->json(['success' => 'Excel file imported successfully!'], 200);
         } else {
             return response()->json(['error' => 'Please select supplier.'], 200);
         }
