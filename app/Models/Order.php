@@ -1187,21 +1187,8 @@ class Order extends Model
             2 => 'spend',
         ];
 
-        /** Define supplier categories array for categorizing the data */
-        $supplierColumnArray = [
-            1 => 'Office Supplies',
-            2 => 'MRO',
-            3 => 'Office Supplies',
-            4 => 'Office Supplies',
-            5 => 'Office Supplies',
-            6 => 'Office Supplies',
-            7 => 'Office Supplies',
-            8 => 'Car Rental',
-            9 => 'Energy Services',
-            10 => 'MRO',
-            11 => 'Wireless',
-            12 => 'Packaging',
-        ];
+        /** Getting supplier categories array for categorizing the data */
+        $supplierColumnArray = DB::table('suppliers')->where('show', 0)->pluck('category', 'id')->toArray();
 
         $query = self::query()
         ->selectRaw("
