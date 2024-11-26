@@ -736,7 +736,6 @@ class Order extends Model
             "`paid`,
             `approved`,
             SUM(`spend`) as `spend`,
-            GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`,
             SUM(`commissions`) as `commissions`,
             SUM(`volume_rebate`) as `volume_rebate`,
             GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`
