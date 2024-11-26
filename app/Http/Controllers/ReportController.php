@@ -611,9 +611,9 @@ class ReportController extends Controller
         }
         
         $groupedData = [];
-        // echo"<pre>";
-        // print_r($datas1);
-        // die;
+        echo"<pre>";
+        print_r($datas1);
+        die;
         /** Grouping the data */
         foreach ($datas1['commission_data'] as $item_key => $item) {
             $key = $item['supplier'] . '|' . $item['commissions'];
