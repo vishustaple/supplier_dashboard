@@ -1234,7 +1234,12 @@ class Order extends Model
         
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+            $allSupplierIdsArray = DB::table('suppliers')
+            ->where('show', 0)
+            ->pluck('id')
+            ->toArray();
+            
+            $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
         } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
             /** Filter for specified supplier IDs */
             if (isset($filter['supplier_id'][1])) {
@@ -1359,10 +1364,14 @@ class Order extends Model
 
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            $allSupplierIdsArray = DB::table('suppliers')
+            ->where('show', 0)
+            ->pluck('id')
+            ->toArray();
             if ($filter['checkedAllAccount'] == 1) {
-                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
             } else {
-                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
                 /** Filter by account name if provided */
                 if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
                     $query->whereIn('master_account_detail.account_name', $filter['account_name']);
@@ -1381,16 +1390,6 @@ class Order extends Model
         } else {
 
         }
-
-        // /** Filter by account name if provided */
-        // if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
-        //     $query->whereIn('master_account_detail.account_name', $filter['account_name']);
-        // }
-
-        // /** Filter for specific supplier IDs */
-        // if (isset($filter['supplier_id'])) {
-        //     $query->whereIn('orders.supplier_id', $filter['supplier_id']);
-        // }
 
         $queryData = $query->get();
         // dd($query->toSql(), $query->getBindings());
@@ -1510,15 +1509,15 @@ class Order extends Model
 
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $allSupplier = DB::table('suppliers')
+            $allSupplierIdsArray = DB::table('suppliers')
             ->where('show', 0)
-            ->pluck('supplier_id')
+            ->pluck('id')
             ->toArray();
 
             if ($filter['checkedAllAccount'] == 1) {
-                $query->whereIn('orders.supplier_id', $allSupplier);
+                $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
             } else {
-                $query->whereIn('orders.supplier_id', $allSupplier);
+                $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
 
                 /** Filter by account name if provided */
                 if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
@@ -1685,7 +1684,11 @@ class Order extends Model
                 )
                 ->get();
             } else {
-                $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
+                $supplier = DB::table('suppliers')
+                ->where('show', 0)
+                ->pluck('supplier_name', 'id')
+                ->toArray();
+
                 $supplierDate = ''; 
                 foreach ($supplier as $key => $value) {
                     $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
@@ -1726,7 +1729,11 @@ class Order extends Model
                 ->where('supplier_name', $filter['supplier'])
                 ->get();
             } else {
-                $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
+                $supplier = DB::table('suppliers')
+                ->where('show', 0)
+                ->pluck('supplier_name', 'id')
+                ->toArray();
+
                 $supplierDate = ''; 
                 foreach ($supplier as $key => $value) {
                     if ($value ==  $filter['supplier']) {
