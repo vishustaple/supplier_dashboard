@@ -108,6 +108,21 @@
                 </div>
             </div>
 
+            <div class="colors_spans">
+              <div class="colors">
+               <span style="background-color: rgb(248, 240, 121);"></span>
+               <p>File Re-Processing</p>
+              </div>
+              <div class="colors">
+               <span style="background-color: rgb(240, 155, 155);"></span>
+               <p>File Deleted</p>
+              </div>
+              <div class="colors">
+               <span></span>
+               <p>File Uploaded</p>
+              </div>
+            </div>
+
             <table id="example" class="data_table_files">
             <!-- Your table content goes here -->
             <thead>
@@ -268,6 +283,30 @@
         #progBar {
             width: 100%;
         }
+        .colors_spans {
+    display: flex;
+    /* justify-content: end; */
+    gap: 20px;
+    margin-bottom: -30px;
+}
+
+.colors_spans span {
+    width: 25px;
+    display: block;
+    height: 25px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.colors_spans .colors {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.colors_spans .colors p {
+    margin-bottom: 0px;
+}
     </style>
     </body>
     <script>

@@ -111,7 +111,7 @@ class UploadedFiles extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            if ($data->cron == 1 || $data->cron == 11 || $data->re_upload == 1) {
+            if ($data->cron == 1 || $data->cron == 11 || ($data->cron == 6 && $data->re_upload == 1)) {
                 $cronString = 0;
             } elseif ($data->cron == 2) {
                 $cronString = 30;
