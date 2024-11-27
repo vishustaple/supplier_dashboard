@@ -139,8 +139,10 @@ class UploadedFiles extends Model
             $formatuserdata[$key]['file_name'] = '<div class="file_td">'.$data->file_name.'</div>';
             if ($data->re_upload == 1) { 
                 $formatuserdata[$key]['id'] = '<button class="btn btn-warning btn-xs disabled remove button invisible2 border-0" ><i class="fa fa-upload" aria-hidden="true"></i></button>';
+            } else if ($data->cron == 10){
+                $formatuserdata[$key]['id'] = '<button class="btn btn-success btn-xs disabled remove button invisible3 border-0" ><i class="fa fa-clone" aria-hidden="true"></i></button>';
             } else {
-                $formatuserdata[$key]['id'] = (isset($data->delete) && !empty($data->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : (((isset($data->deleted_at) && !empty($data->deleted_at) || $data->cron == 10) ? '<button class="btn btn-danger btn-xs remove invisible" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$data->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>'));
+                $formatuserdata[$key]['id'] = (isset($data->delete) && !empty($data->delete)) ? ('<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>') : (((isset($data->deleted_at) && !empty($data->deleted_at) || $data->cron == 10) ? '<button class="btn btn-danger btn-xs remove invisible1 disabled" ><i class="fa-solid fa-trash"></i></button>' : '<button data-id="'.$data->id.'" class="btn btn-danger btn-xs remove" title="Remove File"><i class="fa-solid fa-trash"></i></button>'));
             }
         }
 
