@@ -59,12 +59,29 @@ class ProcessUploadedFiles extends Command
         $destinationPath = public_path('/excel_sheets');
 
         try {
-            /** Select those file name where cron is one */
+
+            /** Select those file name where re_upload is 1 */
             $fileValue = DB::table('attachments')
             ->select('id', 'supplier_id', 'file_name', 'created_by')
-            ->where('cron', '=', 11)
+            ->where('re_upload', '=', 1)
             ->whereNull('deleted_by')
             ->first();
+
+            if ($fileValue !== null) {
+                $reUpload = true;
+            } else {
+                $reUpload = false;
+            }
+
+            /** Select those file name where cron is 11 */
+            if ($fileValue == null) {
+                $fileValue = DB::table('attachments')
+                ->select('id', 'supplier_id', 'file_name', 'created_by')
+                ->where('cron', '=', 11)
+                ->whereNull('deleted_by')
+                ->first();
+            }
+            
             
             $suppliers = ManageColumns::getRequiredColumns();
 
@@ -707,9 +724,18 @@ class ProcessUploadedFiles extends Command
 
                     try {
                         /** Update the 'cron' field six after processing done */
-                        DB::table('attachments')
-                        ->where('id', $fileValue->id)
-                        ->update(['cron' => 6]);
+                        if ($reUpload) {
+                            DB::table('attachments')
+                            ->where('id', $fileValue->id)
+                            ->update([
+                                'cron' => 6,
+                                're_upload' => 0,
+                            ]);
+                        } else {
+                            DB::table('attachments')
+                            ->where('id', $fileValue->id)
+                            ->update(['cron' => 6]);
+                        }
 
                         if ($fileValue->supplier_id == 7) {
                             $existAttachments = DB::table('odp_attachments')

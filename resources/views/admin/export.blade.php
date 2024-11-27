@@ -336,9 +336,16 @@
                 // Loop through each cell in the row
                 $('td', row).each(function() {
                     // Check if the cell contains a button with a specific class
-                    if ($(this).find('button.invisible').length) {
-                        $(row).css('background-color','#f09b9b');
-                    }
+                    if ($(this).find('button.invisible2').length > 0) {
+                    // If a button with the class 'invisible2' exists
+                    $(row).css('background-color', 'rgb(248, 240, 121)'); // Highlight the row
+                } else if ($(this).find('button.invisible').length > 0) {
+                    // If a button with the class 'invisible' exists
+                    $(row).css('background-color', '#f09b9b'); // Highlight the row with a different color
+                } else {
+                    // Default case: no specific button found
+                    $(row).css('background-color', ''); // Reset background color (optional)
+                }
                 });
             }
         });
