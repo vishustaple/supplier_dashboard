@@ -62,9 +62,21 @@ class ProcessUploadedFiles extends Command
             /** Select those file name where cron is one */
             $fileValue = DB::table('attachments')
             ->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')
-            ->where('cron', '=', 11)
+            ->where('re_upload', '=', 1)
             ->whereNull('deleted_by')
             ->first();
+
+            if ($fileValue !== null) {
+                $reUpload = true;
+            }
+
+            if ($fileValue == null) {
+                $fileValue = DB::table('attachments')
+                ->select('id', 'supplier_id', 'file_name', 'start_date', 'end_date', 'created_by')
+                ->where('cron', '=', 11)
+                ->whereNull('deleted_by')
+                ->first();
+            }
             
             $suppliers = ManageColumns::getRequiredColumns();
 
@@ -676,7 +688,12 @@ class ProcessUploadedFiles extends Command
                         }
                     try {
                         /** Update the 'cron' field three after processing done */
-                        DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 6]);
+                        if (isset($reUpload) && $reUpload == true) {
+                            DB::table('attachments')->where('id', $fileValue->id)
+                            ->update(['re_upload' => 0, 'cron' => 6]);
+                        } else {
+                            DB::table('attachments')->where('id', $fileValue->id)->update(['cron' => 6]);
+                        }
 
                         if ($fileValue->supplier_id == 7) {
                             $existAttachments = DB::table('odp_attachments')

@@ -69,7 +69,7 @@ class DeleteUploadedFilesData extends Command
                 if ($fileIdForUpdate) {
                     UploadedFiles::where('id', $fileIdForUpdate->attachment_id)
                     ->update([
-                        'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
+                        're_upload' => 1, /** Updating the cron value to 11 old file ready for upload again */
                     ]);
                 }
             }
