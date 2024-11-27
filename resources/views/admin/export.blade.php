@@ -107,25 +107,27 @@
                     </form>
                 </div>
             </div>
-
             <div class="colors_spans">
-              <div class="colors">
-               <span style="background-color: rgb(248, 240, 121);"></span>
-               <p>File Re-Processing</p>
-              </div>
-              <div class="colors">
-               <span style="background-color: rgb(240, 155, 155);"></span>
-               <p>File Deleted</p>
-              </div>
-              <div class="colors">
-               <span></span>
-               <p>File Uploaded</p>
-              </div>
+                <div class="colors">
+                    <span style="background-color: rgb(248, 240, 121);"></span>
+                    <p>File Re-Processing</p>
+                </div>
+                <div class="colors">
+                    <span style="background-color: rgb(240, 155, 155);"></span>
+                    <p>File Deleted</p>
+                </div>
+                <div class="colors">
+                    <span style="background-color: rgb(182, 235, 176);"></span>
+                    <p>File Duplicate</p>
+                </div>
+                <div class="colors">
+                    <span></span>
+                    <p>File Uploaded</p>
+                </div>
             </div>
-
             <table id="example" class="data_table_files">
             <!-- Your table content goes here -->
-            <thead>
+                <thead>
                     <tr>
                         <th>Supplier</th>
                         <th>File Name</th>
@@ -379,7 +381,10 @@
                     if ($(this).find('button.invisible2').length > 0) {
                     // If a button with the class 'invisible2' exists
                     $(row).css('background-color', 'rgb(248, 240, 121)'); // Highlight the row
-                } else if ($(this).find('button.invisible').length > 0) {
+                } else if ($(this).find('button.invisible3').length > 0) {
+                    // If a button with the class 'invisible' exists
+                    $(row).css('background-color', 'rgb(182, 235, 176)'); // Highlight the row with a different color
+                } else if ($(this).find('button.invisible1').length > 0) {
                     // If a button with the class 'invisible' exists
                     $(row).css('background-color', '#f09b9b'); // Highlight the row with a different color
                 } else {
