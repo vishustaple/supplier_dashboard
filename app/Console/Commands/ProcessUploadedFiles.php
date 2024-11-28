@@ -423,6 +423,20 @@ class ProcessUploadedFiles extends Command
                                             ]);
                                         } else {
                                             $insertId = $customerId->id;
+                                            $customerSupplierCheck = DB::table('customer_suppliers')
+                                            ->where([
+                                                'customer_id' => $insertId,
+                                                'supplier_id' => $fileValue->supplier_id,
+                                            ])
+                                            ->first();
+                                            
+                                            if (!$customerSupplierCheck) {
+                                                DB::table('customer_suppliers')
+                                                ->insert([
+                                                    'customer_id' => $insertId,
+                                                    'supplier_id' => $fileValue->supplier_id,
+                                                ]);
+                                            }
                                         }
 
                                         if (empty($customers)) {
@@ -482,6 +496,20 @@ class ProcessUploadedFiles extends Command
                                         ]);
                                     } else {
                                         $insertId = $customerId->id;
+                                        $customerSupplierCheck = DB::table('customer_suppliers')
+                                        ->where([
+                                            'customer_id' => $insertId,
+                                            'supplier_id' => $fileValue->supplier_id,
+                                        ])
+                                        ->first();
+                                        
+                                        if (!$customerSupplierCheck) {
+                                            DB::table('customer_suppliers')
+                                            ->insert([
+                                                'customer_id' => $insertId,
+                                                'supplier_id' => $fileValue->supplier_id,
+                                            ]);
+                                        }
                                     }
 
                                     /** Into case of some supplier which do not have grand parent and parent we will use this 
