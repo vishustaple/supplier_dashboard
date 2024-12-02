@@ -407,10 +407,18 @@ class ProcessUploadedFiles extends Command
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
 
                                         if (empty($customers)) {
-                                            $insertId = DB::table('customers')
-                                            ->insertGetId([
-                                                'customer_name' => $row[$keyCustomerName]
-                                            ]);
+                                            $data = DB::table('customers')
+                                            ->where('customer_name', $row[$keyCustomerName])
+                                            ->first();
+
+                                            if (!$data) {
+                                                $insertId = DB::table('customers')
+                                                ->insertGetId([
+                                                    'customer_name' => $row[$keyCustomerName]
+                                                ]);
+                                            } else {
+                                                $insertId = $data->id;
+                                            }
                                             
                                             DB::table('customer_suppliers')
                                             ->insert([
@@ -479,10 +487,18 @@ class ProcessUploadedFiles extends Command
                                     if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                         if (empty($customers)) {
-                                            $insertId = DB::table('customers')
-                                            ->insertGetId([
-                                                'customer_name' => $row[$keyCustomerName]
-                                            ]);
+                                            $data = DB::table('customers')
+                                            ->where('customer_name', $row[$keyCustomerName])
+                                            ->first();
+
+                                            if (!$data) {
+                                                $insertId = DB::table('customers')
+                                                ->insertGetId([
+                                                    'customer_name' => $row[$keyCustomerName]
+                                                ]);
+                                            } else {
+                                                $insertId = $data->id;
+                                            }
 
                                             DB::table('customer_suppliers')
                                             ->insert([
@@ -588,7 +604,7 @@ class ProcessUploadedFiles extends Command
                                                         'value' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s'),
                                                         'attachment_id' => $fileValue->id,
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                        // 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'supplier_field_id' => (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1) != false) ? (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1)) : (''),
                                                     ];  
                                                 } else {
@@ -596,7 +612,7 @@ class ProcessUploadedFiles extends Command
                                                         'value' => $value,
                                                         'attachment_id' => $fileValue->id,
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                        // 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'supplier_field_id' => (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1) != false) ? (array_search(trim($maxNonEmptyValue[$key1]), $columnArray1)) : (''),
                                                     ];  
                                                 }
