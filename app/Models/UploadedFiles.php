@@ -26,10 +26,8 @@ class UploadedFiles extends Model
      */
     protected $fillable = [
         'cron',
-        'end_date',
         'file_name',
         're_upload',
-        'start_date',
         'created_by',
         'deleted_by',
         'supplier_id',
