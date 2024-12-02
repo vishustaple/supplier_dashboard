@@ -74,7 +74,6 @@
                     <label class="form-check-label" for="exampleCheck1">Show Only Deleted Report</label>
                 </div>
                 <table class="table power_bi_table" id="power_bi_data"></table>
-        @include('layout.footer')
         </div>
     </div>
     <style>

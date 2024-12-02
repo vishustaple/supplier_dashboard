@@ -231,18 +231,18 @@ class ProcessUploadedFiles extends Command
                             continue;
                         }
 
-                        if ($fileValue->supplier_id == 7) {
-                            $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
-                            if (!empty($supplierYear)) {
-                                $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('attachment_id')->first();
-                                if (isset($dataIdForDeleteDuplicateData->attachment_id) && !empty($dataIdForDeleteDuplicateData->attachment_id)) {
-                                    DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
-                                    // DB::table('order_product_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                                    DB::table('order_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                                    DB::table('orders')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                                }
-                            }
-                        }
+                        // if ($fileValue->supplier_id == 7) {
+                        //     $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
+                        //     if (!empty($supplierYear)) {
+                        //         $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('attachment_id')->first();
+                        //         if (isset($dataIdForDeleteDuplicateData->attachment_id) && !empty($dataIdForDeleteDuplicateData->attachment_id)) {
+                        //             DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
+                        //             // DB::table('order_product_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
+                        //             DB::table('order_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
+                        //             DB::table('orders')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
+                        //         }
+                        //     }
+                        // }
 
                         if ($fileValue->supplier_id == 4) {
                             $columnArray2[$fileValue->supplier_id]["Group ID1"] = 'group_id';
@@ -406,40 +406,18 @@ class ProcessUploadedFiles extends Command
                                          */
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
 
-                                        $customerId = DB::table('customers')
-                                        ->where('customer_name', $row[$keyCustomerName])
-                                        ->first();
-
-                                        if (!isset($customerId) && empty($customerId)) {
+                                        if (empty($customers)) {
                                             $insertId = DB::table('customers')
                                             ->insertGetId([
                                                 'customer_name' => $row[$keyCustomerName]
                                             ]);
-
+                                            
                                             DB::table('customer_suppliers')
                                             ->insert([
                                                 'customer_id' => $insertId,
                                                 'supplier_id' => $fileValue->supplier_id,
                                             ]);
-                                        } else {
-                                            $insertId = $customerId->id;
-                                            $customerSupplierCheck = DB::table('customer_suppliers')
-                                            ->where([
-                                                'customer_id' => $insertId,
-                                                'supplier_id' => $fileValue->supplier_id,
-                                            ])
-                                            ->first();
-                                            
-                                            if (!$customerSupplierCheck) {
-                                                DB::table('customer_suppliers')
-                                                ->insert([
-                                                    'customer_id' => $insertId,
-                                                    'supplier_id' => $fileValue->supplier_id,
-                                                ]);
-                                            }
-                                        }
 
-                                        if (empty($customers)) {
                                             if (strpos($row[$keyParentName], "CenterPoint") !== false || strpos($row[$keyParentName], "centerpoint") !== false) {
                                                 Account::create([
                                                     'parent_id' => (!empty($keyParent)) ? ($row[$keyParent]) : (''),
@@ -464,6 +442,23 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             }
                                         } else {
+                                            $insertId = $customers->customer_id;
+                                            
+                                            $customerSupplierCheck = DB::table('customer_suppliers')
+                                            ->where([
+                                                'customer_id' => $insertId,
+                                                'supplier_id' => $fileValue->supplier_id,
+                                            ])
+                                            ->first();
+                                            
+                                            if (!$customerSupplierCheck) {
+                                                DB::table('customer_suppliers')
+                                                ->insert([
+                                                    'customer_id' => $insertId,
+                                                    'supplier_id' => $fileValue->supplier_id,
+                                                ]);
+                                            }
+
                                             Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
                                             ->update([
                                                 'customer_id' => $insertId,
@@ -479,50 +474,44 @@ class ProcessUploadedFiles extends Command
                                 }
 
                                 if (!in_array($fileValue->supplier_id, [2, 3, 7]) || count($columnArray[$fileValue->supplier_id]) <= 5) {
-                                    $customerId = DB::table('customers')
-                                    ->where('customer_name', $row[$keyCustomerName])
-                                    ->first();
-
-                                    if (!isset($customerId) && empty($customerId)) {
-                                        $insertId = DB::table('customers')
-                                        ->insertGetId([
-                                            'customer_name' => $row[$keyCustomerName]
-                                        ]);
-
-                                        DB::table('customer_suppliers')
-                                        ->insert([
-                                            'customer_id' => $insertId,
-                                            'supplier_id' => $fileValue->supplier_id,
-                                        ]);
-                                    } else {
-                                        $insertId = $customerId->id;
-                                        $customerSupplierCheck = DB::table('customer_suppliers')
-                                        ->where([
-                                            'customer_id' => $insertId,
-                                            'supplier_id' => $fileValue->supplier_id,
-                                        ])
-                                        ->first();
-                                        
-                                        if (!$customerSupplierCheck) {
-                                            DB::table('customer_suppliers')
-                                            ->insert([
-                                                'customer_id' => $insertId,
-                                                'supplier_id' => $fileValue->supplier_id,
-                                            ]);
-                                        }
-                                    }
-
                                     /** Into case of some supplier which do not have grand parent and parent we will use this 
                                      * condition for insert and update into account table */
                                     if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
                                         if (empty($customers)) {
+                                            $insertId = DB::table('customers')
+                                            ->insertGetId([
+                                                'customer_name' => $row[$keyCustomerName]
+                                            ]);
+
+                                            DB::table('customer_suppliers')
+                                            ->insert([
+                                                'customer_id' => $insertId,
+                                                'supplier_id' => $fileValue->supplier_id,
+                                            ]);
+
                                             Account::create([
                                                 'customer_id' => $insertId,
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'supplier_id' => $fileValue->supplier_id,
                                             ]);
                                         } else {
+                                            $insertId = $customers->customer_id;
+                                            $customerSupplierCheck = DB::table('customer_suppliers')
+                                            ->where([
+                                                'customer_id' => $insertId,
+                                                'supplier_id' => $fileValue->supplier_id,
+                                            ])
+                                            ->first();
+                                            
+                                            if (!$customerSupplierCheck) {
+                                                DB::table('customer_suppliers')
+                                                ->insert([
+                                                    'customer_id' => $insertId,
+                                                    'supplier_id' => $fileValue->supplier_id,
+                                                ]);
+                                            }
+
                                             Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
                                             ->update([
                                                 'customer_id' => $insertId,
