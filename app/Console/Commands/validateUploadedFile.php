@@ -81,8 +81,7 @@ class validateUploadedFile extends Command
 
             /** Creating the date array using "columnValues" */
             $columnArray[$columnValue->supplier_id]['invoice_date'] = $columnValue->label;
-            dd($columnArray);
-            
+
             /** Checking the all sheets of excel using loop */
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 /** Compairing date of excel sheet data using loop */
@@ -162,12 +161,14 @@ class validateUploadedFile extends Command
                 /** Getting date column index */
                 if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
                     $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $cleanedArray);
+                    print_r($keyInvoiceDate);
                 }
 
                 if (!empty($keyInvoiceDate)) {
                     foreach ($spreadSheets->toArray() as $key => $row) {
                         if($key > $startIndex){
                             if (!empty($row[$keyInvoiceDate])) {
+                                print_r($row[$keyInvoiceDate]);
                                 if ($fileValue->supplier_id == 4) {
                                     $date = explode("-", $row[$keyInvoiceDate]);
                                     if(count($date) <= 2){
@@ -178,7 +179,7 @@ class validateUploadedFile extends Command
                                 } else {
                                     $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
                                 }
-
+                                dd($dates);
                                 if ($chunkSize == 1000) {
                                     /** Checking date into the orders table */
                                     $fileExist = Order::where(function ($query) use ($dates) {
