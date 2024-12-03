@@ -85,148 +85,146 @@ class validateUploadedFile extends Command
             /** Checking the all sheets of excel using loop */
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 /** Compairing date of excel sheet data using loop */
-                foreach ($spreadSheets->toArray() as $key => $value) {
-                    /** Getting sheet columns using array value and array filter */
-                    $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
+                /** If not able to get the required columns then continue */
+                if (!isset($maxNonEmptyvalue1)) {
+                    foreach ($spreadSheets->toArray() as $key => $value) {
+                        /** Getting sheet columns using array value and array filter */
+                        $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
+                            return !empty($item);
+                        }, ARRAY_FILTER_USE_BOTH));
+                                    
+                        /** Clean up the values */
+                        $cleanedArray = array_map(function ($values) {
+                            /** Remove line breaks and trim whitespace */
+                            return str_replace(["\r", "\n"], '', $values);
+                        }, $finalExcelKeyArray1);
+
+                        /** If suppliers having required columns */
+                        if (isset($suppliers[$fileValue->supplier_id])) {
+                            $supplierValues = $suppliers[$fileValue->supplier_id];
+                            if ($fileValue->supplier_id == 4) {
+                                /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                                $groupIndex = array_search('Group ID', $cleanedArray);
+                                $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                                $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+
+                                $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
+                                $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                                $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                            }
+
+                            if ($fileValue->supplier_id == 14) {
+                                /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                                $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                                $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+
+                                $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                                $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                            }
+
+                            /** Checking the difference of supplier excel file columns and database columns */
+                            $arrayDiff = array_diff($supplierValues, $cleanedArray);
+
+                            /** Checking the difference if arrayDiff empty then break the loop and go to next step */
+                            if (empty($arrayDiff)) {
+                                $maxNonEmptyvalue1 = $cleanedArray;
+                                $startIndexValueArray = $key;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    /** Remove empty key from the array of excel sheet column name */
+                    $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
                         return !empty($item);
                     }, ARRAY_FILTER_USE_BOTH));
                                 
                     /** Clean up the values */
-                    $cleanedArray = array_map(function ($values) {
+                    $cleanedArray = array_map(function ($value) {
                         /** Remove line breaks and trim whitespace */
-                        return str_replace(["\r", "\n"], '', $values);
+                        return trim(str_replace(["\r", "\n"], '', $value));
                     }, $finalExcelKeyArray1);
 
-                    /** If suppliers having required columns */
-                    if (isset($suppliers[$fileValue->supplier_id])) {
-                        $supplierValues = $suppliers[$fileValue->supplier_id];
-                        if ($fileValue->supplier_id == 4) {
-                            /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
-                            $groupIndex = array_search('Group ID', $cleanedArray);
-                            $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
-                            $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
-
-                            $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
-                            $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
-                            $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
-                        }
-
-                        if ($fileValue->supplier_id == 14) {
-                            /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
-                            $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
-                            $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
-
-                            $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
-                            $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
-                        }
-
-                        /** Checking the difference of supplier excel file columns and database columns */
-                        $arrayDiff = array_diff($supplierValues, $cleanedArray);
-
-                        /** Checking the difference if arrayDiff empty then break the loop and go to next step */
-                        if (empty($arrayDiff)) {
-                            $maxNonEmptyvalue1 = $cleanedArray;
-                            $startIndexValueArray = $key;
-                            break;
-                        }
+                    /** In case of grainer supplier we need to skip the first row */
+                    if ($fileValue->supplier_id == 2) {
+                        $startIndex = $startIndexValueArray + 1;
+                    } else {
+                        $startIndex = $startIndexValueArray;
                     }
-                }
-                
-                /** If not able to get the required columns then continue */
-                // if (!isset($maxNonEmptyvalue1)) {
-                //     continue;
-                // }
 
-                /** Remove empty key from the array of excel sheet column name */
-                $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
-                    return !empty($item);
-                }, ARRAY_FILTER_USE_BOTH));
-                            
-                /** Clean up the values */
-                $cleanedArray = array_map(function ($value) {
-                    /** Remove line breaks and trim whitespace */
-                    return trim(str_replace(["\r", "\n"], '', $value));
-                }, $finalExcelKeyArray1);
+                    $chunkSize = 0;
+                    $dates = [];
 
-                /** In case of grainer supplier we need to skip the first row */
-                if ($fileValue->supplier_id == 2) {
-                    $startIndex = $startIndexValueArray + 1;
-                } else {
-                    $startIndex = $startIndexValueArray;
-                }
+                    /** Getting date column index */
+                    if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
+                        $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $cleanedArray);
+                        print_r($keyInvoiceDate);
+                    }
 
-                $chunkSize = 0;
-                $dates = [];
-
-                /** Getting date column index */
-                if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
-                    $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $cleanedArray);
-                    print_r($keyInvoiceDate);
-                }
-
-                if (!empty($keyInvoiceDate)) {
-                    foreach ($spreadSheets->toArray() as $key => $row) {
-                        if($key > $startIndex){
-                            if (!empty($row[$keyInvoiceDate])) {
-                                print_r($row[$keyInvoiceDate]);
-                                if ($fileValue->supplier_id == 4) {
-                                    $date = explode("-", $row[$keyInvoiceDate]);
-                                    if(count($date) <= 2){
-                                        $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                    if (!empty($keyInvoiceDate)) {
+                        foreach ($spreadSheets->toArray() as $key => $row) {
+                            if($key > $startIndex){
+                                if (!empty($row[$keyInvoiceDate])) {
+                                    print_r($row[$keyInvoiceDate]);
+                                    if ($fileValue->supplier_id == 4) {
+                                        $date = explode("-", $row[$keyInvoiceDate]);
+                                        if(count($date) <= 2){
+                                            $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                                        } else {
+                                            $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
+                                        }
                                     } else {
-                                        $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
+                                        $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                                    }
+                                    dd($dates);
+                                    if ($chunkSize == 1000) {
+                                        /** Checking date into the orders table */
+                                        $fileExist = Order::where(function ($query) use ($dates) {
+                                            /** creating date query using loop */
+                                            foreach ($dates as $startDate) {
+                                                if (!empty($startDate)) {
+                                                    $query->orWhere('date', '=', $startDate);
+                                                }
+                                            }
+                                        })->where('supplier_id', $fileValue->supplier_id);
+                                        
+                                        $chunkSize = 0;
+
+                                        if ($fileExist->count() > 0) {
+                                            /** Update cron ten means duplicate data into the excel file */
+                                            DB::table('attachments')->where('id', $fileValue->id)
+                                            ->update([
+                                                'cron' => 10
+                                            ]);
+                                            die;
+                                        }
                                     }
                                 } else {
-                                    $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                                    $dates = [];
                                 }
-                                dd($dates);
-                                if ($chunkSize == 1000) {
-                                    /** Checking date into the orders table */
-                                    $fileExist = Order::where(function ($query) use ($dates) {
-                                        /** creating date query using loop */
-                                        foreach ($dates as $startDate) {
-                                            if (!empty($startDate)) {
-                                                $query->orWhere('date', '=', $startDate);
-                                            }
-                                        }
-                                    })->where('supplier_id', $fileValue->supplier_id);
-                                    
-                                    $chunkSize = 0;
+                
+                                $chunkSize++;
+                            }
+                        }
 
-                                    if ($fileExist->count() > 0) {
-                                        /** Update cron ten means duplicate data into the excel file */
-                                        DB::table('attachments')->where('id', $fileValue->id)
-                                        ->update([
-                                            'cron' => 10
-                                        ]);
-                                        die;
+                        if (!empty($dates)) {
+                            $fileExist = Order::where(function ($query) use ($dates) {
+                                foreach ($dates as $startDate) {
+                                    if (!empty($startDate)) {
+                                        $query->orWhere('date', '=', $startDate);
                                     }
                                 }
-                            } else {
-                                $dates = [];
+                            })->where('supplier_id', $fileValue->supplier_id);
+                    
+                            if ($fileExist->count() > 0) {
+                                /** Update cron ten means duplicate data into the excel file */
+                                DB::table('attachments')
+                                ->where('id', $fileValue->id)
+                                ->update([
+                                    'cron' => 10
+                                ]);
+                                die;
                             }
-            
-                            $chunkSize++;
-                        }
-                    }
-
-                    if (!empty($dates)) {
-                        $fileExist = Order::where(function ($query) use ($dates) {
-                            foreach ($dates as $startDate) {
-                                if (!empty($startDate)) {
-                                    $query->orWhere('date', '=', $startDate);
-                                }
-                            }
-                        })->where('supplier_id', $fileValue->supplier_id);
-                
-                        if ($fileExist->count() > 0) {
-                            /** Update cron ten means duplicate data into the excel file */
-                            DB::table('attachments')
-                            ->where('id', $fileValue->id)
-                            ->update([
-                                'cron' => 10
-                            ]);
-                            die;
                         }
                     }
                 }
