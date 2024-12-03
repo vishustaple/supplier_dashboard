@@ -139,8 +139,6 @@ class validateUploadedFile extends Command
                     continue;
                 }
 
-                dd($maxNonEmptyvalue1);
-
                 /** Remove empty key from the array of excel sheet column name */
                 $cleanedArray = $maxNonEmptyvalue1;
 
