@@ -87,6 +87,7 @@ class validateUploadedFile extends Command
                 /** Compairing date of excel sheet data using loop */
                 /** If not able to get the required columns then continue */
                 if (!isset($maxNonEmptyvalue1)) {
+                    print_r("hello");
                     foreach ($spreadSheets->toArray() as $key => $value) {
                         /** Getting sheet columns using array value and array filter */
                         $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
