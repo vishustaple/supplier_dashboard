@@ -133,9 +133,9 @@ class validateUploadedFile extends Command
                 }
                 
                 /** If not able to get the required columns then continue */
-                if (!isset($maxNonEmptyvalue1)) {
-                    continue;
-                }
+                // if (!isset($maxNonEmptyvalue1)) {
+                //     continue;
+                // }
 
                 /** Remove empty key from the array of excel sheet column name */
                 $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
