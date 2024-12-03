@@ -37,6 +37,16 @@ class OfficeDepotDataAdd extends Command
      * Execute the console command.
      */
     public function handle() {
+        $totalValue = DB::table('orders')
+        ->join('order_details', 'orders.id', '=', 'order_details.order_id')
+        ->where('orders.customer_number', 'LIKE', '46542083')
+        ->where('order_details.supplier_field_id', 65)
+        ->where('orders.supplier_id', 3)
+        ->whereBetween('orders.date', ['2024-06-01', '2024-11-30'])
+        ->sum('order_details.value');
+        
+        dd($totalValue);
+        
         $supplierField = DB::table('master_account_detail')
         ->select('id', 'account_name')
         // //grainer
