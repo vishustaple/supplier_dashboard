@@ -394,6 +394,10 @@
             }
         });
 
+        setInterval(() => {
+            $('#example').DataTable().ajax.reload();
+        }, 5000);
+
         $('#page-loader').hide();
         $('#example_length').hide();
 
