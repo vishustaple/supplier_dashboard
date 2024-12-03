@@ -125,8 +125,8 @@ class validateUploadedFile extends Command
                         /** Checking the difference of supplier excel file columns and database columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
-                        dd($arrayDiff);
-                        
+                        dd($arrayDiff, $cleanedArray, $supplierValues);
+
                         /** Checking the difference if arrayDiff empty then break the loop and go to next step */
                         if (empty($arrayDiff)) {
                             $maxNonEmptyvalue1 = $cleanedArray;
