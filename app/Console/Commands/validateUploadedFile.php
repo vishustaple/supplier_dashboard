@@ -96,7 +96,7 @@ class validateUploadedFile extends Command
                     /** Clean up the values */
                     $cleanedArray = array_map(function ($values) {
                         /** Remove line breaks and trim whitespace */
-                        return str_replace(["\r", "\n"], '', $values);
+                        return trim(str_replace(["\r", "\n"], '', $values));
                     }, $finalExcelKeyArray1);
 
                     /** If suppliers having required columns */
@@ -133,25 +133,16 @@ class validateUploadedFile extends Command
                         }
                     }
                 }
-                
-                dd($maxNonEmptyvalue1);
 
                 /** If not able to get the required columns then continue */
                 if (!isset($maxNonEmptyvalue1)) {
                     continue;
                 }
 
-                print_r('hello');
+                dd($maxNonEmptyvalue1);
+
                 /** Remove empty key from the array of excel sheet column name */
-                $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
-                    return !empty($item);
-                }, ARRAY_FILTER_USE_BOTH));
-                            
-                /** Clean up the values */
-                $cleanedArray = array_map(function ($value) {
-                    /** Remove line breaks and trim whitespace */
-                    return trim(str_replace(["\r", "\n"], '', $value));
-                }, $finalExcelKeyArray1);
+                $cleanedArray = $maxNonEmptyvalue1;
 
                 /** In case of grainer supplier we need to skip the first row */
                 if ($fileValue->supplier_id == 2) {
