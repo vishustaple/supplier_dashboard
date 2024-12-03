@@ -40,7 +40,16 @@ class validateUploadedFile extends Command
         $destinationPath = public_path('/excel_sheets');
 
         /** Select those file name where cron is one */
-        $fileValue = DB::table('attachments')->select('id', 'supplier_id', 'file_name', 'created_by')->where('cron', '=', 1)->whereNull('deleted_by')->first();
+        $fileValue = DB::table('attachments')
+        ->select(
+            'id',
+            'file_name',
+            'created_by',
+            'supplier_id',
+        )
+        ->where('cron', '=', 1)
+        ->whereNull('deleted_by')
+        ->first();
         
         /** Getting suppliers ids and its required columns */
         $suppliers = ManageColumns::getRequiredColumns();
@@ -61,20 +70,19 @@ class validateUploadedFile extends Command
             $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
 
             /** Getting the required date columns from the supplier_fields */
-            $columnValues = DB::table('supplier_fields')
+            $columnValue = DB::table('supplier_fields')
             ->select('supplier_id', 'label')
             ->where([
                 'deleted' => 0,
                 'required_field_id' => 9,
                 'supplier_id' => $fileValue->supplier_id,
             ])
-            ->get();
+            ->first();
 
             /** Creating the date array using "columnValues" */
-            foreach ($columnValues as $key => $value) {
-                $columnArray[$value->supplier_id]['invoice_date'] = $value->label;
-            }
-
+            $columnArray[$columnValue->supplier_id]['invoice_date'] = $columnValue->label;
+            dd($columnArray);
+            
             /** Checking the all sheets of excel using loop */
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 /** Compairing date of excel sheet data using loop */
