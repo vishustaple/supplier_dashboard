@@ -37,33 +37,35 @@ class OfficeDepotDataAdd extends Command
      * Execute the console command.
      */
     public function handle() {
-        $supplierField = DB::table('supplier_fields')
-        ->select('id', 'label')
-        //grainer
-        // ->where('id', '>=', 449)
-        // ->where('id', '<=', 478)
+        $supplierField = DB::table('master_account_detail')
+        ->select('id', 'account_name')
+        // //grainer
+        // // ->where('id', '>=', 449)
+        // // ->where('id', '<=', 478)
 
-        //staple
-        // ->where('id', '>=', 71)
-        // ->where('id', '<=', 104)
+        // //staple
+        // // ->where('id', '>=', 71)
+        // // ->where('id', '<=', 104)
 
-        //odp weekly
-        // ->where('id', '>=', 571)
-        // ->where('id', '<=', 629)
+        // //odp weekly
+        // // ->where('id', '>=', 571)
+        // // ->where('id', '<=', 629)
 
-        ->where('supplier_id', 3)
+        // ->where('supplier_id', 3)
         ->get();
         // dd($supplierField);
         foreach ($supplierField as $key => $value) {
             // ->where('order_details.id', '<=', 39127519)
             // ->whereIn('order_details.key', ['Payment Method Code1', 'Transaction Source System1'])
-            DB::table('order_details')
-            ->join('orders', 'orders.id', '=', 'order_details.order_id')
-            ->where('orders.supplier_id', '=', 3) // Add '=' for clarity
-            ->where('order_details.key', '=', $value->label) // Add '=' for clarity
-            ->where('orders.date', '!=', '0000-00-00 00:00:00')
-            // ->whereNull('order_details.supplier_field_id')
-            ->update(['order_details.supplier_field_id' => $value->id]);
+            // DB::table('order_details')
+            // ->join('orders', 'orders.id', '=', 'order_details.order_id')
+            // ->where('orders.supplier_id', '=', 3) // Add '=' for clarity
+            // ->where('order_details.key', '=', $value->label) // Add '=' for clarity
+            // ->where('orders.date', '!=', '0000-00-00 00:00:00')
+            // // ->whereNull('order_details.supplier_field_id')
+            DB::table('master_account_detail')
+            ->where('id', $value->id)
+            ->update(['account_name' => trim($value->account_name)]);
             // ->delete();
 
             // ->orderBy('key', 'desc')
