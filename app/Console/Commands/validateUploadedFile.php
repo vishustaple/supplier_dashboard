@@ -134,6 +134,7 @@ class validateUploadedFile extends Command
                         }
                     }
                 } else {
+                    dd("hello");
                     /** Remove empty key from the array of excel sheet column name */
                     $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
                         return !empty($item);
