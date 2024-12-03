@@ -125,6 +125,8 @@ class validateUploadedFile extends Command
                         /** Checking the difference of supplier excel file columns and database columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
+                        dd($arrayDiff);
+                        
                         /** Checking the difference if arrayDiff empty then break the loop and go to next step */
                         if (empty($arrayDiff)) {
                             $maxNonEmptyvalue1 = $cleanedArray;
@@ -140,7 +142,7 @@ class validateUploadedFile extends Command
                 }
 
                 print_r('hello');
-                
+
                 /** Remove empty key from the array of excel sheet column name */
                 $finalExcelKeyArray1 = array_values(array_filter($maxNonEmptyvalue1, function ($item) {
                     return !empty($item);
