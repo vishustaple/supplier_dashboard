@@ -396,7 +396,7 @@
 
         setInterval(() => {
             $('#example').DataTable().ajax.reload();
-        }, 5000);
+        }, 2000);
 
         $('#page-loader').hide();
         $('#example_length').hide();
