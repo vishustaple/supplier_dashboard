@@ -60,7 +60,6 @@ class CommissionController extends Controller
         /** Checking request is ajax or not */
         if ($request->ajax()) {
             /** Getting form data using methos request */
-            $date = $request->input('date');
             $start_date = $request->input('start_date');
             $end_date = $request->input('end_date');
             $supplier = $request->input('supplier');
@@ -70,7 +69,6 @@ class CommissionController extends Controller
 
             /** Setting variables */
             $error = false;
-            $accountNameArray = [];
 
             /** If getting zero errors than save the data into commissions table */
             foreach ($accountName as $key => $value) {
@@ -79,8 +77,8 @@ class CommissionController extends Controller
                     'supplier' =>  $supplier[$key],
                     'account_name' => $value,
                     'commissions' => $commissions[$key],
-                    'start_date' => date_format(date_create(trim(explode(" - ", $date[$key])[0])),"Y-m-d H:i:s"),
-                    'end_date' => date_format(date_create(trim(explode(" - ", $date[$key])[1])),"Y-m-d H:i:s"),
+                    'start_date' => date_format(date_create($start_date[$key]),"Y-m-d H:i:s"),
+                    'end_date' => date_format(date_create($end_date[$key]),"Y-m-d H:i:s"),
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
@@ -152,7 +150,7 @@ class CommissionController extends Controller
                 $updateCommission = Commission::where('id', $request->commission_id)
                 ->update([
                     'status' => $request->status,
-                    'commission' => $request->commission,
+                    'commissions' => $request->commissions,
                     'end_date' => date_format(date_create(trim($request->input('end_date'))), "Y-m-d H:i:s"),
                     'start_date' => date_format(date_create(trim($request->input('start_date'))), "Y-m-d H:i:s"),
                 ]);
