@@ -87,7 +87,6 @@ class DeleteUploadedFilesData extends Command
 
                 /** Delete records from UploadedFiles table */
                 UploadedFiles::where('id', $id)->delete();
-
                 
                 /** Delete records from OrderDetails table */
                 DB::table('order_details')->where('attachment_id', $id)->delete();
@@ -110,6 +109,21 @@ class DeleteUploadedFilesData extends Command
                     ->delete();
                 }    
                 
+                $supplierDataCount = DB::table('orders')
+                ->select('id')
+                ->where('supplier_id', $fileData->supplier_id)
+                ->first();
+
+                if (!$supplierDataCount) {
+                    DB::table('customer_suppliers')
+                    ->where('supplier_id', $fileData->supplier_id)
+                    ->delete();
+
+                    DB::table('master_account_detail')
+                    ->where('supplier_id', $fileData->supplier_id)
+                    ->delete();
+                }
+
                 if (File::exists($filePath)) {
                     try {
                         // unlink($fileToDelete);
