@@ -151,7 +151,7 @@ class validateUploadedFile extends Command
 
                 $chunkSize = 0;
                 $dates = [];
-
+                // dd($cleanedArray);
                 /** Getting date column index */
                 if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
                     $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $cleanedArray);
@@ -171,7 +171,7 @@ class validateUploadedFile extends Command
                                 } else {
                                     $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
                                 }
-
+                                
                                 if ($chunkSize == 1000) {
                                     /** Checking date into the orders table */
                                     $fileExist = Order::where(function ($query) use ($dates) {
@@ -184,7 +184,7 @@ class validateUploadedFile extends Command
                                     })->where('supplier_id', $fileValue->supplier_id);
                                     
                                     $chunkSize = 0;
-
+                                    $dates = [];
                                     if ($fileExist->count() > 0) {
                                         /** Update cron ten means duplicate data into the excel file */
                                         DB::table('attachments')->where('id', $fileValue->id)
@@ -194,8 +194,6 @@ class validateUploadedFile extends Command
                                         die;
                                     }
                                 }
-                            } else {
-                                $dates = [];
                             }
             
                             $chunkSize++;
