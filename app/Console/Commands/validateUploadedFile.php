@@ -228,7 +228,7 @@ class validateUploadedFile extends Command
             DB::table('attachments')
             ->where('id', $fileValue->id)
             ->update(['cron' => 11]);
-        } else if ($fileValue->supplier_id == 7) {
+        } else if ($fileValue !== null && $fileValue->supplier_id == 7) {
             /** Update cron eleven means start processing data into excel */
             DB::table('attachments')
             ->where('id', $fileValue->id)
