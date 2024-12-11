@@ -206,12 +206,21 @@ class ExcelImportController extends Controller
             $user = Auth::user();
 
             try {
-                UploadedFiles::create([
-                    'supplier_id' => $request->supplierselect,
-                    'cron' => UploadedFiles::UPLOAD,
-                    'file_name' => $fileName,
-                    'created_by' => $user->id,
-                ]); 
+                if ($request->supplierselect == 15) {
+                    UploadedFiles::create([
+                        'supplier_id' => $request->supplierselect,
+                        'cron' => 11,
+                        'file_name' => $fileName,
+                        'created_by' => $user->id,
+                    ]); 
+                } else {
+                    UploadedFiles::create([
+                        'supplier_id' => $request->supplierselect,
+                        'cron' => UploadedFiles::UPLOAD,
+                        'file_name' => $fileName,
+                        'created_by' => $user->id,
+                    ]); 
+                }
 
                 /** Move the file with the new name */
                 $file->move($destinationPath, $fileName);
@@ -727,9 +736,14 @@ class ExcelImportController extends Controller
         /** Collect missing keys */
         $missing_keys = [];
 
+        /** Getting supplier id */
+        $supplierId = $request->input('supplier_id');
+
         foreach ($field_keys as $key) {
-            if (!in_array((string)$key, $request->input('required_field_id'))) {
-                $missing_keys[] = $fields[$key];
+            if ($supplierId != 15) {
+                if (!in_array((string)$key, $request->input('required_field_id'))) {
+                    $missing_keys[] = $fields[$key];
+                }
             }
         }
 
@@ -821,6 +835,8 @@ class ExcelImportController extends Controller
             ];
         }
 
+        $supplierId = $request->input('supplier_id');
+
         /** Get the keys of the $fields array */
         $field_keys = array_keys($fields);
 
@@ -833,8 +849,10 @@ class ExcelImportController extends Controller
         }
 
         foreach ($field_keys as $key) {
-            if (!in_array((string)$key, $request->input('required_field_id'))) {
-                $missing_keys[] = $fields[$key];
+            if ($supplierId != 15) {
+                if (!in_array((string)$key, $request->input('required_field_id'))) {
+                    $missing_keys[] = $fields[$key];
+                }
             }
         }
 
