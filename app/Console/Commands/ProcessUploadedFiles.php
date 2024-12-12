@@ -969,7 +969,7 @@ class ProcessUploadedFiles extends Command
                                             /** Inserting the data into the spacific supplier table */
                                             foreach ($excelInsertArray as $key => $value) {
                                                 $recordExist = DB::table($supplierTableName)
-                                                ->where('invoice_number', 'LIKE', $value['invoice_number'])
+                                                ->where('invoice_number', 'LIKE', trim($value['invoice_number']))
                                                 ->first();
 
                                                 if (!$recordExist) {
@@ -1010,7 +1010,7 @@ class ProcessUploadedFiles extends Command
                                     /** Inserting the data into the spacific supplier table */
                                     foreach ($excelInsertArray as $key => $value) {
                                         $recordExist = DB::table($supplierTableName)
-                                        ->where('invoice_number', 'LIKE', $value['invoice_number'])
+                                        ->where('invoice_number', 'LIKE', trim($value['invoice_number']))
                                         ->first();
 
                                         if (!$recordExist) {
