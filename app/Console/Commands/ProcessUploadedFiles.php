@@ -968,16 +968,13 @@ class ProcessUploadedFiles extends Command
                                         try {
                                             /** Inserting the data into the spacific supplier table */
                                             foreach ($excelInsertArray as $key => $value) {
-                                                /** Clone the array and exclude fields not needed for the WHERE condition */
-                                                $whereArray = $value;
-                                                unset($whereArray['attachment_id'], $whereArray['created_at'], $whereArray['updated_at']);
                                                 $recordExist = DB::table($supplierTableName)
-                                                ->where($whereArray)
+                                                ->where('invoice_number', 'LIKE', $value['invoice_number'])
                                                 ->first();
 
                                                 if (!$recordExist) {
                                                     DB::table($supplierTableName)
-                                                    ->insert($excelInsertArray);
+                                                    ->insert($value);
                                                 }
                                             }
                                         } catch (QueryException $e) {
@@ -1012,16 +1009,13 @@ class ProcessUploadedFiles extends Command
 
                                     /** Inserting the data into the spacific supplier table */
                                     foreach ($excelInsertArray as $key => $value) {
-                                        /** Clone the array and exclude fields not needed for the WHERE condition */
-                                        $whereArray1 = $value;
-                                        unset($whereArray1['attachment_id'], $whereArray1['created_at'], $whereArray1['updated_at']);
                                         $recordExist = DB::table($supplierTableName)
-                                        ->where($whereArray1)
+                                        ->where('invoice_number', 'LIKE', $value['invoice_number'])
                                         ->first();
 
                                         if (!$recordExist) {
                                             DB::table($supplierTableName)
-                                            ->insert($excelInsertArray);
+                                            ->insert($value);
                                         }
                                     }
                                 } catch (QueryException $e) {
