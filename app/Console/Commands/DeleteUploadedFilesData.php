@@ -38,8 +38,8 @@ class DeleteUploadedFilesData extends Command
         ->select('supplier_id', 'table_name')
         ->get();
 
-         /** Selecting the file data row using table id in case of office depot weekly */
-         if ($fileData->supplier_id == 7) {
+        /** Selecting the file data row using table id in case of office depot weekly */
+        if (!empty($fileData) && $fileData->supplier_id == 7) {
             $currentIdDetails = DB::table('odp_attachments')
             ->where('attachment_id', $fileData->id)
             ->first();
