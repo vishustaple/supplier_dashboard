@@ -899,7 +899,7 @@ class ProcessUploadedFiles extends Command
                         if (!isset($maxNonEmptyValue)) {
                             continue;
                         }
-
+                        
                         foreach ($workSheetArray as $key=>$value) {
                             $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                                 return !empty($item);
@@ -919,7 +919,7 @@ class ProcessUploadedFiles extends Command
                                 $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
                                 if (empty($arrayDiff)) {
-                                    $maxNonEmptyValue = $cleanedArray;
+                                    $maxNonEmptyValue = $value;
                                     $startIndexValueArray = $key;
                                     break;
                                 }
