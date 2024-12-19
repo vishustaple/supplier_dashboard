@@ -61,7 +61,7 @@ class ProcessUploadedFiles extends Command
         try {
             /** Select those file name where re_upload is 1 */
             $fileValue = DB::table('attachments')
-            ->select('id', 'supplier_id', 'file_name', 'created_by')
+            ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
             ->where('re_upload', '=', 1)
             ->whereNull('deleted_by')
             ->first();
@@ -75,7 +75,7 @@ class ProcessUploadedFiles extends Command
             /** Select those file name where cron is 11 */
             if ($fileValue == null) {
                 $fileValue = DB::table('attachments')
-                ->select('id', 'supplier_id', 'file_name', 'created_by')
+                ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
                 ->where('cron', '=', 11)
                 ->whereNull('deleted_by')
                 ->first();
@@ -563,6 +563,11 @@ class ProcessUploadedFiles extends Command
                                         $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $maxNonEmptyValue);
                                     }
 
+                                    /** Getting amount for currency converion */
+                                    if ($fileValue->supplier_id == 6) {
+                                        $amount = $row[$keyAmount];
+                                    }
+
                                     if (isset($keyCustomerNumber) && !empty($row[$keyCustomerNumber])) {
                                         foreach ($row as $key1 => $value) {
                                             if(!empty($maxNonEmptyValue[$key1])) {
@@ -588,7 +593,15 @@ class ProcessUploadedFiles extends Command
                                                     $excelInsertArray[$key]['year'] = $supplierYear;
                                                 }
 
-                                                /** We also need to add attachment id, created_at and updated at keys into the excel insert array */
+                                                /** We also need to add attachment id, converted_price, created_at and updated at keys into the excel insert array */
+                                                if ($fileValue->supplier_id == 6 && !empty($fileValue->conversion_rate) && isset($amount)) {
+                                                    $convertedPrice = (float) $fileValue->conversion_rate; /** Cast to float */
+                                                    $calculatedAmount = round($amount * $convertedPrice, 2); /** Perform the calculation */
+                                                    
+                                                    $excelInsertArray[$key]['converted_price'] = $calculatedAmount;
+                                                    unset($amount);
+                                                }
+
                                                 $excelInsertArray[$key]['attachment_id'] = $fileValue->id;
                                                 $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                                                 $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');

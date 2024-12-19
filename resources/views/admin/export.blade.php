@@ -48,6 +48,7 @@
                             @endforeach
                         @endif
                         </select>
+                        <div class="pt-4" id="additional-inputs"></div>
                     </div>
                     <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
                         <label for="enddate">Select Date:</label>
@@ -461,6 +462,20 @@
 
         $('#selectBox').val('');
         $('#selectBox').on('change', function() {
+            var selectedValue = $(this).val(); // Get the selected value
+            var inputContainer = $('#additional-inputs'); // Target container
+
+            // Clear previous inputs
+            inputContainer.empty();
+
+            // Check if "Lyreco" (value 6) is selected
+            if (selectedValue === '6') {
+                inputContainer.append(`
+                    <label for="conversion-rate">Conversion Rate:</label>
+                    <input type="number" id="conversion-rate" min="0" name="conversion_rate" class="form-control mt-1" />
+                `);
+            }
+
             var suppliername =  $(this).find("option:selected").text()
             console.log(suppliername);
             $('#sup_name').text(suppliername);

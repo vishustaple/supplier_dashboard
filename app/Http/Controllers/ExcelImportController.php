@@ -206,12 +206,13 @@ class ExcelImportController extends Controller
             $user = Auth::user();
 
             try {
-                if ($request->supplierselect == 15) {
+                if ($request->supplierselect == 6) {
                     UploadedFiles::create([
                         'supplier_id' => $request->supplierselect,
-                        'cron' => 11,
+                        'cron' => ($request->supplierselect == 15) ? (11) : (UploadedFiles::UPLOAD),
                         'file_name' => $fileName,
                         'created_by' => $user->id,
+                        'conversion_rate' => $request->conversion_rate,
                     ]); 
                 } else {
                     UploadedFiles::create([

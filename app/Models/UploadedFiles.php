@@ -31,6 +31,7 @@ class UploadedFiles extends Model
         'created_by',
         'deleted_by',
         'supplier_id',
+        'conversion_rate',
     ];
 
     protected $dates = ['deleted_at'];
