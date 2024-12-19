@@ -562,12 +562,7 @@ class ProcessUploadedFiles extends Command
                                     if (!empty($columnArray[$fileValue->supplier_id]['invoice_date'])) {
                                         $keyInvoiceDate = array_search($columnArray[$fileValue->supplier_id]['invoice_date'], $maxNonEmptyValue);
                                     }
-
-                                    /** Getting amount for currency converion */
-                                    if ($fileValue->supplier_id == 6) {
-                                        $amount = $row[$keyAmount];
-                                    }
-
+                                    
                                     if (isset($keyCustomerNumber) && !empty($row[$keyCustomerNumber])) {
                                         foreach ($row as $key1 => $value) {
                                             if(!empty($maxNonEmptyValue[$key1])) {
@@ -594,12 +589,24 @@ class ProcessUploadedFiles extends Command
                                                 }
 
                                                 /** We also need to add attachment id, converted_price, created_at and updated at keys into the excel insert array */
-                                                if ($fileValue->supplier_id == 6 && !empty($fileValue->conversion_rate) && isset($amount)) {
-                                                    $convertedPrice = (float) $fileValue->conversion_rate; /** Cast to float */
-                                                    $calculatedAmount = round($amount * $convertedPrice, 2); /** Perform the calculation */
-                                                    
-                                                    $excelInsertArray[$key]['converted_price'] = $calculatedAmount;
-                                                    unset($amount);
+                                                if ($fileValue->supplier_id == 6) {
+                                                    if (!empty($fileValue->conversion_rate) && isset($row[$keyAmount])) {
+                                                        $amount = $row[$keyAmount];
+                                                        $newKey = $keyAmount + 3;
+                                                        $secondAmount = $row[$newKey];
+
+                                                        $convertedPrice = (float) $fileValue->conversion_rate; /** Cast to float */
+                                                        $calculatedAmount = round($amount * $convertedPrice, 2); /** Perform the calculation */
+                                                        $calculatedAmount2 = round($secondAmount * $convertedPrice, 2); /** Perform the calculation */
+                                                        
+                                                        $excelInsertArray[$key]['converted_sales_amount_p'] = $calculatedAmount;
+                                                        $excelInsertArray[$key]['converted_avg_selling_price_p'] = $calculatedAmount2;
+                                                        // unset($amount, $secondAmount);
+                                                    } else {
+                                                        $excelInsertArray[$key]['converted_sales_amount_p'] = 0;
+                                                        $excelInsertArray[$key]['converted_avg_selling_price_p'] = 0;
+                                                       
+                                                    }
                                                 }
 
                                                 $excelInsertArray[$key]['attachment_id'] = $fileValue->id;
