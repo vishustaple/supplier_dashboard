@@ -208,18 +208,18 @@ class ExcelImportController extends Controller
             try {
                 if ($request->supplierselect == 6) {
                     UploadedFiles::create([
-                        'supplier_id' => $request->supplierselect,
-                        'cron' => ($request->supplierselect == 15) ? (11) : (UploadedFiles::UPLOAD),
                         'file_name' => $fileName,
                         'created_by' => $user->id,
+                        'cron' => UploadedFiles::UPLOAD,
+                        'supplier_id' => $request->supplierselect,
                         'conversion_rate' => $request->conversion_rate,
                     ]); 
                 } else {
                     UploadedFiles::create([
-                        'supplier_id' => $request->supplierselect,
-                        'cron' => UploadedFiles::UPLOAD,
                         'file_name' => $fileName,
                         'created_by' => $user->id,
+                        'supplier_id' => $request->supplierselect,
+                        'cron' => ($request->supplierselect == 15) ? (11) : (UploadedFiles::UPLOAD),
                     ]); 
                 }
 
