@@ -8,6 +8,18 @@
                     </div>
                     Data Management 
                 </a>
+                <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Upload Catalog Sheets') ? 'active' : '' }}" href="{{route('upload_catalog.sheets')}}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fa fa-upload" aria-hidden="true"></i>
+                    </div>
+                    Catalog Data Management 
+                </a>
+                <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Data') ? 'active' : '' }}" href="{{route('supplier_catalog')}}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fas fa-chart-area"></i>
+                    </div>
+                    Manage Catalog
+                </a>
                 <div class="manage_account_link">
                     <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Accounts Data') ? 'active' : '' }}" href="{{route('account')}}">
                         <div class="sb-nav-link-icon">

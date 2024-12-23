@@ -13,7 +13,7 @@ use App\Http\Controllers\{
     ExcelImportController,
     CategorySupplierController,
 };
-
+use App\Http\Controllers\Catalog\CatalogImportController;
 use Illuminate\Support\Facades\Auth; 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +81,20 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/export/filter', [ExcelImportController::class, 'getExportWithAjax'])->name('export.filter');
         Route::get('/download/{id?}', [ExcelImportController::class, 'downloadSampleFile'])->name('file.download');
         Route::get('/adminupdate', [HomeController::class, 'changePasswordView'])->name('admin.changePasswordView');
+
+        /** Catalog start */
+        Route::get('/upload_catalog-sheet', [CatalogImportController::class, 'index'])->name('upload_catalog.sheets');
+        Route::post('/import-catalog', [CatalogImportController::class, 'import'])->name('import_catalog.excel');
+        Route::post('/export_catalog/filter', [CatalogImportController::class, 'getExportWithAjax'])->name('export_catalog.filter');
+        Route::get('/download_catalog/{id?}', [CatalogImportController::class, 'downloadSampleFile'])->name('file_catalog.download');
+
+        Route::get('/supplier-catalog', [CatalogImportController::class, 'allSupplierCatalog'])->name('supplier_catalog');
+        Route::post('/show/supplier-catalog/filter', [CatalogImportController::class, 'ShowAllSupplierCatalog'])->name('supplier_catalog_ajax.filter');
+        Route::post('/import/supplier-catalog/file', [CatalogImportController::class, 'supplierCatalogFileFormatImport'])->name('import.supplier_catalog_file');
+        Route::post('/add/supplier-catalog/file', [CatalogImportController::class, 'addSupplierCatalogFileFormatImport'])->name('add.supplier_catalog_file');
+        Route::post('/edit/supplier-catalog/file', [CatalogImportController::class, 'editSupplierCatalogFileFormatImport'])->name('edit.supplier_catalog_file');
+        Route::get('/delete/supplier-catalog/file', [CatalogImportController::class, 'removeSupplierCatalogFileFormatImport'])->name('remove.catalog_file_format');
+        /**Catalog end */
 
         /** Account Section Start */
         Route::get('/accounts/p-name', [AccountController::class, 'PName'])->name('ParentName');

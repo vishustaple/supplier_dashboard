@@ -2,25 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class CatalogDetail extends Model
+class CatalogRequiredFields extends Model
 {
     use HasFactory;
 
-    protected $table = 'catalog_details';
-
+    protected $table = 'catalog_required_fields';
+    
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'file_name',
-        'table_key',
-        'created_by',
-        'catalog_id',
-        'table_value',
+        'field_name',
+        'fields_select_name'
     ];
 }
