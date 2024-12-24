@@ -42,10 +42,10 @@ class CatalogUploadProcess extends Command
         
         $suppliers = CatalogSupplierFields::getRequiredColumns();
 
-        if ($fileValue !== null && $fileValue->supplier_id == 15) {
+        if ($fileValue !== null) {
             /** Update cron two means start processing data into excel */
-            CatalogAttachments::where('id', $fileValue->id)
-            ->update(['cron' => 2]);
+            // CatalogAttachments::where('id', $fileValue->id)
+            // ->update(['cron' => 2]);
 
             /** Add column name here those row you want to skip */
             $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
@@ -58,14 +58,17 @@ class CatalogUploadProcess extends Command
                 'catalog_supplier_fields.supplier_id as supplier_id',
                 'catalog_required_fields.field_name as required_field_column',
             )
-            ->leftJoin('catalog_required_fields', 'catalog_supplier_fields.required_field_id', '=', 'catalog_required_fields.id')
+            ->leftJoin('catalog_required_fields', 'catalog_supplier_fields.catalog_required_field_id', '=', 'catalog_required_fields.id')
             ->where(['supplier_id' => $fileValue->supplier_id, 'deleted' => 0])
             ->get();
 
-            $columnArray2 = [];
+            $columnArray = [];
             foreach ($columnValues as $key => $value) {
-                $columnArray2[$fileValue->supplier_id][$value->label] = $value->raw_label;
-                $columnArray1[$value->id] = $value->label;
+                if (!empty($value->required_field_column)) {
+                    $columnArray[$value->supplier_id][$value->required_field_column] = $value->label;
+                }
+                // $columnArray2[$fileValue->supplier_id][$value->label] = $value->raw_label;
+                // $columnArray1[$value->id] = $value->label;
             }
 
             try {
@@ -93,8 +96,8 @@ class CatalogUploadProcess extends Command
                 for ($i = 0; $i < $sheetCount; $i++) {
                     $count = $maxNonEmptyCount = 0;
 
-                    CatalogAttachments::where('id', $fileValue->id)
-                    ->update(['cron' => 4]);
+                    // CatalogAttachments::where('id', $fileValue->id)
+                    // ->update(['cron' => 4]);
 
                     $workSheetArray = $spreadSheet->getSheet($i)->toArray(); /** Getting worksheet using index */
 
@@ -165,6 +168,7 @@ class CatalogUploadProcess extends Command
 
                     if (!isset($maxNonEmptyValue)) {
                         continue;
+
                     }
 
                     /** Clean up the values */
@@ -181,11 +185,42 @@ class CatalogUploadProcess extends Command
                     /** Unset the "$startIndexValueArray" for memory save */
                     unset($startIndexValueArray);
 
+                     /** Here we will getting the sku    key */
+                     if (!empty($columnArray[$fileValue->supplier_id]['sku'])) {
+                        $keyGrandParent = array_search($columnArray[$fileValue->supplier_id]['sku'], $maxNonEmptyValue);
+                    }
+
+                    /** Here we will getting the unit_of_measure key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['unit_of_measure'])) {
+                        $keyParent = array_search($columnArray[$fileValue->supplier_id]['unit_of_measure'], $maxNonEmptyValue);
+                    }
+
+                    /** Here we will getting the manufacterer_number key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['manufacterer_number'])) {
+                        $keyCustomer = array_search($columnArray[$fileValue->supplier_id]['manufacterer_number'], $maxNonEmptyValue);
+                    }
+
+                    /** Here we will getting the grand parent supplier_shorthand_name key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['supplier_shorthand_name'])) {
+                        $keyGrandParentName = array_search($columnArray[$fileValue->supplier_id]['supplier_shorthand_name'], $maxNonEmptyValue);
+                    }
+
+                    /** Here we will getting the grand parent customer name key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['p_customer_name'])) {
+                        $keyParentName = array_search($columnArray[$fileValue->supplier_id]['p_customer_name'], $maxNonEmptyValue);
+                    }
+
+                    /** Here we will getting the grand parent customer name key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['customer_name'])) {
+                        $keyCustomerName = array_search($columnArray[$fileValue->supplier_id]['customer_name'], $maxNonEmptyValue);
+                    }
+
                     if (isset($workSheetArray) && !empty($workSheetArray)) {
                         /** For insert data into the database */
                         foreach ($workSheetArray as $key => $row) {
                             if ($key > $startIndex) {
                                 foreach ($row as $key1 => $value) {
+                                    dd($value);
                                     // if(!empty($maxNonEmptyValue[$key1])) {
                                     //     if (isset($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])])) {
                                     //         /** Creating the excel insert array for supplier table insert using date column conditions */
