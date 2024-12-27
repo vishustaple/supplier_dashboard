@@ -4,22 +4,13 @@ namespace App\Http\Controllers;
 
 use DateTime;
 use Mpdf\Mpdf;
+use Carbon\Carbon;
 use League\Csv\Writer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use App\Jobs\ExportConsolidatedReport;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use App\Models\{
-    Order,
-    Account,
-    SalesTeam,
-    CategorySupplier,
-};
-use Carbon\Carbon;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use App\Models\{Order, Account, SalesTeam, CategorySupplier};
+use Illuminate\Support\Facades\{DB, File, Log, Auth, Storage};
 
 class ReportController extends Controller
 {
@@ -74,9 +65,9 @@ class ReportController extends Controller
         }
 
         if ($reportType == 'business_report') {
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'accountData' => Account::select('account_name')->groupBy('account_name')->get(), 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->whereIn('id', [1,2,3,4,5])->get()]);
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'accountData' => Account::select('account_name')->groupBy('account_name')->get(), 'categorySuppliers' => CategorySupplier::where('show', 0)->whereNotIn('id', [15])->get()]);
         } elseif ($reportType == 'commission_report') {
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'sales_rep' => SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'), 'commissions.sales_rep as id')->leftJoin('commissions', 'commissions.sales_rep', '=', 'sales_team.id')->groupBy('commissions.sales_rep')->get()]);
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->whereNotIn('id', [15])->get(), 'sales_rep' => SalesTeam::select(DB::raw('CONCAT(sales_team.first_name, " ", sales_team.last_name) as sales_rep'), 'commissions.sales_rep as id')->leftJoin('commissions', 'commissions.sales_rep', '=', 'sales_team.id')->groupBy('commissions.sales_rep')->get()]);
         } elseif ($reportType == 'consolidated_report') {
             $userFileExists = DB::table('consolidated_file')
             ->select('id', 'file_name')
@@ -115,9 +106,9 @@ class ReportController extends Controller
                 $userId = null;
             }
             
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get(), 'consolidatedFile' => $fileName, 'file_user_id' => $userId]);
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->whereNotIn('id', [15])->get(), 'consolidatedFile' => $fileName, 'file_user_id' => $userId]);
         } else {
-            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->where('show', '!=', 1)->get()]);
+            return view('admin.reports.'. $reportType .'', ['pageTitle' => $setPageTitleArray[$reportType], 'categorySuppliers' => CategorySupplier::where('show', 0)->whereNotIn('id', [15])->get()]);
         }
     }
 
