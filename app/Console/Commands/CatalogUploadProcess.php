@@ -187,52 +187,150 @@ class CatalogUploadProcess extends Command
 
                      /** Here we will getting the sku    key */
                      if (!empty($columnArray[$fileValue->supplier_id]['sku'])) {
-                        $keyGrandParent = array_search($columnArray[$fileValue->supplier_id]['sku'], $maxNonEmptyValue);
+                        $sku = array_search($columnArray[$fileValue->supplier_id]['sku'], $maxNonEmptyValue);
                     }
 
                     /** Here we will getting the unit_of_measure key */
                     if (!empty($columnArray[$fileValue->supplier_id]['unit_of_measure'])) {
-                        $keyParent = array_search($columnArray[$fileValue->supplier_id]['unit_of_measure'], $maxNonEmptyValue);
+                        $unit_of_measure = array_search($columnArray[$fileValue->supplier_id]['unit_of_measure'], $maxNonEmptyValue);
                     }
 
                     /** Here we will getting the manufacterer_number key */
                     if (!empty($columnArray[$fileValue->supplier_id]['manufacterer_number'])) {
-                        $keyCustomer = array_search($columnArray[$fileValue->supplier_id]['manufacterer_number'], $maxNonEmptyValue);
+                        $manufacterer_number = array_search($columnArray[$fileValue->supplier_id]['manufacterer_number'], $maxNonEmptyValue);
                     }
 
                     /** Here we will getting the grand parent supplier_shorthand_name key */
                     if (!empty($columnArray[$fileValue->supplier_id]['supplier_shorthand_name'])) {
-                        $keyGrandParentName = array_search($columnArray[$fileValue->supplier_id]['supplier_shorthand_name'], $maxNonEmptyValue);
+                        $supplier_shorthand_name = array_search($columnArray[$fileValue->supplier_id]['supplier_shorthand_name'], $maxNonEmptyValue);
                     }
 
-                    /** Here we will getting the grand parent customer name key */
-                    if (!empty($columnArray[$fileValue->supplier_id]['p_customer_name'])) {
-                        $keyParentName = array_search($columnArray[$fileValue->supplier_id]['p_customer_name'], $maxNonEmptyValue);
+                    /** Here we will getting the value key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['value'])) {
+                        $value = array_search($columnArray[$fileValue->supplier_id]['value'], $maxNonEmptyValue);
                     }
 
-                    /** Here we will getting the grand parent customer name key */
-                    if (!empty($columnArray[$fileValue->supplier_id]['customer_name'])) {
-                        $keyCustomerName = array_search($columnArray[$fileValue->supplier_id]['customer_name'], $maxNonEmptyValue);
+                    /** Here we will getting the category_name key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['category_name'])) {
+                        $category_name = array_search($columnArray[$fileValue->supplier_id]['category_name'], $maxNonEmptyValue);
+                    }
+
+                    /** Here we will getting the sub_category_name key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['sub_category_name'])) {
+                        $sub_category_name = array_search($columnArray[$fileValue->supplier_id]['sub_category_name'], $maxNonEmptyValue);
+                    }
+
+                    /** Here we will getting the manufacturer_name key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['manufacturer_name'])) {
+                        $manufacturer_name = array_search($columnArray[$fileValue->supplier_id]['manufacturer_name'], $maxNonEmptyValue);
+                    }
+
+                    /** Here we will getting the unit_of_measure key */
+                    if (!empty($columnArray[$fileValue->supplier_id]['unit_of_measure'])) {
+                        $unit_of_measure = array_search($columnArray[$fileValue->supplier_id]['unit_of_measure'], $maxNonEmptyValue);
                     }
 
                     if (isset($workSheetArray) && !empty($workSheetArray)) {
                         /** For insert data into the database */
                         foreach ($workSheetArray as $key => $row) {
                             if ($key > $startIndex) {
-                                foreach ($row as $key1 => $value) {
+                                // foreach ($row as $key1 => $value) {
                                     dd($value);
-                                    // if(!empty($maxNonEmptyValue[$key1])) {
-                                    //     if (isset($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])])) {
-                                    //         /** Creating the excel insert array for supplier table insert using date column conditions */
-                                    //         $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
-                                    //     }
+                                    if(!empty($maxNonEmptyValue[$key1])) {
+                                        $category_id = ProductDetailsCategory::create([
+                                            'category_name' => $row[$category_name],
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
 
-                                    //     /** We also need to add attachment id, created_at and updated at keys into the excel insert array */
-                                    //     $excelInsertArray[$key]['attachment_id'] = $fileValue->id;
-                                    //     $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
-                                    //     $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
-                                    // }
-                                }
+                                        $sub_category_id = ProductDetailsSubCategory::create([
+                                            'category_id' => $category_id,
+                                            'sub_category_name' => $row[$sub_category_name],
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
+
+                                        $manufacturer_id = Manufacturer::create([
+                                            'manufacturer_name' => $row[$manufacturer_name],
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
+
+                                        $common_attribute_id = ProductDetailsCommonAttribute::create([
+                                            'sub_category_id' => $sub_category_id,
+                                            'attribute_name' => $row[$attribute_name],
+                                            'type' => '',
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
+
+                                        $catalog_item_id = CatalogItem::create([
+                                            'sku' => $row[$sku],
+                                            'unspsc' => '',
+                                            'active' => '',
+                                            'supplier_id' => $fileValue->supplier_id,
+                                            'industry_id' => '',
+                                            'category_id' => $category_id,
+                                            'sub_category_id' => $sub_category_id,
+                                            'unit_of_measure' => $row[$unit_of_measure],
+                                            'manufacterer_id' => $manufacterer_id,
+                                            'catalog_item_url' => '',
+                                            'catalog_item_name' => '',
+                                            'quantity_per_unit' => '',
+                                            'manufacterer_number' => $row[$manufacterer_number],
+                                            'supplier_shorthand_name' => $row[$supplier_shorthand_name],
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
+
+                                        ProductDetailsCommonValue::create([
+                                            'value' => $row[$value],
+                                            'catalog_item_id' => $catalog_item_id,
+                                            'common_attribute_id' => $common_attribute_id,
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
+
+                                        ProductDetailsRawValue::create([
+                                            'raw_values' => '',
+                                            'catalog_item_id' => $catalog_item_id,
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);                                        
+                                        
+                                        $catalog_price_type_id = CatalogPriceTypes::create([
+                                            'name' => '',
+                                            'supplier_id' => $fileValue->supplier_id,
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
+
+                                        CatalogPrices::create([
+                                            'core_list' => '',
+                                            'customer_id' => '', 
+                                            'value' => $row[$value],
+                                            'catalog_price_type_id' => '',
+                                            'catalog_item_id' => $catalog_item_id,
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
+
+                                        CatalogPriceHistory::create([
+                                            'catalog_item_id',
+                                            'catalog_price_type_id',
+                                            'customer_id',
+                                            'core_list',
+                                            'value',
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]);
+
+                                        /** We also need to add attachment id, created_at and updated at keys into the excel insert array */
+                                        // $excelInsertArray[$key]['attachment_id'] = $fileValue->id;
+                                        // $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
+                                        // $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
+                                    }
+                                // }
 
                                 /** When we create 70 keys array we will insert the array into there spacific table */
                                 if ($count == 70) {
