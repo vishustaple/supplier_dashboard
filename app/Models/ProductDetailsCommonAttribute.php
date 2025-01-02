@@ -10,4 +10,10 @@ class ProductDetailsCommonAttribute extends Model
     use HasFactory;
 
     protected $table = 'product_details_common_attributes';
+
+    protected $fillable = [
+        'type',
+        'attribute_name',
+        'sub_category_id',
+    ];
 }

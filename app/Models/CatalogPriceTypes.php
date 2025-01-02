@@ -10,4 +10,9 @@ class CatalogPriceTypes extends Model
     use HasFactory;
 
     protected $table = 'catalog_price_types';
+
+    protected $fillable = [
+        'name',
+        'supplier_id',
+    ];
 }

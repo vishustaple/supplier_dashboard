@@ -10,4 +10,8 @@ class Manufacturer extends Model
     use HasFactory;
 
     protected $table = 'manufacturers';
+
+    protected $fillable = [
+        'manufacturer_name',
+    ];
 }

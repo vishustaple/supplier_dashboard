@@ -2,9 +2,21 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CatalogAttachments;
-use App\Models\CatalogSupplierFields;
 use Carbon\Carbon;
+use App\Models\{
+    CatalogItem,
+    Manufacturer,
+    CatalogPrices,
+    CatalogPriceTypes,
+    CatalogAttachments,
+    CatalogPriceHistory,
+    CatalogSupplierFields,
+    ProductDetailsCategory,
+    ProductDetailsRawValue,
+    ProductDetailsSubCategory,
+    ProductDetailsCommonValue,
+    ProductDetailsCommonAttribute,
+};
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\{DB, Log};
@@ -91,7 +103,7 @@ class CatalogUploadProcess extends Command
                 /** Loading excel file using path and name of file from table "uploaded_file" */
                 $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
                 $sheetCount = $spreadSheet->getSheetCount(); /** Getting sheet count for run loop on index */
-                
+
                 /** Run the for loop for excel sheets */
                 for ($i = 0; $i < $sheetCount; $i++) {
                     $count = $maxNonEmptyCount = 0;
@@ -185,7 +197,7 @@ class CatalogUploadProcess extends Command
                     /** Unset the "$startIndexValueArray" for memory save */
                     unset($startIndexValueArray);
 
-                     /** Here we will getting the sku    key */
+                     /** Here we will getting the sku key */
                      if (!empty($columnArray[$fileValue->supplier_id]['sku'])) {
                         $sku = array_search($columnArray[$fileValue->supplier_id]['sku'], $maxNonEmptyValue);
                     }
@@ -200,7 +212,7 @@ class CatalogUploadProcess extends Command
                         $manufacterer_number = array_search($columnArray[$fileValue->supplier_id]['manufacterer_number'], $maxNonEmptyValue);
                     }
 
-                    /** Here we will getting the grand parent supplier_shorthand_name key */
+                    /** Here we will getting the supplier_shorthand_name key */
                     if (!empty($columnArray[$fileValue->supplier_id]['supplier_shorthand_name'])) {
                         $supplier_shorthand_name = array_search($columnArray[$fileValue->supplier_id]['supplier_shorthand_name'], $maxNonEmptyValue);
                     }
@@ -234,124 +246,143 @@ class CatalogUploadProcess extends Command
                         /** For insert data into the database */
                         foreach ($workSheetArray as $key => $row) {
                             if ($key > $startIndex) {
-                                // foreach ($row as $key1 => $value) {
-                                    dd($value);
-                                    if(!empty($maxNonEmptyValue[$key1])) {
-                                        $category_id = ProductDetailsCategory::create([
-                                            'category_name' => $row[$category_name],
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                // dd($row[$category_name]);
+                                /** Check if the category exists, if not, create it */
+                                $category = ProductDetailsCategory::firstOrCreate(
+                                    ['category_name' => $row[$category_name]],
+                                    [
+                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                    ]
+                                );
 
-                                        $sub_category_id = ProductDetailsSubCategory::create([
-                                            'category_id' => $category_id,
-                                            'sub_category_name' => $row[$sub_category_name],
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                /** Now $category contains the existing or newly created record */
+                                $category_id = $category->id; /** Get the last inserted or existing category id */
 
-                                        $manufacturer_id = Manufacturer::create([
-                                            'manufacturer_name' => $row[$manufacturer_name],
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                /** Check if the subcategory exists, if not, create it */
+                                $sub_category = ProductDetailsSubCategory::firstOrCreate(
+                                    [
+                                        'category_id' => $category_id,
+                                        'sub_category_name' => $row[$sub_category_name]
+                                    ],
+                                    [
+                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                    ]
+                                );
 
-                                        $common_attribute_id = ProductDetailsCommonAttribute::create([
-                                            'sub_category_id' => $sub_category_id,
-                                            'attribute_name' => $row[$attribute_name],
-                                            'type' => '',
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                /** Now $sub_category contains the existing or newly created record */
+                                $sub_category_id = $sub_category->id; /** Get the last inserted or existing subcategory id */
 
-                                        $catalog_item_id = CatalogItem::create([
-                                            'sku' => $row[$sku],
-                                            'unspsc' => '',
-                                            'active' => '',
-                                            'supplier_id' => $fileValue->supplier_id,
-                                            'industry_id' => '',
-                                            'category_id' => $category_id,
-                                            'sub_category_id' => $sub_category_id,
-                                            'unit_of_measure' => $row[$unit_of_measure],
-                                            'manufacterer_id' => $manufacterer_id,
-                                            'catalog_item_url' => '',
-                                            'catalog_item_name' => '',
-                                            'quantity_per_unit' => '',
-                                            'manufacterer_number' => $row[$manufacterer_number],
-                                            'supplier_shorthand_name' => $row[$supplier_shorthand_name],
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                /** Check if the manufacturer exists, if not, create it */
+                                $manufacturer = Manufacturer::firstOrCreate(
+                                    ['manufacturer_name' => $row[$manufacturer_name]],
+                                    [
+                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                    ]
+                                );
 
-                                        ProductDetailsCommonValue::create([
-                                            'value' => $row[$value],
-                                            'catalog_item_id' => $catalog_item_id,
-                                            'common_attribute_id' => $common_attribute_id,
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                /** Now $manufacturer contains the existing or newly created record */
+                                $manufacturer_id = $manufacturer->id; /** Get the last inserted or existing manufacturer id */
 
-                                        ProductDetailsRawValue::create([
-                                            'raw_values' => '',
-                                            'catalog_item_id' => $catalog_item_id,
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);                                        
-                                        
-                                        $catalog_price_type_id = CatalogPriceTypes::create([
-                                            'name' => '',
-                                            'supplier_id' => $fileValue->supplier_id,
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                /** Check if the common attribute exists, if not, create it */
+                                $common_attribute = ProductDetailsCommonAttribute::firstOrCreate(
+                                    [
+                                        'sub_category_id' => $sub_category_id,
+                                        'attribute_name' => $row[$manufacturer_name]
+                                    ],
+                                    [
+                                        'type' => '',
+                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                    ]
+                                );
 
-                                        CatalogPrices::create([
-                                            'core_list' => '',
-                                            'customer_id' => '', 
-                                            'value' => $row[$value],
-                                            'catalog_price_type_id' => '',
-                                            'catalog_item_id' => $catalog_item_id,
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                /** Now $common_attribute contains the existing or newly created record */
+                                $common_attribute_id = $common_attribute->id; /** Get the last inserted or existing common attribute id */
 
-                                        CatalogPriceHistory::create([
-                                            'catalog_item_id',
-                                            'catalog_price_type_id',
-                                            'customer_id',
-                                            'core_list',
-                                            'value',
-                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                        ]);
+                                /** Check if the catalog item exists by sku, if not, create it */
+                                $catalog_item = CatalogItem::firstOrCreate(
+                                    ['sku' => $row[$sku]], /** Unique condition based on sku */
+                                    [
+                                        'unspsc' => '',
+                                        'active' => 0,
+                                        'supplier_id' => $fileValue->supplier_id,
+                                        'industry_id' => '',
+                                        'category_id' => $category_id,
+                                        'sub_category_id' => $sub_category_id,
+                                        'unit_of_measure' => $row[$unit_of_measure],
+                                        'manufacturer_id' => $manufacturer_id,
+                                        'catalog_item_url' => '',
+                                        'catalog_item_name' => '',
+                                        'quantity_per_unit' => '',
+                                        'manufacturer_number' => $row[$manufacterer_number],
+                                        'supplier_shorthand_name' => $row[$supplier_shorthand_name],
+                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                    ]
+                                );
 
-                                        /** We also need to add attachment id, created_at and updated at keys into the excel insert array */
-                                        // $excelInsertArray[$key]['attachment_id'] = $fileValue->id;
-                                        // $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
-                                        // $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
-                                    }
-                                // }
+                                /** Now $catalog_item contains the existing or newly created record */
+                                $catalog_item_id = $catalog_item->id; /** Get the last inserted or existing catalog item id */
+                                
+                                /** Check if the common value exists, if not, create it */
+                                $product_details_common_value = ProductDetailsCommonValue::firstOrCreate(
+                                    [
+                                        'value' => $row[$value],
+                                        'catalog_item_id' => $catalog_item_id,
+                                        'common_attribute_id' => $common_attribute_id
+                                    ],
+                                    [
+                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                    ]
+                                );
 
-                                /** When we create 70 keys array we will insert the array into there spacific table */
-                                if ($count == 70) {
-                                    $count = 0;
-                                    try {
-                                       /**Insert data here */
-                                    } catch (QueryException $e) {
-                                        /** Handling the QueryException using try catch */
-                                        Log::error('Error in YourScheduledTask: ' . $e->getMessage());
-                                        echo "Database insertion failed: " . $e->getMessage();
-                                        echo $e->getTraceAsString();
-                                        die;
-                                    }
-                                    
-                                    /** For memory optimization we unset the excelInsertArray */
-                                    unset($excelInsertArray);
-                                }
+                                /** Now $product_details_common_value contains the existing or newly created record */
+                                $product_details_common_value_id = $product_details_common_value->id; /** Get the last inserted or existing record id */
 
-                                /** Using this count variable we will count the array keys
-                                 *  how many keys array we created */
-                                $count++;
+                                /** Check if the raw value exists, if not, create it */
+                                $product_details_raw_value = ProductDetailsRawValue::firstOrCreate(
+                                    ['catalog_item_id' => $catalog_item_id],
+                                    [
+                                        'raw_values' => '',
+                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                    ]
+                                );
+
+                                /** Now $product_details_raw_value contains the existing or newly created record */
+                                $product_details_raw_value_id = $product_details_raw_value->id; /** Get the last inserted or existing record id */
+
+                               
+                                $catalog_price_type_id = CatalogPriceTypes::create([
+                                    'name' => '',
+                                    'supplier_id' => $fileValue->supplier_id,
+                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                ]);
+
+                                CatalogPrices::create([
+                                    'core_list' => '',
+                                    'customer_id' => '', 
+                                    'value' => $row[$value],
+                                    'catalog_price_type_id' => '',
+                                    'catalog_item_id' => $catalog_item_id,
+                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                ]);
+
+                                CatalogPriceHistory::create([
+                                    'catalog_item_id' => '',
+                                    'catalog_price_type_id' => '',
+                                    'customer_id' => '',
+                                    'core_list' => '',
+                                    'value' => '',
+                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                ]);
                             }
                         }
 
@@ -399,3 +430,51 @@ class CatalogUploadProcess extends Command
         }
     }
 }
+
+
+
+   // $category_id = ProductDetailsCategory::create([
+                                //     'category_name' => $row[$category_name],
+                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                // ]);
+
+                                // $sub_category_id = ProductDetailsSubCategory::create([
+                                //     'category_id' => $category_id,
+                                //     'sub_category_name' => $row[$sub_category_name],
+                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                // ]);
+
+                                // $manufacturer_id = Manufacturer::create([
+                                //     'manufacturer_name' => $row[$manufacturer_name],
+                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                // ]);
+
+                                // $common_attribute_id = ProductDetailsCommonAttribute::create([
+                                //     'sub_category_id' => $sub_category_id,
+                                //     'attribute_name' => $row[$manufacturer_name],
+                                //     'type' => '',
+                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                // ]);
+
+                                // $catalog_item_id = CatalogItem::create([
+                                //     'sku' => $row[$sku],
+                                //     'unspsc' => '',
+                                //     'active' => '',
+                                //     'supplier_id' => $fileValue->supplier_id,
+                                //     'industry_id' => '',
+                                //     'category_id' => $category_id,
+                                //     'sub_category_id' => $sub_category_id,
+                                //     'unit_of_measure' => $row[$unit_of_measure],
+                                //     'manufacterer_id' => $manufacturer_id,
+                                //     'catalog_item_url' => '',
+                                //     'catalog_item_name' => '',
+                                //     'quantity_per_unit' => '',
+                                //     'manufacterer_number' => $row[$manufacterer_number],
+                                //     'supplier_shorthand_name' => $row[$supplier_shorthand_name],
+                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                // ]);

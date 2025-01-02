@@ -10,4 +10,10 @@ class ProductDetailsCommonValue extends Model
     use HasFactory;
 
     protected $table = 'product_details_common_values';
+
+    protected $fillable = [
+        'value',
+        'catalog_item_id',
+        'common_attribute_id',
+    ];
 }

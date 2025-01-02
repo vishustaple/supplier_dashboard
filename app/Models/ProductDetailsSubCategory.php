@@ -10,4 +10,9 @@ class ProductDetailsSubCategory extends Model
     use HasFactory;
 
     protected $table = 'product_details_sub_category';
+
+    protected $fillable = [
+        'category_id',
+        'sub_category_name',
+    ];
 }
