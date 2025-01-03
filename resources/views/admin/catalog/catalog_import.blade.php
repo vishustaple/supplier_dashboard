@@ -50,10 +50,35 @@
                             <option value="">Select Catalog Price Type</option>
                         </select>
                     </div>
+                    <div class="form-group col-md-6 mb-0">
+                        <label for="monthSelect">Select Month:</label>
+                        <select id="monthSelect" name="month" class="form-control" required>
+                            <option value="">Select Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
                     <!-- <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
                         <label for="enddate">Select Date:</label>
                         <input class="form-control " id="enddate" name="enddate" placeholder="Enter Your End Date " >
                     </div> -->
+                    <div class="form-group col-md-6 mb-0">
+                        <label for="yearSelect">Select Year:</label>
+                        <select id="yearSelect" name="year" class="form-control" required>
+                            <option value="">Select Year</option>
+                            <!-- Year options will be generated dynamically with JavaScript -->
+                        </select>
+                    </div>
                     <div class="form-group relative col-md-6 pt-4 mb-0">
                         <label for="file">Usage Data Import:</label>
                         <input type="file" name="file" id="file" class="form-control">
@@ -272,8 +297,20 @@
         $(document).ready(function() {
             // Convert the PHP data into a JavaScript object
             var catalogPriceType = @json($catalogPriceType);
-            console.log(catalogPriceType);
+            // console.log(catalogPriceType);
 
+             // Get the current year
+            const currentYear = new Date().getFullYear(),
+            startYear = currentYear - 7;
+            // Populate the year dropdown with a range of years
+            const yearSelect = document.getElementById("yearSelect");
+
+            for (let year = startYear; year <= currentYear; year++) {
+                const option = document.createElement("option");
+                option.value = year;
+                option.text = year;
+                yearSelect.appendChild(option);
+            }
 
             $('#btnUpload').click(function() {
                 var bar = document.getElementById('progBar'),

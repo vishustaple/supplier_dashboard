@@ -171,8 +171,10 @@ class CatalogImportController extends Controller
             try {
                 CatalogAttachments::create([
                     'cron' => 1,
+                    'year' => $request->year,
                     'file_name' => $fileName,
                     'created_by' => $user->id,
+                    'month' => $request->month,
                     'supplier_id' => $request->supplierselect,
                     'catalog_price_type_id' => $request->catalog_price_type_id,
                 ]);

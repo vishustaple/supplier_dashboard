@@ -20,6 +20,8 @@ class CatalogAttachments extends Model
      */
     protected $fillable = [
         'cron',
+        'year',
+        'month',
         'file_name',
         'created_by',
         'deleted_by',

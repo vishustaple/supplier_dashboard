@@ -375,15 +375,15 @@ class CatalogUploadProcess extends Command
                                     'catalog_price_type_id' => $fileValue->catalog_price_type_id,
                                 ]);
 
-                                // CatalogPriceHistory::create([
-                                //     'catalog_item_id' => '',
-                                //     'catalog_price_type_id' => '',
-                                //     'customer_id' => '',
-                                //     'core_list' => '',
-                                //     'value' => '',
-                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                // ]);
+                                CatalogPriceHistory::create([
+                                    'catalog_item_id' => '',
+                                    'catalog_price_type_id' => '',
+                                    'customer_id' => '',
+                                    'core_list' => '',
+                                    'value' => '',
+                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                ]);
                             }
                         }
 
