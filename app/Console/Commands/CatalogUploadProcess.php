@@ -47,11 +47,19 @@ class CatalogUploadProcess extends Command
         $destinationPath = public_path('/excel_sheets');
 
         /** Select those file name where cron is 11 */
-        $fileValue = CatalogAttachments::select('id', 'supplier_id', 'file_name', 'created_by')
+        $fileValue = CatalogAttachments::select('id', 'supplier_id', 'file_name', 'catalog_price_type_id', 'created_by')
         ->where('cron', '=', 11)
         ->whereNull('deleted_by')
         ->first();
         
+        if ($fileValue->supplier_id == 3) {
+            $industryId = 1;
+        } elseif ($fileValue->supplier_id == 2) {
+            $industryId = 2;
+        } else {
+
+        }
+
         $suppliers = CatalogSupplierFields::getRequiredColumns();
 
         if ($fileValue !== null) {
@@ -245,7 +253,7 @@ class CatalogUploadProcess extends Command
                     if (isset($workSheetArray) && !empty($workSheetArray)) {
                         /** For insert data into the database */
                         foreach ($workSheetArray as $key => $row) {
-                            if ($key > $startIndex) {
+                            if ($key > $startIndex && !empty($row[$category_name])) {
                                 // dd($row[$category_name]);
                                 /** Check if the category exists, if not, create it */
                                 $category = ProductDetailsCategory::firstOrCreate(
@@ -309,7 +317,7 @@ class CatalogUploadProcess extends Command
                                         'unspsc' => '',
                                         'active' => 0,
                                         'supplier_id' => $fileValue->supplier_id,
-                                        'industry_id' => '',
+                                        'industry_id' => $industryId,
                                         'category_id' => $category_id,
                                         'sub_category_id' => $sub_category_id,
                                         'unit_of_measure' => $row[$unit_of_measure],
@@ -317,6 +325,7 @@ class CatalogUploadProcess extends Command
                                         'catalog_item_url' => '',
                                         'catalog_item_name' => '',
                                         'quantity_per_unit' => '',
+                                        'catalog_price_type_id' => $fileValue->catalog_price_type_id,
                                         'manufacturer_number' => $row[$manufacterer_number],
                                         'supplier_shorthand_name' => $row[$supplier_shorthand_name],
                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -356,33 +365,25 @@ class CatalogUploadProcess extends Command
                                 /** Now $product_details_raw_value contains the existing or newly created record */
                                 $product_details_raw_value_id = $product_details_raw_value->id; /** Get the last inserted or existing record id */
 
-                               
-                                $catalog_price_type_id = CatalogPriceTypes::create([
-                                    'name' => '',
-                                    'supplier_id' => $fileValue->supplier_id,
-                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                ]);
-
                                 CatalogPrices::create([
-                                    'core_list' => '',
-                                    'customer_id' => '', 
+                                    'core_list' => (trim($row[11]) == 'Contract Pricing') ? 1 : 0,
+                                    'customer_id' => $row[10], 
                                     'value' => $row[$value],
-                                    'catalog_price_type_id' => '',
                                     'catalog_item_id' => $catalog_item_id,
                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'catalog_price_type_id' => $fileValue->catalog_price_type_id,
                                 ]);
 
-                                CatalogPriceHistory::create([
-                                    'catalog_item_id' => '',
-                                    'catalog_price_type_id' => '',
-                                    'customer_id' => '',
-                                    'core_list' => '',
-                                    'value' => '',
-                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                ]);
+                                // CatalogPriceHistory::create([
+                                //     'catalog_item_id' => '',
+                                //     'catalog_price_type_id' => '',
+                                //     'customer_id' => '',
+                                //     'core_list' => '',
+                                //     'value' => '',
+                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                // ]);
                             }
                         }
 

@@ -44,10 +44,16 @@
                         @endif
                         </select>
                     </div>
-                    <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
+                    <div class="form-group col-md-6 mb-0">
+                        <label for="selectBox">Catalog Price Type:</label>
+                        <select id="productSelect" name="catalog_price_type_id" class="form-control">
+                            <option value="">Select Catalog Price Type</option>
+                        </select>
+                    </div>
+                    <!-- <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
                         <label for="enddate">Select Date:</label>
                         <input class="form-control " id="enddate" name="enddate" placeholder="Enter Your End Date " >
-                    </div>
+                    </div> -->
                     <div class="form-group relative col-md-6 pt-4 mb-0">
                         <label for="file">Usage Data Import:</label>
                         <input type="file" name="file" id="file" class="form-control">
@@ -264,6 +270,11 @@
     </body>
     <script>
         $(document).ready(function() {
+            // Convert the PHP data into a JavaScript object
+            var catalogPriceType = @json($catalogPriceType);
+            console.log(catalogPriceType);
+
+
             $('#btnUpload').click(function() {
                 var bar = document.getElementById('progBar'),
                     fallback = document.getElementById('downloadProgress'),
@@ -412,7 +423,20 @@
             });
 
             $('#selectBox').val('');
+            // Event listener for supplier dropdown change
             $('#selectBox').on('change', function() {
+                const selectedSupplierId = $(this).val(),
+                filteredProducts = catalogPriceType.filter(catalogPriceType => catalogPriceType.supplier_id == selectedSupplierId);
+                
+                // Clear previous options
+                $('#productSelect').empty();
+                $('#productSelect').append('<option value="">Select Catalog price Type</option>');
+
+                // Add new options based on filtered products
+                filteredProducts.forEach(function(catalogPriceType) {
+                    $('#productSelect').append(`<option value="${catalogPriceType.id}">${catalogPriceType.name}</option>`);
+                });
+
                 var suppliername =  $(this).find("option:selected").text()
 
                 $('#sup_name').text(suppliername);

@@ -50,8 +50,9 @@ class CatalogImportController extends Controller
         
         $pageTitle = "Upload Catalog Sheets";
         $data=json_encode($formattedData);
- 
-        return view('admin.catalog.catalog_import',compact('categorySuppliers','data', 'pageTitle'));
+        $catalogPriceType = DB::table('catalog_price_types')->get();
+
+        return view('admin.catalog.catalog_import',compact('categorySuppliers','data', 'catalogPriceType', 'pageTitle'));
     }
 
     public function getExportWithAjax(Request $request) {
@@ -173,6 +174,7 @@ class CatalogImportController extends Controller
                     'file_name' => $fileName,
                     'created_by' => $user->id,
                     'supplier_id' => $request->supplierselect,
+                    'catalog_price_type_id' => $request->catalog_price_type_id,
                 ]);
 
                 /** Move the file with the new name */

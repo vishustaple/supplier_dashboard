@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('catalog_attachments', function (Blueprint $table) {
             $table->id(); /** Equivalent to `bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT` */
             $table->unsignedBigInteger('supplier_id');
+            $table->unsignedBigInteger('catalog_price_type_id');
             $table->string('file_name', 255);
             $table->tinyInteger('cron')->default(0);
             $table->tinyInteger('delete')->default(0);

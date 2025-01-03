@@ -49,6 +49,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        /** Catalog Price Types Table */
+        Schema::create('catalog_price_types', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
+            $table->timestamps();
+        });
+
         /** Catalog Items Table */
         Schema::create('catalog_items', function (Blueprint $table) {
             $table->id();
@@ -57,6 +65,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained('product_details_category')->onDelete('cascade');
             $table->foreignId('sub_category_id')->nullable()->constrained('product_details_sub_category')->onDelete('set null');
             $table->foreignId('manufacturer_id')->nullable()->constrained('manufacturers')->onDelete('set null');
+            $table->unsignedBigInteger('catalog_price_type_id');
             $table->string('sku');
             $table->string('unspsc');
             $table->string('manufacturer_number');
@@ -82,14 +91,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('catalog_item_id')->constrained('catalog_items')->onDelete('cascade');
             $table->json('raw_values');
-            $table->timestamps();
-        });
-
-        /** Catalog Price Types Table */
-        Schema::create('catalog_price_types', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -125,10 +126,10 @@ return new class extends Migration
     {
         Schema::dropIfExists('catalog_price_history');
         Schema::dropIfExists('catalog_prices');
-        Schema::dropIfExists('catalog_price_types');
         Schema::dropIfExists('product_details_raw_values');
         Schema::dropIfExists('product_details_common_values');
         Schema::dropIfExists('catalog_items');
+        Schema::dropIfExists('catalog_price_types');
         Schema::dropIfExists('product_details_common_attributes');
         Schema::dropIfExists('product_details_sub_category');
         Schema::dropIfExists('product_details_category');

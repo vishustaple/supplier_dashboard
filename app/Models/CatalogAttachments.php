@@ -24,6 +24,7 @@ class CatalogAttachments extends Model
         'created_by',
         'deleted_by',
         'supplier_id',
+        'catalog_price_type_id',
     ];
 
     protected $dates = ['deleted_at'];
