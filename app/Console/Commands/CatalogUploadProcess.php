@@ -342,19 +342,24 @@ class CatalogUploadProcess extends Command
 
                                 /** Now $catalog_item contains the existing or newly created record */
                                 $catalog_item_id = $catalog_item->id;
+                                
+                                if ($fileValue->catalog_price_type_id == 1) {
+                                    CheckActive::where(['catalog_item_id' => $catalog_item_id, 'catalog_price_type_id' => $fileValue->catalog_price_type_id])
+                                    ->update([
+                                        'active' => 0,
+                                    ]);
+                                }
 
-                                $existingRecord = CheckActive::where('catalog_item_id', $catalog_item_id)->first();
+                                $existingCheckActiveRecord = CheckActive::where('catalog_item_id', $catalog_item_id)->first();
 
-                                if ($existingRecord) {
-                                    // Update the existing record
-                                    $existingRecord->update([
-                                        'value' => $row[$value],
-                                        'customer_id' => $row[10],
+                                if ($existingCheckActiveRecord) {
+                                    /** Update the existing record */
+                                    $existingCheckActiveRecord->update([
+                                        'active' => 1,
                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                        'catalog_price_type_id' => $fileValue->catalog_price_type_id,
-                                        'core_list' => (trim($row[11]) == 'Contract Pricing') ? 1 : 0,
                                     ]);
                                 } else {
+                                    /** Create the record if not existing */
                                     CheckActive::create([
                                         'active' => 1,
                                         'catalog_item_id' => $catalog_item_id,
