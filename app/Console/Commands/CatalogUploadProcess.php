@@ -18,6 +18,16 @@ use App\Models\{
     ProductDetailsCommonValue,
     ProductDetailsCommonAttribute,
 };
+// use PhpOffice\PhpSpreadsheet\Settings;
+// use Cache\Adapter\Apcu\ApcuCachePool;
+// use Cache\Bridge\SimpleCache\SimpleCacheBridge;
+
+// use PhpOffice\PhpSpreadsheet\Settings;
+// use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+// use Cache\Bridge\SimpleCache\SimpleCacheBridge;
+
+use Illuminate\Support\Facades\Cache;
+
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\{DB, Log};
@@ -44,6 +54,32 @@ class CatalogUploadProcess extends Command
      */
     public function handle()
     {
+        // // Set up APCu cache for PHPSpreadsheet
+        // $pool = new ApcuCachePool();
+        // $simpleCache = new SimpleCacheBridge($pool);
+
+        // // Apply the cache to PHPSpreadsheet
+        // Settings::setCache($simpleCache);
+
+        // Ensure the cache directory exists and is writable
+        // $cacheDirectory = storage_path('framework/cache');
+
+        // // Set up the filesystem cache
+        // $cache = new FilesystemAdapter(
+        //     namespace: 'php_spreadsheet_cache',
+        //     defaultLifetime: 3600,  // Cache lifetime in seconds (1 hour)
+        //     directory: $cacheDirectory  // Directory to store the cache files
+        // );
+
+        // // Create a SimpleCacheBridge
+        // $simpleCache = new SimpleCacheBridge($cache);
+
+        // // Apply the cache to PhpSpreadsheet
+        // Settings::setCache($simpleCache);
+
+        /** Increasing the memory limit becouse memory limit issue */
+        // ini_set('memory_limit', '4G');
+
         /** This is the folder path where we save the file */
         $destinationPath = public_path('/excel_sheets');
 
@@ -93,7 +129,7 @@ class CatalogUploadProcess extends Command
 
             try {
                 /** Increasing the memory limit becouse memory limit issue */
-                ini_set('memory_limit', '1024M');
+                ini_set('memory_limit', '2G');
 
                 /** For memory optimization unset the spreadSheet and reader */
                 unset($spreadSheet, $reader);
@@ -108,11 +144,30 @@ class CatalogUploadProcess extends Command
                     // throw new Exception('Unsupported file type: ' . $inputFileType);
                 }
 
+                /** Load only the data (without formatting) to save memory */
+                $reader->setReadDataOnly(true);
+
                 /** Loading excel file using path and name of file from table "uploaded_file" */
-                $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
-                $sheetCount = $spreadSheet->getSheetCount();
+                // $spreadSheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2);
+                // $worksheet = $spreadSheet->getActiveSheet();
+                // $sheetCount = $spreadSheet->getSheetCount();
                 /** Getting sheet count for run loop on index */
 
+                 // Use Laravel's cache for optimization (optional)
+                // $cache = Cache::store('file')->remember('catalog_cache', 3600, function() use ($worksheet) {
+                    $data = [];
+                    echo '<pre>';
+                    foreach ($reader->load($destinationPath . '/' . $fileValue->file_name, 2)->getActiveSheet()->getRowIterator() as $row) {
+                        $rowData = [];
+                        foreach ($row->getCellIterator() as $cell) {
+                            $rowData[] = $cell->getFormattedValue();
+                            // print_r($cell->getFormattedValue());
+                        }
+                        $data[] = $rowData;
+                    }
+                    // return $data;
+                // });
+                dd($data);
                 /** Run the for loop for excel sheets */
                 for ($i = 0; $i < $sheetCount; $i++) {
                     $count = $maxNonEmptyCount = 0;
@@ -120,10 +175,10 @@ class CatalogUploadProcess extends Command
                     // CatalogAttachments::where('id', $fileValue->id)
                     // ->update(['cron' => 4]);
 
-                    $workSheetArray = $spreadSheet->getSheet($i)->toArray();
+                    // $workSheetArray = $spreadSheet->getSheet($i)->toArray();
                     /** Getting worksheet using index */
 
-                    foreach ($workSheetArray as $key => $value) {
+                    foreach ($spreadSheet->getSheet($i)->toArray() as $key => $value) {
                         $finalExcelKeyArray1 = array_values(
                             array_filter(
                                 $value,
@@ -156,7 +211,7 @@ class CatalogUploadProcess extends Command
                         continue;
                     }
 
-                    foreach ($workSheetArray as $key => $value) {
+                    foreach ($spreadSheet->getSheet($i)->toArray() as $key => $value) {
                         $finalExcelKeyArray1 = array_values(
                             array_filter(
                                 $value,
@@ -201,8 +256,8 @@ class CatalogUploadProcess extends Command
                     /** Unset the "$maxNonEmptyCount" for memory save */
                     unset($maxNonEmptyCount);
 
-                    $startIndex = $startIndexValueArray;
                     /** Specify the starting index for get the excel column value */
+                    $startIndex = $startIndexValueArray;
 
                     /** Unset the "$startIndexValueArray" for memory save */
                     unset($startIndexValueArray);
@@ -252,9 +307,9 @@ class CatalogUploadProcess extends Command
                         $unit_of_measure = array_search($columnArray[$fileValue->supplier_id]['unit_of_measure'], $maxNonEmptyValue);
                     }
 
-                    if (isset($workSheetArray) && !empty($workSheetArray)) {
+                    // if (isset($spreadSheet->getSheet($i)->toArray()) && !empty($spreadSheet->getSheet($i)->toArray())) {
                         /** For insert data into the database */
-                        foreach ($workSheetArray as $key => $row) {
+                        foreach ($spreadSheet->getSheet($i)->toArray() as $key => $row) {
                             if ($key > $startIndex && !empty($row[$category_name])) {
                                 // dd($row[$category_name]);
                                 /** Check if the category exists, if not, create it */
@@ -299,29 +354,30 @@ class CatalogUploadProcess extends Command
                                 $manufacturer_id = $manufacturer->id;
                                 /** Get the last inserted or existing manufacturer id */
 
-                                // /** Check if the common attribute exists, if not, create it */
-                                // $common_attribute = ProductDetailsCommonAttribute::firstOrCreate(
-                                //     [
-                                //         'sub_category_id' => $sub_category_id,
-                                //         'attribute_name' => $row[$manufacturer_name]
-                                //     ],
-                                //     [
-                                //         'type' => '',
-                                //         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //         'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                //     ]
-                                // );
+                                if ($fileValue->catalog_price_type_id == 2) {
+                                    /** Check if the common attribute exists, if not, create it */
+                                    $common_attribute = ProductDetailsCommonAttribute::firstOrCreate(
+                                        [
+                                            'sub_category_id' => $sub_category_id,
+                                            'attribute_name' => $row[$manufacturer_name]
+                                        ],
+                                        [
+                                            'type' => '',
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]
+                                    );
 
-                                // /** Now $common_attribute contains the existing or newly created record */
-                                // $common_attribute_id = $common_attribute->id;
-                                /** Get the last inserted or existing common attribute id */
+                                    /** Now $common_attribute contains the existing or newly created record */
+                                    $common_attribute_id = $common_attribute->id;
+                                    /** Get the last inserted or existing common attribute id */
+                                }
 
                                 /** Check if the catalog item exists by sku, if not, create it */
                                 $catalog_item = CatalogItem::firstOrCreate(
                                     ['sku' => $row[$sku]],
                                     /** Unique condition based on sku */
                                     [
-                                        'active' => 1,
                                         'unspsc' => '',
                                         'industry_id' => $industryId,
                                         'category_id' => $category_id,
@@ -369,37 +425,39 @@ class CatalogUploadProcess extends Command
                                     ]);
                                 }
 
-                                /** Get the last inserted or existing catalog item id */
-
-                                // /** Check if the common value exists, if not, create it */
-                                // $product_details_common_value = ProductDetailsCommonValue::firstOrCreate(
-                                //     [
-                                //         'value' => $row[$value],
-                                //         'catalog_item_id' => $catalog_item_id,
-                                //         'common_attribute_id' => $common_attribute_id
-                                //     ],
-                                //     [
-                                //         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //         'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                //     ]
-                                // );
-
-                                // /** Now $product_details_common_value contains the existing or newly created record */
-                                // $product_details_common_value_id = $product_details_common_value->id;
-                                /** Get the last inserted or existing record id */
-
-                                // /** Check if the raw value exists, if not, create it */
-                                // $product_details_raw_value = ProductDetailsRawValue::firstOrCreate(
-                                //     ['catalog_item_id' => $catalog_item_id],
-                                //     [
-                                //         'raw_values' => '',
-                                //         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //         'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                //     ]
-                                // );
-
-                                // /** Now $product_details_raw_value contains the existing or newly created record */
-                                // $product_details_raw_value_id = $product_details_raw_value->id; /** Get the last inserted or existing record id */
+                                if ($fileValue->catalog_price_type_id == 2) {
+                                    /** Get the last inserted or existing catalog item id */
+    
+                                    /** Check if the common value exists, if not, create it */
+                                    $product_details_common_value = ProductDetailsCommonValue::firstOrCreate(
+                                        [
+                                            'value' => $row[$value],
+                                            'catalog_item_id' => $catalog_item_id,
+                                            'common_attribute_id' => $common_attribute_id
+                                        ],
+                                        [
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]
+                                    );
+    
+                                    /** Now $product_details_common_value contains the existing or newly created record */
+                                    $product_details_common_value_id = $product_details_common_value->id;
+                                    /** Get the last inserted or existing record id */
+    
+                                    /** Check if the raw value exists, if not, create it */
+                                    $product_details_raw_value = ProductDetailsRawValue::firstOrCreate(
+                                        ['catalog_item_id' => $catalog_item_id],
+                                        [
+                                            'raw_values' => '',
+                                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                                        ]
+                                    );
+    
+                                    /** Now $product_details_raw_value contains the existing or newly created record */
+                                    $product_details_raw_value_id = $product_details_raw_value->id; /** Get the last inserted or existing record id */
+                                }
 
                                 $existingRecord = CatalogPrices::where('catalog_item_id', $catalog_item_id)->first();
 
@@ -425,16 +483,6 @@ class CatalogUploadProcess extends Command
                                     ]);
                                 }
 
-                                // CatalogPrices::create([
-                                //     'value' => $row[$value],
-                                //     'customer_id' => $row[10],
-                                //     'catalog_item_id' => $catalog_item_id,
-                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //     'catalog_price_type_id' => $fileValue->catalog_price_type_id,
-                                //     'core_list' => (trim($row[11]) == 'Contract Pricing') ? 1 : 0,
-                                // ]);
-
                                 CatalogPriceHistory::create([
                                     'value' => $row[$value],
                                     'customer_id' => $row[10],
@@ -448,7 +496,7 @@ class CatalogUploadProcess extends Command
                         }
 
                         /** For memory optimization we unset the workSheetArray1 and count */
-                        unset($workSheetArray1, $count);
+                        // unset($workSheetArray1, $count);
 
                         if (isset($finalInsertArray) && !empty($finalInsertArray)) {
                             try {
@@ -466,7 +514,7 @@ class CatalogUploadProcess extends Command
 
                         /** For memory optimization we unset the excelInsertArray */
                         unset($excelInsertArray);
-                    }
+                    // }
                 }
 
                 try {
@@ -490,51 +538,3 @@ class CatalogUploadProcess extends Command
         }
     }
 }
-
-
-
-   // $category_id = ProductDetailsCategory::create([
-                                //     'category_name' => $row[$category_name],
-                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                // ]);
-
-                                // $sub_category_id = ProductDetailsSubCategory::create([
-                                //     'category_id' => $category_id,
-                                //     'sub_category_name' => $row[$sub_category_name],
-                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                // ]);
-
-                                // $manufacturer_id = Manufacturer::create([
-                                //     'manufacturer_name' => $row[$manufacturer_name],
-                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                // ]);
-
-                                // $common_attribute_id = ProductDetailsCommonAttribute::create([
-                                //     'sub_category_id' => $sub_category_id,
-                                //     'attribute_name' => $row[$manufacturer_name],
-                                //     'type' => '',
-                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                // ]);
-
-                                // $catalog_item_id = CatalogItem::create([
-                                //     'sku' => $row[$sku],
-                                //     'unspsc' => '',
-                                //     'active' => '',
-                                //     'supplier_id' => $fileValue->supplier_id,
-                                //     'industry_id' => '',
-                                //     'category_id' => $category_id,
-                                //     'sub_category_id' => $sub_category_id,
-                                //     'unit_of_measure' => $row[$unit_of_measure],
-                                //     'manufacterer_id' => $manufacturer_id,
-                                //     'catalog_item_url' => '',
-                                //     'catalog_item_name' => '',
-                                //     'quantity_per_unit' => '',
-                                //     'manufacterer_number' => $row[$manufacterer_number],
-                                //     'supplier_shorthand_name' => $row[$supplier_shorthand_name],
-                                //     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                //     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                // ]);
