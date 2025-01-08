@@ -321,7 +321,7 @@ class ProcessUploadedFiles extends Command
                         }
 
                         if ($fileValue->supplier_id == 7) {
-                            $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
+                            $supplierYear = substr($maxNonEmptyValue[6], 0, 4);
                             if (!empty($supplierYear)) {
                                 /** Getting the duplicate data */
                                 $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('attachment_id')->first();
@@ -641,7 +641,7 @@ class ProcessUploadedFiles extends Command
                                         if ($fileValue->supplier_id == 7) {
                                             foreach ($weeklyPriceColumnArray as $key => $value) {
                                                 if (!empty($row[$key])) {                                                    
-                                                    $date = explode("-", $workSheetArray[7][$key]);
+                                                    $date = explode("-", $workSheetArray[6][$key]);
                                                     /** Inserting the excel data into the orders table and getting the last 
                                                      * insert id  for further insertion */
                                                     $orderLastInsertId = Order::create([
