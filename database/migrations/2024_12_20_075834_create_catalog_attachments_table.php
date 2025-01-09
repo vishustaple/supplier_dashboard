@@ -18,8 +18,6 @@ return new class extends Migration
             $table->string('file_name', 255);
             $table->tinyInteger('cron')->default(0);
             $table->tinyInteger('delete')->default(0);
-            $table->unsignedInteger('year'); /** Added year column */
-            $table->unsignedInteger('month'); /** Added month column */
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps(); /** Includes `created_at` and `updated_at` with nullable default */

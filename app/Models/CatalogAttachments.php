@@ -19,9 +19,8 @@ class CatalogAttachments extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'date',
         'cron',
-        'year',
-        'month',
         'file_name',
         'created_by',
         'deleted_by',
