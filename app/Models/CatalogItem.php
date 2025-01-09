@@ -24,7 +24,6 @@ class CatalogItem extends Model
         'catalog_item_name',
         'quantity_per_unit',
         'manufacturer_number',
-        'catalog_price_type_id',
         'supplier_shorthand_name',
     ];
 }
