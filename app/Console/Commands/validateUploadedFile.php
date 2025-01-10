@@ -57,6 +57,7 @@ class validateUploadedFile extends Command
         if ($fileValue !== null && $fileValue->supplier_id != 7) {
             if ($fileValue->supplier_id == 4) {
                 $alreadyuploadedFilesName = DB::table('attachments')
+                    ->where('id', '!=', $fileValue->id)
                     ->where('delete', 0)
                     ->where('supplier_id', $fileValue->supplier_id)
                     ->whereNull('deleted_by')
@@ -65,7 +66,7 @@ class validateUploadedFile extends Command
                     ->map(function ($fileName) {
                         return preg_replace('/^\d+_/', '', $fileName);
                     });
-
+                    
                 /** The file name you want to check (cleaned) */
                 $givenFileName = preg_replace('/^\d+_/', '', $fileValue->file_name);
 
