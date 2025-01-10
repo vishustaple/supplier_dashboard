@@ -55,6 +55,36 @@ class validateUploadedFile extends Command
         $suppliers = ManageColumns::getRequiredColumns();
 
         if ($fileValue !== null && $fileValue->supplier_id != 7) {
+            if ($fileValue->supplier_id == 4) {
+                $alreadyuploadedFilesName = DB::table('attachments')
+                    ->where('delete', 0)
+                    ->where('supplier_id', $fileValue->supplier_id)
+                    ->whereNull('deleted_by')
+                    ->whereNull('deleted_at')
+                    ->pluck('file_name')
+                    ->map(function ($fileName) {
+                        return preg_replace('/^\d+_/', '', $fileName);
+                    });
+
+                /** The file name you want to check (cleaned) */
+                $givenFileName = preg_replace('/^\d+_/', '', $fileValue->file_name);
+
+                /** Check if the cleaned file name exists in the collection */
+                if ($alreadyuploadedFilesName->contains($givenFileName)) {
+                    /** Update cron eleven means start processing data into excel */
+                    DB::table('attachments')
+                    ->where('id', $fileValue->id)
+                    ->update(['cron' => 10]);
+                } else {
+                    /** Update cron eleven means start processing data into excel */
+                    DB::table('attachments')
+                    ->where('id', $fileValue->id)
+                    ->update(['cron' => 11]);
+                }
+
+                die('Staple file is duplicat');
+            }
+
             /** Getting the file extension for process file according to the extension */
             $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
 
