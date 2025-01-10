@@ -12,8 +12,20 @@ class CatalogPriceHistory extends Model
     protected $table = 'catalog_price_history';
 
     protected $fillable = [
-        'value',
+        'May',
+        'year',
+        'June',
+        'July',
+        'March',
+        'April',
+        'August',
+        'January',
+        'October',
+        'February',
+        'November',
+        'December',
         'core_list',
+        'September',
         'customer_id',
         'catalog_item_id',
         'catalog_price_type_id',

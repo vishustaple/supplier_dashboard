@@ -16,6 +16,7 @@ class CatalogPrices extends Model
         'core_list',
         'customer_id',
         'catalog_item_id',
+        'price_file_date',
         'catalog_price_type_id',
     ];
 }

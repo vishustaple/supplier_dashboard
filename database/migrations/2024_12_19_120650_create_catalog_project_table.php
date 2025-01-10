@@ -101,7 +101,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
             $table->boolean('core_list')->default(false);
             $table->decimal('value', 10, 2);
-            $table->date('date');
+            $table->date('price_file_date');
             $table->timestamps();
         });
 
@@ -121,6 +121,18 @@ return new class extends Migration
             foreach ($months as $month) {
                 $table->decimal(strtolower($month), 10, 2)->nullable();
             }
+            $table->unsignedInteger('year'); /** Added year column */
+            $table->timestamps();
+        });
+
+        /** Check Core History Table */
+        Schema::create('check_core_history', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('catalog_item_id')->constrained('catalog_items')->onDelete('cascade');
+            $table->foreignId('catalog_price_type_id')->constrained('catalog_price_types')->onDelete('cascade');
+            $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
+            $table->boolean('core_list')->default(false);
+            $table->date('price_file_date');
             $table->timestamps();
         });
     }
@@ -130,6 +142,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('check_core_history');
         Schema::dropIfExists('catalog_price_history');
         Schema::dropIfExists('catalog_prices');
         Schema::dropIfExists('catalog_price_types');
