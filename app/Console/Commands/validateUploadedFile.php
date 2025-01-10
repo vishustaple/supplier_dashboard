@@ -76,14 +76,18 @@ class validateUploadedFile extends Command
                     DB::table('attachments')
                     ->where('id', $fileValue->id)
                     ->update(['cron' => 10]);
+
+                    die('Staple file is duplicat');
                 } else {
                     /** Update cron eleven means start processing data into excel */
                     DB::table('attachments')
                     ->where('id', $fileValue->id)
                     ->update(['cron' => 11]);
+                    
+                    die('Staple file is Ok');
                 }
 
-                die('Staple file is duplicat');
+                
             }
 
             /** Getting the file extension for process file according to the extension */
