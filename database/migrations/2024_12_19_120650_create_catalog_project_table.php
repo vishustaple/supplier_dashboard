@@ -63,6 +63,7 @@ return new class extends Migration
             $table->string('catalog_item_name');
             $table->string('supplier_shorthand_name');
             $table->integer('quantity_per_unit');
+            $table->tinyInteger('active')->default(0);  /** Added active column */
             $table->string('unit_of_measure');
             $table->string('catalog_item_url');
             $table->timestamps();
@@ -99,7 +100,7 @@ return new class extends Migration
             $table->foreignId('catalog_item_id')->constrained('catalog_items')->onDelete('cascade');
             $table->foreignId('catalog_price_type_id')->constrained('catalog_price_types')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
-            $table->boolean('core_list')->default(false);
+            $table->tinyInteger('core_list')->default(0);
             $table->decimal('value', 10, 2);
             $table->date('price_file_date');
             $table->timestamps();
@@ -131,7 +132,7 @@ return new class extends Migration
             $table->foreignId('catalog_item_id')->constrained('catalog_items')->onDelete('cascade');
             $table->foreignId('catalog_price_type_id')->constrained('catalog_price_types')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
-            $table->boolean('core_list')->default(false);
+            $table->tinyInteger('core_list')->default(0);
             $table->date('price_file_date');
             $table->timestamps();
         });
