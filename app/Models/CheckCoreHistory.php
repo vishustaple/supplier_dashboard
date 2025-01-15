@@ -9,6 +9,8 @@ class CheckCoreHistory extends Model
 {
     use HasFactory;
 
+    protected $table = 'check_core_history';
+    
     protected $fillable = [
         'core_list',
         'customer_id',

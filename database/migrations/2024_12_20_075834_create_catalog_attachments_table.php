@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('catalog_price_type_id');
             $table->string('file_name', 255);
             $table->tinyInteger('cron')->default(0);
+            $table->date('date')->nullable();
             $table->tinyInteger('delete')->default(0);
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('deleted_by')->nullable();

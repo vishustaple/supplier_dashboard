@@ -112,7 +112,7 @@ return new class extends Migration
             $table->foreignId('catalog_item_id')->constrained('catalog_items')->onDelete('cascade');
             $table->foreignId('catalog_price_type_id')->constrained('catalog_price_types')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
-            // $table->decimal('value', 10, 2);
+            
             /** Add columns for each month */
             $months = [
                 'January', 'February', 'March', 'April', 'May', 'June',
