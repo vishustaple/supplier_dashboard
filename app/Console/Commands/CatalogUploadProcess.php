@@ -38,6 +38,14 @@ class CatalogUploadProcess extends Command
      */
     protected $description = 'Command description';
 
+    protected function divideNumberIntoFourParts($number) {
+        $part1 = intval($number * 0.70); /** 70% of the total as an integer */
+        $part2 = intval($number * 0.50); /** 50% of the total as an integer */
+        $part3 = intval($number * 0.30); /** 30% of the total as an integer */
+    
+        return [$part1, $part2, $part3];
+    }
+
     /**
      * Execute the console command.
      */
@@ -49,10 +57,17 @@ class CatalogUploadProcess extends Command
         $destinationPath = public_path('/excel_sheets');
 
         /** Select those file name where cron is 11 */
-        $fileValue = CatalogAttachments::select('id', 'supplier_id', 'date', 'file_name', 'catalog_price_type_id', 'created_by')
-            ->where('cron', '=', 11)
-            ->whereNull('deleted_by')
-            ->first();
+        $fileValue = CatalogAttachments::select(
+            'id',
+            'date',
+            'file_name',
+            'created_by',
+            'supplier_id',
+            'catalog_price_type_id',
+        )
+        ->where('cron', '=', 11)
+        ->whereNull('deleted_by')
+        ->first();
 
         if ($fileValue !== null) {
             $columnValues = CatalogSupplierFields::select(
@@ -96,16 +111,26 @@ class CatalogUploadProcess extends Command
                 /** Get the column name for the month */
                 $monthColumn = $monthColumns[$month];
                 
-                /** Get records where the year and month match */
-                $attachments = CatalogAttachments::whereYear('date', $year)
+                /** Get records where the year and month match but cron not match */
+                $firstFileUploaded = CatalogAttachments::where('cron', '!=', 11)
                 ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->whereNull('deleted_at')
                 ->first();
 
-                /** Check if no records were found */
-                if ($attachments) {
-                    $firstFileUploaded = true;
-                } else {
-                    $firstFileUploaded = false;
+                $greaterDateFileExist = CatalogAttachments::where('cron', '!=', 11)
+                ->whereMonth('date', '>', $month)
+                ->whereYear('date', '>=', $year)
+                ->whereNull('deleted_at')
+                ->first();
+
+                /** Check if records were found */
+                if ($firstFileUploaded) {
+                    CatalogItem::where('supplier_id', $fileValue->supplier_id)
+                    ->update([
+                        'active' => 0,
+                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    ]);
                 }
 
                 /** Increasing the memory limit becouse memory limit issue */
@@ -124,10 +149,30 @@ class CatalogUploadProcess extends Command
                 /** Load only the data (without formatting) to save memory */
                 $reader->setReadDataOnly(true);
 
+                $worksheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2)->getActiveSheet();
+
+                /** Get total rows before the loop and get percent array */
+                $percentArray = $this->divideNumberIntoFourParts($worksheet->getHighestRow());
+
                 /** Initialize data array */
                 $header = []; /** Initialize header array to store the first row */
 
-                foreach ($reader->load($destinationPath . '/' . $fileValue->file_name, 2)->getActiveSheet()->getRowIterator() as $rowIndex => $row) {
+                foreach ($worksheet->getRowIterator() as $rowIndex => $row) {
+                    switch ($rowIndex) {
+                        case $percentArray[2]:
+                            /** Update the catalog attachment table "cron" means 30% data uploaded */
+                            CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 2]);
+                            break;
+                        case $percentArray[1]:
+                            /** Update the catalog attachment table "cron" means 50% data uploaded */
+                            CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 4]);
+                            break;
+                        case $percentArray[0]:
+                            /** Update the catalog attachment table "cron" means 70% data uploaded */
+                            CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 5]);
+                            break;
+                    }
+
                     $cellIterator = $row->getCellIterator();
                     $cellIterator->setIterateOnlyExistingCells(true); /** Only iterate through non-empty cells */
                     
@@ -221,94 +266,49 @@ class CatalogUploadProcess extends Command
                             /** Get the last inserted or existing common attribute id */
                         }
 
-                        if ($firstFileUploaded) {
-                            $existingCatalogItem = CatalogItem::where([
-                                'sku' => $matchedRow['sku'],
-                                'supplier_id' => $fileValue->supplier_id,
-                            ])->first();
+                        
+                        $existingCatalogItem = CatalogItem::where([
+                            'sku' => $matchedRow['sku'],
+                            'supplier_id' => $fileValue->supplier_id,
+                        ])
+                        ->first();
 
-                            /** Update the existing record */
-                            if ($existingCatalogItem) {
+                        /** Update the existing record */
+                        if ($existingCatalogItem) {
+                            if (!$greaterDateFileExist) {
                                 $existingCatalogItem->update([
                                     'active' => 1,
                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                 ]);
-
-                                /** Now $catalog_item contains the existing or newly created record */
-                                $catalog_item_id = $existingCatalogItem->id;
-                            } else {
-                                /** Check if the catalog item exists by sku, if not, create it */
-                                $catalog_item = CatalogItem::firstOrCreate(
-                                    ['sku' => $matchedRow['sku']],
-                                    [
-                                        'active' => 1,
-                                        'unspsc' => '',
-                                        'catalog_item_url' => '',
-                                        'catalog_item_name' => '',
-                                        'quantity_per_unit' => '',
-                                        'industry_id' => $industryId,
-                                        'category_id' => $category_id,
-                                        'sub_category_id' => $sub_category_id,
-                                        'manufacturer_id' => $manufacturer_id,
-                                        'supplier_id' => $fileValue->supplier_id,
-                                        'unit_of_measure' => $matchedRow['unit_of_measure'],
-                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                        'manufacturer_number' => $matchedRow['manufacterer_number'],
-                                        'supplier_shorthand_name' => $matchedRow['supplier_shorthand_name'],
-                                    ]
-                                );
-
-                                /** Now $catalog_item contains the existing or newly created record */
-                                $catalog_item_id = $catalog_item->id;
                             }
+
+                            /** Now $catalog_item contains the existing or newly created record */
+                            $catalog_item_id = $existingCatalogItem->id;
                         } else {
-                            CatalogItem::where('supplier_id', $fileValue->supplier_id)
-                            ->update([
-                                'active' => 0,
-                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                            ]);
-
-                            $existingCatalogItem = CatalogItem::where([
-                                'sku' => $matchedRow['sku'],
-                                'supplier_id' => $fileValue->supplier_id,
-                            ])->first();
-
-                            if ($existingCatalogItem) {
-                                /** Update the existing record */
-                                $existingCatalogItem->update([
-                                    'active' => 1,
+                            /** Check if the catalog item exists by sku, if not, create it */
+                            $catalog_item = CatalogItem::firstOrCreate(
+                                ['sku' => $matchedRow['sku']],
+                                [
+                                    'active' => ($greaterDateFileExist) ? 0 : 1,
+                                    'unspsc' => '',
+                                    'catalog_item_url' => '',
+                                    'catalog_item_name' => '',
+                                    'quantity_per_unit' => '',
+                                    'industry_id' => $industryId,
+                                    'category_id' => $category_id,
+                                    'sub_category_id' => $sub_category_id,
+                                    'manufacturer_id' => $manufacturer_id,
+                                    'supplier_id' => $fileValue->supplier_id,
+                                    'unit_of_measure' => $matchedRow['unit_of_measure'],
+                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                ]);
+                                    'manufacturer_number' => $matchedRow['manufacterer_number'],
+                                    'supplier_shorthand_name' => $matchedRow['supplier_shorthand_name'],
+                                ]
+                            );
 
-                                /** Now $catalog_item contains the existing or newly created record */
-                                $catalog_item_id = $existingCatalogItem->id;
-                            } else {
-                                /** Check if the catalog item exists by sku, if not, create it */
-                                $catalog_item = CatalogItem::firstOrCreate(
-                                    ['sku' => $matchedRow['sku']],
-                                    [
-                                        'active' => 1,
-                                        'unspsc' => '',
-                                        'catalog_item_url' => '',
-                                        'catalog_item_name' => '',
-                                        'quantity_per_unit' => '',
-                                        'industry_id' => $industryId,
-                                        'category_id' => $category_id,
-                                        'sub_category_id' => $sub_category_id,
-                                        'manufacturer_id' => $manufacturer_id,
-                                        'supplier_id' => $fileValue->supplier_id,
-                                        'unit_of_measure' => $matchedRow['unit_of_measure'],
-                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                        'manufacturer_number' => $matchedRow['manufacterer_number'],
-                                        'supplier_shorthand_name' => $matchedRow['supplier_shorthand_name'],
-                                    ]
-                                );
-
-                                /** Now $catalog_item contains the existing or newly created record */
-                                $catalog_item_id = $catalog_item->id;
-                            }
+                            /** Now $catalog_item contains the existing or newly created record */
+                            $catalog_item_id = $catalog_item->id;
                         }
 
                         if ($fileValue->catalog_price_type_id == 3) {
@@ -344,21 +344,23 @@ class CatalogUploadProcess extends Command
                         }
 
                         $existingRecord = CatalogPrices::where([
-                                'catalog_item_id' => $catalog_item_id,
-                                'catalog_price_type_id' => $fileValue->catalog_price_type_id,
-                            ])
-                            ->first();
+                            'catalog_item_id' => $catalog_item_id,
+                            'catalog_price_type_id' => $fileValue->catalog_price_type_id,
+                        ])
+                        ->first();
 
                         if ($existingRecord) {
-                            /** Update the existing record */
-                            $existingRecord->update([
-                                // 'customer_id' => $matchedRow['Customer Id'],
-                                'customer_id' => 1,
-                                'value' => $matchedRow['value'],
-                                'price_file_date' => $fileValue->date,
-                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
-                            ]);
+                            if (!$greaterDateFileExist) {
+                                /** Update the existing record */
+                                $existingRecord->update([
+                                    // 'customer_id' => $matchedRow['Customer Id'],
+                                    'customer_id' => 1,
+                                    'value' => $matchedRow['value'],
+                                    'price_file_date' => $fileValue->date,
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
+                                ]);
+                            }
                         } else {
                             /** Insert a new record */
                             CatalogPrices::create([
@@ -382,7 +384,7 @@ class CatalogUploadProcess extends Command
                         if ($priceHistory) {
                             /** Update the month data */
                             $priceHistory->update([
-                                $monthColumn =>$matchedRow['value'], /** Update with the new price for that month */
+                                $monthColumn => $matchedRow['value'], /** Update with the new price for that month */
                                 'updated_at' => now(),
                             ]);
                         } else {
@@ -402,12 +404,14 @@ class CatalogUploadProcess extends Command
                         ->first(); /** Get the first record for this year */
 
                         if ($checkCoreHistory) {
-                            /** Update the month data */
-                            $checkCoreHistory->update([
-                                'updated_at' => now(),
-                                'price_file_date' => $fileValue->date,
-                                'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
-                            ]);
+                            if (!$greaterDateFileExist) {
+                                /** Update the month data */
+                                $checkCoreHistory->update([
+                                    'updated_at' => now(),
+                                    'price_file_date' => $fileValue->date,
+                                    'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
+                                ]);
+                            }
                         } else {
                             CheckCoreHistory::create([
                                 // 'customer_id' => $matchedRow['Customer Id'],
@@ -424,9 +428,8 @@ class CatalogUploadProcess extends Command
                 }
 
                 try {
-                    /** Update the 'cron' field six after processing done */
-                    CatalogAttachments::where('id', $fileValue->id)
-                        ->update(['cron' => 6]);
+                    /** Update the catalog attachment table "cron" means 100% data uploaded */
+                    CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 6]);
 
                     $this->info('Uploaded files processed successfully.');
                 } catch (QueryException $e) {

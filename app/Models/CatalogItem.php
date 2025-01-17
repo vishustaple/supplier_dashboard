@@ -14,6 +14,7 @@ class CatalogItem extends Model
     protected $fillable = [
         'sku',
         'unspsc',
+        'active',
         'supplier_id',
         'industry_id',
         'category_id',
