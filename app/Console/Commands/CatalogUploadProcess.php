@@ -149,6 +149,7 @@ class CatalogUploadProcess extends Command
                 /** Load only the data (without formatting) to save memory */
                 $reader->setReadDataOnly(true);
 
+                /** Reading file using reader */
                 $worksheet = $reader->load($destinationPath . '/' . $fileValue->file_name, 2)->getActiveSheet();
 
                 /** Get total rows before the loop and get percent array */
@@ -160,15 +161,15 @@ class CatalogUploadProcess extends Command
                 foreach ($worksheet->getRowIterator() as $rowIndex => $row) {
                     switch ($rowIndex) {
                         case $percentArray[2]:
-                            /** Update the catalog attachment table "cron" means 30% data uploaded */
+                            /** Update the catalog attachment table "'cron' => 2" means 30% data uploaded */
                             CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 2]);
                             break;
                         case $percentArray[1]:
-                            /** Update the catalog attachment table "cron" means 50% data uploaded */
+                            /** Update the catalog attachment table "'cron' => 4" means 50% data uploaded */
                             CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 4]);
                             break;
                         case $percentArray[0]:
-                            /** Update the catalog attachment table "cron" means 70% data uploaded */
+                            /** Update the catalog attachment table "'cron' => 5" means 70% data uploaded */
                             CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 5]);
                             break;
                     }
@@ -200,9 +201,6 @@ class CatalogUploadProcess extends Command
                             }
                         }
                     }
-
-                    /** Add the matched row to data */
-                    /** $data[] = $matchedRow; */
 
                     if (!empty($matchedRow)) {
                         /** Check if the category exists, if not, create it */
@@ -378,6 +376,7 @@ class CatalogUploadProcess extends Command
 
                         $priceHistory = CatalogPriceHistory::where('catalog_item_id',  $catalog_item_id) /** Adjust catalog item ID */
                         ->where('catalog_price_type_id', $fileValue->catalog_price_type_id)
+                        ->where($monthColumns[$month], $matchedRow['value']) /** Filter by month */
                         ->where('year', $year) /** Filter by year */
                         ->first(); /** Get the first record for this year */
 
@@ -428,7 +427,7 @@ class CatalogUploadProcess extends Command
                 }
 
                 try {
-                    /** Update the catalog attachment table "cron" means 100% data uploaded */
+                    /** Update the catalog attachment table "'cron' => 6" means 100% data uploaded */
                     CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 6]);
 
                     $this->info('Uploaded files processed successfully.');
