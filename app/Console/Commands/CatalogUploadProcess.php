@@ -70,6 +70,7 @@ class CatalogUploadProcess extends Command
         ->first();
 
         if ($fileValue !== null) {
+            /** Getting catalog supplier fields names */
             $columnValues = CatalogSupplierFields::select(
                 'catalog_supplier_fields.label as label',
                 'catalog_required_fields.field_name as required_field_column'
@@ -118,6 +119,7 @@ class CatalogUploadProcess extends Command
                 ->whereNull('deleted_at')
                 ->first();
 
+                /** Get records if greater date record exist */
                 $greaterDateFileExist = CatalogAttachments::where('cron', '!=', 11)
                 ->whereMonth('date', '>', $month)
                 ->whereYear('date', '>=', $year)
@@ -136,6 +138,7 @@ class CatalogUploadProcess extends Command
                 /** Increasing the memory limit becouse memory limit issue */
                 ini_set('memory_limit', '4G');
 
+                /** Get file type like xlsx, xls etc. */
                 $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
 
                 if ($inputFileType === 'Xlsx') {
@@ -273,6 +276,7 @@ class CatalogUploadProcess extends Command
 
                         /** Update the existing record */
                         if ($existingCatalogItem) {
+                            /** If greater date catalog file not exist then update active data */
                             if (!$greaterDateFileExist) {
                                 $existingCatalogItem->update([
                                     'active' => 1,
@@ -348,6 +352,7 @@ class CatalogUploadProcess extends Command
                         ->first();
 
                         if ($existingRecord) {
+                            /** If greater date catalog file not exist then update value data */
                             if (!$greaterDateFileExist) {
                                 /** Update the existing record */
                                 $existingRecord->update([
@@ -376,7 +381,7 @@ class CatalogUploadProcess extends Command
 
                         $priceHistory = CatalogPriceHistory::where('catalog_item_id',  $catalog_item_id) /** Adjust catalog item ID */
                         ->where('catalog_price_type_id', $fileValue->catalog_price_type_id)
-                        ->where($monthColumns[$month], $matchedRow['value']) /** Filter by month */
+                        // ->where($monthColumns[$month], $matchedRow['value']) /** Filter by month */
                         ->where('year', $year) /** Filter by year */
                         ->first(); /** Get the first record for this year */
 
@@ -398,11 +403,12 @@ class CatalogUploadProcess extends Command
                             ]);
                         }
 
-                        $checkCoreHistory = CheckCoreHistory::where('catalog_item_id',  $catalog_item_id) /** Adjust catalog item ID */
+                        $checkCoreHistory = CheckCoreHistory::where('catalog_item_id', $catalog_item_id) /** Adjust catalog item ID */
                         ->where('catalog_price_type_id', $fileValue->catalog_price_type_id)
                         ->first(); /** Get the first record for this year */
 
                         if ($checkCoreHistory) {
+                            /** If greater date catalog file not exist then update month data */
                             if (!$greaterDateFileExist) {
                                 /** Update the month data */
                                 $checkCoreHistory->update([
