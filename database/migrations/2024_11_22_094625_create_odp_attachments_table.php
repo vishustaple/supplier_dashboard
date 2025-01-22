@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('show_permissions', function (Blueprint $table) {
+        Schema::create('odp_attachments', function (Blueprint $table) {
             $table->id();
-            $table->string('permission_name');
+            $table->unsignedBigInteger('attachment_id'); /** Unsigned big integer for attachment_id */
+            $table->year('year'); /** Column for storing year (4 digits) */
             $table->timestamps();
         });
     }
@@ -23,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('show_permissions');
+        Schema::dropIfExists('odp_attachments');
     }
 };

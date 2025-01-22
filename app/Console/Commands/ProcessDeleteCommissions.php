@@ -26,30 +26,30 @@ class ProcessDeleteCommissions extends Command
      */
     public function handle()
     {
-        /** Selecting the sales_rep from commission table id from sales_team table using left join */
-        $salesRep = DB::table('commission')
+        /** Selecting the sales_rep from commissions table id from sales_team table using left join */
+        $salesRep = DB::table('commissions')
         ->select(
-            'commission.sales_rep as id',
+            'commissions.sales_rep as id',
             'sales_team.id as sales_rep'
         )
         ->leftJoin(
             'sales_team',
             'sales_team.id',
             '=',
-            'commission.sales_rep'
+            'commissions.sales_rep'
         )
         ->get();
 
         foreach($salesRep as $key => $value){
             if (empty($value->sales_rep)) {
                 /** Delete records from Commission table */
-                DB::table('commission')->where('sales_rep', $value->id)->delete();
+                DB::table('commissions')->where('sales_rep', $value->id)->delete();
 
                 /** Delete records from Commission Rebate Detail table */
-                DB::table('commission_rebate_detail')->where('sales_rep', $value->id)->delete();
+                DB::table('commissions_rebate_detail')->where('sales_rep', $value->id)->delete();
 
                 /** Delete records from Commission Rebate table */
-                DB::table('commission_rebate')->where('sales_rep', $value->id)->delete();
+                DB::table('commissions_rebate')->where('sales_rep', $value->id)->delete();
             }
         }
     }

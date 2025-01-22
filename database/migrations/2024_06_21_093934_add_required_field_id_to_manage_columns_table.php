@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('manage_columns', function (Blueprint $table) {
+        Schema::table('supplier_fields', function (Blueprint $table) {
             $table->unsignedBigInteger('required_field_id')->after('required')->nullable(); // or ->after('some_column') to specify position
             $table->foreign('required_field_id')->references('id')->on('required_fields');
         });
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('manage_columns', function (Blueprint $table) {
+        Schema::table('supplier_fields', function (Blueprint $table) {
             $table->dropColumn('required_field_id');
         });
     }

@@ -30,25 +30,25 @@ class RemoveFrontZeroAccountNumber extends Command
             ->where('account_number', 'LIKE', '0%')
             ->update(['account_number' => DB::raw("TRIM(LEADING '0' FROM `account_number`)")]);
 
-        /** Select data from orders for update order_product_details table */
+        /** Select data from orders for update order_details table */
         $data = DB::table('orders')
             ->where('customer_number', 'LIKE', '0%')
             ->select('supplier_id', 'id', 'customer_number')->get();
 
         $columnArray = [
-            1 => 'SOLD TOACCOUNT',
-            2 => 'Account Number',
-            3 => 'CUSTOMER ID',
-            4 => 'Master_Customer_Number ID',
-            5 => 'Customer Num',
-            6 => 'Payer',
-            7 => 'Account ID'
+            1 => 1,
+            2 => 453,
+            3 => 48,
+            4 => 491,
+            5 => 125,
+            6 => 394,
+            7 => 203,
         ];
 
         foreach ($data as $key => $value) {
-            DB::table('order_product_details')
+            DB::table('order_details')
             ->where('order_id', $value->id)
-            ->where('key', $columnArray[$value->supplier_id])
+            ->where('supplier_field_id', $columnArray[$value->supplier_id])
             ->update(['value' => DB::raw("TRIM(LEADING '0' FROM `value`)")]);
         }
 

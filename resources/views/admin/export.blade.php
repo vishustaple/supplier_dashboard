@@ -48,6 +48,7 @@
                             @endforeach
                         @endif
                         </select>
+                        <div class="pt-4" id="additional-inputs"></div>
                     </div>
                     <div id="enddates" class="form-group invisible relative col-md-6 mb-0">
                         <label for="enddate">Select Date:</label>
@@ -107,7 +108,24 @@
                     </form>
                 </div>
             </div>
-
+            <div class="colors_spans">
+                <div class="colors">
+                    <span style="background-color: rgb(248, 240, 121);"></span>
+                    <p>File Re-Processing</p>
+                </div>
+                <div class="colors">
+                    <span style="background-color: rgb(240, 155, 155);"></span>
+                    <p>File Deleted</p>
+                </div>
+                <div class="colors">
+                    <span style="background-color: rgb(182 235 176);"></span>
+                    <p>File Duplicate</p>
+                </div>
+                <div class="colors">
+                    <span></span>
+                    <p>File Uploaded</p>
+                </div>
+            </div>
             <table id="example" class="data_table_files">
             <!-- Your table content goes here -->
             <thead>
@@ -122,7 +140,6 @@
                 </thead>
             </table>
         </div>
-        @include('layout.footer')
     </div>
 </div>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -268,6 +285,30 @@
         #progBar {
             width: 100%;
         }
+
+        .colors_spans {
+            display: flex;
+            /* justify-content: end; */
+            gap: 20px;
+            margin-bottom: -30px;
+        }
+        .colors_spans span {
+            width: 25px;
+            display: block;
+            height: 25px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        
+        .colors_spans .colors {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .colors_spans .colors p {
+            margin-bottom: 0px;
+        } 
     </style>
     </body>
     <script>
@@ -337,12 +378,26 @@
                 // Loop through each cell in the row
                 $('td', row).each(function() {
                     // Check if the cell contains a button with a specific class
-                    if ($(this).find('button.invisible').length) {
-                        $(row).css('background-color','#f09b9b');
-                    }
+                    if ($(this).find('button.invisible2').length > 0) {
+                    // If a button with the class 'invisible2' exists
+                    $(row).css('background-color', 'rgb(248, 240, 121)'); // Highlight the row
+                } else if ($(this).find('button.invisible3').length > 0) {
+                    // If a button with the class 'invisible' exists
+                    $(row).css('background-color', 'rgb(182 235 176)'); // Highlight the row with a different color
+                } else if ($(this).find('button.invisible1').length > 0) {
+                    // If a button with the class 'invisible' exists
+                    $(row).css('background-color', '#f09b9b'); // Highlight the row with a different color
+                } else {
+                    // Default case: no specific button found
+                    $(row).css('background-color', ''); // Reset background color (optional)
+                }
                 });
             }
         });
+
+        setInterval(() => {
+            $('#example').DataTable().ajax.reload();
+        }, 2000);
 
         $('#page-loader').hide();
         $('#example_length').hide();
@@ -407,6 +462,20 @@
 
         $('#selectBox').val('');
         $('#selectBox').on('change', function() {
+            var selectedValue = $(this).val(); // Get the selected value
+            var inputContainer = $('#additional-inputs'); // Target container
+
+            // Clear previous inputs
+            inputContainer.empty();
+
+            // Check if "Lyreco" (value 6) is selected
+            if (selectedValue === '6') {
+                inputContainer.append(`
+                    <label for="conversion-rate">Conversion Rate:</label>
+                    <input type="number" id="conversion-rate" min="0" name="conversion_rate" class="form-control mt-1" />
+                `);
+            }
+
             var suppliername =  $(this).find("option:selected").text()
             console.log(suppliername);
             $('#sup_name').text(suppliername);
@@ -424,7 +493,7 @@
                         var editButton = '<button class="btn btn-link edit_column" type="button" data-id="' + column.id + '"><i class="fas fa-edit"></i></button>';
 
                         // Append table row
-                        $("#tableBody").append("<tr><td>" + i +"</td><td>" + column.field_name + "</td><td>" + requiredIcon + "</td><td>" + editButton + "</td></tr>");
+                        $("#tableBody").append("<tr><td>" + i +"</td><td>" + column.raw_label + "</td><td>" + requiredIcon + "</td><td>" + editButton + "</td></tr>");
                         i++;
                     });
                 },
@@ -483,7 +552,7 @@
             var dataToSave = []; // Array to store the data to be saved
             var fieldValues = {};
             var isValid = true;
-            // Iterate over each input field with name 'field_name[]'
+            // Iterate over each input field with name 'raw_label[]'
             $('input[name="field_names[]"]').each(function(index) {
                 var fieldValue = $(this).val(); // Get the value of the input field
                 fieldValue = htmlspecialchars(fieldValue); 

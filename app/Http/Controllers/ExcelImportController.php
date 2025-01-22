@@ -12,15 +12,14 @@ use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Validator;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx as Writer;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use App\Models\{
     UploadedFiles,
     ManageColumns,
     SupplierDetail,
-    ShowPermissions,
     CategorySupplier,
     RequiredFieldName,
 };
@@ -78,18 +77,11 @@ class ExcelImportController extends Controller
     }
 
     public function import(Request $request) {
+        /** Increasing memory for smoothly process data of excel file */
         ini_set('memory_limit', '1024M');
-        $suppliers = ManageColumns::getRequiredColumns();
-        $endDateRange = $request->input('enddate');
 
-        /** Split the date range string into start and end dates */
-        if(!empty($endDateRange )){
-            list($startDate, $endDate) = explode(' - ', $endDateRange);
-            
-            /** Convert the date strings to the 'YYYY-MM-DD' format */
-            $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
-            $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-        }
+        /** Getting suppliers ids and its required columns */
+        $suppliers = ManageColumns::getRequiredColumns();
         
         /** Validate the uploaded file */
         $validator = Validator::make(
@@ -104,7 +96,9 @@ class ExcelImportController extends Controller
         }
         
         try {
+            /** Getting the file extension for process file according to the extension */
             $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('file'));
+
             if ($inputFileType === 'Xlsx') {
                 $reader = new Xlsx();
             } elseif ($inputFileType === 'Xls') {
@@ -114,20 +108,17 @@ class ExcelImportController extends Controller
                 throw new Exception('Unsupported file type: ' . $inputFileType);
             }
 
+            /** Loading the file without attached image */
             $spreadSheet = $reader->load($request->file('file'), 2);
+
+            /** Setting the variables for validation */
             $validationCheck = $arrayDiff = false;
-            foreach ($spreadSheet->getAllSheets() as $one => $spreadSheets) {
-                // if ($request->supplierselect == 7) {
-                //     if ($spreadSheets->getTitle() != 'Weekly Sales Account Summary') {
-                //         continue;
-                //     }
-                // }
-                
+            foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 if ($validationCheck == true) {
                     break;
                 }
 
-                foreach ($spreadSheets->toArray() as $key=>$value) {
+                foreach ($spreadSheets->toArray() as $value) {
                     /** Remove empty key from the array of excel sheet column name */
                     $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
                         return !empty($item);
@@ -141,8 +132,10 @@ class ExcelImportController extends Controller
 
                     if (isset($suppliers[$request->supplierselect])) {
                         $supplierValues = $suppliers[$request->supplierselect];
+                        /** Handle case of office depot weekly excel file */
                         if ($request->supplierselect == 7) {
-                            $supplierValues = array_slice($supplierValues, 0, 6, true);                        
+                            $supplierValues = array_slice($supplierValues, 0, 6, true);
+                            $cleanedArray2 = $cleanedArray;                        
                             if (isset($cleanedArray[5]) && $cleanedArray[5] == $supplierValues[5]) {
                                 foreach ($cleanedArray as $keys => $valuess) {
                                     if ($keys > 5) {
@@ -154,12 +147,25 @@ class ExcelImportController extends Controller
                             }
                         }
                         
+                        if ($request->supplierselect == 4) {
+                            /** Check if 'Group ID', 'Payment Method Code' and 'Transaction Source System' exists in the array */
+                            $groupIndex = array_search('Group ID', $cleanedArray);
+                            $paymentMethodCodeIndex = array_search('Payment Method Code', $cleanedArray);
+                            $transactionSourceSystemIndex = array_search('Transaction Source System', $cleanedArray);
+
+                            $groupIndex !== false ? array_splice($cleanedArray, $groupIndex + 1, 0, 'Group ID1') : '';
+                            $paymentMethodCodeIndex !== false ? array_splice($cleanedArray, $paymentMethodCodeIndex + 1, 0, 'Payment Method Code1') : '';
+                            $transactionSourceSystemIndex !== false ? array_splice($cleanedArray, $transactionSourceSystemIndex + 1, 0, 'Transaction Source System1') : '';                            
+                        }
+                        
+                        /** Getting the difference of excel file columns */
                         $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
                         if (count($arrayDiff) < count($supplierValues)) {
                             $arrayDiff1 = $arrayDiff;
                         }
 
+                        /** Checking the difference if arrayDiff empty then break the loop and go to next step */
                         if (empty($arrayDiff)) {
                             $validationCheck = true;
                             break;
@@ -170,15 +176,15 @@ class ExcelImportController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
-
+        // dd($supplierValues, $cleanedArray, $arrayDiff, $arrayDiff1);
         /** Here we return the error into form of json */
         if ($validationCheck == false) {
             if (isset($arrayDiff1) && !empty($arrayDiff1)) {
                 $missingColumns = implode(', ', $arrayDiff1);
             } else {
-                $missingColumns = implode(', ', $arrayDiff1);
+                $missingColumns = implode(', ', $arrayDiff);
             }
-
+            
             return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
         }
 
@@ -196,30 +202,26 @@ class ExcelImportController extends Controller
 
         /** check supllier upload right file or not */
         if (isset($suppliers[$request->supplierselect])) {
-          
-            
-            // dd(array_diff($supplierValues,$cleanedArray));
-            // dd($supplierValues);
-
             /** Get the authenticated user */
             $user = Auth::user();
-            $endDateRange = $request->input('enddate');
-            if(!empty($endDateRange)){
-                // Split the date range string into start and end dates
-                list($startDate, $endDate) = explode(' - ', $endDateRange);
-                // Convert the date strings to the 'YYYY-MM-DD' format
-                $formattedStartDate = Carbon::createFromFormat('m/d/Y', $startDate)->format('Y-m-d');
-                $formattedEndDate = Carbon::createFromFormat('m/d/Y', $endDate)->format('Y-m-d');
-            }
-            try{
-                UploadedFiles::create([
-                    'supplier_id' => $request->supplierselect,
-                    'cron' => UploadedFiles::UPLOAD,
-                    'start_date' => $formattedStartDate??"",
-                    'end_date' => $formattedEndDate??"",
-                    'file_name' => $fileName,
-                    'created_by' => $user->id,
-                ]); 
+
+            try {
+                if ($request->supplierselect == 6) {
+                    UploadedFiles::create([
+                        'file_name' => $fileName,
+                        'created_by' => $user->id,
+                        'cron' => UploadedFiles::UPLOAD,
+                        'supplier_id' => $request->supplierselect,
+                        'conversion_rate' => $request->conversion_rate,
+                    ]); 
+                } else {
+                    UploadedFiles::create([
+                        'file_name' => $fileName,
+                        'created_by' => $user->id,
+                        'supplier_id' => $request->supplierselect,
+                        'cron' => ($request->supplierselect == 15) ? (11) : (UploadedFiles::UPLOAD),
+                    ]); 
+                }
 
                 /** Move the file with the new name */
                 $file->move($destinationPath, $fileName);
@@ -230,16 +232,22 @@ class ExcelImportController extends Controller
 
             $suppliers = ManageColumns::getColumns();
             $supplierValues = $suppliers[$request->supplierselect];
+
+            if ($request->supplierselect == 7) {
+                $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray2));
+            } else {
+                $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray));
+            }
             
-            $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray));
+            $column = (count($arrayDiff) > 1) ? ('columns') : ('column');
+
             $missingColumns = implode(', ', $arrayDiff);
             
-            if (!empty($arrayDiff)) {
-                return response()->json(['success' => 'Excel file imported successfully!. Missing columns '.$missingColumns.''], 200);
+            if (!empty($arrayDiff) && $request->supplierselect != 4) {
+                return response()->json(['success' => 'Excel file imported successfully!. Missing '.$column.' '.$missingColumns.''], 200);
             } else {
                 return response()->json(['success' => 'Excel file imported successfully!'], 200);
             }
-            
         } else {
             return response()->json(['error' => 'Please select supplier.'], 200);
         }
@@ -289,22 +297,8 @@ class ExcelImportController extends Controller
             $id = $request->id;
         }
 
-        if ($id == 7) {
-            $filename = 'weekly_office_depot_sample_file.xlsx';
-    
-            $destinationPath = public_path('/excel_sheets');
-    
-            /** Set the response headers */
-            $headers = [
-                'Content-Type' => 'application/xlsx',
-                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
-            ];
-            
-            return response()->download($destinationPath.'/'.$filename, $filename, $headers);
-        }
-
-        $supplierColumns = DB::table('manage_columns')
-        ->where('supplier_id', $id);
+        $supplierColumns = DB::table('supplier_fields')
+        ->where(['supplier_id' => $id, 'deleted' => 0]);
 
         $filename = DB::table('supplier_tables')
         ->where('supplier_id', $id)
@@ -321,7 +315,7 @@ class ExcelImportController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
 
         /** Extract only the 'label' values */
-        $labels = $supplierColumns->pluck('field_name')->toArray();
+        $labels = $supplierColumns->pluck('label')->toArray();
 
         /** Set header for the 'label' column */
         $sheet->setCellValue('A1', 'Label');
@@ -354,7 +348,7 @@ class ExcelImportController extends Controller
             $columnValue = $value['fieldValue'];
             $column = ManageColumns::find($id);
             if ($column) {
-                $column->field_name = $columnValue;
+                $column->raw_label = $columnValue;
                 $column->save();
             } 
         }
@@ -601,15 +595,18 @@ class ExcelImportController extends Controller
     }
 
     public function supplierFileFormatImport(Request $request) {
-        try{
+        try {
             if (!empty($request->input('supplier_id'))) {
-                $fileColumnsData = DB::table('manage_columns')
+                $fileColumnsData = DB::table('supplier_fields')
                 ->select([
-                    'manage_columns.id as manage_columns_id',
-                    'manage_columns.field_name as field_name',
-                    'manage_columns.required_field_id as required_field_id',
+                    'supplier_fields.id as manage_columns_id',
+                    'supplier_fields.label as raw_label',
+                    'supplier_fields.required_field_id as required_field_id',
                 ])
-                ->where('manage_columns.supplier_id', $request->input('supplier_id'))
+                ->where([
+                    'supplier_fields.supplier_id' => $request->input('supplier_id'),
+                    'deleted' => 0,
+                ])
                 ->get();
 
                 $fields = RequiredFieldName::all();
@@ -629,7 +626,7 @@ class ExcelImportController extends Controller
                     $mapColumns .= '</select>';
 
                     $finalArray[] = [
-                        'excel_field' => '<input type="text" class="form-control" name="field_name[]" value="'.$values->field_name.'"',
+                        'excel_field' => '<input type="text" class="form-control" name="raw_label[]" value="'.$values->raw_label.'"',
                         'map_columns' => '<input type="hidden" name="manage_columns_id[]" value="'.$values->manage_columns_id.'">'.$mapColumns
                     ];
                 }
@@ -692,7 +689,7 @@ class ExcelImportController extends Controller
     
                     foreach ($cleanedArray as $key => $value) {
                         $finalArray[] = [
-                            'excel_field' => '<input type="text" class="form-control" name="field_name[]" value="'.$value.'">',
+                            'excel_field' => '<input type="text" class="form-control" name="raw_label[]" value="'.$value.'">',
                             'map_columns' => $mapColumns
                         ];
                     }
@@ -710,7 +707,7 @@ class ExcelImportController extends Controller
     public function addSupplierFileFormatImport(Request $request) {
         $validator = Validator::make($request->all(),
             [
-                'field_name' => 'required',
+                'raw_label' => 'required',
                 'supplier_id' => 'required',
             ],
         );
@@ -740,9 +737,14 @@ class ExcelImportController extends Controller
         /** Collect missing keys */
         $missing_keys = [];
 
+        /** Getting supplier id */
+        $supplierId = $request->input('supplier_id');
+
         foreach ($field_keys as $key) {
-            if (!in_array((string)$key, $request->input('required_field_id'))) {
-                $missing_keys[] = $fields[$key];
+            if ($supplierId != 15) {
+                if (!in_array((string)$key, $request->input('required_field_id'))) {
+                    $missing_keys[] = $fields[$key];
+                }
             }
         }
 
@@ -751,10 +753,12 @@ class ExcelImportController extends Controller
         }
 
         foreach ($request->input('required_field_id') as $key => $value) {
-            DB::table('manage_columns')->insert([
+            DB::table('supplier_fields')->insert([
                 'required' => (($value != 0 ) ? (1) : (0)),
                 'supplier_id' => $request->input('supplier_id'),
-                'field_name' => $request->input('field_name')[$key],
+                'label' => $request->input('raw_label')[$key],
+                'raw_label' => preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $request->input('raw_label')[$key])))),
+                'type' => (($value == 7) ? ('decimal') : (($value == 9) ? ('date') : ('string'))),
                 'required_field_id' => (($value != 0 ) ? ($value) : (null)),
             ]);
         }
@@ -774,7 +778,7 @@ class ExcelImportController extends Controller
             $tableName = $tableName->table_name;
         }
 
-        $columns = $request->input('field_name');
+        $columns = $request->input('raw_label');
         $requiredFieldId = $request->input('required_field_id');
 
         /** Check if the table already exists */
@@ -832,20 +836,24 @@ class ExcelImportController extends Controller
             ];
         }
 
+        $supplierId = $request->input('supplier_id');
+
         /** Get the keys of the $fields array */
         $field_keys = array_keys($fields);
 
         /** Collect missing keys */
         $missing_keys = [];
-        foreach ($request->input('field_name') as $key => $value) {
+        foreach ($request->input('raw_label') as $key => $value) {
             if (empty(trim($value))) {
                 return response()->json(['error' => "Please fill all columns"], 200);    
             }
         }
 
         foreach ($field_keys as $key) {
-            if (!in_array((string)$key, $request->input('required_field_id'))) {
-                $missing_keys[] = $fields[$key];
+            if ($supplierId != 15) {
+                if (!in_array((string)$key, $request->input('required_field_id'))) {
+                    $missing_keys[] = $fields[$key];
+                }
             }
         }
 
@@ -854,7 +862,14 @@ class ExcelImportController extends Controller
         }
 
         foreach ($request->input('required_field_id') as $key => $value) {
-            DB::table('manage_columns')->where('id', $request->input('manage_columns_id')[$key])->update(['required_field_id' => (($value != 0 ) ? ($value) : (null)), 'field_name' => $request->input('field_name')[$key]]);
+            DB::table('supplier_fields')
+            ->where('id', $request->input('manage_columns_id')[$key])
+            ->update([
+                'label' => $request->input('raw_label')[$key],
+                'required_field_id' => (($value != 0 ) ? ($value) : (null)), 
+                'type' => (($value == 7) ? ('decimal') : (($value == 9) ? ('date') : ('string'))),
+                'raw_label' => preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $request->input('raw_label')[$key])))),
+            ]);
         }
 
         $tableName = DB::table('supplier_tables')->select('table_name')->where('supplier_id', $request->input('supplier_id'))->first();
@@ -873,7 +888,7 @@ class ExcelImportController extends Controller
             $tableName = $tableName->table_name;
         }
 
-        $columns = $request->input('field_name');
+        $columns = $request->input('raw_label');
         $requiredFieldId = $request->input('required_field_id');
 
        /** Check if the table already exists */
@@ -913,48 +928,13 @@ class ExcelImportController extends Controller
     }
 
     public function removeSupplierFileFormatImport(Request $request) {
-        DB::table('manage_columns')
+        DB::table('supplier_fields')
         ->where(
             'supplier_id',
             $request->input('id')
         )
-        ->delete();
+        ->update(['deleted' => 1]);
 
         return response()->json(['success' => "Columns deleted successfully"], 200);
-    }
-
-    public function editSupplierPermissions($id){
-        /** Find the user by ID */
-        $supplier = CategorySupplier::with('showPermissions')->find($id);
-
-        /** Get all permissions */
-        $showPermissions = ShowPermissions::all();
-
-        /** Return user and permissions data as JSON response */
-        return response()->json([
-            'supplier' => $supplier,
-            'show_permissions' => $showPermissions
-        ]);
-    }
-
-    public function updateSupplierPermissions(Request $request){
-        $validator = Validator::make($request->all(), [
-            'supplier_id' => 'required',
-            'show_permissions' => 'required',
-        ]);
-        
-        if ($validator->fails()) {  
-            return response()->json(['error' => $validator->errors()], 200);
-        } else {
-            try {
-                $supplier = CategorySupplier::find($request->supplier_id);
-
-                /** Sync supplier permissions */
-                $supplier->showPermissions()->sync($request->input('show_permissions'));
-                return response()->json(['success' => true], 200);
-            } catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 200);
-            }
-        }
     }
 }

@@ -184,117 +184,12 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Modal -->
-                <div class="modal fade" data-bs-backdrop="static" id="editSupplierPermission" tabindex="-1" aria-labelledby="editSupplierPermission" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form id="edit_supplier_permission">
-                                <input type="hidden" name="supplier_id" id="supplier_permission" />
-                                <div class="editerrorMessageOne"></div>
-                                <div class="editsuccessMessageOne"></div>
-                                <div class="modal-body" id="permissions-container"></div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Save changes</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
                 <table id="supplier_data" class="data_table_files"></table>
             </div>
         </div>
     </div>
     <script>
         $(document).ready(function() {
-            // Function to fetch user and permissions data
-            function fetchUserPermissions(userId) {
-                return new Promise(function(resolve, reject) {
-                    $.ajax({
-                        url: "{{ route('supplier.editPermissions', ':userId') }}".replace(':userId', userId),
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(response) {
-                            // Resolve the promise with the response data
-                            resolve(response);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Failed to fetch user permissions', error);
-                            // Reject the promise with the error
-                            reject(error);
-                        }
-                    });
-                });
-            }
-
-            // Function to render checkboxes for permissions
-            async function renderPermissions(supplier, show_permissions) {
-                var permissionsContainer = $('#permissions-container');
-                permissionsContainer.empty();
-                permissionsContainer.append('<h3 id="permission_heading">Supplier Permissions:</h3>');
-                show_permissions.forEach(function(show_permissions) {
-                    var checkbox = $('<input>', { class: 'mr-2', type: 'checkbox', name: 'show_permissions[]', value: show_permissions.id });
-                    
-                    // Check if the permission ID exists in the user's permissions array
-                    var isPermissionChecked = supplier.show_permissions.some(function(userPermission) {
-                        return userPermission.id === show_permissions.id;
-                    });
-
-                    if (isPermissionChecked) {
-                        checkbox.prop('checked', true);
-                    }
-
-                    var label = $('<label>').text(show_permissions.permission_name);
-
-                    permissionsContainer.append($('<div>').append(checkbox, label));
-                });
-            }
-
-            var myModal = document.getElementById('editSupplierPermission');
-            myModal.addEventListener('show.bs.modal', async function (event) {
-                var button = event.relatedTarget; // Button that triggered the modal
-                $('#supplier_permission').val(button.getAttribute('data-id'));
-                const responses = await fetchUserPermissions(button.getAttribute('data-id'));
-                await renderPermissions(responses.supplier, responses.show_permissions);
-            });
-
-            $('#edit_supplier_permission').on('submit', function(event) {
-                event.preventDefault();
-                var formData = new FormData(this)
-                $.ajax({
-                    type: 'POST',
-                    url: "{{route('supplier.updatesupplierpermissions')}}", // Replace with your actual route name
-                    data: formData,
-                    headers: {'X-CSRF-TOKEN': token},
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        if (response.error) {
-                            var errorMessage = '';
-                            if (typeof response.error === 'object') {
-                                // Iterate over the errors object
-                                $.each(response.error, function (key, value) {
-                                    errorMessage += value[0] + '<br>';
-                                });
-                            } else {
-                                errorMessage = response.error;
-                            }
-
-                            $('.editerrorMessages').append('<div class="alert alert-danger alert-dismissible fade show" role="alert">'+errorMessage+'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                        }
-
-                        if (response.success) {
-                            location.reload();
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        console.error(xhr.responseText);
-                    }
-                });
-            });
-
             $('#formFile').on('change', function(event) {
                 var button = document.getElementById('importBtn'),
                 formData = new FormData($('#add_file_format')[0]),

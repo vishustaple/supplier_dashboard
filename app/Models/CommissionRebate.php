@@ -9,7 +9,7 @@ class CommissionRebate extends Model
 {
     use HasFactory;
 
-    protected $table = 'commission_rebate';
+    protected $table = 'commissions_rebate';
 
     
     /**
@@ -26,7 +26,7 @@ class CommissionRebate extends Model
         'sales_rep',
         'paid_date',
         'start_date',
-        'commission',
+        'commissions',
         'volume_rebate',
     ];
 }

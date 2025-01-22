@@ -71,8 +71,6 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/add/supplier/file', [ExcelImportController::class, 'addSupplierFileFormatImport'])->name('add.supplier_file');
         Route::post('/edit/supplier/file', [ExcelImportController::class, 'editSupplierFileFormatImport'])->name('edit.supplier_file');
         Route::get('/delete/supplier/file', [ExcelImportController::class, 'removeSupplierFileFormatImport'])->name('remove.file_format');
-        Route::get('/supplier/{id}/edit-permissions', [ExcelImportController::class, 'editSupplierPermissions'])->name('supplier.editPermissions');
-        Route::post('/update/supplier/showpermissions', [ExcelImportController::class, 'updateSupplierPermissions'])->name('supplier.updatesupplierpermissions');
 
         Route::post('/suppliers/updatemain', [ExcelImportController::class, 'addSupplierMain'])->name('main.update');
         Route::post('/supplier/details', [ExcelImportController::class, 'getSupplierDetailWithAjax'])->name('supplier_detail_filter');
@@ -88,16 +86,10 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/accounts/p-name', [AccountController::class, 'PName'])->name('ParentName');
         Route::get('/account/{id?}', [AccountController::class, 'allAccount'])->name('account');
         Route::post('/account/detail', [AccountController::class, 'getAccountsDetailWithAjax'])->name('account.detail');
-        Route::post('/addaccount', [AccountController::class, 'addAccount'])->name('account.add');
-        Route::get('/accounts/p-number', [AccountController::class, 'PNumber'])->name('ParentNumber');
-        Route::get('/accounts/gp-name', [AccountController::class, 'gPName'])->name('grandParentName');
-        Route::get('/createaccount', [AccountController::class, 'createAccount'])->name('account.create');
         Route::get('/accounts/remove', [AccountController::class, 'removeAccount'])->name('account.remove');
         Route::post('/accounts/update', [AccountController::class, 'updateAccount'])->name('account.update');
-        Route::get('/accounts/gp-number', [AccountController::class, 'gPNumber'])->name('grandParentNumber');
         Route::get('/accounts/csv', [AccountController::class, 'exportAccountCsv'])->name('account.export-csv');
         Route::post('/account/filter', [AccountController::class, 'getAccountsWithAjax'])->name('account.filter');
-        Route::get('/accounts/edit/{id}/{routename}', [AccountController::class, 'editAccount'])->name('account.edit');
         Route::post('/accounts/editaccountname', [AccountController::class, 'editAccountName'])->name('accountname.edit');
         Route::get('/accounts/count', [AccountController::class, 'getEmptyAccountNameAccounts'])->name('accounts.counts');
         Route::post('/accounts/account-number', [AccountController::class, 'getAccountNumber'])->name('get.accountNumber');
@@ -110,13 +102,13 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/report/filter', [ReportController::class, 'dataFilter'])->name('report.filter');
         Route::get('/reports/csv', [ReportController::class, 'exportCsv'])->name('report.export-csv');
         Route::get('/report/{reportType}/{id?}', [ReportController::class, 'index'])->name('report.type');
-        Route::post('/reports/commissions/paid', [ReportController::class, 'paidUpdate'])->name('paid.update');
-        Route::post('/reports/commissions/approve', [ReportController::class, 'approvedUpdate'])->name('approved.update');
+        Route::post('/reports/commissionss/paid', [ReportController::class, 'paidUpdate'])->name('paid.update');
+        Route::post('/reports/commissionss/approve', [ReportController::class, 'approvedUpdate'])->name('approved.update');
         Route::post('/reports/supplier-filter', [ReportController::class, 'supplierReportFilter'])->name('report.supplier_filter');
         Route::get('/reports/supplier-csv', [ReportController::class, 'supplierReportExportCsv'])->name('report.export-supplier_report-csv');
-        Route::get('/reports/commission-csv', [ReportController::class, 'downloadSampleCommissionFile'])->name('report.export-commission_report-csv');
-        Route::post('/reports/commission-report-filter', [ReportController::class, 'commissionReportFilter'])->name('report.commission_report_filter');
-        Route::post('/reports/commissions-report-filter', [ReportController::class, 'getCommissionsWithAjax'])->name('report.commission_report_filter_secound');
+        Route::get('/reports/commissions-csv', [ReportController::class, 'downloadSampleCommissionFile'])->name('report.export-commission_report-csv');
+        Route::post('/reports/commissions-report-filter', [ReportController::class, 'commissionReportFilter'])->name('report.commission_report_filter');
+        Route::post('/reports/commissionss-report-filter', [ReportController::class, 'getCommissionsWithAjax'])->name('report.commission_report_filter_secound');
         Route::post('/report/consolidated/filter', [ReportController::class, 'consolidatedReportFilter'])->name('consolidated-report.filter');
         Route::get('/reports/consolidated/csv', [ReportController::class, 'exportConsolidatedCsv'])->name('consolidated-report.export-csv');        
         Route::post('/reports/consolidated/download', [ReportController::class, 'exportConsolidatedDownload'])->name('consolidated-report.download');        
@@ -178,14 +170,14 @@ Route::group(['prefix' => 'admin'], function () {
         /** Rebate Section End */
 
         /** Commission Section Start */
-        Route::post('/commissions/add', [CommissionController::class, 'commissionAdd'])->name('commission.add');
-        Route::post('/commissions/edit', [CommissionController::class, 'editCommission'])->name('commission.edit');
-        Route::get('/commissions/csv', [CommissionController::class, 'exportCatalogCsv'])->name('commission.export-csv');
-        Route::get('/commission/{commissionType}/{id?}', [CommissionController::class, 'index'])->name('commission.list');
-        Route::post('/commissions/filter', [CommissionController::class, 'commissionAjaxFilter'])->name('commission.filter');
-        Route::get('/commissions/view-add', [CommissionController::class, 'commissionAddView'])->name('commission.add-view');
-        Route::get('/commissions/customer-search', [CommissionController::class, 'commissionAjaxCustomerSearch'])->name('commission.customerSearch');
-        Route::get('/commissions/supplier-search', [CommissionController::class, 'commissionAjaxSupplierSearch'])->name('commission.supplierSearch');
+        Route::post('/commissionss/add', [CommissionController::class, 'commissionAdd'])->name('commissions.add');
+        Route::post('/commissionss/edit', [CommissionController::class, 'editCommission'])->name('commissions.edit');
+        Route::get('/commissionss/csv', [CommissionController::class, 'exportCatalogCsv'])->name('commissions.export-csv');
+        Route::get('/commissions/{commissionType}/{id?}', [CommissionController::class, 'index'])->name('commissions.list');
+        Route::post('/commissionss/filter', [CommissionController::class, 'commissionAjaxFilter'])->name('commissions.filter');
+        Route::get('/commissionss/view-add', [CommissionController::class, 'commissionAddView'])->name('commissions.add-view');
+        Route::get('/commissionss/customer-search', [CommissionController::class, 'commissionAjaxCustomerSearch'])->name('commissions.customerSearch');
+        Route::get('/commissionss/supplier-search', [CommissionController::class, 'commissionAjaxSupplierSearch'])->name('commissions.supplierSearch');
       
         /** Commission Section End */
 

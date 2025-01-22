@@ -60,33 +60,31 @@ class CommissionController extends Controller
         /** Checking request is ajax or not */
         if ($request->ajax()) {
             /** Getting form data using methos request */
-            $date = $request->input('date');
             $start_date = $request->input('start_date');
             $end_date = $request->input('end_date');
             $supplier = $request->input('supplier');
             $salesRep = $request->input('sales_rep');
-            $commission = $request->input('commission');
+            $commissions = $request->input('commissions');
             $accountName = $request->input('account_name');
 
             /** Setting variables */
             $error = false;
-            $accountNameArray = [];
 
-            /** If getting zero errors than save the data into commission table */
+            /** If getting zero errors than save the data into commissions table */
             foreach ($accountName as $key => $value) {
-                DB::table('commission')->insert([
+                DB::table('commissions')->insert([
                     'sales_rep' => $salesRep[$key],
                     'supplier' =>  $supplier[$key],
                     'account_name' => $value,
-                    'commission' => $commission[$key],
-                    'start_date' => date_format(date_create(trim($start_date[$key])),"Y-m-d H:i:s"),
-                    'end_date' => date_format(date_create(trim($end_date[$key])),"Y-m-d H:i:s"),
+                    'commissions' => $commissions[$key],
+                    'start_date' => date_format(date_create($start_date[$key]),"Y-m-d H:i:s"),
+                    'end_date' => date_format(date_create($end_date[$key]),"Y-m-d H:i:s"),
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
             }
 
-            /** Returning the success message after save commission data */
+            /** Returning the success message after save commissions data */
             if ($error == false) {
                 return response()->json(['success' => 'Commissions added successfully'], 200);
             }
@@ -152,7 +150,7 @@ class CommissionController extends Controller
                 $updateCommission = Commission::where('id', $request->commission_id)
                 ->update([
                     'status' => $request->status,
-                    'commission' => $request->commission,
+                    'commissions' => $request->commissions,
                     'end_date' => date_format(date_create(trim($request->input('end_date'))), "Y-m-d H:i:s"),
                     'start_date' => date_format(date_create(trim($request->input('start_date'))), "Y-m-d H:i:s"),
                 ]);

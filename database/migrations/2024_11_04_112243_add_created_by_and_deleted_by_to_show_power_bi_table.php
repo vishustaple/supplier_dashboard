@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('show_power_bi', function (Blueprint $table) {
             $table->unsignedBigInteger('created_by')->nullable()->after('deleted_at'); // Adjust column_name
+            $table->tinyInteger('deleted')->default(0)->after('deleted_at');
             $table->unsignedBigInteger('deleted_by')->nullable()->after('created_by');
         });
     }
@@ -23,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('show_power_bi', function (Blueprint $table) {
-            $table->dropColumn(['created_by', 'deleted_by']);
+            $table->dropColumn(['created_by', 'deleted_by', 'deleted']);
         });
     }
 };

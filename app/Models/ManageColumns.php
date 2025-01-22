@@ -10,40 +10,40 @@ class ManageColumns extends Model
 {
     use HasFactory;
     
-    protected $table = 'manage_columns';
+    protected $table = 'supplier_fields';
 
     protected $fillable = [
+        'type',
+        'label',
+        'deleted',
         'required',
-        'field_name',
+        'raw_label',
         'supplier_id',
+        'required_field_id',
     ];
 
     public static function getRequiredColumns(){
-        $columnValues = DB::table('manage_columns')
-        ->select(
-            'supplier_id',
-            'field_name'
-        )
+        $columnValues = DB::table('supplier_fields')
+        ->select('supplier_id', 'label')
+        ->where('deleted', 0)
         ->whereNotNull('required_field_id')
         ->get();
 
         foreach ($columnValues as $value) {
-            $jsArray[$value->supplier_id][] =  $value->field_name;
+            $jsArray[$value->supplier_id][] =  $value->label;
         }
 
         return $jsArray;
     }
 
     public static function getColumns(){
-        $columnValues = DB::table('manage_columns')
-        ->select(
-            'supplier_id',
-            'field_name'
-        )
+        $columnValues = DB::table('supplier_fields')
+        ->select('supplier_id', 'label')
+        ->where('deleted', 0)
         ->get();
 
         foreach ($columnValues as $value) {
-            $jsArray[$value->supplier_id][] =  $value->field_name;
+            $jsArray[$value->supplier_id][] =  $value->label;
         }
 
         return $jsArray;
@@ -56,6 +56,5 @@ class ManageColumns extends Model
             $row = strtolower($row);
         }
         return $array;
-
     }
 }

@@ -28,14 +28,14 @@ class RebateController extends Controller
             $missingRebate = Account::select('r1.id')
             ->leftJoin('rebate AS r1', function($join) {
                 $join->on('master_account_detail.account_name', '=', 'r1.account_name')
-                ->on('master_account_detail.category_supplier', '=', 'r1.supplier');
+                ->on('master_account_detail.supplier_id', '=', 'r1.supplier');
             })
             ->whereNotNull('master_account_detail.account_name')
             ->where('master_account_detail.account_name', '!=', '')
             ->whereNull('r1.volume_rebate')
             ->whereNull('r1.incentive_rebate')
             ->groupBy('master_account_detail.account_name')
-            ->groupBy('master_account_detail.category_supplier')
+            ->groupBy('master_account_detail.supplier_id')
             ->getQuery()->getCountForPagination();
             return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType], 'totalMissingRebate' => $missingRebate]);
         }
@@ -61,14 +61,14 @@ class RebateController extends Controller
             // ->leftJoin('rebate  AS r1', 'master_account_detail.account_name', '=', 'r1.account_name')
             ->leftJoin('rebate AS r1', function($join) {
                 $join->on('master_account_detail.account_name', '=', 'r1.account_name')
-                ->on('master_account_detail.category_supplier', '=', 'r1.supplier');
+                ->on('master_account_detail.supplier_id', '=', 'r1.supplier');
             })
             ->whereNotNull('master_account_detail.account_name')
             ->where('master_account_detail.account_name', '!=', '')
             ->whereNull('r1.volume_rebate')
             ->whereNull('r1.incentive_rebate')
             ->groupBy('master_account_detail.account_name')
-            ->groupBy('master_account_detail.category_supplier')
+            ->groupBy('master_account_detail.supplier_id')
             ->getQuery()->getCountForPagination();
             return response()->json(['success' => $missingRebate], 200);
         }

@@ -9,7 +9,7 @@ class CommissionRebateDetail extends Model
 {
     use HasFactory;
     
-    protected $table = 'commission_rebate_detail';
+    protected $table = 'commissions_rebate_detail';
 
     /**
     * The attributes that are mass assignable.
@@ -26,12 +26,12 @@ class CommissionRebateDetail extends Model
         'approved',
         'sales_rep',	
         'paid_date',	
-        'commission',	
+        'commissions',	
         'start_date',	
         'account_name',	
         'volume_rebate',	
-        'commission_rebate_id',	
-        'commission_percentage',	
+        'commissions_rebate_id',	
+        'commissions_percentage',	
         'volume_rebate_percentage',	
     ];
 }

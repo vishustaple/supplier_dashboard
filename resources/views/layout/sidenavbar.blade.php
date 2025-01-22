@@ -22,23 +22,17 @@
                 </div>
                 @if(in_array('Sales Rep', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                     <a class="nav-link {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Sales Team', 'Commission'])) ? 'active' : '' }}" data-toggle="collapse" href="#submenuSale">
-                        <div class="sb-nav-link-icon">
-                            <i class="fa fa-th-list" aria-hidden="true"></i>
-                        </div>
+                        <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
                         Sales Rep
                         <i class="fas fa-caret-down"></i>
                     </a>
                     <div class="collapse {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Sales Team', 'Commission'])) ? 'show' : '' }}" id="submenuSale">
                         <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Sales Team') ? 'active' : '' }}" href="{{route('sales.index')}}">
-                            <div class="sb-nav-link-icon">
-
-                            </div>
+                            <div class="sb-nav-link-icon"></div>
                             Manage Sales Rep
                         </a>
-                        <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commission.list', ['commissionType' => 'commission_listing'])}}">
-                            <div class="sb-nav-link-icon">
-
-                            </div>
+                        <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission') ? 'active' : '' }}" href="{{route('commissions.list', ['commissionType' => 'commission_listing'])}}">
+                            <div class="sb-nav-link-icon"></div>
                             Sales Rep Commission
                         </a>
                     </div>
@@ -134,12 +128,10 @@
                     @endif
                 </div>
                 @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || !in_array(auth()->user()->user_type, [\App\Models\User::USER_TYPE_USER, \App\Models\User::USER_TYPE_ADMIN]))
-                    <a class="nav-link" target="_blank" href="http://3.95.106.180:7080/phpMyAdmin2025/">
-                        <div class="sb-nav-link-icon">
-                            <i class="fa fa-database" aria-hidden="true"></i>
-                        </div>
-                        SQL Maintenance
-                    </a>
+                <a class="nav-link" target="_blank" href="http://3.95.106.180:7080/phpMyAdmin2025/">
+                    <div class="sb-nav-link-icon"><i class="fa fa-database" aria-hidden="true"></i></div>
+                    SQL Maintenance
+                </a>
                 @endif
                 @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                     <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Save SQL Queries') ? 'active' : '' }}" href="{{route('queries.index')}}">

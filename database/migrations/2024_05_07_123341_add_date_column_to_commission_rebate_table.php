@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('commission_rebate', function (Blueprint $table) {
+        Schema::table('commissions_rebate', function (Blueprint $table) {
             $table->date('paid_date')->after('paid');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('commission_rebate', function (Blueprint $table) {
+        Schema::table('commissions_rebate', function (Blueprint $table) {
             $table->dropColumn('paid_date');
         });
     }

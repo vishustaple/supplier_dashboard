@@ -427,7 +427,7 @@
             function selectCustomer () {
                 $('#account_name').select2({
                     ajax: {
-                        url: "{{ route('commission.customerSearch') }}",
+                        url: "{{ route('commissions.customerSearch') }}",
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {

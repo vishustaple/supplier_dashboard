@@ -24,6 +24,7 @@ class Order extends Model
         'created_by',
         'supplier_id',
         'attachment_id',
+        'invoice_number',
         'customer_number',
     ];
 
@@ -57,10 +58,11 @@ class Order extends Model
         $startDate4 = $monthDates[9]['start_date'];
         $endDate4 = $monthDates[11]['end_date'];
 
-        $query = DB::table('master_account_detail')->select('master_account_detail.account_number as account_number', 'master_account_detail.category_supplier as supplier');
+        $query = DB::table('master_account_detail')->select('master_account_detail.account_number as account_number', 'customer_suppliers.supplier_id as supplier')
+        ->join('customer_suppliers', 'customer_suppliers.customer_id', '=', 'master_account_detail.customer_id');
 
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
-            $query->whereIn('master_account_detail.category_supplier', $filter['supplier']);
+            $query->whereIn('customer_suppliers.supplier_id', $filter['supplier']);
         } else {
             if ($csv == true) {
                 $finalArray['heading'] = [
@@ -501,14 +503,14 @@ class Order extends Model
 
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
         ->leftJoin('rebate', function($join) {
-            $join->on('m2.account_name', '=', 'rebate.account_name')
-            ->on('m2.category_supplier', '=', 'rebate.supplier');
+            $join->on('m2.account_name', '=', 'rebate.account_name');
+            // ->on('m2.category_supplier', '=', 'rebate.supplier');
         })
 
         ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
         
         if (isset($filter['supplier']) && $filter['supplier'] == 4){
-            $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+            $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
         }
         
         if (isset($filter['supplier']) && !empty($filter['supplier'])) {
@@ -522,12 +524,12 @@ class Order extends Model
 
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
-                    $query->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+                    $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
                     $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
-                    $query->where('order_product_details.key', 'DEPT');
-                    // $query->whereNotIn('order_product_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
+                    $query->where('order_details.supplier_field_id', 50);
+                    // $query->whereNotIn('order_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                     $query->whereNotIn(
-                        'order_product_details.value',
+                        'order_details.value',
                         [
                             'NON CODE',
                             'IMPULSE BUYS',
@@ -547,16 +549,16 @@ class Order extends Model
                 $query->whereRaw("
                     (
                         CASE 
-                            WHEN order_product_details.key = 'Transaction Source System DESC' 
+                            WHEN order_details.supplier_field_id = 98 
                                 THEN 
                                     CASE 
-                                        WHEN order_product_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
                                         ELSE 0 
                                     END
-                            WHEN order_product_details.key = 'Transaction Source System'
+                            WHEN order_details.supplier_field_id = 532
                                 THEN 
                                     CASE 
-                                        WHEN order_product_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
                                         ELSE 0 
                                     END
                             ELSE 0
@@ -721,7 +723,7 @@ class Order extends Model
             1 => 'paid',
             2 => 'spend',
             3 => 'volume_rebate',
-            4 => 'commission',
+            4 => 'commissions',
             5 => 'start_date',
             6 => 'end_date',
         ];
@@ -730,11 +732,11 @@ class Order extends Model
         ->where('id', $filter['sales_rep'])
         ->first();
 
-        $query = CommissionRebate::query()->selectRaw("
-            `paid`,
+        $query = CommissionRebate::query()->selectRaw(
+            "`paid`,
             `approved`,
             SUM(`spend`) as `spend`,
-            SUM(`commission`) as `commission`,
+            SUM(`commissions`) as `commissions`,
             SUM(`volume_rebate`) as `volume_rebate`,
             GROUP_CONCAT(CONCAT_WS('_', `id`)) as `ids`
         ");
@@ -822,7 +824,7 @@ class Order extends Model
         $annual = [];
         if (isset($datas) && $datas->isNotEmpty()) {
             if ($filter['quarter'] == 'Annual') {
-                $annual["commission"] = 0;
+                $annual["commissions"] = 0;
                 $annual["volume_rebate"] = 0;
                 $annual["spend"] = 0;
                 $annual["approved"] = 1;
@@ -834,7 +836,7 @@ class Order extends Model
                         $annual["ids"] .= ($annual["ids"] === "" ? "" : ",") . $data->ids;
                     }
                     
-                    $annual["commission"] += $data->commission;
+                    $annual["commissions"] += $data->commissions;
                     $annual["volume_rebate"] += $data->volume_rebate;
                     $annual["spend"] += $data->spend;
                     $annual["paid"] *= $data->paid;
@@ -853,7 +855,7 @@ class Order extends Model
                     $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
                     $finalArray[$key]['cost'] = number_format($data->spend, 2, '.', false);
                     $finalArray[$key]['volume_rebate'] = number_format($data->volume_rebate, 2, '.', false);
-                    $finalArray[$key]['commissions'] = number_format($data->commission, 2, '.', false);
+                    $finalArray[$key]['commissionss'] = number_format($data->commissions, 2, '.', false);
                 } else {
                     if ($data->approved == 1) {
                         $finalArray[$key]['approved'] = '<select data-approved_ids="'.$ids.'" data-approved_id="['.$data->ids.']" name="approved" class="form-control approved_input_select approved_'.$ids.'" '.(($data->paid == 1) ? ('disabled') : ('')).'> 
@@ -888,7 +890,7 @@ class Order extends Model
                     $finalArray[$key]['sales_rep'] = $salesRep->sales_rep;
                     $finalArray[$key]['cost'] = '$'.number_format($data->spend, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($data->volume_rebate, 2);
-                    $finalArray[$key]['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$data->ids.']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commission, 2).'</button> <button data-id="['.$data->ids.']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
+                    $finalArray[$key]['commissions'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commissions_rebate_id" data-id="['.$data->ids.']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($data->commissions, 2).'</button> <button data-id="['.$data->ids.']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                 }
                 $ids++;
             }
@@ -902,7 +904,7 @@ class Order extends Model
                 $finalArrays['sales_rep'] = $salesRep->sales_rep;
                 $finalArrays['cost'] = '$'.number_format($annual["spend"], 2);
                 $finalArrays['volume_rebate'] = '$'.number_format($annual["volume_rebate"], 2);
-                $finalArrays['commission'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commission_rebate_id" data-id="['.$annual["ids"].']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($annual["commission"], 2).'</button> <button data-id="['.$annual["ids"].']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
+                $finalArrays['commissions'] = '<div class="d-flex align-items-center"><button type="button" class="btn btn-primary" id="commissions_rebate_id" data-id="['.$annual["ids"].']" data-bs-toggle="modal" data-bs-target="#staticBackdrop">$'.number_format($annual["commissions"], 2).'</button> <button data-id="['.$annual["ids"].']" id="downloadCsvBtn" class="ms-2 btn btn-primary" >Download Report</button></div>';
                 $finalArray[] = $finalArrays;
             }
 
@@ -916,57 +918,57 @@ class Order extends Model
     public static function getCommissionReportFilterdDataSecond($filter = [], $csv = false) {
         /** Define column array for ordering the rows and searching the rows */
         $orderColumnArray = [
-            0 => 'commission_rebate_detail.account_name',
+            0 => 'commissions_rebate_detail.account_name',
             1 => 'suppliers.supplier_name',
-            2 => 'commission_rebate_detail.spend',
-            3 => 'commission_rebate_detail.volume_rebate',
-            4 => 'commission_rebate_detail.commission',
-            5 => 'commission_rebate_detail.start_date',
-            6 => 'commission_rebate_detail.end_date',
+            2 => 'commissions_rebate_detail.spend',
+            3 => 'commissions_rebate_detail.volume_rebate',
+            4 => 'commissions_rebate_detail.commissions',
+            5 => 'commissions_rebate_detail.start_date',
+            6 => 'commissions_rebate_detail.end_date',
         ];
 
         if ($csv) {
             /** Create query for CSV export with specific columns */
             $query = CommissionRebateDetail::query()->selectRaw("
-                `commission_rebate_detail`.`paid` as paid,
-                `commission_rebate_detail`.`month` as month,
-                `commission_rebate_detail`.`spend` AS `cost`, 
+                `commissions_rebate_detail`.`paid` as paid,
+                `commissions_rebate_detail`.`month` as month,
+                `commissions_rebate_detail`.`spend` AS `cost`, 
                 `suppliers`.`supplier_name` AS `supplier_name`,
-                `commission_rebate_detail`.`quarter` as quarter,
-                `commission_rebate_detail`.`end_date` as end_date,
-                `commission_rebate_detail`.`approved` as approved,
-                `commission_rebate_detail`.`start_date` as start_date,
-                `commission_rebate_detail`.`commission` AS `commissions`,
-                `commission_rebate_detail`.`account_name` as account_name,
-                `commission_rebate_detail`.`volume_rebate` AS `volume_rebate`,
-                `commission_rebate_detail`.`commission_percentage` AS `commission`,
+                `commissions_rebate_detail`.`quarter` as quarter,
+                `commissions_rebate_detail`.`end_date` as end_date,
+                `commissions_rebate_detail`.`approved` as approved,
+                `commissions_rebate_detail`.`start_date` as start_date,
+                `commissions_rebate_detail`.`account_name` as account_name,
+                `commissions_rebate_detail`.`commissions` AS `commissionss`,
+                `commissions_rebate_detail`.`volume_rebate` AS `volume_rebate`,
+                `commissions_rebate_detail`.`commissions_percentage` AS `commissions`,
                 CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS `approved_by`,
-                `commission_rebate_detail`.`commission_end_date` as `commission_end_date`,
-                `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
-                `commission_rebate_detail`.`commission_start_date` as `commission_start_date`
+                `commissions_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`,
+                `commissions_rebate_detail`.`commissions_end_date` as `commissions_end_date`,
+                `commissions_rebate_detail`.`commissions_start_date` as `commissions_start_date`
             ");
 
-            $query->leftJoin('users', 'users.id', '=', 'commission_rebate_detail.paid_by');
+            $query->leftJoin('users', 'users.id', '=', 'commissions_rebate_detail.paid_by');
         } else {
             /** Create query for normal data retrieval with aggregated columns */
             $query = CommissionRebateDetail::query()->selectRaw("
-                `commission_rebate_detail`.`paid` as paid,
-                `commission_rebate_detail`.`month` as month,
+                `commissions_rebate_detail`.`paid` as paid,
+                `commissions_rebate_detail`.`month` as month,
                 `suppliers`.`supplier_name` AS `supplier_name`,
-                `commission_rebate_detail`.`quarter` as quarter,
-                SUM(`commission_rebate_detail`.`spend`) AS `cost`, 
-                `commission_rebate_detail`.`end_date` as end_date,
-                `commission_rebate_detail`.`approved` as approved,
-                `commission_rebate_detail`.`start_date` as start_date,
-                `commission_rebate_detail`.`account_name` as account_name,
-                SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
-                SUM(`commission_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
-                `commission_rebate_detail`.`commission_percentage` AS `commission`,
-                `commission_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`
+                `commissions_rebate_detail`.`quarter` as quarter,
+                SUM(`commissions_rebate_detail`.`spend`) AS `cost`, 
+                `commissions_rebate_detail`.`end_date` as end_date,
+                `commissions_rebate_detail`.`approved` as approved,
+                `commissions_rebate_detail`.`start_date` as start_date,
+                `commissions_rebate_detail`.`account_name` as account_name,
+                SUM(`commissions_rebate_detail`.`commissions`) AS `commissionss`,
+                SUM(`commissions_rebate_detail`.`volume_rebate`) AS `volume_rebate`,
+                `commissions_rebate_detail`.`commissions_percentage` AS `commissions`,
+                `commissions_rebate_detail`.`volume_rebate_percentage` AS `volume_rebates`
             ");
         }
 
-        $query->leftJoin('suppliers', 'suppliers.id', '=', 'commission_rebate_detail.supplier');
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'commissions_rebate_detail.supplier');
     
          /** Year and quarter filter here */
          if (isset($filter['year']) || !empty($filter['quarter'])) {
@@ -1011,27 +1013,27 @@ class Order extends Model
             }
 
             /** Apply date filter to the query */
-            $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
-            ->whereDate('commission_rebate_detail.end_date', '<=', $endDate);
+            $query->whereDate('commissions_rebate_detail.start_date', '>=', $startDate)
+            ->whereDate('commissions_rebate_detail.end_date', '<=', $endDate);
         }
 
-        /** Filter the data on the bases of commission_rebate_id */
-        if (isset($filter['commission_rebate_id']) && !empty($filter['commission_rebate_id'])) {
-            if (is_string($filter['commission_rebate_id'])) {
-                $filter['commission_rebate_id'] = explode(',', $filter['commission_rebate_id']);
+        /** Filter the data on the bases of commissions_rebate_id */
+        if (isset($filter['commissions_rebate_id']) && !empty($filter['commissions_rebate_id'])) {
+            if (is_string($filter['commissions_rebate_id'])) {
+                $filter['commissions_rebate_id'] = explode(',', $filter['commissions_rebate_id']);
             }
 
-            $query->whereIn('commission_rebate_detail.commission_rebate_id', $filter['commission_rebate_id']);
+            $query->whereIn('commissions_rebate_detail.commissions_rebate_id', $filter['commissions_rebate_id']);
         }
 
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
-            $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
+            $query->where('commissions_rebate_detail.sales_rep', $filter['sales_reps']);
         }
 
         // $query->groupBy('suppliers.id');
         /** Group by necessary fields */
         if (!$csv) {
-            $query->groupBy('commission_rebate_detail.account_name', 'commission_rebate_detail.supplier');
+            $query->groupBy('commissions_rebate_detail.account_name', 'commissions_rebate_detail.supplier');
         }
 
         // dd($query->toSql(), $query->getBindings());
@@ -1067,14 +1069,19 @@ class Order extends Model
                     $finalArray[$key]['approved'] = $value->approved;
                     $finalArray[$key]['commission'] = $value->commission;
                     $finalArray[$key]['supplier'] = $value->supplier_name;
-                    $finalArray[$key]['approved_by'] = $value->approved_by;
-                    $finalArray[$key]['commissions'] = $value->commissions;
                     $finalArray[$key]['account_name'] = $value->account_name;
-                    $finalArray[$key]['volume_rebate'] = $value->volume_rebate;
+                    $finalArray[$key]['approved_by'] = $value->approved_by;
+                    $finalArray[$key]['commissions_end_date'] = date_format(date_create($value->commissions_end_date), 'm/d/Y');
+                    $finalArray[$key]['commissions_start_date'] = date_format(date_create($value->commissions_start_date), 'm/d/Y');
                     $finalArray[$key]['end_date'] = date_format(date_create($value->end_date), 'm/d/Y');
+                    $finalArray[$key]['commissionss'] = $value->commissionss;
+                    $finalArray[$key]['commissions'] = $value->commissions;
+                    $finalArray[$key]['quarter'] = $value->quarter;
                     $finalArray[$key]['start_date'] = date_format(date_create($value->start_date), 'm/d/Y');
-                    $finalArray[$key]['commission_end_date'] = date_format(date_create($value->commission_end_date), 'm/d/Y');
-                    $finalArray[$key]['commission_start_date'] = date_format(date_create($value->commission_start_date), 'm/d/Y');
+                    $finalArray[$key]['volume_rebate'] = $value->volume_rebate;
+                    $finalArray[$key]['month'] = $value->month;
+                    $finalArray[$key]['approved'] = $value->approved;
+                    $finalArray[$key]['paid'] = $value->paid;
                     if ($value->approved == 0 || $value->paid == 0) {
                         $paid = true;
                     }
@@ -1082,7 +1089,7 @@ class Order extends Model
                     $finalArray[$key]['supplier'] = $value->supplier_name;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['cost'] = '$'.number_format($value->cost, 2);
-                    $finalArray[$key]['commission'] = '$'.number_format($value->commissions, 2);
+                    $finalArray[$key]['commissions'] = '$'.number_format($value->commissionss, 2);
                     $finalArray[$key]['volume_rebate'] = '$'.number_format($value->volume_rebate, 2) .' ('. $value->volume_rebates. '%)';
                 }
             }
@@ -1101,10 +1108,10 @@ class Order extends Model
         }
     }
 
-    public static function getAllCommission($filter = []) {
-        /** Initialize the query on the CommissionRebateDetail model, selecting the sum of commissions and the paid date */
+    public static function getAllCommission($filter = []){
+        /** Initialize the query on the CommissionRebateDetail model, selecting the sum of commissionss and the paid date */
         $query = CommissionRebateDetail::query()->selectRaw(
-            "SUM(`commission_rebate_detail`.`commission`) AS `commissions`,
+            "SUM(`commissions_rebate_detail`.`commissions`) AS `commissionss`,
             paid_date"
         );
 
@@ -1152,20 +1159,20 @@ class Order extends Model
             }
 
             /** Apply the date range filter to the query */
-            $query->whereDate('commission_rebate_detail.start_date', '>=', $startDate)
-                ->whereDate('commission_rebate_detail.start_date', '<=', $endDate);
+            $query->whereDate('commissions_rebate_detail.start_date', '>=', $startDate)
+                ->whereDate('commissions_rebate_detail.start_date', '<=', $endDate);
         }
 
         /** Apply sales representative filter if provided */
         if (isset($filter['sales_reps']) && !empty($filter['sales_reps'])) {
-            $query->where('commission_rebate_detail.sales_rep', $filter['sales_reps']);
+            $query->where('commissions_rebate_detail.sales_rep', $filter['sales_reps']);
         }
 
         /** Execute the query and get the first result */
         $record = $query->first();
 
-        /** Prepare the final result array with the calculated commissions and paid date */
-        $finallArray['commissions'] = $record->commissions;
+        /** Prepare the final result array with the calculated commissionss and paid date */
+        $finallArray['commissionss'] = $record->commissionss;
         $finallArray['paid_date'] = $record->paid_date;
 
         /** Return the result array */
@@ -1180,21 +1187,8 @@ class Order extends Model
             2 => 'spend',
         ];
 
-        /** Define supplier categories array for categorizing the data */
-        $supplierColumnArray = [
-            1 => 'Office Supplies',
-            2 => 'MRO',
-            3 => 'Office Supplies',
-            4 => 'Office Supplies',
-            5 => 'Office Supplies',
-            6 => 'Office Supplies',
-            7 => 'Office Supplies',
-            8 => 'Car Rental',
-            9 => 'Energy Services',
-            10 => 'MRO',
-            11 => 'Wireless',
-            12 => 'Packaging',
-        ];
+        /** Getting supplier categories array for categorizing the data */
+        $supplierColumnArray = DB::table('suppliers')->where('show', 0)->pluck('category', 'id')->toArray();
 
         $query = self::query()
         ->selectRaw("
@@ -1225,21 +1219,21 @@ class Order extends Model
 
         $totalRecords = $query->getQuery()->getCountForPagination();
         
-        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-
         /** Filter for specific supplier IDs */
-            $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+        if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            $allSupplierIdsArray = DB::table('suppliers')
+            ->where('show', 0)
+            ->pluck('id')
+            ->toArray();
+            
+            $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
         } elseif (isset($filter['supplier_id']) && !empty($filter['supplier_id']) && !in_array('all', $filter['supplier_id'])) {
-            if (isset($filter['supplier_id'][1])) {
-
             /** Filter for specified supplier IDs */
+            if (isset($filter['supplier_id'][1])) {
                 $query->whereIn('orders.supplier_id', $filter['supplier_id']);
             } else {
-
-                /** Filter for specified supplier IDs */
                 $query->where('orders.supplier_id', $filter['supplier_id'][0]);
             }
-            
         } else {
             if ($csv == true) {
                 $finalArray['heading'] = [
@@ -1337,14 +1331,15 @@ class Order extends Model
         /** Increasing the memory limit becouse memory limit issue */
         // ini_set('memory_limit', '25024M');
         $query = self::query()
-        ->selectRaw("
-            `order_product_details`.`key` as `key`,
-            `order_product_details`.`order_id` as `id`,
-            `order_product_details`.`value` as `value`
-        ");
+        ->selectRaw(
+            "`order_details`.`order_id` as `id`,
+            `supplier_fields`.`label` as `label`,
+            `order_details`.`value` as `value`"
+        );
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-        ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+        ->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id')
+        ->leftJoin('supplier_fields', 'order_details.supplier_field_id', '=', 'supplier_fields.id');
 
         /** Year and quarter filter here */
         if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
@@ -1356,10 +1351,14 @@ class Order extends Model
 
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
+            $allSupplierIdsArray = DB::table('suppliers')
+            ->where('show', 0)
+            ->pluck('id')
+            ->toArray();
             if ($filter['checkedAllAccount'] == 1) {
-                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
             } else {
-                $query->whereIn('orders.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
                 /** Filter by account name if provided */
                 if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
                     $query->whereIn('master_account_detail.account_name', $filter['account_name']);
@@ -1378,16 +1377,6 @@ class Order extends Model
         } else {
 
         }
-
-        // /** Filter by account name if provided */
-        // if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
-        //     $query->whereIn('master_account_detail.account_name', $filter['account_name']);
-        // }
-
-        // /** Filter for specific supplier IDs */
-        // if (isset($filter['supplier_id'])) {
-        //     $query->whereIn('orders.supplier_id', $filter['supplier_id']);
-        // }
 
         $queryData = $query->get();
         // dd($query->toSql(), $query->getBindings());
@@ -1446,12 +1435,12 @@ class Order extends Model
         ];
 
         if ($filter['supplier_id'] == 4) {
+            /** Prepare the final array for CSV */
             $finalArray = [];
             foreach ($stapleColumnArray as $keys => $values) {
                 foreach ($queryData as $key => $value) {
-                    if ($values == rtrim($value->key, " ID") || ($values == 'Group1' && $value->key == 'Group ID1')) {
-                        /** Prepare the final array for CSV */
-                        if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                    if ($values == rtrim($value->label, " ID") || ($values == 'Group1' && $value->label == 'Group ID1')) {
+                        if (preg_match('/\bdate\b/i', $value->label) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
                             $finalArray[$value->id][$values] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                         } else {
                             $finalArray[$value->id][$values] = $value->value;
@@ -1464,38 +1453,37 @@ class Order extends Model
                 }
             } 
         } else {
+            /** Prepare the final array for CSV */
             $finalArray = [];
             foreach ($queryData as $key => $value) {         
-                /** Prepare the final array for CSV */
-                if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
-                    $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                if (preg_match('/\bdate\b/i', $value->label) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                    $finalArray[$value->id][$value->label] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                 } else {
-                    $finalArray[$value->id][$value->key] = $value->value;
+                    $finalArray[$value->id][$value->label] = $value->value;
                 }
             }
         }
-
         // dd($finalArray);
-
         // dd($query->toSql(), $query->getBindings());
 
         return $finalArray;
     }
 
-    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath)
+    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath = null)
     {
         /** Increasing the memory limit becouse memory limit issue */
         ini_set('memory_limit', '7024M');
 
         $query = self::query()
-        ->selectRaw("
-            `order_product_details`.`key` as `key`,
-            `order_product_details`.`order_id` as `id`,
-            `order_product_details`.`value` as `value`
-        ");
+        ->selectRaw(
+            "`order_details`.`order_id` as `id`,
+            `supplier_fields`.`label` as `label`,
+            `order_details`.`value` as `value`"
+        );
 
         $query->leftJoin('master_account_detail', 'orders.customer_number', '=', 'master_account_detail.account_number')
-            ->leftJoin('order_product_details', 'order_product_details.order_id', '=', 'orders.id');
+        ->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id')
+        ->leftJoin('supplier_fields', 'order_details.supplier_field_id', '=', 'supplier_fields.id');
 
         /** Year and quarter filter here */
         if (isset($filter['start_date']) && !empty($filter['start_date']) && isset($filter['end_date']) && !empty($filter['end_date'])) {
@@ -1508,15 +1496,15 @@ class Order extends Model
 
         /** Filter for specific supplier IDs */
         if (isset($filter['supplier_id']) && in_array('all', $filter['supplier_id'])) {
-            $allSupplier = DB::table('suppliers')
+            $allSupplierIdsArray = DB::table('suppliers')
             ->where('show', 0)
-            ->pluck('supplier_id')
+            ->pluck('id')
             ->toArray();
 
             if ($filter['checkedAllAccount'] == 1) {
-                $query->whereIn('orders.supplier_id', $allSupplier);
+                $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
             } else {
-                $query->whereIn('orders.supplier_id', $allSupplier);
+                $query->whereIn('orders.supplier_id', $allSupplierIdsArray);
 
                 /** Filter by account name if provided */
                 if (isset($filter['account_name']) && !empty($filter['account_name']) && $filter['account_name'] != 'null') {
@@ -1524,7 +1512,7 @@ class Order extends Model
                 }
             }
         } elseif (isset($filter['supplier_id'])) {
-            $count = DB::table('manage_columns')
+            $count = DB::table('supplier_fields')
             ->whereIn('supplier_id', $filter['supplier_id'])
             ->count();
 
@@ -1609,9 +1597,9 @@ class Order extends Model
                 $finalArray = [];
                 foreach ($stapleColumnArray as $keys => $values) {
                     foreach ($queryData as $key => $value) {
-                        if ($values == rtrim($value->key, " ID") || ($values == 'Group1' && $value->key == 'Group ID1')) {
+                        if ($values == rtrim($value->label, " ID") || ($values == 'Group1' && $value->label == 'Group ID1')) {
                             /** Prepare the final array for CSV */
-                            if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                            if (preg_match('/\bdate\b/i', $value->label) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
                                 $finalArray[$value->id][$values] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                             } else {
                                 $finalArray[$value->id][$values] = $value->value;
@@ -1627,10 +1615,10 @@ class Order extends Model
                 $finalArray = [];
                 foreach ($queryData as $key => $value) {         
                     /** Prepare the final array for CSV */
-                    if (preg_match('/\bdate\b/i', $value->key) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
-                        $finalArray[$value->id][$value->key] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
+                    if (preg_match('/\bdate\b/i', $value->label) && !empty(trim($value->value)) && !preg_match('/[-\/]/', $value->value)) {
+                        $finalArray[$value->id][$value->label] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value->value))->format('Y-m-d H:i:s');
                     } else {
-                        $finalArray[$value->id][$value->key] = $value->value;
+                        $finalArray[$value->id][$value->label] = $value->value;
                     }
                 }
             }
@@ -1683,7 +1671,11 @@ class Order extends Model
                 )
                 ->get();
             } else {
-                $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
+                $supplier = DB::table('suppliers')
+                ->where('show', 0)
+                ->pluck('supplier_name', 'id')
+                ->toArray();
+
                 $supplierDate = ''; 
                 foreach ($supplier as $key => $value) {
                     $date = Order::selectRaw("DATE_FORMAT(date, '%Y-%m-%d') as formatted_date")
@@ -1715,8 +1707,8 @@ class Order extends Model
                     'date',
                     'drop',
                     'median',
-                    'ten_week_avg',
                     'account_name',
+                    'ten_week_avg',
                     'supplier_name',
                     'fifty_two_wk_avg',
                     'two_wk_avg_percentage'
@@ -1724,7 +1716,11 @@ class Order extends Model
                 ->where('supplier_name', $filter['supplier'])
                 ->get();
             } else {
-                $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
+                $supplier = DB::table('suppliers')
+                ->where('show', 0)
+                ->pluck('supplier_name', 'id')
+                ->toArray();
+
                 $supplierDate = ''; 
                 foreach ($supplier as $key => $value) {
                     if ($value ==  $filter['supplier']) {

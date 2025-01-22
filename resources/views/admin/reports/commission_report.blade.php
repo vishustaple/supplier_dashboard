@@ -282,7 +282,7 @@
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate', 'orderable': false, 'searchable': false},
                 { data: 'start_date', name: 'start_date', title: 'Start Date', 'orderable': false, 'searchable': false},
                 { data: 'end_date', name: 'end_date', title: 'End Date', 'orderable': false, 'searchable': false},
-                { data: 'commission', name: 'commission', title: 'Commission', 'orderable': false, 'searchable': false},
+                { data: 'commissions', name: 'commissions', title: 'Commission', 'orderable': false, 'searchable': false},
             ],
 
             fnDrawCallback: function( oSettings ) {
@@ -310,7 +310,7 @@
                     d.quarter = $('#quarter').val();
                     d.supplier = $('#supplier').val();
                     d.sales_reps = $('#sales_rep').val();
-                    d.commission_rebate_id = $('#commission_table_id').val();
+                    d.commissions_rebate_id = $('#commission_table_id').val();
                 },
             },
 
@@ -336,7 +336,7 @@
                 { data: 'supplier', name: 'supplier', title: 'Supplier'},
                 { data: 'cost', name: 'cost', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},
-                { data: 'commission', name: 'commission', title: 'Commission'},
+                { data: 'commissions', name: 'commissions', title: 'Commission'},
             ],
         });
 
@@ -345,7 +345,7 @@
             downloadCsv($(this).data('id'));
         });
         
-        $(document).on('click', '#commission_report_data tbody #commission_rebate_id', function() {
+        $(document).on('click', '#commission_report_data tbody #commissions_rebate_id', function() {
             $('#commission_table_id').val($(this).data('id'));
             $('#commission_report_data1').DataTable().ajax.reload();
         });
@@ -356,7 +356,7 @@
             order = supplierDataTable.order();
 
             // Add query parameters for date range and supplier ID
-            csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&sales_rep=' + $('#sales_rep').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&commission_rebate_id=' + id;
+            csvUrl += '?year=' + $('#year').val() + '&quarter=' + $('#quarter').val() + '&sales_rep=' + $('#sales_rep').val() + '&column=' + order[0][0] + '&order=' + order[0][1] + '&commissions_rebate_id=' + id;
 
             // Open a new window to download the CSV file
             window.open(csvUrl, '_blank');

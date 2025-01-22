@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('commission_rebate_detail', function (Blueprint $table) {
+        Schema::create('commissions_rebate_detail', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('commission_rebate_id');
+            $table->unsignedBigInteger('commissions_rebate_id');
             $table->unsignedBigInteger('sales_rep');
             $table->string('month')->nullable();
-            $table->string('commission')->nullable();
+            $table->string('commissions')->nullable();
             $table->string('volume_rebate')->nullable();
-            $table->string('commission_percentage')->nullable();
+            $table->string('commissions_percentage')->nullable();
             $table->string('volume_rebate_percentage')->nullable();
             $table->string('spend')->nullable();
             $table->string('start_date')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreign('supplier')->references('id')->on('suppliers');
             $table->foreign('sales_rep')->references('id')->on('sales_team');
-            $table->foreign('commission_rebate_id')->references('id')->on('commission_rebate');
+            $table->foreign('commissions_rebate_id')->references('id')->on('commissions_rebate');
         });
     }
 
@@ -41,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('commission_rebate_detail');
+        Schema::dropIfExists('commissions_rebate_detail');
     }
 };

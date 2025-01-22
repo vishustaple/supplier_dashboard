@@ -23,16 +23,16 @@ class Account extends Model
         'parent_id',
         'parent_name',
         'record_type',
+        'supplier_id',
+        'customer_id',
         'account_name',
         'volume_rebate',
-        'customer_name',
         'temp_end_date',
         'member_rebate',
         'account_number',
         'grandparent_id',
         'grandparent_name',
         'temp_active_date',
-        'category_supplier',
         'cpg_customer_service_rep',
         'cpg_sales_representative',
     ];
@@ -56,9 +56,9 @@ class Account extends Model
     public static function getFilterdAccountsData($filter = [], $csv=false){
         $orderColumnArray = [
             0 => 'master_account_detail.account_number',
-            1 => "master_account_detail.customer_name",
+            1 => "customers.customer_name",
             2 => 'master_account_detail.account_name',
-            3 => 'master_account_detail.category_supplier',
+            3 => 'master_account_detail.supplier_id',
             4 => 'master_account_detail.parent_name',
             5 => 'master_account_detail.parent_id',
             6 => 'master_account_detail.grandparent_name',
@@ -70,42 +70,45 @@ class Account extends Model
         if ($csv) {
             $query = self::query() /** Eager load relationships */
             ->select(
+                'customers.id as customer_id',
                 'master_account_detail.id as id',
+                'suppliers.supplier_name as supplier_id',
+                'customers.customer_name as customer_name',
                 'master_account_detail.parent_id as parent_id',
-                'suppliers.supplier_name as category_supplier',
                 'master_account_detail.parent_name as parent_name',
                 'master_account_detail.record_type as record_type',
                 'master_account_detail.account_name as account_name',
+                'master_account_detail.member_rebate as member_rebate',
                 'master_account_detail.volume_rebate as volume_rebate',
                 'master_account_detail.temp_end_date as temp_end_date',
-                'master_account_detail.customer_name as customer_name',
-                'master_account_detail.member_rebate as member_rebate',
                 'master_account_detail.grandparent_id as grandparent_id',
                 'master_account_detail.account_number as customer_number',
                 'master_account_detail.temp_active_date as temp_active_date',
                 'master_account_detail.grandparent_name as grand_parent_name',
                 'master_account_detail.cpg_sales_representative as cpg_sales_representative',
-                'master_account_detail.cpg_customer_service_rep as cpg_customer_service_rep'
-            )
-
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
+                'master_account_detail.cpg_customer_service_rep as cpg_customer_service_rep',
+            );
         } else {
             $query = self::query() /** Eager load relationships */
             ->select(
+                'customers.id as customer_id',
                 'master_account_detail.id as id',
                 'suppliers.supplier_name as supplier_name',
+                'customers.customer_name as customer_name',
                 'master_account_detail.created_at as date',
                 'master_account_detail.parent_id as parent_id',
-                'master_account_detail.record_type as record_type',
                 'master_account_detail.parent_name as parent_name',
+                'master_account_detail.record_type as record_type',
                 'master_account_detail.account_name as account_name',
-                'master_account_detail.customer_name as customer_name',
                 'master_account_detail.grandparent_id as grandparent_id',
                 'master_account_detail.account_number as customer_number',
-                'master_account_detail.grandparent_name as grand_parent_name'
-            )
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
+                'master_account_detail.grandparent_name as grand_parent_name',
+            );
         }
+
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.supplier_id')
+        ->leftJoin('customers', 'customers.id', '=', 'master_account_detail.customer_id');
+
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
@@ -120,7 +123,7 @@ class Account extends Model
         }
 
         /** Group by with account name */
-        $query->groupBy('master_account_detail.account_name', 'master_account_detail.category_supplier');
+        $query->groupBy('master_account_detail.account_name', 'master_account_detail.supplier_id');
 
         /** Get total records count (without filtering) */
         $totalRecords = $query->getQuery()->getCountForPagination();
@@ -138,6 +141,7 @@ class Account extends Model
         } else {
             $filteredData = $query->get();
         }
+
         /** Print the SQL query */
         // dd($query->toSql());    
 
@@ -165,7 +169,7 @@ class Account extends Model
                     'supplier_acct_rep' => $data->supplier_acct_rep,
                     'management_fee' => $data->management_fee,
                     'category' => $data->record_type,
-                    'supplier' => $data->category_supplier,
+                    'supplier' => $data->supplier_id,
                     'cpg_sales_representative' => $data->cpg_sales_representative,
                     'cpg_customer_service_rep' => $data->cpg_customer_service_rep,
                     'sf_cat' => $data->sf_cat,
@@ -181,7 +185,7 @@ class Account extends Model
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
                 $formatuserdata[$key]['customer_number'] = $data->customer_number;
                 $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
-                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" data-parent_name="'.$data->parent_name.'" data-parent_number="'.$data->parent_id.'" data-customer_name="'.$data->customer_name.'" data-category_name="'.$data->record_type.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit
+                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" data-parent_name="'.$data->parent_name.'" data-parent_number="'.$data->parent_id.'"data-customer_id="'.$data->customer_id.'" data-customer_name="'.$data->customer_name.'" data-category_name="'.$data->record_type.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit
               </a></div></div>';
             }
         }
@@ -201,27 +205,28 @@ class Account extends Model
     public static function getFilterdAccountsAllData($filter = [], $csv=false){
         $orderColumnArray = [
             0 => 'master_account_detail.account_number',
-            1 => "master_account_detail.customer_name",
+            1 => "customers.customer_name",
             2 => 'master_account_detail.account_name',
             3 => 'master_account_detail.parent_id',
             4 => 'master_account_detail.parent_name',
-            5 => 'master_account_detail.category_supplier',
+            5 => 'master_account_detail.supplier_id',
             6 => 'master_account_detail.record_type',
             7 => 'master_account_detail.created_at',
         ];
 
         $query = self::query() /** Eager load relationships */
         ->select(
+            'customers.customer_name as customer_name',
             'suppliers.supplier_name as supplier_name',
             'master_account_detail.parent_id as parent_id',
             'master_account_detail.parent_name as parent_name',
             'master_account_detail.record_type as record_type',
             'master_account_detail.account_name as account_name',
-            'master_account_detail.customer_name as customer_name',
             'master_account_detail.account_number as customer_number',
-            DB::raw("DATE_FORMAT(master_account_detail.created_at, '%m/%d/%Y') as date")
+            DB::raw("DATE_FORMAT(master_account_detail.created_at, '%m/%d/%Y') as date"),
         )
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier');
+        ->leftJoin('customers', 'customers.id', '=', 'master_account_detail.customer_id')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.supplier_id');
 
         /** Group by with account name */
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
@@ -278,20 +283,19 @@ class Account extends Model
                 'master_account_detail.account_name as account_name',
                 'master_account_detail.account_number as customer_number'
             );
-
             $query->groupBy('master_account_detail.account_name');
 
             if ($check == true) {
                 if (!empty($supplier)) {
-                    $query->where('master_account_detail.category_supplier', $supplier);
+                    $query->where('master_account_detail.supplier_id', $supplier);
                 } else if (!empty($supplierArray)) {
                     if ($supplierArray[0] == 'all') {
-                        $query->whereIn('master_account_detail.category_supplier', [1, 2, 3, 4, 5, 6, 7]);
+                        $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
                     } else {
-                        $query->whereIn('master_account_detail.category_supplier', $supplierArray);
+                        $query->whereIn('master_account_detail.supplier_id', $supplierArray);
                     }
                 } else if ($allSupplier) {
-                    $query->whereIn('master_account_detail.category_supplier', [1, 2, 3, 4, 5, 6, 7]);
+                    $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
                 } else {
                     return [];
                 }
@@ -317,14 +321,14 @@ class Account extends Model
             $query = self::query()
             ->select(
                 'suppliers.supplier_name as supplier_name',
-                'master_account_detail.category_supplier as id'
+                'master_account_detail.supplier_id as id'
             )
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.supplier_id')
             ->where('master_account_detail.account_name', 'LIKE', '%' . $search['account_name'] . '%');
 
             if (isset($search['check']) && $search['check'] == "true") {
-                $query->whereIn('master_account_detail.category_supplier', [1, 2, 3, 4, 5]);
-                $query->groupBy('master_account_detail.category_supplier');
+                $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5]);
+                $query->groupBy('master_account_detail.supplier_id');
                 $results = $query->get();
             } else {
                 $results = $query->first();
@@ -349,7 +353,7 @@ class Account extends Model
         if (!empty($search)) {
             $query = self::query()
             ->select('master_account_detail.account_number as account')
-            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.supplier_id')
             ->where('master_account_detail.account_number', 'LIKE', '%' . $search['q'] . '%')
             ->where('master_account_detail.account_number', $search['customer_number']);
             $results = $query->get();
@@ -369,9 +373,9 @@ class Account extends Model
     public static function getFilterdUpdateRebateData($filter = [], $csv=false){
         $orderColumnArray = [
             0 => 'master_account_detail.account_number',
-            1 => 'master_account_detail.customer_name',
+            1 => 'customers.customer_name',
             2 => 'master_account_detail.account_name',
-            3 => 'master_account_detail.category_supplier',
+            3 => 'master_account_detail.supplier_id',
             4 => 'master_account_detail.parent_name',
             5 => 'master_account_detail.grandparent_name',
             6 => 'master_account_detail.record_type',
@@ -382,21 +386,21 @@ class Account extends Model
         ->select(
             'master_account_detail.id as id',
             'rebate.volume_rebate as volume_rebate',
+            'customers.customer_name as customer_name',
             'suppliers.supplier_name as supplier_name',
             'master_account_detail.created_at as date',
             'rebate.incentive_rebate as incentive_rebate',
             'master_account_detail.record_type as record_type',
             'master_account_detail.account_name as account_name',
-            'master_account_detail.customer_name as customer_name',
             'master_account_detail.account_number as account_number',
-            'master_account_detail.category_supplier as supplier_id'
+            'master_account_detail.supplier_id as supplier_id',
         )
 
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-        // ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+        ->leftJoin('customers', 'master_account_detail.customer_id', '=', 'customers.id')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.supplier_id')
         ->leftJoin('rebate', function($join) {
             $join->on('master_account_detail.account_name', '=', 'rebate.account_name')
-            ->on('master_account_detail.category_supplier', '=', 'rebate.supplier');
+            ->on('master_account_detail.supplier_id', '=', 'rebate.supplier');
         })
 
         ->whereNotNull('master_account_detail.account_name')
@@ -457,10 +461,10 @@ class Account extends Model
             $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
         }
 
+        /** Return the result along with total and filtered counts */
         if ($csv == true) {
             return $formatuserdata;
         } else {
-            /** Return the result along with total and filtered counts */
             return [
                 'data' => $formatuserdata,
                 'recordsTotal' => $totalRecords,
@@ -472,7 +476,7 @@ class Account extends Model
     public static function getFilterdRebateData($filter = [], $csv=false){
         $orderColumnArray = [
             0 => 'master_account_detail.account_number',
-            1 => 'master_account_detail.customer_name',
+            1 => 'customers.customer_name',
             2 => 'master_account_detail.account_name',
             3 => 'suppliers.supplier_name',
         ];
@@ -481,19 +485,19 @@ class Account extends Model
         ->select(
             'master_account_detail.id as id',
             'rebate.volume_rebate as volume_rebate',
+            'customers.customer_name as customer_name',
             'suppliers.supplier_name as supplier_name',
             'rebate.incentive_rebate as incentive_rebate',
             'master_account_detail.account_name as account_name',
-            'master_account_detail.customer_name as customer_name',
+            'master_account_detail.supplier_id as supplier_id',
             'master_account_detail.account_number as account_number',
-            'master_account_detail.category_supplier as supplier_id',
         )
 
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.category_supplier')
-        // ->leftJoin('rebate', 'master_account_detail.account_name', '=', 'rebate.account_name')
+        ->leftJoin('suppliers', 'suppliers.id', '=', 'master_account_detail.supplier_id')
+        ->leftJoin('customers', 'master_account_detail.customer_id', '=', 'customers.id')
         ->leftJoin('rebate', function($join) {
             $join->on('master_account_detail.account_name', '=', 'rebate.account_name')
-            ->on('master_account_detail.category_supplier', '=', 'rebate.supplier');
+            ->on('master_account_detail.supplier_id', '=', 'rebate.supplier');
         })
 
         ->whereNotNull('master_account_detail.account_name')
@@ -565,11 +569,11 @@ class Account extends Model
     }
 
     public static function getSearchGPNameData(){
-        $query = self::query()
+        $results = self::query()
         ->select('grandparent_name')
-        ->whereNotNull('grandparent_name');
-        $query->groupBy('grandparent_name');
-        $results = $query->get();
+        ->whereNotNull('grandparent_name')
+        ->groupBy('grandparent_name')
+        ->get();
 
         if ($results->isNotEmpty()) {
             foreach ($results as $value) {
@@ -584,11 +588,11 @@ class Account extends Model
     }
 
     public static function getSearchGPNumberData(){
-        $query = self::query()
+        $results = self::query()
         ->select('grandparent_id')
-        ->whereNotNull('grandparent_id');
-        $query->groupBy('grandparent_id');
-        $results = $query->get();
+        ->whereNotNull('grandparent_id')
+        ->groupBy('grandparent_id')
+        ->get();
 
         if ($results->isNotEmpty()) {
             foreach ($results as $value) {
@@ -603,11 +607,11 @@ class Account extends Model
     }
 
     public static function getSearchPNameData(){
-        $query = self::query()
+        $results = self::query()
         ->select('parent_name')
-        ->whereNotNull('parent_name');
-        $query->groupBy('parent_name');
-        $results = $query->get();
+        ->whereNotNull('parent_name')
+        ->groupBy('parent_name')
+        ->get();
 
         if ($results->isNotEmpty()) {
             foreach ($results as $value) {
@@ -622,11 +626,11 @@ class Account extends Model
     }
 
     public static function getSearchPNumberData(){
-        $query = self::query()
+        $results = self::query()
         ->select('parent_id')
-        ->whereNotNull('parent_id');
-        $query->groupBy('parent_name');
-        $results = $query->get();
+        ->whereNotNull('parent_id')
+        ->groupBy('parent_name')
+        ->get();
 
         if ($results->isNotEmpty()) {
             foreach ($results as $value) {
