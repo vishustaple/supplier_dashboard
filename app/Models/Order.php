@@ -1302,7 +1302,7 @@ class Order extends Model
                 $finalArray[$key]['category'] = $supplierColumnArray[$value->supplier_id];
             }
         }
-        dd($query->toSql(), $query->getBindings());
+        // dd($query->toSql(), $query->getBindings());
         // dd($totalAmount);
         if(!$csv && isset($finalArray[0]) && $totalAmount != 0) {
             $finalArray[0]['spend'] .= '<input type="hidden" class="total_amount" value="' . number_format($totalAmount, 2) . '">';
