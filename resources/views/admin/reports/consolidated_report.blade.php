@@ -209,6 +209,8 @@
 
                 if ($('#selectAllAccounts').is(':checked')) {
                     checkedAllAccount = 1;
+                } else {
+                    checkedAllAccount = 0;
                 }
 
                 // Selecting the supplier_id and create the supplier_id array
