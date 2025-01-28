@@ -103,23 +103,30 @@ class CatalogAttachments extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            if ($data->cron == 1 || $data->cron == 11) {
-                $cronString = 0;
-            } elseif ($data->cron == 2) {
-                $cronString = 30;
-            } elseif ($data->cron == 4) {
-                $cronString = 50;
-            } elseif ($data->cron == 5) {
-                $cronString = 70;
-            } else {
-                $cronString = 100;
+            switch ($data->cron) {
+                case 1:
+                case 11:
+                    $cronString = 0;
+                    break;
+                case 2:
+                    $cronString = 30;
+                    break;
+                case 4:
+                    $cronString = 50;
+                    break;
+                case 5:
+                    $cronString = 70;
+                    break;
+                default:
+                    $cronString = 100; /** Default value */
+                    break;
             }
              
             if (isset($data->deleted_at) && !empty($data->deleted_at)) {
                 $cronString = 'Deleted';
                 $formatuserdata[$key]['status'] = $cronString;
             } elseif($data->cron == 10) {
-                $cronString = 'Already Uploaded';
+                $cronString = 'File column not matching';
                 $formatuserdata[$key]['status'] = $cronString;
             } else {
                 $formatuserdata[$key]['status'] = '<div class="clear"></div><progress value="'.$cronString.'" max="100" id="progBar"><span id="downloadProgress"></span></progress><div id="progUpdate">'.$cronString.'% Uploaded</div>';

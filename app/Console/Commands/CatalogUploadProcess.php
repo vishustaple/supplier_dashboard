@@ -83,8 +83,9 @@ class CatalogUploadProcess extends Command
             ->get();
 
             /** Convert the collection into an associative array */
+            $headerMapping1 = $columnValues->pluck('label')->toArray();
             $headerMapping = $columnValues->pluck('required_field_column', 'label')->toArray();
-
+            
             try {
                 /** Create a Carbon instance from the date */
                 $carbonDate = Carbon::parse($fileValue->date);
@@ -158,7 +159,6 @@ class CatalogUploadProcess extends Command
                 /** Get total rows before the loop and get percent array */
                 $percentArray = $this->divideNumberIntoFourParts($worksheet->getHighestRow());
 
-                /** Initialize data array */
                 $header = []; /** Initialize header array to store the first row */
 
                 foreach ($worksheet->getRowIterator() as $rowIndex => $row) {
@@ -180,7 +180,7 @@ class CatalogUploadProcess extends Command
                     $cellIterator = $row->getCellIterator();
                     $cellIterator->setIterateOnlyExistingCells(true); /** Only iterate through non-empty cells */
                     
-                    $rowData = [];
+                    $rowData = []; /** Initialize data array */
                     foreach ($cellIterator as $cell) {
                         $rowData[] = trim($cell->getFormattedValue()); /** Collect the cell values */
                     }
@@ -188,6 +188,21 @@ class CatalogUploadProcess extends Command
                     /** If it's the first row, treat it as the header */
                     if ($rowIndex === 1) {
                         $header = $rowData;  /** This will be your dynamic array2 */
+                        
+                        /** Check if all values in $headerMapping1 exist in $header */
+                        $difference = array_diff($headerMapping1, $header);
+
+                        /** If column not matching */
+                        if (!empty($difference)) {
+                            CatalogAttachments::where('id', $fileValue->id)
+                            ->update(['cron' => 10]); /** then update "'cron' => 10" means file column not match */
+                            
+                            echo "The following values are missing in the second array: " . implode(", ", $difference);
+                            
+                            $this->info('File column not matching.');
+                            die;
+                        }
+
                         continue; /** Skip processing for the header row */
                     }
 
@@ -205,7 +220,7 @@ class CatalogUploadProcess extends Command
                         }
                     }
 
-                    if (!empty($matchedRow)) {
+                    if (!empty($matchedRow) && $matchedRow['value'] !== 0) {
                         /** Check if the category exists, if not, create it */
                         $category = ProductDetailsCategory::firstOrCreate(
                             ['category_name' => $matchedRow['category_name']],

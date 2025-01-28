@@ -31,7 +31,7 @@ class RetrieveStaplesDiversityData extends Command
         $sftpHost = env('SFTP_HOST');
         $sftpUsername = env('SFTP_USERNAME');
         $sftpPassword = env('SFTP_PASSWORD');
-        $sftpRemotePath = '/remote/path/';
+        $sftpRemotePath = '/files/';
         $localPath = storage_path('app/staples_data');
 
         $sftp = new SFTP($sftpHost);

@@ -105,7 +105,7 @@
                 </div>
                 <div class="colors">
                     <span style="background-color: rgb(182 235 176);"></span>
-                    <p>File Duplicate</p>
+                    <p>File Column Not Matching</p>
                 </div>
                 <div class="colors">
                     <span></span>

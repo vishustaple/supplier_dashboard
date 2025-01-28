@@ -64,7 +64,7 @@ class CatalogImportController extends Controller
 
     public function import(Request $request) {
         /** Increasing memory for smoothly process data of excel file */
-        ini_set('memory_limit', '1024M');
+        // ini_set('memory_limit', '1024M');
 
         /** Getting suppliers ids and its required columns */
         $suppliers = CatalogSupplierFields::getRequiredColumns();
@@ -81,75 +81,75 @@ class CatalogImportController extends Controller
             return response()->json(['error' => $validator->errors(), 'categorySuppliers' => $categorySuppliers], 200);
         }
         
-        try {
-            /** Getting the file extension for process file according to the extension */
-            $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('file'));
+        // try {
+            // /** Getting the file extension for process file according to the extension */
+            // $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($request->file('file'));
 
-            if ($inputFileType === 'Xlsx') {
-                $reader = new Xlsx();
-            } elseif ($inputFileType === 'Xls') {
-                $reader = new Xls();
-            } else {
-                return response()->json(['error' => 'Unsupported file type: ' . $inputFileType], 200);
-                throw new Exception('Unsupported file type: ' . $inputFileType);
-            }
+            // if ($inputFileType === 'Xlsx') {
+            //     $reader = new Xlsx();
+            // } elseif ($inputFileType === 'Xls') {
+            //     $reader = new Xls();
+            // } else {
+            //     return response()->json(['error' => 'Unsupported file type: ' . $inputFileType], 200);
+            //     throw new Exception('Unsupported file type: ' . $inputFileType);
+            // }
 
-            /** Loading the file without attached image */
-            $spreadSheet = $reader->load($request->file('file'), 2);
+            // /** Loading the file without attached image */
+            // $spreadSheet = $reader->load($request->file('file'), 2);
 
-            /** Setting the variables for validation */
-            $validationCheck = $arrayDiff = false;
+            // /** Setting the variables for validation */
+            // $validationCheck = $arrayDiff = false;
 
-            foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
-                if ($validationCheck == true) {
-                    break;
-                }
+            // foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
+            //     if ($validationCheck == true) {
+            //         break;
+            //     }
 
-                foreach ($spreadSheets->toArray() as $value) {
-                    /** Remove empty key from the array of excel sheet column name */
-                    $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
-                        return !empty($item);
-                    }, ARRAY_FILTER_USE_BOTH));
+            //     foreach ($spreadSheets->toArray() as $value) {
+            //         /** Remove empty key from the array of excel sheet column name */
+            //         $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
+            //             return !empty($item);
+            //         }, ARRAY_FILTER_USE_BOTH));
                                 
-                    /** Clean up the values */
-                    $cleanedArray = array_map(function ($values) {
-                        /** Remove line breaks and trim whitespace */
-                        return trim(str_replace(["\r", "\n"], '', $values));
-                    }, $finalExcelKeyArray1);
+            //         /** Clean up the values */
+            //         $cleanedArray = array_map(function ($values) {
+            //             /** Remove line breaks and trim whitespace */
+            //             return trim(str_replace(["\r", "\n"], '', $values));
+            //         }, $finalExcelKeyArray1);
 
-                    if (isset($suppliers[$request->supplierselect])) {
-                        $supplierValues = $suppliers[$request->supplierselect];
+            //         if (isset($suppliers[$request->supplierselect])) {
+            //             $supplierValues = $suppliers[$request->supplierselect];
                         
-                        /** Getting the difference of excel file columns */
-                        $arrayDiff = array_diff($supplierValues, $cleanedArray);
+            //             /** Getting the difference of excel file columns */
+            //             $arrayDiff = array_diff($supplierValues, $cleanedArray);
 
-                        if (count($arrayDiff) < count($supplierValues)) {
-                            $arrayDiff1 = $arrayDiff;
-                        }
+            //             if (count($arrayDiff) < count($supplierValues)) {
+            //                 $arrayDiff1 = $arrayDiff;
+            //             }
 
-                        /** Checking the difference if arrayDiff empty then break the loop and go to next step */
-                        if (empty($arrayDiff)) {
-                            $validationCheck = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+            //             /** Checking the difference if arrayDiff empty then break the loop and go to next step */
+            //             if (empty($arrayDiff)) {
+            //                 $validationCheck = true;
+            //                 break;
+            //             }
+            //         }
+            //     }
+            // }
+        // } catch (\Exception $e) {
+        //     return redirect()->back()->with('error', $e->getMessage());
+        // }
         
         // dd($supplierValues, $cleanedArray, $arrayDiff, $arrayDiff1);
-        /** Here we return the error into form of json */
-        if ($validationCheck == false) {
-            if (isset($arrayDiff1) && !empty($arrayDiff1)) {
-                $missingColumns = implode(', ', $arrayDiff1);
-            } else {
-                $missingColumns = implode(', ', $arrayDiff);
-            }
+        // /** Here we return the error into form of json */
+        // if ($validationCheck == false) {
+        //     if (isset($arrayDiff1) && !empty($arrayDiff1)) {
+        //         $missingColumns = implode(', ', $arrayDiff1);
+        //     } else {
+        //         $missingColumns = implode(', ', $arrayDiff);
+        //     }
             
-            return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
-        }
+        //     return response()->json(['error' => "We're sorry, but it seems the file you've uploaded does not meet the required format. Following ".$missingColumns." columns are missing in uploaded file"], 200);
+        // }
 
         /** Get the uploaded file */
         $file = $request->file('file');
@@ -181,21 +181,22 @@ class CatalogImportController extends Controller
                 /** Move the file with the new name */
                 $file->move($destinationPath, $fileName);
 
+                return response()->json(['success' => 'Excel file imported successfully!'], 200);
             } catch (QueryException $e) {   
                 return response()->json(['error' => $e->getMessage()], 200);
             }
 
-            $suppliers = CatalogSupplierFields::getColumns();
-            $supplierValues = $suppliers[$request->supplierselect];
-            $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray));
-            $column = (count($arrayDiff) > 1) ? ('columns') : ('column');
-            $missingColumns = implode(', ', $arrayDiff);
+            // $suppliers = CatalogSupplierFields::getColumns();
+            // $supplierValues = $suppliers[$request->supplierselect];
+            // $arrayDiff = array_values(array_diff($supplierValues, $cleanedArray));
+            // $column = (count($arrayDiff) > 1) ? ('columns') : ('column');
+            // $missingColumns = implode(', ', $arrayDiff);
             
-            if (!empty($arrayDiff)) {
-                return response()->json(['success' => 'Excel file imported successfully!. Missing '.$column.' '.$missingColumns.''], 200);
-            } else {
-                return response()->json(['success' => 'Excel file imported successfully!'], 200);
-            }
+            // if (!empty($arrayDiff)) {
+            //    return response()->json(['success' => 'Excel file imported successfully!. Missing '.$column.' '.$missingColumns.''], 200);
+            // } else {
+            //    return response()->json(['success' => 'Excel file imported successfully!'], 200);
+            // }
         } else {
             return response()->json(['error' => 'Please select supplier.'], 200);
         }
