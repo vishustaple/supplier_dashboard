@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes();
         // $schedule->command(RemoveFrontZeroAccountNumber::class)->everyTenMinutes();
         // $schedule->command(ProcessCommissionAndRebate::class)->everyFifteenMinutes();
+        // sxvxczvcxv?
     }
 
     /**
