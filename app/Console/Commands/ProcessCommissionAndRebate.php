@@ -67,7 +67,7 @@ class ProcessCommissionAndRebate extends Command
                     ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
                     ->leftJoin('rebate', function($join) {
                         $join->on('m2.account_name', '=', 'rebate.account_name')
-                        ->on('m2.category_supplier', '=', 'rebate.supplier');
+                        ->on('m2.supplier_id', '=', 'rebate.supplier');
                     })
                     ->leftJoin('commissions', function ($join) { $join->on('commissions.supplier', '=', 'suppliers.id')->on('commissions.account_name', '=', 'm2.account_name'); });
         
