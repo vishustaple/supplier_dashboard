@@ -70,7 +70,7 @@ class ProcessCommissionAndRebate extends Command
                         ->on('m2.supplier_id', '=', 'rebate.supplier');
                     })
                     ->leftJoin('commissions', function ($join) { $join->on('commissions.supplier', '=', 'suppliers.id')->on('commissions.account_name', '=', 'm2.account_name'); });
-        
+                    $query->where('m2.account_number', '27391189');
                     $query->where('commissions.sales_rep', $values->sales_rep);
         
                     $query->whereIn('commissions.supplier', DB::table('suppliers')->where('show', 0)->pluck('id')->toArray());      
