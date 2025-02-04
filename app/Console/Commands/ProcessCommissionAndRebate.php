@@ -31,7 +31,7 @@ class ProcessCommissionAndRebate extends Command
     {
         $finalYear = date("Y");
         for ($year = 2022; $year <= $finalYear; $year++) {
-            // print_r($year);
+            print_r($year);
             $salesRep = SalesTeam::select('id as sales_rep')->get();
             $res[1] =['January', 'February', 'March'];
             $res[2] = ['April', 'May', 'June'];
@@ -73,7 +73,7 @@ class ProcessCommissionAndRebate extends Command
         
                     $query->where('commissions.sales_rep', $values->sales_rep);
         
-                    $query->whereIn('commissions.supplier', [1,2,3,4,5,6,7]);      
+                    $query->whereIn('commissions.supplier', DB::table('suppliers')->where('show', 0)->pluck('id')->toArray());      
                 
                     /** Year and quarter filter here */
                     if (in_array($filter['month'], $res[1]) ) {
@@ -103,6 +103,10 @@ class ProcessCommissionAndRebate extends Command
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
 
                     foreach ($query->get() as $value) {
+                        if (in_array($filter['month'], $res[4]) && $year == 2024 ) {
+                            print_r($filter['month']);
+                            print_r($value->toArray());
+                        }
                         $totalAmount += $value->cost;
                         $totalVolumeRebate += $value->volume_rebate;
                         $totalCommissionRebate += $value->commissionss;
