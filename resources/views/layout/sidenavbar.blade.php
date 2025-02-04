@@ -128,7 +128,7 @@
                     @endif
                 </div>
                 @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || !in_array(auth()->user()->user_type, [\App\Models\User::USER_TYPE_USER, \App\Models\User::USER_TYPE_ADMIN]))
-                <a class="nav-link" target="_blank" href="http://3.95.106.180:7080/phpMyAdmin2025/">
+                <a class="nav-link" target="_blank" href="http://74.207.229.111:8089/phpmyadmin/index.php">
                     <div class="sb-nav-link-icon"><i class="fa fa-database" aria-hidden="true"></i></div>
                     SQL Maintenance
                 </a>
