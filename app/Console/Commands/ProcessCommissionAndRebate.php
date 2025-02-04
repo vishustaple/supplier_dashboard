@@ -104,6 +104,8 @@ class ProcessCommissionAndRebate extends Command
 
                     foreach ($query->get() as $value) {
                         if (in_array($filter['month'], $res[4]) && $year == 2024 ) {
+                            print_r($filter['start_date']);
+                            print_r($filter['end_date']);
                             print_r($filter['month']);
                             print_r($value->toArray());
                         }
