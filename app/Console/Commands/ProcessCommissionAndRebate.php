@@ -102,13 +102,14 @@ class ProcessCommissionAndRebate extends Command
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
 
+                    if (in_array($filter['month'], $res[4]) && $year == 2024 ) {
+                        dd($query->toSql(), $query->getBindings());
+                        print_r($filter['start_date']);
+                        print_r($filter['end_date']);
+                        print_r($filter['month']);
+                        print_r($value->get()->toArray());
+                    }
                     foreach ($query->get() as $value) {
-                        if (in_array($filter['month'], $res[4]) && $year == 2024 ) {
-                            print_r($filter['start_date']);
-                            print_r($filter['end_date']);
-                            print_r($filter['month']);
-                            print_r($value->toArray());
-                        }
                         $totalAmount += $value->cost;
                         $totalVolumeRebate += $value->volume_rebate;
                         $totalCommissionRebate += $value->commissionss;
