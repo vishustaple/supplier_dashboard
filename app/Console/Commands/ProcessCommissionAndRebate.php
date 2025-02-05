@@ -70,7 +70,7 @@ class ProcessCommissionAndRebate extends Command
                         ->on('m2.supplier_id', '=', 'rebate.supplier');
                     })
                     ->leftJoin('commissions', function ($join) { $join->on('commissions.supplier', '=', 'suppliers.id')->on('commissions.account_name', '=', 'm2.account_name'); });
-                    $query->where('m2.account_number', '27391189');
+                    // $query->where('m2.account_number', '27391189');
                     $query->where('commissions.sales_rep', $values->sales_rep);
         
                     $query->whereIn('commissions.supplier', DB::table('suppliers')->where('show', 0)->pluck('id')->toArray());      
@@ -92,24 +92,40 @@ class ProcessCommissionAndRebate extends Command
                         $filters['quarter'] = 4;
                     }
 
-                    $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']])
-                    ->where('commissions.start_date', '<=', $filter['start_date'])
-                    ->where('commissions.end_date', '>=', $filter['end_date']);
+                    // $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']])
+                    // ->where('commissions.start_date', '<=', $filter['start_date'])
+                    // ->where('commissions.end_date', '>=', $filter['end_date']);
                 
+                    $query->where(function ($query) use ($filter)  {
+                        $query->where(function ($subQuery) use ($filter) {
+                            $subQuery->where('commissions.start_date', '>=', $filter['start_date'])
+                                     ->whereBetween('orders.date', [DB::raw('commissions.start_date'), $filter['end_date']]);
+                        })->orWhere(function ($subQuery) use ($filter) {
+                            $subQuery->where('commissions.start_date', '<', $filter['start_date'])
+                                     ->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+                        });
+                    })
+                    ->where(function ($query) use ($filter) {
+                        $query->where(function ($subQuery) use ($filter) {
+                            $subQuery->where('commissions.end_date', '<', $filter['end_date'])
+                                     ->whereBetween('orders.date', [$filter['start_date'], DB::raw('commissions.end_date')]);
+                        })->orWhere('commissions.end_date', '>=', $filter['end_date']);
+                    });
+        
                     /** Group by with account name */
                     $query->groupBy('commissions.account_name', 'commissions.supplier');
         
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
 
-                    if (in_array($filter['month'], $res[4]) && $year == 2024 ) {
-                        dd($query->toSql(), $query->getBindings());
-                        print_r($filter['start_date']);
-                        print_r($filter['end_date']);
-                        print_r($filter['month']);
-                        print_r($value->get()->toArray());
-                    }
                     foreach ($query->get() as $value) {
+                        // if (in_array($filter['month'], $res[4]) && $year == 2024 ) {
+                        //     // dd($query->toSql(), $query->getBindings());
+                        //     print_r($filter['start_date']);
+                        //     print_r($filter['end_date']);
+                        //     print_r($filter['month']);
+                        //     print_r($value->toArray());
+                        // }
                         $totalAmount += $value->cost;
                         $totalVolumeRebate += $value->volume_rebate;
                         $totalCommissionRebate += $value->commissionss;
