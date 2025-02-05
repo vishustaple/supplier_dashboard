@@ -92,25 +92,25 @@ class ProcessCommissionAndRebate extends Command
                         $filters['quarter'] = 4;
                     }
 
-                    // $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']])
-                    // ->where('commissions.start_date', '<=', $filter['start_date'])
-                    // ->where('commissions.end_date', '>=', $filter['end_date']);
+                    $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']])
+                    ->where('commissions.start_date', '<=', $filter['start_date'])
+                    ->where('commissions.end_date', '>=', $filter['end_date']);
                 
-                    $query->where(function ($query) use ($filter)  {
-                        $query->where(function ($subQuery) use ($filter) {
-                            $subQuery->where('commissions.start_date', '>=', $filter['start_date'])
-                                     ->whereBetween('orders.date', [DB::raw('commissions.start_date'), $filter['end_date']]);
-                        })->orWhere(function ($subQuery) use ($filter) {
-                            $subQuery->where('commissions.start_date', '<', $filter['start_date'])
-                                     ->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
-                        });
-                    })
-                    ->where(function ($query) use ($filter) {
-                        $query->where(function ($subQuery) use ($filter) {
-                            $subQuery->where('commissions.end_date', '<', $filter['end_date'])
-                                     ->whereBetween('orders.date', [$filter['start_date'], DB::raw('commissions.end_date')]);
-                        })->orWhere('commissions.end_date', '>=', $filter['end_date']);
-                    });
+                    // $query->where(function ($query) use ($filter)  {
+                    //     $query->where(function ($subQuery) use ($filter) {
+                    //         $subQuery->where('commissions.start_date', '>=', $filter['start_date'])
+                    //                  ->whereBetween('orders.date', [DB::raw('commissions.start_date'), $filter['end_date']]);
+                    //     })->orWhere(function ($subQuery) use ($filter) {
+                    //         $subQuery->where('commissions.start_date', '<', $filter['start_date'])
+                    //                  ->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+                    //     });
+                    // })
+                    // ->where(function ($query) use ($filter) {
+                    //     $query->where(function ($subQuery) use ($filter) {
+                    //         $subQuery->where('commissions.end_date', '<', $filter['end_date'])
+                    //                  ->whereBetween('orders.date', [$filter['start_date'], DB::raw('commissions.end_date')]);
+                    //     })->orWhere('commissions.end_date', '>=', $filter['end_date']);
+                    // });
         
                     /** Group by with account name */
                     $query->groupBy('commissions.account_name', 'commissions.supplier');
