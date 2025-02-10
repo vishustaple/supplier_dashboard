@@ -62,9 +62,14 @@ class RetrieveStaplesDiversityData extends Command
         // }
         $downloadLinks = [0=>"sadsd",1=>"sdfdsf"];
         print_r($downloadLinks);
-        if (!empty($downloadLinks)) {
-            Mail::to('vishustaple.in@gmail.com')->send(new FileDownloaded($downloadLinks));
-            $this->info('Download links emailed successfully.');
+        try{
+            if (!empty($downloadLinks)) {
+                Mail::to('vishustaple.in@gmail.com')->send(new FileDownloaded($downloadLinks));
+                $this->info('Download links emailed successfully.');
+            }
+        } catch (\Exception $e) {
+            // Log any exceptions or errors that occur during the email send
+            $this->error('Error sending email: ' . $e->getMessage());
         }
 
         $this->info('SFTP data retrieval completed.');
