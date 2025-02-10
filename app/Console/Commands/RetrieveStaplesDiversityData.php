@@ -52,7 +52,7 @@ class RetrieveStaplesDiversityData extends Command
 
             if ($sftp->get($remoteFilePath, $localFilePath)) {
                 $this->info("Downloaded: $file");
-                // $sftp->delete($remoteFilePath);
+                $sftp->delete($remoteFilePath);
                 // print_r($file);
                 // Generate a public URL
                 $downloadLinks[] = asset("storage/staples_data/$file");
@@ -64,7 +64,7 @@ class RetrieveStaplesDiversityData extends Command
         // print_r($downloadLinks);
         try{
             if (!empty($downloadLinks)) {
-                Mail::to('vishustaple.in@gmail.com')->send(new FileDownloaded($downloadLinks));
+                Mail::to('galen@centerpointgroup.com')->send(new FileDownloaded($downloadLinks));
                 $this->info('Download links emailed successfully.');
             }
         } catch (\Exception $e) {
