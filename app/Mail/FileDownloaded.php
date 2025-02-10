@@ -30,7 +30,7 @@ class FileDownloaded extends Mailable
     {
         return $this->subject('Staples Diversity Data Downloaded')
                     ->view('mail.file_downloaded')
-                    ->with(['downloadLinks' => $this->downloadLinks]);
+                    ->with(['links' => $this->downloadLinks]);
     }
 
     /**
