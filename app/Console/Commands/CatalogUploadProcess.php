@@ -17,6 +17,7 @@ use App\Models\{
     ProductDetailsCommonValue,
     ProductDetailsCommonAttribute,
 };
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\{DB, Log};
@@ -139,16 +140,13 @@ class CatalogUploadProcess extends Command
                 /** Increasing the memory limit becouse memory limit issue */
                 ini_set('memory_limit', '4G');
 
-                /** Get file type like xlsx, xls etc. */
+                /** Identify file type and set up reader */
                 $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
-
-                if ($inputFileType === 'Xlsx') {
-                    $reader = new Xlsx();
-                } elseif ($inputFileType === 'Xls') {
-                    $reader = new Xls();
-                } else {
-                    /** throw new Exception('Unsupported file type: ' . $inputFileType); */
-                }
+                $reader = match ($inputFileType) {
+                    'Xlsx' => new \PhpOffice\PhpSpreadsheet\Reader\Xlsx(),
+                    'Xls' => new \PhpOffice\PhpSpreadsheet\Reader\Xls(),
+                    default => throw new Exception("Unsupported file type: " . $inputFileType),
+                };
 
                 /** Load only the data (without formatting) to save memory */
                 $reader->setReadDataOnly(true);
@@ -162,19 +160,17 @@ class CatalogUploadProcess extends Command
                 $header = []; /** Initialize header array to store the first row */
 
                 foreach ($worksheet->getRowIterator() as $rowIndex => $row) {
-                    switch ($rowIndex) {
-                        case $percentArray[2]:
-                            /** Update the catalog attachment table "'cron' => 2" means 30% data uploaded */
-                            CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 2]);
-                            break;
-                        case $percentArray[1]:
-                            /** Update the catalog attachment table "'cron' => 4" means 50% data uploaded */
-                            CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 4]);
-                            break;
-                        case $percentArray[0]:
-                            /** Update the catalog attachment table "'cron' => 5" means 70% data uploaded */
-                            CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 5]);
-                            break;
+                    /** Update cron status at percentage milestones */
+                    if (in_array($rowIndex, $percentArray, true)) {
+                        $cronStatus = match ($rowIndex) {
+                            $percentArray[2] => 2, /** "'cron' => 2" means 30% data uploaded */
+                            $percentArray[1] => 4, /** "'cron' => 4" means 50% data uploaded */
+                            $percentArray[0] => 5, /** "'cron' => 5" means 70% data uploaded */
+                            default => null,
+                        };
+                        if ($cronStatus) {
+                            CatalogAttachments::where('id', $fileValue->id)->update(['cron' => $cronStatus]);
+                        }
                     }
 
                     $cellIterator = $row->getCellIterator();
@@ -444,6 +440,7 @@ class CatalogUploadProcess extends Command
                                 'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
                             ]);
                         }
+                        // gc_collect_cycles();
                     }
                 }
 
