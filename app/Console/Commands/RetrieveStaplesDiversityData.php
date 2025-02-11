@@ -64,6 +64,7 @@ class RetrieveStaplesDiversityData extends Command
         // print_r($downloadLinks);
         try{
             if (!empty($downloadLinks)) {
+                // Mail::to('vishustaple.in@gmail.com')->send(new FileDownloaded($downloadLinks));
                 Mail::to('galen@centerpointgroup.com')->send(new FileDownloaded($downloadLinks));
                 $this->info('Download links emailed successfully.');
             }
