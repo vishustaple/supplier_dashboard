@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Carbon\Carbon;
 use App\Models\{
     CatalogItem,
@@ -17,9 +18,9 @@ use App\Models\{
     ProductDetailsCommonValue,
     ProductDetailsCommonAttribute,
 };
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\{DB, Log};
 use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
 
@@ -40,11 +41,11 @@ class CatalogUploadProcess extends Command
     protected $description = 'Command description';
 
     protected function divideNumberIntoFourParts($number) {
-        $part1 = intval($number * 0.70); /** 70% of the total as an integer */
-        $part2 = intval($number * 0.50); /** 50% of the total as an integer */
-        $part3 = intval($number * 0.30); /** 30% of the total as an integer */
-    
-        return [$part1, $part2, $part3];
+        return [
+            intval($number * 0.70), /** 70% of the total as an integer */
+            intval($number * 0.50), /** 50% of the total as an integer */
+            intval($number * 0.30), /** 30% of the total as an integer */
+        ];
     }
 
     /**
@@ -141,10 +142,10 @@ class CatalogUploadProcess extends Command
                 ini_set('memory_limit', '4G');
 
                 /** Identify file type and set up reader */
-                $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
+                $inputFileType = IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
                 $reader = match ($inputFileType) {
-                    'Xlsx' => new \PhpOffice\PhpSpreadsheet\Reader\Xlsx(),
-                    'Xls' => new \PhpOffice\PhpSpreadsheet\Reader\Xls(),
+                    'Xlsx' => IOFactory::createReader($inputFileType),
+                    'Xls' => IOFactory::createReader($inputFileType),
                     default => throw new Exception("Unsupported file type: " . $inputFileType),
                 };
 
@@ -216,25 +217,125 @@ class CatalogUploadProcess extends Command
                         }
                     }
 
-                    if (!empty($matchedRow) && $matchedRow['value'] !== 0) {
-                        /** Check if the category exists, if not, create it */
-                        $category = ProductDetailsCategory::firstOrCreate(
-                            ['category_name' => $matchedRow['category_name']],
+                    if (empty($matchedRow) || empty($matchedRow['value'])) {
+                        continue;
+                    }
+
+                    // if (!empty($matchedRow) && $matchedRow['value'] !== 0) {
+                    /** Check if the category exists, if not, create it */
+                    $category = ProductDetailsCategory::firstOrCreate(
+                        ['category_name' => $matchedRow['category_name']],
+                        [
+                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                        ]
+                    );
+
+                    /** Now $category contains the existing or newly created record */
+                    $category_id = $category->id;
+                    /** Get the last inserted or existing category id */
+
+                    /** Check if the subcategory exists, if not, create it */
+                    $sub_category = ProductDetailsSubCategory::firstOrCreate(
+                        [
+                            'category_id' => $category_id,
+                            'sub_category_name' => $matchedRow['sub_category_name']
+                        ],
+                        [
+                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                        ]
+                    );
+
+                    /** Now $sub_category contains the existing or newly created record */
+                    $sub_category_id = $sub_category->id;
+                    /** Get the last inserted or existing subcategory id */
+
+                    /** Check if the manufacturer exists, if not, create it */
+                    $manufacturer = Manufacturer::firstOrCreate(
+                        ['manufacturer_name' => $matchedRow['manufacturer_name']],
+                        [
+                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                        ]
+                    );
+
+                    /** Now $manufacturer contains the existing or newly created record */
+                    $manufacturer_id = $manufacturer->id;
+                    /** Get the last inserted or existing manufacturer id */
+
+                    /** Check if the common attribute exists, if not, create it */
+                    if ($fileValue->catalog_price_type_id == 3) {
+                        $common_attribute = ProductDetailsCommonAttribute::firstOrCreate(
                             [
+                                'sub_category_id' => $sub_category_id,
+                                'attribute_name' => $matchedRow['manufacturer_name']
+                            ],
+                            [
+                                'type' => '',
                                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                             ]
                         );
 
-                        /** Now $category contains the existing or newly created record */
-                        $category_id = $category->id;
-                        /** Get the last inserted or existing category id */
+                        /** Now $common_attribute contains the existing or newly created record */
+                        $common_attribute_id = $common_attribute->id;
+                        /** Get the last inserted or existing common attribute id */
+                    }
 
-                        /** Check if the subcategory exists, if not, create it */
-                        $sub_category = ProductDetailsSubCategory::firstOrCreate(
+                    
+                    $existingCatalogItem = CatalogItem::where([
+                        'sku' => $matchedRow['sku'],
+                        'supplier_id' => $fileValue->supplier_id,
+                    ])
+                    ->first();
+
+                    /** Update the existing record */
+                    if ($existingCatalogItem) {
+                        /** If greater date catalog file not exist then update active data */
+                        if (!$greaterDateFileExist) {
+                            $existingCatalogItem->update([
+                                'active' => 1,
+                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            ]);
+                        }
+
+                        /** Now $catalog_item contains the existing or newly created record */
+                        $catalog_item_id = $existingCatalogItem->id;
+                    } else {
+                        /** Check if the catalog item exists by sku, if not, create it */
+                        $catalog_item = CatalogItem::firstOrCreate(
+                            ['sku' => $matchedRow['sku']],
                             [
+                                'active' => ($greaterDateFileExist) ? 0 : 1,
+                                'unspsc' => '',
+                                'catalog_item_url' => '',
+                                'catalog_item_name' => '',
+                                'quantity_per_unit' => '',
+                                'industry_id' => $industryId,
                                 'category_id' => $category_id,
-                                'sub_category_name' => $matchedRow['sub_category_name']
+                                'sub_category_id' => $sub_category_id,
+                                'manufacturer_id' => $manufacturer_id,
+                                'supplier_id' => $fileValue->supplier_id,
+                                'unit_of_measure' => $matchedRow['unit_of_measure'],
+                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                'manufacturer_number' => $matchedRow['manufacterer_number'],
+                                'supplier_shorthand_name' => $matchedRow['supplier_shorthand_name'],
+                            ]
+                        );
+
+                        /** Now $catalog_item contains the existing or newly created record */
+                        $catalog_item_id = $catalog_item->id;
+                    }
+
+                    if ($fileValue->catalog_price_type_id == 3) {
+                        /** Check if the common value exists, if not, create it */
+                        $product_details_common_value = ProductDetailsCommonValue::firstOrCreate(
+                            [
+                                'value' => $matchedRow['value'],
+                                'catalog_item_id' => $catalog_item_id,
+                                'common_attribute_id' => $common_attribute_id
                             ],
                             [
                                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -242,211 +343,119 @@ class CatalogUploadProcess extends Command
                             ]
                         );
 
-                        /** Now $sub_category contains the existing or newly created record */
-                        $sub_category_id = $sub_category->id;
-                        /** Get the last inserted or existing subcategory id */
+                        /** Now $product_details_common_value contains the existing or newly created record */
+                        $product_details_common_value_id = $product_details_common_value->id;
+                        /** Get the last inserted or existing record id */
 
-                        /** Check if the manufacturer exists, if not, create it */
-                        $manufacturer = Manufacturer::firstOrCreate(
-                            ['manufacturer_name' => $matchedRow['manufacturer_name']],
+                        /** Check if the raw value exists, if not, create it */
+                        $product_details_raw_value = ProductDetailsRawValue::firstOrCreate(
+                            ['catalog_item_id' => $catalog_item_id],
                             [
+                                'raw_values' => '',
                                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                             ]
                         );
 
-                        /** Now $manufacturer contains the existing or newly created record */
-                        $manufacturer_id = $manufacturer->id;
-                        /** Get the last inserted or existing manufacturer id */
+                        /** Now $product_details_raw_value contains the existing or newly created record */
+                        $product_details_raw_value_id = $product_details_raw_value->id; /** Get the last inserted or existing record id */
+                    }
 
-                        /** Check if the common attribute exists, if not, create it */
-                        if ($fileValue->catalog_price_type_id == 3) {
-                            $common_attribute = ProductDetailsCommonAttribute::firstOrCreate(
-                                [
-                                    'sub_category_id' => $sub_category_id,
-                                    'attribute_name' => $matchedRow['manufacturer_name']
-                                ],
-                                [
-                                    'type' => '',
-                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                ]
-                            );
+                    $existingRecord = CatalogPrices::where([
+                        'catalog_item_id' => $catalog_item_id,
+                        'catalog_price_type_id' => $fileValue->catalog_price_type_id,
+                    ])
+                    ->first();
 
-                            /** Now $common_attribute contains the existing or newly created record */
-                            $common_attribute_id = $common_attribute->id;
-                            /** Get the last inserted or existing common attribute id */
-                        }
-
-                        
-                        $existingCatalogItem = CatalogItem::where([
-                            'sku' => $matchedRow['sku'],
-                            'supplier_id' => $fileValue->supplier_id,
-                        ])
-                        ->first();
-
-                        /** Update the existing record */
-                        if ($existingCatalogItem) {
-                            /** If greater date catalog file not exist then update active data */
-                            if (!$greaterDateFileExist) {
-                                $existingCatalogItem->update([
-                                    'active' => 1,
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                ]);
-                            }
-
-                            /** Now $catalog_item contains the existing or newly created record */
-                            $catalog_item_id = $existingCatalogItem->id;
-                        } else {
-                            /** Check if the catalog item exists by sku, if not, create it */
-                            $catalog_item = CatalogItem::firstOrCreate(
-                                ['sku' => $matchedRow['sku']],
-                                [
-                                    'active' => ($greaterDateFileExist) ? 0 : 1,
-                                    'unspsc' => '',
-                                    'catalog_item_url' => '',
-                                    'catalog_item_name' => '',
-                                    'quantity_per_unit' => '',
-                                    'industry_id' => $industryId,
-                                    'category_id' => $category_id,
-                                    'sub_category_id' => $sub_category_id,
-                                    'manufacturer_id' => $manufacturer_id,
-                                    'supplier_id' => $fileValue->supplier_id,
-                                    'unit_of_measure' => $matchedRow['unit_of_measure'],
-                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'manufacturer_number' => $matchedRow['manufacterer_number'],
-                                    'supplier_shorthand_name' => $matchedRow['supplier_shorthand_name'],
-                                ]
-                            );
-
-                            /** Now $catalog_item contains the existing or newly created record */
-                            $catalog_item_id = $catalog_item->id;
-                        }
-
-                        if ($fileValue->catalog_price_type_id == 3) {
-                            /** Check if the common value exists, if not, create it */
-                            $product_details_common_value = ProductDetailsCommonValue::firstOrCreate(
-                                [
-                                    'value' => $matchedRow['value'],
-                                    'catalog_item_id' => $catalog_item_id,
-                                    'common_attribute_id' => $common_attribute_id
-                                ],
-                                [
-                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                ]
-                            );
-
-                            /** Now $product_details_common_value contains the existing or newly created record */
-                            $product_details_common_value_id = $product_details_common_value->id;
-                            /** Get the last inserted or existing record id */
-
-                            /** Check if the raw value exists, if not, create it */
-                            $product_details_raw_value = ProductDetailsRawValue::firstOrCreate(
-                                ['catalog_item_id' => $catalog_item_id],
-                                [
-                                    'raw_values' => '',
-                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                ]
-                            );
-
-                            /** Now $product_details_raw_value contains the existing or newly created record */
-                            $product_details_raw_value_id = $product_details_raw_value->id; /** Get the last inserted or existing record id */
-                        }
-
-                        $existingRecord = CatalogPrices::where([
-                            'catalog_item_id' => $catalog_item_id,
-                            'catalog_price_type_id' => $fileValue->catalog_price_type_id,
-                        ])
-                        ->first();
-
-                        if ($existingRecord) {
-                            /** If greater date catalog file not exist then update value data */
-                            if (!$greaterDateFileExist) {
-                                /** Update the existing record */
-                                $existingRecord->update([
-                                    // 'customer_id' => $matchedRow['Customer Id'],
-                                    'customer_id' => 1,
-                                    'value' => $matchedRow['value'],
-                                    'price_file_date' => $fileValue->date,
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
-                                ]);
-                            }
-                        } else {
-                            /** Insert a new record */
-                            CatalogPrices::create([
+                    if ($existingRecord) {
+                        /** If greater date catalog file not exist then update value data */
+                        if (!$greaterDateFileExist) {
+                            /** Update the existing record */
+                            $existingRecord->update([
                                 // 'customer_id' => $matchedRow['Customer Id'],
                                 'customer_id' => 1,
                                 'value' => $matchedRow['value'],
-                                'catalog_item_id' => $catalog_item_id,
                                 'price_file_date' => $fileValue->date,
-                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                'catalog_price_type_id' => $fileValue->catalog_price_type_id,
                                 'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
                             ]);
                         }
-
-                        $priceHistory = CatalogPriceHistory::where('catalog_item_id',  $catalog_item_id) /** Adjust catalog item ID */
-                        ->where('catalog_price_type_id', $fileValue->catalog_price_type_id)
-                        // ->where($monthColumns[$month], $matchedRow['value']) /** Filter by month */
-                        ->where('year', $year) /** Filter by year */
-                        ->first(); /** Get the first record for this year */
-
-                        if ($priceHistory) {
-                            /** Update the month data */
-                            $priceHistory->update([
-                                $monthColumn => $matchedRow['value'], /** Update with the new price for that month */
-                                'updated_at' => now(),
-                            ]);
-                        } else {
-                            /** If record doesn't exist for the year, you may want to create it */
-                            CatalogPriceHistory::create([
-                                'year' => $year,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                                'catalog_item_id' => $catalog_item_id, /** Adjust catalog item ID */
-                                $monthColumns[$month] => $matchedRow['value'], /** Set price for that month */
-                                'catalog_price_type_id' => $fileValue->catalog_price_type_id, /** Adjust price type ID */
-                            ]);
-                        }
-
-                        $checkCoreHistory = CheckCoreHistory::where('catalog_item_id', $catalog_item_id) /** Adjust catalog item ID */
-                        ->where('catalog_price_type_id', $fileValue->catalog_price_type_id)
-                        ->first(); /** Get the first record for this year */
-
-                        if ($checkCoreHistory) {
-                            /** If greater date catalog file not exist then update month data */
-                            if (!$greaterDateFileExist) {
-                                /** Update the month data */
-                                $checkCoreHistory->update([
-                                    'updated_at' => now(),
-                                    'price_file_date' => $fileValue->date,
-                                    'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
-                                ]);
-                            }
-                        } else {
-                            CheckCoreHistory::create([
-                                // 'customer_id' => $matchedRow['Customer Id'],
-                                'customer_id' => 1,
-                                'catalog_item_id' => $catalog_item_id,
-                                'price_file_date' => $fileValue->date,
-                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                'catalog_price_type_id' => $fileValue->catalog_price_type_id,
-                                'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
-                            ]);
-                        }
-                        // gc_collect_cycles();
+                    } else {
+                        /** Insert a new record */
+                        CatalogPrices::create([
+                            // 'customer_id' => $matchedRow['Customer Id'],
+                            'customer_id' => 1,
+                            'value' => $matchedRow['value'],
+                            'catalog_item_id' => $catalog_item_id,
+                            'price_file_date' => $fileValue->date,
+                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'catalog_price_type_id' => $fileValue->catalog_price_type_id,
+                            'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
+                        ]);
                     }
+
+                    $priceHistory = CatalogPriceHistory::where('catalog_item_id',  $catalog_item_id) /** Adjust catalog item ID */
+                    ->where('catalog_price_type_id', $fileValue->catalog_price_type_id)
+                    // ->where($monthColumns[$month], $matchedRow['value']) /** Filter by month */
+                    ->where('year', $year) /** Filter by year */
+                    ->first(); /** Get the first record for this year */
+
+                    if ($priceHistory) {
+                        /** Update the month data */
+                        $priceHistory->update([
+                            $monthColumn => $matchedRow['value'], /** Update with the new price for that month */
+                            'updated_at' => now(),
+                        ]);
+                    } else {
+                        /** If record doesn't exist for the year, you may want to create it */
+                        CatalogPriceHistory::create([
+                            'year' => $year,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                            'catalog_item_id' => $catalog_item_id, /** Adjust catalog item ID */
+                            $monthColumns[$month] => $matchedRow['value'], /** Set price for that month */
+                            'catalog_price_type_id' => $fileValue->catalog_price_type_id, /** Adjust price type ID */
+                        ]);
+                    }
+
+                    $checkCoreHistory = CheckCoreHistory::where('catalog_item_id', $catalog_item_id) /** Adjust catalog item ID */
+                    ->where('catalog_price_type_id', $fileValue->catalog_price_type_id)
+                    ->first(); /** Get the first record for this year */
+
+                    if ($checkCoreHistory) {
+                        /** If greater date catalog file not exist then update month data */
+                        if (!$greaterDateFileExist) {
+                            /** Update the month data */
+                            $checkCoreHistory->update([
+                                'updated_at' => now(),
+                                'price_file_date' => $fileValue->date,
+                                'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
+                            ]);
+                        }
+                    } else {
+                        CheckCoreHistory::create([
+                            // 'customer_id' => $matchedRow['Customer Id'],
+                            'customer_id' => 1,
+                            'catalog_item_id' => $catalog_item_id,
+                            'price_file_date' => $fileValue->date,
+                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            'catalog_price_type_id' => $fileValue->catalog_price_type_id,
+                            'core_list' => (trim($matchedRow['Pricing Method']) == 'Contract Pricing') ? 1 : 0,
+                        ]);
+                    }
+                    // gc_collect_cycles();
+                    // }
                 }
 
                 try {
                     /** Update the catalog attachment table "'cron' => 6" means 100% data uploaded */
                     CatalogAttachments::where('id', $fileValue->id)->update(['cron' => 6]);
+
+                    /** Clean up memory */
+                    unset($spreadsheet);
+                    gc_collect_cycles();
 
                     $this->info('Uploaded files processed successfully.');
                 } catch (QueryException $e) {
