@@ -139,7 +139,7 @@ class CatalogUploadProcess extends Command
                 }
 
                 /** Increasing the memory limit becouse memory limit issue */
-                ini_set('memory_limit', '4G');
+                ini_set('memory_limit', '-1');
 
                 /** Identify file type and set up reader */
                 $inputFileType = IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
