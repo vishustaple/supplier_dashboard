@@ -143,11 +143,12 @@ class CatalogUploadProcess extends Command
                 set_time_limit(0); // Prevent timeout
                 /** Identify file type and set up reader */
                 $inputFileType = IOFactory::identify($destinationPath . '/' . $fileValue->file_name);
-                $reader = match ($inputFileType) {
-                    'Xlsx' => IOFactory::createReader($inputFileType),
-                    'Xls' => IOFactory::createReader($inputFileType),
-                    default => throw new Exception("Unsupported file type: " . $inputFileType),
-                };
+
+                if (in_array($inputFileType, ['Xls', 'Xlsx'])) {
+                    $reader = IOFactory::createReader($inputFileType);
+                } else {
+                    throw new Exception("Unsupported file type: " . $inputFileType);
+                }
 
                 /** Load only the data (without formatting) to save memory */
                 $reader->setReadDataOnly(true);
