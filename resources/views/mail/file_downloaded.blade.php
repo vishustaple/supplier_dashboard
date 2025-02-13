@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>File Download Links</title>
+    <title>SFTP Staples Files</title>
 </head>
 <body>
     <img src="https://sql.centerpointgroup.com/images/logo.jpg">
