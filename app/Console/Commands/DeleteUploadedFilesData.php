@@ -44,28 +44,30 @@ class DeleteUploadedFilesData extends Command
             ->where('attachment_id', $fileData->id)
             ->first();
 
-            $greater = DB::table('odp_attachments')
-            ->where('attachment_id','>', $fileData->id)
-            ->where('year', $currentIdDetails->year)
-            ->first();
-
-            DB::table('odp_attachments')
-            ->where('attachment_id', $fileData->id)
-            ->delete();
-
-            if (!$greater && $currentIdDetails) {
-                $fileIdForUpdate = DB::table('odp_attachments')
-                ->where('attachment_id','<', $fileData->id)
+            if ($currentIdDetails) {
+                $greater = DB::table('odp_attachments')
+                ->where('attachment_id','>', $fileData->id)
                 ->where('year', $currentIdDetails->year)
-                ->orderBy('id', 'desc')
-                ->limit(1)
                 ->first();
 
-                if ($fileIdForUpdate) {
-                    UploadedFiles::where('id', $fileIdForUpdate->attachment_id)
-                    ->update([
-                        'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
-                    ]);
+                DB::table('odp_attachments')
+                ->where('attachment_id', $fileData->id)
+                ->delete();
+
+                if (!$greater && $currentIdDetails) {
+                    $fileIdForUpdate = DB::table('odp_attachments')
+                    ->where('attachment_id','<', $fileData->id)
+                    ->where('year', $currentIdDetails->year)
+                    ->orderBy('id', 'desc')
+                    ->limit(1)
+                    ->first();
+
+                    if ($fileIdForUpdate) {
+                        UploadedFiles::where('id', $fileIdForUpdate->attachment_id)
+                        ->update([
+                            'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
+                        ]);
+                    }
                 }
             }
         }
