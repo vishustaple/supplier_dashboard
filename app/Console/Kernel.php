@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command(RetrieveStaplesDiversityData::class)
-        ->twiceWeekly(2, 5) /** Runs on Tuesday (2) and Friday (5) */
+        ->weekly()->mondays()->fridays() /** Runs on Tuesday (2) and Friday (5) */
         ->at('08:00')       /** Runs at 8 AM */
         ->withoutOverlapping();
         $schedule->command(ReportGenrate::class)->hourly()->withoutOverlapping();
