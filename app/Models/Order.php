@@ -610,7 +610,7 @@ class Order extends Model
         }
 
         /** For debug query */
-        dd($query->toSql(), $query->getBindings());
+        // dd($query->toSql(), $query->getBindings());
 
         /** Formatting this */
         $totalAmounts = number_format($totalAmount, 2, '.', false);

@@ -466,8 +466,7 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             }
 
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
-                                            ->update([
+                                            $data = [
                                                 'customer_id' => $insertId,
                                                 'parent_id' => (!empty($keyParent)) ? ($row[$keyParent]) : (''),
                                                 'parent_name' => (!empty($keyParentName)) ? ($row[$keyParentName]) : (''),
@@ -475,7 +474,16 @@ class ProcessUploadedFiles extends Command
                                                 'grandparent_name' => (!empty($keyGrandParentName)) ? ($row[$keyGrandParentName]) : (''),
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
-                                            ]);
+                                            ];
+                                            
+                                            /** Remove empty values */
+                                            $accountData = array_filter($data, function ($value) {
+                                                return $value !== '' && $value !== null;
+                                            });
+
+                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            ->update($accountData);
+                                            $accountData = [];
                                         }
                                     }
                                 }
@@ -527,12 +535,21 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             }
 
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
-                                            ->update([
+                                            $data = [
                                                 'customer_id' => $insertId,
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'supplier_id' => $fileValue->supplier_id,
-                                            ]);
+                                            ];
+                                            
+                                            /** Remove empty values */
+                                            $accountData = array_filter($data, function ($value) {
+                                                return $value !== '' && $value !== null;
+                                            });
+
+                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            ->update($accountData);
+
+                                            $accountData = [];
                                         }
                                     }
                                 }
