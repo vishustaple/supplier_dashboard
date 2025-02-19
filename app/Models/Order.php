@@ -518,7 +518,7 @@ class Order extends Model
                 $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
             }
 
-            dd($query->get());
+            dd($query->get()->toArray());
 
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
