@@ -518,6 +518,7 @@ class Order extends Model
                 $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
             }
 
+            dd($query->get());
 
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
@@ -601,7 +602,7 @@ class Order extends Model
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
-        dd($query->get());
+
         /** Calculating total volume rebate, total incentive rebate and total cost */
         $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
         foreach ($query->get() as $key => $value) {
