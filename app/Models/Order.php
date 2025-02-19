@@ -496,6 +496,7 @@ class Order extends Model
             }
 
             $totalAmount1 = $query1->first()->cost;
+            dd($totalAmount1);
         }
 
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
