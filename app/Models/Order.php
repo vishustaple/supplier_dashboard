@@ -495,10 +495,7 @@ class Order extends Model
                 $query1->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
             }
 
-            $totalAmount1 = 0;
-            foreach ($query1->get() as $key => $value) {
-                $totalAmount1 += $value->cost;
-            }
+            $totalAmount1 = $query1->first()->cost;
         }
 
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
@@ -542,8 +539,7 @@ class Order extends Model
                         ]
                     );
                 }
-            } 
-           
+            }
 
             if ($filter['supplier'] == 4) {
                 $query->whereRaw("
@@ -656,7 +652,7 @@ class Order extends Model
             }
         } 
     
-        if(!$csv && isset($finalArray[0]) && $totalAmount1 != 0) {
+        if(!$csv && isset($finalArray[0]) && isset($totalAmount1)) {
             $finalArray[0]['account_name'] .= '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">';
         }
 

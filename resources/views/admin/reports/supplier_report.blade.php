@@ -857,6 +857,8 @@
         function setPercentage() {
             if ($('.total_amount').val() != null) {
                 $('#total_spend').text($('.total_amount').val());
+            } else {
+                $('#total_spend').text("$0");
             }
 
             var selectedValues = $('#supplier').val();
