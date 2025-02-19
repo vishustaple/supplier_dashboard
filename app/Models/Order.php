@@ -539,7 +539,7 @@ class Order extends Model
                     );
                 }
             }
-            dd($query->get());
+            dd($query->get()->toArray());
             if ($filter['supplier'] == 4) {
                 $query->whereRaw("
                     (
