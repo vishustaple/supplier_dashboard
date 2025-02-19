@@ -496,7 +496,6 @@ class Order extends Model
             }
 
             $totalAmount1 = $query1->first()->cost;
-            dd($totalAmount1);
         }
 
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
@@ -628,7 +627,7 @@ class Order extends Model
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-
+        dd($formatuserdata);
         /** Making final array */
         $finalArray=[];
         if (isset($formatuserdata) && !empty($formatuserdata)) {
