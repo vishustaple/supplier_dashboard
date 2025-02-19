@@ -518,8 +518,6 @@ class Order extends Model
                 $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
             }
 
-            dd($query->get()->toArray());
-
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
                     $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
@@ -541,7 +539,7 @@ class Order extends Model
                     );
                 }
             }
-
+            dd($query->get());
             if ($filter['supplier'] == 4) {
                 $query->whereRaw("
                     (
