@@ -498,13 +498,16 @@ class Order extends Model
             $totalAmount1 = $query1->first()->cost;
         }
 
-        $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
-        ->leftJoin('rebate', function($join) {
-            $join->on('m2.account_name', '=', 'rebate.account_name');
-            // ->on('m2.category_supplier', '=', 'rebate.supplier');
-        })
+        $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number');
 
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->leftJoin('rebate', function ($join) use ($filter) {
+                $join->on('m2.account_name', '=', 'rebate.account_name')
+                     ->where('rebate.supplier', '=', $filter['supplier']);
+            });
+        }
+
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
         
         if (isset($filter['supplier']) && $filter['supplier'] == 4){
             $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
@@ -590,7 +593,7 @@ class Order extends Model
         }
         
         /** Group by with account name */
-        $query->groupBy('m2.account_name');
+        $query->groupBy('orders.date', 'm2.account_name', 'suppliers.supplier_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
