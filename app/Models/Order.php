@@ -601,7 +601,7 @@ class Order extends Model
         } else {
             $query->orderBy($orderColumnArray[0], 'asc');
         }
-
+        dd($query->get());
         /** Calculating total volume rebate, total incentive rebate and total cost */
         $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
         foreach ($query->get() as $key => $value) {
@@ -627,7 +627,7 @@ class Order extends Model
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
             return $query->skip($filter['start'])->take($filter['length']);
         })->get();
-        dd($formatuserdata);
+
         /** Making final array */
         $finalArray=[];
         if (isset($formatuserdata) && !empty($formatuserdata)) {
