@@ -4,7 +4,6 @@
     <title>SFTP Staples Files</title>
 </head>
 <body>
-    <img src="https://sql.centerpointgroup.com/images/logo.jpg">
     <p>Dear User,</p>
     @if (!$no_link_check)
         <p>The following files have been downloaded successfully. Click the links to access them:</p>
@@ -18,5 +17,6 @@
     @endif
     <p>Regards,</p>
     <p>CenterPoint Group</p>
+    <img src="https://sql.centerpointgroup.com/images/logo.jpg">
 </body>
 </html>
