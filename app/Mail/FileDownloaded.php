@@ -13,13 +13,15 @@ class FileDownloaded extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $noLink;
     public $downloadLinks;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($downloadLinks)
+    public function __construct($downloadLinks, $noLink=false)
     {
+        $this->noLink = $noLink;
         $this->downloadLinks = $downloadLinks;
     }
 
@@ -30,7 +32,7 @@ class FileDownloaded extends Mailable
     {
         return $this->subject('Staples Diversity Data Downloaded')
                     ->view('mail.file_downloaded')
-                    ->with(['links' => $this->downloadLinks]);
+                    ->with(['no_link_check' => $this->noLink, 'links' => $this->downloadLinks]);
     }
 
     /**
