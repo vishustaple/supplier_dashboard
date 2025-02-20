@@ -405,7 +405,7 @@ class ProcessUploadedFiles extends Command
                                          */
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
 
-                                        if (empty($customers)) {
+                                        if (!$customers) {
                                             $data = DB::table('customers')
                                             ->where('customer_name', $row[$keyCustomerName])
                                             ->first();
@@ -481,7 +481,7 @@ class ProcessUploadedFiles extends Command
                                                 return $value !== '' && $value !== null;
                                             });
 
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            Account::where('id', $customers->id)
                                             ->update($accountData);
                                             $accountData = [];
                                         }
@@ -493,7 +493,7 @@ class ProcessUploadedFiles extends Command
                                      * condition for insert and update into account table */
                                     if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
-                                        if (empty($customers)) {
+                                        if (!$customers) {
                                             $data = DB::table('customers')
                                             ->where('customer_name', $row[$keyCustomerName])
                                             ->first();
@@ -546,7 +546,8 @@ class ProcessUploadedFiles extends Command
                                                 return $value !== '' && $value !== null;
                                             });
 
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            // Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            Account::where('id', $customers->id)
                                             ->update($accountData);
 
                                             $accountData = [];
