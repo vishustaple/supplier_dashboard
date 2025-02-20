@@ -593,7 +593,7 @@ class Order extends Model
         }
         
         /** Group by with account name */
-        $query->groupBy('orders.date', 'm2.account_name', 'suppliers.supplier_name');
+        $query->groupBy('m2.account_name');
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
