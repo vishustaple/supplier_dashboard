@@ -141,6 +141,25 @@
                         Save SQL Queries
                     </a>
                 @endif
+
+                <!-- if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER) -->
+                    <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Import Supplier Rebate File') ? 'active' : '' }}" href="{{route('supplier_validation.index')}}">
+                        <div class="sb-nav-link-icon">
+                            <i class="fa fa-bookmark" aria-hidden="true"></i>
+                        </div>
+                        Import Supplier Rebate File
+                    </a>
+                <!-- endif -->
+
+                <!-- if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER) -->
+                <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Add Supplier Validation File') ? 'active' : '' }}" href="{{route('supplier_validation.index')}}">
+                        <div class="sb-nav-link-icon">
+                            <i class="fa fa-bookmark" aria-hidden="true"></i>
+                        </div>
+                        Add Supplier Rebate File Format
+                    </a>
+                <!-- endif -->
+
                 <a class="nav-link" href="{{route('user.logout')}}">
                     <div class="sb-nav-link-icon">
                         <i class="fa fa-sign-out" aria-hidden="true"></i>

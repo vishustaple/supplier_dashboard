@@ -12,6 +12,7 @@ use App\Http\Controllers\{
     CommissionController,
     ExcelImportController,
     CategorySupplierController,
+    SupplierValidation,
 };
 
 use Illuminate\Support\Facades\Auth; 
@@ -48,7 +49,9 @@ Route::post('/user-register', [HomeController::class, 'userRegister'])->name('us
 
 Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
-      
+        Route::get('/supplier_validation', [SupplierValidation::class, 'index'])->name('supplier_validation.index');
+        Route::post('/supplier_validation/filter', [SupplierValidation::class, 'getSupplierValidationExportWithAjax'])->name('supplier_validation.filter');
+
         Route::get('/queries', [SavedQueryController::class, 'index'])->name('queries.index');
         Route::get('/queries/create', [SavedQueryController::class, 'create'])->name('queries.create');
         Route::post('/queries', [SavedQueryController::class, 'store'])->name('queries.store');
