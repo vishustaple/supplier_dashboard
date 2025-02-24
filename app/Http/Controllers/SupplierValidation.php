@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{CategorySupplier, RebateSupplierFields, SupplierRebateRequiredFields, SupplierValidationAttachments};
+use App\Models\{
+    CategorySupplier,
+    RebateSupplierFields,
+    SupplierRebateRequiredFields,
+    SupplierValidationAttachments
+};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;

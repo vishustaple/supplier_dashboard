@@ -50,6 +50,8 @@ Route::post('/user-register', [HomeController::class, 'userRegister'])->name('us
 Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/supplier_validation', [SupplierValidation::class, 'index'])->name('supplier_validation.index');
+        Route::get('/supplier-catalog', [SupplierValidation::class, 'allSupplierCatalog'])->name('supplier_catalog');
+        Route::post('/show/supplier-catalog/filter', [SupplierValidation::class, 'ShowAllSupplierCatalog'])->name('supplier_catalog_ajax.filter');
         Route::post('/supplier_validation/filter', [SupplierValidation::class, 'getSupplierValidationExportWithAjax'])->name('supplier_validation.filter');
         Route::post('/add/supplier_validation/file', [SupplierValidation::class, 'addSupplierValidationRebateFileFormatImport'])->name('add.supplier_validation_file');
         Route::post('/edit/supplier_validation/file', [SupplierValidation::class, 'editSupplierValidationRebateFileFormatImport'])->name('edit.supplier_validation_file');
