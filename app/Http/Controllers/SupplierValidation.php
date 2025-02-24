@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{CategorySupplier, SupplierValidationAttachments};
+use App\Models\{CategorySupplier, RebateSupplierFields, SupplierRebateRequiredFields, SupplierValidationAttachments};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
@@ -31,7 +31,7 @@ class SupplierValidation extends Controller
                 $fileColumnsData = RebateSupplierFields::select([
                     'label as raw_label',
                     'id as manage_columns_id',
-                    'catalog_required_field_id as required_field_id',
+                    'rebate_supplier_required_field_id as required_field_id',
                 ])
                 ->where([
                     'supplier_id' => $request->input('supplier_id'),
@@ -154,12 +154,12 @@ class SupplierValidation extends Controller
                 'label' => $request->input('raw_label')[$key],
                 'raw_label' => preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $request->input('raw_label')[$key])))),
                 'type' => (($value == 7) ? ('decimal') : (($value == 9) ? ('date') : ('string'))),
-                'catalog_required_field_id' => (($value != 0 ) ? ($value) : (null)),
+                'rebate_supplier_required_field_id' => (($value != 0 ) ? ($value) : (null)),
             ];
         }
 
         if (!empty($insertArray)) {
-            DB::table('catalog_supplier_fields')->insert($insertArray);
+            DB::table('rebate_supplier_fields')->insert($insertArray);
         }
         
         return response()->json(['success' => "Columns added successfully"], 200);
@@ -176,11 +176,11 @@ class SupplierValidation extends Controller
         }
 
         foreach ($request->input('required_field_id') as $key => $value) {
-            DB::table('catalog_supplier_fields')
+            DB::table('rebate_supplier_fields')
             ->where('id', $request->input('manage_columns_id')[$key])
             ->update([
                 'label' => $request->input('raw_label')[$key],
-                'catalog_required_field_id' => (($value != 0 ) ? ($value) : (null)), 
+                'rebate_supplier_required_field_id' => (($value != 0 ) ? ($value) : (null)), 
                 'type' => (($value == 7) ? ('decimal') : (($value == 9) ? ('date') : ('string'))),
                 'raw_label' => preg_replace('/^_+|_+$/', '',strtolower(preg_replace('/[^A-Za-z0-9_]/', '', str_replace(' ', '_', $request->input('raw_label')[$key])))),
             ]);
@@ -190,7 +190,7 @@ class SupplierValidation extends Controller
     }
 
     public function removeSupplierValidationRebateFileFormatImport(Request $request) {
-        DB::table('catalog_supplier_fields')
+        DB::table('rebate_supplier_fields')
         ->where(
             'supplier_id',
             $request->input('id')
