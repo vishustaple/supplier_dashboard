@@ -101,7 +101,7 @@
                 loader.show();
                 $.ajax({
                     type: 'POST',
-                    url: "{{route('import.supplier_catalog_file')}}", // Replace with your actual route name
+                    url: "{{route('import.supplier_validation_file')}}", // Replace with your actual route name
                     data: formData,
                     headers: {'X-CSRF-TOKEN': token},
                     processData: false,
@@ -153,7 +153,7 @@
                 formData = new FormData($('#edit_file_format')[0]),
                 $.ajax({
                     type: 'POST',
-                    url: "{{route('import.supplier_catalog_file')}}", // Replace with your actual route name
+                    url: "{{route('import.supplier_validation_file')}}", // Replace with your actual route name
                     data: formData,
                     headers: {'X-CSRF-TOKEN': token},
                     processData: false,
@@ -214,7 +214,7 @@
                 var formData = new FormData(this)
                 $.ajax({
                     type: 'POST',
-                    url: "{{route('add.supplier_catalog_file')}}", // Replace with your actual route name
+                    url: "{{route('add.supplier_validation_file')}}", // Replace with your actual route name
                     data: formData,
                     processData: false,
                     contentType: false,
@@ -249,7 +249,7 @@
                 var formData = new FormData(this)
                 $.ajax({
                     type: 'POST',
-                    url: "{{route('edit.supplier_catalog_file')}}", // Replace with your actual route name
+                    url: "{{route('edit.supplier_validation_file')}}", // Replace with your actual route name
                     data: formData,
                     headers: {'X-CSRF-TOKEN': token},
                     processData: false,
@@ -324,7 +324,7 @@
                 pageLength: 40,
                 order: [[0, 'desc']],
                 ajax: {
-                    url: '{{ route("supplier_catalog_ajax.filter") }}',
+                    url: '{{ route("supplier_validation_ajax.filter") }}',
                     type: 'POST',
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: function (d) {
@@ -370,7 +370,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('remove.file_format') }}",
+                        url: "{{ route('remove.supplier_validation_file_format') }}",
                         data: { id: id },
                         success: function (response) {
                             if (response.success) {

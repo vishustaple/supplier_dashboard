@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx as Writer;
 
 class SupplierValidation extends Controller
 {
@@ -28,6 +30,55 @@ class SupplierValidation extends Controller
             $formatuserdata = SupplierValidationAttachments::getSupplierValidationFilterdExcelData($request->all());
             return response()->json($formatuserdata);
         }
+    }
+
+    public function ShowAllSupplierValidation(Request $request) {
+        if ($request->ajax()) {
+            $response = CategorySupplier::supplierCatalogShowDataTable($request->all());
+            return response()->json($response);
+        }
+    }
+
+    public function allSupplierValidation() {
+        $pageTitle = 'Supplier Rebate Formate';
+        return view('admin.supplier_validat_file_format_add', compact('pageTitle'));
+    }
+
+    public function downloadSampleFile(Request $request, $id=null) {
+        if ($id != null) {
+            $id = $request->id;
+        }
+
+        $supplierColumns = DB::table('rebate_supplier_fields')
+        ->where(['supplier_id' => $id, 'deleted' => 0]);
+        
+        $file = 'Sample';
+
+        /** Create a new Spreadsheet */
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        /** Extract only the 'label' values */
+        $labels = $supplierColumns->pluck('label')->toArray();
+
+        /** Set header for the 'label' column */
+        $sheet->setCellValue('A1', 'Label');
+
+        /** Insert labels into a single row (starting from column A) */
+        foreach ($labels as $index => $label) {
+            /** The first label goes in column A, second in column B, and so on */
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label); /** (column, row) */
+        }
+
+        /** Set headers to prompt for download */
+        $fileName = $file.".xlsx";
+        
+        /** Stream the file for download */
+        $writer = new Writer($spreadsheet);
+        $filePath = tempnam(sys_get_temp_dir(), $fileName);
+        $writer->save($filePath);
+
+        return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
     }
 
     public function supplierValidationRebateFileFormatImport(Request $request) {
@@ -204,5 +255,4 @@ class SupplierValidation extends Controller
 
         return response()->json(['success' => "Columns deleted successfully"], 200);
     }
- 
 }

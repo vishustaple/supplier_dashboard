@@ -152,12 +152,12 @@
                 <!-- endif -->
 
                 <!-- if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER) -->
-                <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Add Supplier Validation File') ? 'active' : '' }}" href="{{route('supplier_validation.index')}}">
-                        <div class="sb-nav-link-icon">
-                            <i class="fa fa-bookmark" aria-hidden="true"></i>
-                        </div>
-                        Add Supplier Rebate File Format
-                    </a>
+                <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Supplier Rebate Formate') ? 'active' : '' }}" href="{{route('supplier_validation')}}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                    </div>
+                    Add Supplier Rebate File Format
+                </a>
                 <!-- endif -->
 
                 <a class="nav-link" href="{{route('user.logout')}}">
