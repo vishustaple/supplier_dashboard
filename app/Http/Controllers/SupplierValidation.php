@@ -32,9 +32,9 @@ class SupplierValidation extends Controller
         }
     }
 
-    public function ShowAllSupplierValidation(Request $request) {
+    public function showAllSupplierValidation(Request $request) {
         if ($request->ajax()) {
-            $response = CategorySupplier::supplierCatalogShowDataTable($request->all());
+            $response = CategorySupplier::supplierValidationShowDataTable($request->all());
             return response()->json($response);
         }
     }

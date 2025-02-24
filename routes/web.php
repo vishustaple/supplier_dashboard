@@ -53,7 +53,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/supplier_validation/all', [SupplierValidation::class, 'allSupplierValidation'])->name('supplier_validation');
         Route::post('/import-supplier_validation', [SupplierValidation::class, 'import'])->name('import_supplier_validation.excel');
         Route::get('/download_supplier_validation/{id?}', [SupplierValidation::class, 'downloadSampleFile'])->name('file_supplier_validation.download');
-        Route::post('/show/supplier_validation/filter', [SupplierValidation::class, 'ShowAllSupplierValidation'])->name('supplier_validation_ajax.filter');
+        Route::post('/show/supplier_validation/filter', [SupplierValidation::class, 'showAllSupplierValidation'])->name('supplier_validation_ajax.filter');
 
         Route::post('/supplier_validation/filter', [SupplierValidation::class, 'getSupplierValidationExportWithAjax'])->name('supplier_validation.filter');
         Route::post('/add/supplier_validation/file', [SupplierValidation::class, 'addSupplierValidationRebateFileFormatImport'])->name('add.supplier_validation_file');
