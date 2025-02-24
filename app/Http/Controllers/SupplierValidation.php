@@ -25,7 +25,7 @@ class SupplierValidation extends Controller
         }
     }
 
-    public function supplierCatalogFileFormatImport(Request $request) {
+    public function supplierValidationRebateFileFormatImport(Request $request) {
         try {
             if (!empty($request->input('supplier_id'))) {
                 $fileColumnsData = RebateSupplierFields::select([
@@ -134,7 +134,7 @@ class SupplierValidation extends Controller
         }
     }
 
-    public function addSupplierCatalogFileFormatImport(Request $request) {
+    public function addSupplierValidationRebateFileFormatImport(Request $request) {
         $validator = Validator::make($request->all(),
             [
                 'raw_label' => 'required',
@@ -165,7 +165,7 @@ class SupplierValidation extends Controller
         return response()->json(['success' => "Columns added successfully"], 200);
     }
 
-    public function editSupplierCatalogFileFormatImport(Request $request) {
+    public function editSupplierValidationRebateFileFormatImport(Request $request) {
         $validator = Validator::make(
             $request->all(),
             ['manage_columns_id' => 'required'],
@@ -189,7 +189,7 @@ class SupplierValidation extends Controller
         return response()->json(['success' => "Column updated successfully"], 200);
     }
 
-    public function removeSupplierCatalogFileFormatImport(Request $request) {
+    public function removeSupplierValidationRebateFileFormatImport(Request $request) {
         DB::table('catalog_supplier_fields')
         ->where(
             'supplier_id',

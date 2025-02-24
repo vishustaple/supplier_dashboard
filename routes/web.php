@@ -51,6 +51,11 @@ Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/supplier_validation', [SupplierValidation::class, 'index'])->name('supplier_validation.index');
         Route::post('/supplier_validation/filter', [SupplierValidation::class, 'getSupplierValidationExportWithAjax'])->name('supplier_validation.filter');
+        Route::post('/add/supplier_validation/file', [SupplierValidation::class, 'addSupplierValidationRebateFileFormatImport'])->name('add.supplier_validation_file');
+        Route::post('/edit/supplier_validation/file', [SupplierValidation::class, 'editSupplierValidationRebateFileFormatImport'])->name('edit.supplier_validation_file');
+        Route::post('/import/supplier_validation/file', [SupplierValidation::class, 'supplierValidationRebateFileFormatImport'])->name('import.supplier_validation_file');
+        Route::get('/delete/supplier_validation/file', [SupplierValidation::class, 'removeSupplierValidationRebateFileFormatImport'])->name('remove.supplier_validation_file_format');
+
 
         Route::get('/queries', [SavedQueryController::class, 'index'])->name('queries.index');
         Route::get('/queries/create', [SavedQueryController::class, 'create'])->name('queries.create');
