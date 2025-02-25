@@ -33,7 +33,6 @@ class Kernel extends ConsoleKernel
         $schedule->command(validateUploadedFile::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes()->withoutOverlapping();
         $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command(RetrieveStaplesDiversityData::class)->everyFourHours()->withoutOverlapping();
         $schedule->command(RemoveFrontZeroAccountNumber::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(ProcessCommissionAndRebate::class)->everyFifteenMinutes()->withoutOverlapping();
         // $schedule->command(RetrieveStaplesDiversityData::class)->timezone('America/New_York')->dailyAt('03:00')->withoutOverlapping();
