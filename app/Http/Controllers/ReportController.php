@@ -174,6 +174,13 @@ class ReportController extends Controller
         }
     }
 
+    public function supplierValidationReportFilter(Request $request) {
+        if ($request->ajax()) {
+            $formatuserdata = Order::getSupplierValidationReportFilterdData($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
+
     public function getCommissionsWithAjax(Request $request) {
         if ($request->ajax()) {
             $formatuserdata = Order::getCommissionReportFilterdDataSecond($request->all());

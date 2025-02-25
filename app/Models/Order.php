@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use League\Csv\Writer;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class Order extends Model
@@ -1804,6 +1805,278 @@ class Order extends Model
             'data' => $finalArray,
             'recordsTotal' => count($finalArray),
             'recordsFiltered' => count($finalArray),
+        ];
+    }
+
+    public static function getSupplierValidationReportFilterdData($filter=[]) {
+        if (isset($filter['file'])) {
+            $reader = new Xlsx(); /** Creating object of php excel library class */
+    
+            /** Loading excel file using path and name of file from table "uploaded_file" */
+            $spreadSheet = $reader->load($filter['file'], 2);    
+
+            if ($filter['supplier'] == 2) {
+                $workSheetArray = $spreadSheet->getSheet(0)->toArray();
+
+                foreach ($workSheetArray as $key => $row) {
+                    if ($key == 9) {
+                        $fileTotal = $row[2];
+                    }
+        
+                    if ($key == 13) {
+                        $fileRebate = $row[2];
+                    }
+                }
+            } elseif ($filter['supplier'] == 5) {
+                $worksheet = $spreadSheet->getSheet(0);
+        
+                /** Get the highest row number that contains data */
+                $lastRow = $worksheet->getHighestDataRow();
+
+                /** Read the last row data */
+                $lastRowData = $worksheet->rangeToArray('A' . $lastRow . ':' . $worksheet->getHighestDataColumn() . $lastRow, null, true, true, true);
+                
+                foreach($lastRowData as $key => $value) {
+                    if (isset($value['G'])) {
+                        $fileTotal = $value['G'];
+                    }
+        
+                    if (isset($value['I'])) {
+                        $fileRebate = $value['I'];
+                    }
+                }
+            } elseif($filter['supplier'] == 3 && isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+                $worksheet = $spreadSheet->getSheet(0);
+        
+                /** Get the highest row number that contains data */
+                $highestRow = $worksheet->getHighestDataRow();
+                $highestColumn = $worksheet->getHighestDataColumn();
+
+                /** Loop backwards to find the last non-total row */
+                for ($row = $highestRow; $row >= 1; $row--) {
+                    $cellValue = $worksheet->getCell('A' . $row)->getValue();
+                    if (stripos($cellValue, 'Total') === false && !empty($cellValue)) {
+                        /** This is the last actual data row */
+                        $lastRowData = $worksheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+                        break;
+                    }
+                }
+
+                foreach($lastRowData as $key => $value) {
+                    if (isset($value['D'])) {
+                        $fileTotal = $value['D'];
+                    }
+        
+                    if (isset($value['G'])) {
+                        $fileRebate = $value['G'];
+                    }
+                }
+            } elseif($filter['supplier'] == 3 && isset($filter['rebate_check']) && $filter['rebate_check'] == 2) {
+                $worksheet = $spreadSheet->getSheet(0);
+        
+                /** Get the highest row number that contains data */
+                $lastRow = $worksheet->getHighestDataRow();
+
+                /** Read the last row data */
+                $lastRowData = $worksheet->rangeToArray('A' . $lastRow . ':' . $worksheet->getHighestDataColumn() . $lastRow, null, true, true, true);
+
+                foreach($lastRowData as $key => $value) {
+                    if (isset($value['L'])) {
+                        $fileTotal = $value['L'];
+                    }
+        
+                    if (isset($value['M'])) {
+                        $fileRebate = $value['M'];
+                    }
+                }
+            }
+        } else {
+            $fileTotal = 0.0;
+            $fileRebate = 0.0;
+        }
+
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+            $orderColumnArray[3] = 'volume_rebate';
+        } else {
+            $orderColumnArray[3] = 'incentive_rebate';
+        }
+
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+            // `rebate`.`volume_rebate` AS `volume_rebates`,
+            $query = self::query()->selectRaw("
+                `orders`.`date` AS `date`,
+                SUM(`orders`.`cost`) AS `cost`,
+                `suppliers`.`supplier_name` AS `supplier_name`, 
+                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
+            ");
+        } else {
+            // `rebate`.`incentive_rebate` AS `incentive_rebates`,
+            $query = self::query()->selectRaw("
+                `orders`.`date` AS `date`,
+                SUM(`orders`.`cost`) AS `cost`,
+                `suppliers`.`supplier_name` AS `supplier_name`, 
+                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`
+            ");
+        }
+
+        $query1 = self::query()->selectRaw("SUM(`orders`.`cost`) AS `cost`");
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query1->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query1->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            $totalAmount1 = $query1->first()->cost;
+        }
+
+        $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number');
+
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->leftJoin('rebate', function ($join) use ($filter) {
+                $join->on('m2.account_name', '=', 'rebate.account_name')
+                     ->where('rebate.supplier', '=', $filter['supplier']);
+            });
+        }
+
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+        
+        if (isset($filter['supplier']) && $filter['supplier'] == 4){
+            $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+        }
+        
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            if ($filter['supplier'] == 3) {   
+                if ($filter['rebate_check'] == 2) {
+                    $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+                    $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
+                    $query->where('order_details.supplier_field_id', 50);
+                    $query->whereNotIn(
+                        'order_details.value',
+                        [
+                            'NON CODE',
+                            'IMPULSE BUYS',
+                            'MANAGE PRINT SERVICE',
+                            'custom bus essentials',
+                            'CUSTOM OUTSOURC PRNT',
+                            'PRODUCT ASSEMBLY',
+                            'MARKETNG/VISUAL SRVC',
+                            'OD ADVERT. GIVEAWAYS'
+                        ]
+                    );
+                }
+            }
+
+            if ($filter['supplier'] == 4) {
+                $query->whereRaw("
+                    (
+                        CASE 
+                            WHEN order_details.supplier_field_id = 98 
+                                THEN 
+                                    CASE 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            WHEN order_details.supplier_field_id = 532
+                                THEN 
+                                    CASE 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            ELSE 0
+                        END
+                    ) = 1
+                ");
+            }
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
+
+        $totalRecords = 1;
+
+        /** Calculating total volume rebate, total incentive rebate and total cost */
+        $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
+        $formatuserdata = $query->get();
+
+        foreach ($formatuserdata as $key => $value) {
+            $totalAmount += $value->cost;
+            $totalVolumeRebate += $value->volume_rebate;
+            $totalIncentiveRebate += $value->incentive_rebate;
+        }
+
+        /** For debug query */
+        // dd($query->toSql(), $query->getBindings());
+
+        /** Formatting this */
+        $totalAmount = number_format($totalAmount, 2);
+        $totalVolumeRebate = number_format($totalVolumeRebate, 2);
+        $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
+
+        /** Making final array */
+        $finalArray=[];
+        if (isset($formatuserdata) && !empty($formatuserdata)) {
+            if ($filter['supplier'] == 2) {
+                $difference = (int) $totalAmount1 - floatval(str_replace([',', '$'], '', $fileTotal));
+                $difference = round($difference, 2); /** Round to 2 decimal places */
+                $percentage = ($difference / floatval(str_replace([',', '$'], '', $fileTotal))) * 100;
+                $percentage = round($percentage, 2); /** Round to 2 decimal places */
+            } elseif($filter['supplier'] == 5) {
+                $difference = (int) $totalAmount1 - (int) $fileTotal;
+                $difference = round($difference, 2); /** Round to 2 decimal places */
+                $percentage = ($difference / (int) $fileTotal) * 100;
+                $percentage = round($percentage, 2); /** Round to 2 decimal places */
+                $fileTotal = "$" . number_format($fileTotal, 2);
+                $fileRebate = "$" . number_format($fileRebate, 2);
+            } elseif ($filter['supplier'] == 3) {
+                $difference = (int) $totalAmount1 - (int) $fileTotal;
+                $difference = round($difference, 2); /** Round to 2 decimal places */
+                $percentage = ($difference / (int) $fileTotal) * 100;
+                $percentage = round($percentage, 2); /** Round to 2 decimal places */
+                $fileTotal = "$" . number_format($fileTotal, 2);
+                $fileRebate = "$" . number_format($fileRebate, 2);
+            }
+            
+
+            if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+                $finalArray[] = [
+                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">'.$formatuserdata[0]->supplier_name,
+                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($formatuserdata[0]->cost, 2),
+                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($formatuserdata[0]->volume_rebate, 2),
+                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($formatuserdata[0]->incentive_rebate, 2),
+                    'sfs' => $fileTotal,
+                    'sb' => $fileRebate,
+                    'df' => '$'.$difference.'('.$percentage.'%)'
+                ];
+            } else {
+                $finalArray[] = [
+                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">'.$formatuserdata[0]->supplier_name,
+                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($formatuserdata[0]->cost, 2),
+                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($formatuserdata[0]->volume_rebate, 2),
+                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($formatuserdata[0]->incentive_rebate, 2),
+                    'sfs' => $fileTotal,
+                    'sb' => $fileRebate,
+                    'df' => '$'.$difference.'('.$percentage.'%)'
+                ];
+            }
+        } 
+        // dd($finalArray);
+        /** Defining final array for datatable */
+        return [
+            'data' => $finalArray,
+            'recordsTotal' => $totalRecords, /** Use count of formatted data for total records */
+            'recordsFiltered' => $totalRecords, /** Use total records from the query */
         ];
     }
 }
