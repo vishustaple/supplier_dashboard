@@ -865,7 +865,7 @@
             //     $('#total_spend').text("$0");
             // }
 
-            // var selectedValues = $('#supplier').val();
+            var selectedValues = $('#supplier').val();
         
             if (selectedValues == 3) {
                 $('#incentive_rebate_check').show();
