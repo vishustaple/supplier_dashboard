@@ -1828,13 +1828,39 @@ class Order extends Model
                     }
                 }
             } elseif ($filter['supplier'] == 5) {
-                $worksheet = $spreadSheet->getSheet(0);
+                /** File name */
+                $sheetName = 'Summary';
+
+                /** Check if sheet exists */
+                if (!$spreadSheet->sheetNameExists($sheetName)) {
+                    die("Error: Sheet '$sheetName' not found!");
+                }
+
+                /** Load the specific sheet */
+                $worksheet = $spreadSheet->getSheetByName($sheetName);
         
                 /** Get the highest row number that contains data */
-                $lastRow = $worksheet->getHighestDataRow();
+                $highestRow = $worksheet->getHighestDataRow();
+                $highestColumn = $worksheet->getHighestDataColumn();
 
-                /** Read the last row data */
-                $lastRowData = $worksheet->rangeToArray('A' . $lastRow . ':' . $worksheet->getHighestDataColumn() . $lastRow, null, true, true, true);
+                $lastRow = null;
+
+                /** Find the last non-empty row dynamically */
+                for ($row = $highestRow; $row >= 1; $row--) {
+                    $rowData = $worksheet->rangeToArray("A$row:{$highestColumn}$row", null, true, true, true)[$row];
+                    
+                    if (array_filter($rowData)) { // Check if the row has any non-empty values
+                        $lastRow = $row;
+                        break;
+                    }
+                }
+
+                if (!$lastRow) {
+                    die("No non-empty rows found!");
+                }
+
+                /** Read the last non-empty row data */
+                $lastRowData = $worksheet->rangeToArray("A$lastRow:{$highestColumn}$lastRow", null, true, true, true);
                 
                 foreach($lastRowData as $key => $value) {
                     if (isset($value['G'])) {
@@ -1846,21 +1872,39 @@ class Order extends Model
                     }
                 }
             } elseif($filter['supplier'] == 3 && isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
-                $worksheet = $spreadSheet->getSheet(0);
-        
+                /** File name */
+                $sheetName = 'Accounting use only';
+
+                /** Check if sheet exists */
+                if (!$spreadSheet->sheetNameExists($sheetName)) {
+                    die("Error: Sheet '$sheetName' not found!");
+                }
+
+                /** Load the specific sheet */
+                $worksheet = $spreadSheet->getSheetByName($sheetName);
+
                 /** Get the highest row number that contains data */
                 $highestRow = $worksheet->getHighestDataRow();
                 $highestColumn = $worksheet->getHighestDataColumn();
 
-                /** Loop backwards to find the last non-total row */
+                $lastRow = null;
+
+                /** Find the last non-empty row dynamically */
                 for ($row = $highestRow; $row >= 1; $row--) {
-                    $cellValue = $worksheet->getCell('A' . $row)->getValue();
-                    if (stripos($cellValue, 'Total') === false && !empty($cellValue)) {
-                        /** This is the last actual data row */
-                        $lastRowData = $worksheet->rangeToArray("A$row:$highestColumn$row", null, true, true, true);
+                    $rowData = $worksheet->rangeToArray("A$row:{$highestColumn}$row", null, true, true, true)[$row];
+                    
+                    if (array_filter($rowData)) { // Check if the row has any non-empty values
+                        $lastRow = $row;
                         break;
                     }
                 }
+
+                if (!$lastRow) {
+                    die("No non-empty rows found!");
+                }
+
+                /** Read the last non-empty row data */
+                $lastRowData = $worksheet->rangeToArray("A$lastRow:{$highestColumn}$lastRow", null, true, true, true);
 
                 foreach($lastRowData as $key => $value) {
                     if (isset($value['D'])) {
@@ -1871,22 +1915,50 @@ class Order extends Model
                         $fileRebate = $value['G'];
                     }
                 }
-            } elseif($filter['supplier'] == 3 && isset($filter['rebate_check']) && $filter['rebate_check'] == 2) {
-                $worksheet = $spreadSheet->getSheet(0);
-        
-                /** Get the highest row number that contains data */
-                $lastRow = $worksheet->getHighestDataRow();
 
-                /** Read the last row data */
-                $lastRowData = $worksheet->rangeToArray('A' . $lastRow . ':' . $worksheet->getHighestDataColumn() . $lastRow, null, true, true, true);
+                dd($fileTotal, $fileRebate);
+            } elseif($filter['supplier'] == 3 && isset($filter['rebate_check']) && $filter['rebate_check'] == 2) {
+                /** File name */
+                $sheetName = 'Calc Summary';
+
+                /** Check if sheet exists */
+                if (!$spreadSheet->sheetNameExists($sheetName)) {
+                    die("Error: Sheet '$sheetName' not found!");
+                }
+
+                /** Load the specific sheet */
+                $worksheet = $spreadSheet->getSheetByName($sheetName);
+
+                /** Get the highest row number that contains data */
+                $highestRow = $worksheet->getHighestDataRow();
+                $highestColumn = $worksheet->getHighestDataColumn();
+
+                $lastRow = null;
+
+                /** Find the last non-empty row dynamically */
+                for ($row = $highestRow; $row >= 1; $row--) {
+                    $rowData = $worksheet->rangeToArray("A$row:{$highestColumn}$row", null, true, true, true)[$row];
+                    
+                    if (array_filter($rowData)) { // Check if the row has any non-empty values
+                        $lastRow = $row;
+                        break;
+                    }
+                }
+
+                if (!$lastRow) {
+                    die("No non-empty rows found!");
+                }
+
+                /** Read the last non-empty row data */
+                $lastRowData = $worksheet->rangeToArray("A$lastRow:{$highestColumn}$lastRow", null, true, true, true);
 
                 foreach($lastRowData as $key => $value) {
-                    if (isset($value['L'])) {
-                        $fileTotal = $value['L'];
+                    if (isset($value['C'])) {
+                        $fileTotal = $value['C'];
                     }
         
-                    if (isset($value['M'])) {
-                        $fileRebate = $value['M'];
+                    if (isset($value['D'])) {
+                        $fileRebate = $value['D'];
                     }
                 }
             }
