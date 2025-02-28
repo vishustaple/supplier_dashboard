@@ -6,7 +6,6 @@ use phpseclib3\Net\SFTP;
 use App\Mail\FileDownloaded;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
-// use Illuminate\Support\Facades\Storage;
 
 class RetrieveStaplesDiversityData extends Command
 {
@@ -54,7 +53,7 @@ class RetrieveStaplesDiversityData extends Command
                 $this->info("Downloaded: $file");
                 $sftp->delete($remoteFilePath);
                 // print_r($file);
-                // Generate a public URL
+                /** Generate a public URL */
                 $downloadLinks[] = asset("storage/staples_data/$file");
             } else {
                 $this->error("Failed to download: $file");
@@ -77,7 +76,7 @@ class RetrieveStaplesDiversityData extends Command
                 ->send(new FileDownloaded(false, true));
             }
         } catch (\Exception $e) {
-            // Log any exceptions or errors that occur during the email send
+            /** Log any exceptions or errors that occur during the email send */
             $this->error('Error sending email: ' . $e->getMessage());
         }
 

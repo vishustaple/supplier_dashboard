@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use DateTime;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use League\Csv\Writer;

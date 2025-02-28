@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use League\Csv\Writer;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use Illuminate\Support\{Carbon, Facades\DB};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
 
 class Order extends Model
 {
@@ -527,7 +525,6 @@ class Order extends Model
                     $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
                     $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
                     $query->where('order_details.supplier_field_id', 50);
-                    // $query->whereNotIn('order_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                     $query->whereNotIn(
                         'order_details.value',
                         [
@@ -1107,7 +1104,7 @@ class Order extends Model
         }
     }
 
-    public static function getAllCommission($filter = []){
+    public static function getAllCommission($filter = []) {
         /** Initialize the query on the CommissionRebateDetail model, selecting the sum of commissionss and the paid date */
         $query = CommissionRebateDetail::query()->selectRaw(
             "SUM(`commissions_rebate_detail`.`commissions`) AS `commissionss`,
@@ -1468,8 +1465,7 @@ class Order extends Model
         return $finalArray;
     }
 
-    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath = null)
-    {
+    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath = null) {
         /** Increasing the memory limit becouse memory limit issue */
         ini_set('memory_limit', '7024M');
 

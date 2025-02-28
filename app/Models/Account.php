@@ -2,10 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\{Carbon, Facades\DB};
+use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
 
 class Account extends Model
 {

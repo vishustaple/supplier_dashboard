@@ -4,11 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\UploadedFiles;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\{DB, Log, File};
 
 class DeleteUploadedFilesData extends Command
 {

@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use App\Models\{SalesTeam, Order, CommissionRebate, CommissionRebateDetail, Account};
+use Illuminate\Support\{Carbon, Facades\DB};
+use App\Models\{SalesTeam, Order, CommissionRebate, CommissionRebateDetail};
 
 
 class ProcessCommissionAndRebate extends Command
@@ -29,7 +28,7 @@ class ProcessCommissionAndRebate extends Command
      */
     public function handle()
     {
-        $finalYear = 2024;
+        $finalYear = date('Y');
         for ($year = 2022; $year <= $finalYear; $year++) {
             // print_r($year);
             $salesRep = SalesTeam::select('id as sales_rep')->get();
@@ -92,10 +91,6 @@ class ProcessCommissionAndRebate extends Command
                         $filters['quarter'] = 4;
                     }
 
-                    // $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']])
-                    // ->where('commissions.start_date', '<=', $filter['start_date'])
-                    // ->where('commissions.end_date', '>=', $filter['end_date']);
-
                     $query->where(function ($query) use ($filter)  {
                         $query->where(function ($subQuery) use ($filter) {
                             $subQuery->where('commissions.start_date', '>=', $filter['start_date'])
@@ -125,15 +120,14 @@ class ProcessCommissionAndRebate extends Command
                     }
 
                     $dataExistCheck = DB::table('commissions_rebate')
-                    ->whereYear('start_date', $year)
-                    ->whereDate('start_date', '>=', $filter['start_date'])
-                    ->whereDate('end_date', '<=', $filter['end_date'])
-                    ->where('commissions_rebate.sales_rep', $values->sales_rep)
-                    ->first();
+                        ->whereYear('start_date', $year)
+                        ->whereDate('start_date', '>=', $filter['start_date'])
+                        ->whereDate('end_date', '<=', $filter['end_date'])
+                        ->where('commissions_rebate.sales_rep', $values->sales_rep)
+                        ->first();
 
                     if (!empty($dataExistCheck)) {
                         if ($dataExistCheck->approved != 1 && $dataExistCheck->paid != 1) {
-                            // echo ' update ';
                             CommissionRebate::where('id', $dataExistCheck->id)->update([
                                 'paid' => 0,
                                 'approved' => 0,
@@ -148,17 +142,14 @@ class ProcessCommissionAndRebate extends Command
                             ]);
                                     
                             $dataExistCheck2 = DB::table('commissions_rebate_detail')
-                            ->whereYear('start_date', $year)
-                            ->whereDate('start_date', '>=', $filter['start_date'])
-                            ->whereDate('end_date', '<=', $filter['end_date'])
-                            ->where('commissions_rebate_id', $dataExistCheck->id)
-                            ->get();
+                                ->whereYear('start_date', $year)
+                                ->whereDate('start_date', '>=', $filter['start_date'])
+                                ->whereDate('end_date', '<=', $filter['end_date'])
+                                ->where('commissions_rebate_id', $dataExistCheck->id)
+                                ->get();
 
                             $countArray = count($dataExistCheck2);
                             foreach ($query->get() as $key1 => $value) {
-                                // echo ' update2 ';
-                                // echo ' '.$key1.' ';
-                                // print_r($dataExistCheck2);
                                 if ($dataExistCheck2 && $countArray > 0) {
                                     $countArray--;
                                     CommissionRebateDetail::where('id', $dataExistCheck2[$key1]->id)->update([
@@ -205,11 +196,10 @@ class ProcessCommissionAndRebate extends Command
                                 }
                             }
                         } else {
-                            // echo " not update ";
+    
                         }
                     } else {
                         if (!empty($totalAmount) && $totalAmount > 0) {
-                            // echo " Adding new record ";
                             $newCommissionRebate = CommissionRebate::create([
                                 'paid' => 0,
                                 'approved' => 0,
@@ -252,20 +242,5 @@ class ProcessCommissionAndRebate extends Command
                 }
             }
         }
-    
-        // $account = Account::all();
-        // foreach ($account as $key => $values) {
-        //     $customers = DB::table('orders')
-        //     ->where('supplier_id', 2)
-        //     ->where('customer_number', 'like', '%' . $values->account_number . '%')
-        //     ->get();
-            
-        //     if (isset($customers) && !$customers->isEmpty()) {
-        //         foreach ($customers as $key => $value) {
-        //             DB::table('orders')->where('customer_number', $value->customer_number)->update(['customer_number' => $values->account_number]);
-        //         }
-        //     } 
-        //     continue;
-        // }
     }   
 }

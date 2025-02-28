@@ -4,9 +4,8 @@ namespace App\Console\Commands;
 
 use datetime;
 use App\Models\Order;
-use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\{Carbon, Facades\DB};
 
 class ReportGenrate extends Command
 {
@@ -35,7 +34,7 @@ class ReportGenrate extends Command
          *  It means new file inserted by the user 
          *  We need to re-calculate
          *  Insert data into "operational_anomaly_report" table */
-            if ($count <= 0) {
+        if ($count <= 0) {
             /** Supplier ids array */
             $supplier = [1 => 'Grand & Toy', 2 => 'Grainger', 3 => 'Office Depot', 4 => 'Staples', 5 => 'WB Mason', 6 => 'Lyreco'];
 
@@ -43,10 +42,10 @@ class ReportGenrate extends Command
             foreach ($supplier as $filter => $values) {
                 /** Create a DateTime object from the original date */
                 $date = Order::selectRaw("date as formatted_date")
-                ->where('supplier_id', $filter)
-                ->orderBy('date', 'desc')
-                ->limit(1)
-                ->first();
+                    ->where('supplier_id', $filter)
+                    ->orderBy('date', 'desc')
+                    ->limit(1)
+                    ->first();
                 
                 // dd($date->toSql(), $date->getBindings());
 
