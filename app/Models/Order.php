@@ -470,6 +470,7 @@ class Order extends Model
                 `orders`.`date` AS `date`,
                 SUM(`orders`.`cost`) AS `cost`, 
                 `m2`.`account_name` AS `account_name`,
+                 `m2`.`account_number` AS `account_number`,
                 `rebate`.`volume_rebate` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
                 ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
@@ -479,6 +480,7 @@ class Order extends Model
                 `orders`.`date` AS `date`,
                 SUM(`orders`.`cost`) AS `cost`, 
                 `m2`.`account_name` AS `account_name`,
+                `m2`.`account_number` AS `account_number`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
                 `rebate`.`incentive_rebate` AS `incentive_rebates`,
                 ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`
@@ -590,8 +592,13 @@ class Order extends Model
             }
         }
         
-        /** Group by with account name */
-        $query->groupBy('m2.account_name');
+        if (isset($filter['group_by']) && $filter['group_by'] == 1) {
+            /** Group by with account name */
+            $query->groupBy('m2.account_name');
+        } else {
+            $query->groupBy('m2.account_number');
+        }
+
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
@@ -634,6 +641,7 @@ class Order extends Model
             foreach ($formatuserdata as $key => $value) {
                 if ($csv) {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
+                    $finalArray[$key]['account_number'] = $value->account_number;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['cost'] = number_format($value->cost, 2, '.', false);
                     if ($filter['rebate_check'] == 1) {
@@ -644,6 +652,7 @@ class Order extends Model
                     }
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
+                    $finalArray[$key]['account_number'] = $value->account_number;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($value->cost, 2);
                     $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
@@ -664,6 +673,7 @@ class Order extends Model
                 /** Defining heading array for csv genration */
                 $finalArray['heading'] = [
                     'Supplier',
+                    'Account_number',
                     'Account_name',
                     'Amount',
                     'Incentive Rebate',
@@ -683,6 +693,7 @@ class Order extends Model
                 /** Defining heading array for csv genration */
                 $finalArray['heading'] = [
                     'Supplier',
+                    'Account_number',
                     'Account_name',
                     'Amount',
                     'Volume Rebate',
