@@ -66,11 +66,15 @@ class RetrieveStaplesDiversityData extends Command
         try{
             if (!empty($downloadLinks)) {
                 // Mail::to('vishustaple.in@gmail.com')->send(new FileDownloaded($downloadLinks));
-                Mail::to('galen@centerpointgroup.com')->send(new FileDownloaded($downloadLinks));
+                Mail::to('galen@centerpointgroup.com')
+                ->cc(['santosh@centerpoint.com', 'vishustaple.in@gmail.com'])
+                ->send(new FileDownloaded($downloadLinks));
                 $this->info('Download links emailed successfully.');
             } else {
                 // Mail::to('vishustaple.in@gmail.com')->send(new FileDownloaded(false, true));
-                Mail::to('galen@centerpointgroup.com')->send(new FileDownloaded(false, true));
+                Mail::to('galen@centerpointgroup.com')
+                ->cc(['santosh@centerpoint.com', 'vishustaple.in@gmail.com'])
+                ->send(new FileDownloaded(false, true));
             }
         } catch (\Exception $e) {
             // Log any exceptions or errors that occur during the email send
