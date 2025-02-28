@@ -978,10 +978,10 @@
                 { data: 'supplier', name: 'supplier', title: 'Supplier'},
                 { data: 'cost', name: 'cost', title: 'DB Total Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'DB Volume Rebate'},
-                { data: 'incentive_rebate', name: 'incentive_rebate', title: 'DB Incentive Rebate',},
+                { data: 'incentive_rebate', name: 'incentive_rebate', title: 'DB Incentive Rebate'},
                 { data: 'sfs', name: 'sfs', title: 'Supplier File Spend'},
                 { data: 'sb', name: 'sb', title: 'Supplier File Rebate'},
-                { data: 'df', name: 'df', title: 'Difference (%)'},
+                { data: 'df', name: 'df', title: 'Rebate Difference (%)'},
             ],
 
             fnDrawCallback: function( oSettings ) {

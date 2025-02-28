@@ -62,8 +62,8 @@
                 { data: 'customer_name', name: 'customer_name', title: 'Customer Name' },
                 { data: 'account_name', name: 'account_name', title: 'Account Name' },
                 { data: 'supplier_name', name: 'supplier_name', title: 'Supplier' },
-                { data: 'volume_rebate', name: 'volume_rebate', 'orderable': false, 'searchable': false, title: 'Volume Rebate'  },
-                { data: 'incentive_rebate', name: 'incentive_rebate', 'orderable': false, 'searchable': false, title: 'Incentive Rebate'  },
+                { data: 'volume_rebate', name: 'volume_rebate', 'searchable': false, title: 'Volume Rebate'},
+                { data: 'incentive_rebate', name: 'incentive_rebate', 'searchable': false, title: 'Incentive Rebate'},
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false, title: 'Action' }
             ],
         });

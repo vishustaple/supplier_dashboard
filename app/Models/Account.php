@@ -368,7 +368,7 @@ class Account extends Model
         }
     }
 
-    public static function getFilterdUpdateRebateData($filter = [], $csv=false){
+    public static function getFilterdUpdateRebateData($filter = [], $csv=false) {
         $orderColumnArray = [
             0 => 'master_account_detail.account_number',
             1 => 'customers.customer_name',
@@ -477,6 +477,8 @@ class Account extends Model
             1 => 'customers.customer_name',
             2 => 'master_account_detail.account_name',
             3 => 'suppliers.supplier_name',
+            4 => 'rebate.volume_rebate',
+            5 => 'rebate.incentive_rebate',
         ];
 
         $query = self::query() /** Eager load relationships */

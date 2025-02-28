@@ -2106,21 +2106,21 @@ class Order extends Model
         if (isset($formatuserdata) && !empty($formatuserdata)) {
             if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
                 if ($filter['supplier'] == 2) {
-                    $difference = (int) $formatuserdata[0]->volume_rebate - floatval(str_replace([',', '$'], '', $fileRebate));
+                    $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $formatuserdata[0]->volume_rebate);
                     $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / floatval(str_replace([',', '$'], '', $formatuserdata[0]->volume_rebate))) * 100;
+                    $percentage = ($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100;
                     $percentage = round($percentage, 2); /** Round to 2 decimal places */
                 } elseif($filter['supplier'] == 5) {
-                    $difference = (int) $formatuserdata[0]->volume_rebate - (int) $fileRebate;
+                    $difference = (int) $fileRebate - (int) $formatuserdata[0]->volume_rebate;
                     $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / (int) $formatuserdata[0]->volume_rebate) * 100;
+                    $percentage = ($difference / (int) $fileRebate) * 100;
                     $percentage = round($percentage, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
                 } elseif ($filter['supplier'] == 3) {
-                    $difference = (int) $formatuserdata[0]->volume_rebate - (int) $fileRebate;
+                    $difference = (int) $fileRebate - (int) $formatuserdata[0]->volume_rebate;
                     $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / (int) $formatuserdata[0]->volume_rebate) * 100;
+                    $percentage = ($difference / (int) $fileRebate) * 100;
                     $percentage = round($percentage, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
@@ -2137,25 +2137,26 @@ class Order extends Model
                 ];
             } else {
                 if ($filter['supplier'] == 2) {
-                    $difference = (int) $formatuserdata[0]->incentive_rebate - floatval(str_replace([',', '$'], '', $fileRebate));
+                    $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $formatuserdata[0]->incentive_rebate);
                     $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / floatval(str_replace([',', '$'], '', $formatuserdata[0]->incentive_rebate))) * 100;
+                    $percentage = ($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100;
                     $percentage = round($percentage, 2); /** Round to 2 decimal places */
                 } elseif($filter['supplier'] == 5) {
-                    $difference = (int) $formatuserdata[0]->incentive_rebate - (int) $fileRebate;
+                    $difference = (int) $fileRebate - (int) $formatuserdata[0]->incentive_rebate;
                     $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / (int) $formatuserdata[0]->incentive_rebate) * 100;
+                    $percentage = ($difference / (int) $fileRebate) * 100;
                     $percentage = round($percentage, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
                 } elseif ($filter['supplier'] == 3) {
-                    $difference = (int) $formatuserdata[0]->incentive_rebate - (int) $fileRebate;
+                    $difference = (int) $fileRebate - (int) $formatuserdata[0]->incentive_rebate;
                     $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / (int) $formatuserdata[0]->incentive_rebate) * 100;
+                    $percentage = ($difference / (int) $fileRebate) * 100;
                     $percentage = round($percentage, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
                 }
+
                 $finalArray[] = [
                     'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">'.$formatuserdata[0]->supplier_name,
                     'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($formatuserdata[0]->cost, 2),
