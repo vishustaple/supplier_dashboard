@@ -2107,21 +2107,10 @@ class Order extends Model
             if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
                 if ($filter['supplier'] == 2) {
                     $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $formatuserdata[0]->volume_rebate);
-                    $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100;
-                    $percentage = round($percentage, 2); /** Round to 2 decimal places */
-                } elseif($filter['supplier'] == 5) {
+                    $percentage = round(($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100, 2); /** Round to 2 decimal places */
+                } elseif($filter['supplier'] == 5 || $filter['supplier'] == 3) {
                     $difference = (int) $fileRebate - (int) $formatuserdata[0]->volume_rebate;
-                    $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / (int) $fileRebate) * 100;
-                    $percentage = round($percentage, 2); /** Round to 2 decimal places */
-                    $fileTotal = "$" . number_format($fileTotal, 2);
-                    $fileRebate = "$" . number_format($fileRebate, 2);
-                } elseif ($filter['supplier'] == 3) {
-                    $difference = (int) $fileRebate - (int) $formatuserdata[0]->volume_rebate;
-                    $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / (int) $fileRebate) * 100;
-                    $percentage = round($percentage, 2); /** Round to 2 decimal places */
+                    $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
                 }
@@ -2133,26 +2122,15 @@ class Order extends Model
                     'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($formatuserdata[0]->incentive_rebate, 2),
                     'sfs' => $fileTotal,
                     'sb' => $fileRebate,
-                    'df' => '$'.$difference.'('.$percentage.'%)'
+                    'df' => '$'.number_format($difference, 2).'('.$percentage.'%)'
                 ];
             } else {
                 if ($filter['supplier'] == 2) {
                     $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $formatuserdata[0]->incentive_rebate);
-                    $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100;
-                    $percentage = round($percentage, 2); /** Round to 2 decimal places */
-                } elseif($filter['supplier'] == 5) {
+                    $percentage = round(($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100, 2); /** Round to 2 decimal places */
+                } elseif($filter['supplier'] == 5 || $filter['supplier'] == 3) {
                     $difference = (int) $fileRebate - (int) $formatuserdata[0]->incentive_rebate;
-                    $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / (int) $fileRebate) * 100;
-                    $percentage = round($percentage, 2); /** Round to 2 decimal places */
-                    $fileTotal = "$" . number_format($fileTotal, 2);
-                    $fileRebate = "$" . number_format($fileRebate, 2);
-                } elseif ($filter['supplier'] == 3) {
-                    $difference = (int) $fileRebate - (int) $formatuserdata[0]->incentive_rebate;
-                    $difference = round($difference, 2); /** Round to 2 decimal places */
-                    $percentage = ($difference / (int) $fileRebate) * 100;
-                    $percentage = round($percentage, 2); /** Round to 2 decimal places */
+                    $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
                 }
