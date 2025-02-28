@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(RetrieveStaplesDiversityData::class)
         ->timezone('America/New_York')
-        ->weekly()->mondays()->fridays() /** Runs on Tuesday (2) and Friday (5) */
+        ->weekly()->tuesdays()->fridays() /** Runs on Tuesday (2) and Friday (5) */
         ->at('08:00')       /** Runs at 8 AM */
         ->withoutOverlapping();
         $schedule->command(ReportGenrate::class)->hourly()->withoutOverlapping();
