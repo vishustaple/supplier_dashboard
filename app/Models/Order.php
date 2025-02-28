@@ -2156,7 +2156,7 @@ class Order extends Model
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
                 }
-
+                
                 $finalArray[] = [
                     'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">'.$formatuserdata[0]->supplier_name,
                     'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($formatuserdata[0]->cost, 2),
@@ -2164,7 +2164,7 @@ class Order extends Model
                     'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($formatuserdata[0]->incentive_rebate, 2),
                     'sfs' => $fileTotal,
                     'sb' => $fileRebate,
-                    'df' => '$'.$difference.'('.$percentage.'%)'
+                    'df' => '$'.number_format($difference, 2).'('.$percentage.'%)'
                 ];
             }
         } 
