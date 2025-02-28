@@ -228,7 +228,7 @@ class Account extends Model
 
         /** Group by with account name */
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
-            $query->where('master_account_detail.account_name', $filter['account_name']);
+            $query->where('master_account_detail.account_name', html_entity_decode($filter['account_name']));
         }
 
         /** Get total records count (without filtering) */
