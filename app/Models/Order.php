@@ -628,7 +628,7 @@ class Order extends Model
         $totalAmount = number_format($totalAmount, 2);
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
-
+        // dd($totalVolumeRebate);
         // dd($query->limit(100)->get());
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
@@ -2081,6 +2081,7 @@ class Order extends Model
             ];
         }
 
+        $query->groupBy('m2.account_name');
         $totalRecords = 1;
 
         /** Calculating total volume rebate, total incentive rebate and total cost */
@@ -2093,53 +2094,55 @@ class Order extends Model
             $totalIncentiveRebate += $value->incentive_rebate;
         }
 
+        // dd($formatuserdata);
+
         /** For debug query */
         // dd($query->toSql(), $query->getBindings());
 
         /** Formatting this */
-        $totalAmount = number_format($totalAmount, 2);
-        $totalVolumeRebate = number_format($totalVolumeRebate, 2);
-        $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
+        $totalAmounts = number_format($totalAmount, 2);
+        $totalVolumeRebates = number_format($totalVolumeRebate, 2);
+        $totalIncentiveRebates = number_format($totalIncentiveRebate, 2);
 
         /** Making final array */
         $finalArray=[];
         if (isset($formatuserdata) && !empty($formatuserdata)) {
             if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
                 if ($filter['supplier'] == 2) {
-                    $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $formatuserdata[0]->volume_rebate);
+                    $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $totalVolumeRebate);
                     $percentage = round(($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100, 2); /** Round to 2 decimal places */
                 } elseif($filter['supplier'] == 5 || $filter['supplier'] == 3) {
-                    $difference = (int) $fileRebate - (int) $formatuserdata[0]->volume_rebate;
+                    $difference = (int) $fileRebate - (int) $totalVolumeRebate;
                     $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
                 }
 
                 $finalArray[] = [
-                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">'.$formatuserdata[0]->supplier_name,
-                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($formatuserdata[0]->cost, 2),
-                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($formatuserdata[0]->volume_rebate, 2),
-                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($formatuserdata[0]->incentive_rebate, 2),
+                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount, 2) . '">'.$formatuserdata[0]->supplier_name,
+                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($totalAmount, 2),
+                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.$totalVolumeRebates,
+                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.$totalIncentiveRebates,
                     'sfs' => $fileTotal,
                     'sb' => $fileRebate,
                     'df' => '$'.number_format($difference, 2).'('.$percentage.'%)'
                 ];
             } else {
                 if ($filter['supplier'] == 2) {
-                    $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $formatuserdata[0]->incentive_rebate);
+                    $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $totalIncentiveRebate);
                     $percentage = round(($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100, 2); /** Round to 2 decimal places */
                 } elseif($filter['supplier'] == 5 || $filter['supplier'] == 3) {
-                    $difference = (int) $fileRebate - (int) $formatuserdata[0]->incentive_rebate;
+                    $difference = (int) $fileRebate - (int) $totalIncentiveRebate;
                     $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
                 }
                 
                 $finalArray[] = [
-                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">'.$formatuserdata[0]->supplier_name,
-                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($formatuserdata[0]->cost, 2),
-                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($formatuserdata[0]->volume_rebate, 2),
-                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.number_format($formatuserdata[0]->incentive_rebate, 2),
+                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount, 2) . '">'.$formatuserdata[0]->supplier_name,
+                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($totalAmount, 2),
+                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebates.'"class="input_volume_rebate"> $'.number_format($totalVolumeRebates, 2),
+                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebates.'" class="input_incentive_rebate"> $'.number_format($totalIncentiveRebates, 2),
                     'sfs' => $fileTotal,
                     'sb' => $fileRebate,
                     'df' => '$'.number_format($difference, 2).'('.$percentage.'%)'
