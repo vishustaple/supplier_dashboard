@@ -886,6 +886,12 @@
 
             $('#qualified_spend').text('$'+totalAmount);
 
+            if ($('#account_number_show').is(':checked')) {
+                supplierDataTable.column('account_number:name').visible(false);
+            } else {
+                supplierDataTable.column('account_number:name').visible(true);
+            }
+
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
                 $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + hiddenVolumeRebateInputValue : 'N/A'));

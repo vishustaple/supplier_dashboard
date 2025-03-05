@@ -481,6 +481,7 @@ class Account extends Model
             5 => 'rebate.incentive_rebate',
         ];
 
+        
         $query = self::query() /** Eager load relationships */
         ->select(
             'master_account_detail.id as id',
@@ -503,7 +504,11 @@ class Account extends Model
         ->whereNotNull('master_account_detail.account_name')
         ->where('master_account_detail.account_name', '!=', '');
         $query->whereNotNull('rebate.volume_rebate');
-         
+        
+        if (isset($filter['supplier_id']) && !empty($filter['supplier_id'])) {
+            $query->where('suppliers.id', $filter['supplier_id']);
+        }
+
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
@@ -517,8 +522,14 @@ class Account extends Model
         }
        
         /** Get total records count (without filtering) */
-        $query->groupBy('master_account_detail.account_name');
-        $query->groupBy('suppliers.supplier_name');
+        if ($csv) {
+            $query->groupBy('suppliers.supplier_name');
+            $query->groupBy('master_account_detail.account_number');
+        } else {
+            $query->groupBy('suppliers.supplier_name');
+            $query->groupBy('master_account_detail.account_name');
+        }
+
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Order by column and direction */
@@ -540,23 +551,43 @@ class Account extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            $formatuserdata[$key]['account_name'] = $data->account_name;
-            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
-            $formatuserdata[$key]['customer_name'] = $data->customer_name;
-            $formatuserdata[$key]['account_number'] = $data->account_number;
-            $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
-
-            if ($data->supplier_id == 3) {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+            if ($csv) {
+                $formatuserdata[] = [
+                    'supplier_name' => $data->supplier_name,
+                    'account_name' => $data->account_name,
+                    'account_number' => $data->account_number,
+                    'customer_name' => $data->customer_name,
+                    'volume_rebate' => $data->volume_rebate,
+                    'incentive_rebate' => ($data->supplier_id == 3) ? ($data->incentive_rebate) : (''),
+                ];
             } else {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='0' required/>";
+                $formatuserdata[$key]['account_name'] = $data->account_name;
+                $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
+                $formatuserdata[$key]['customer_name'] = $data->customer_name;
+                $formatuserdata[$key]['account_number'] = $data->account_number;
+                $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
+    
+                if ($data->supplier_id == 3) {
+                    $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                } else {
+                    $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='0' required/>";
+                }
+    
+                $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';
             }
-
-            $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';
         }
-       
-          
+
+
         if ($csv == true) {
+            /** Defining heading array for csv genration */
+            $formatuserdata['heading'] = [
+                'Supplier',
+                'Account Name',
+                'Account Number',
+                'Customer Name',
+                'Volume Rebate',
+                'Incentive Rebate',
+            ];
             return $formatuserdata;
         } else {
             /** Return the result along with total and filtered counts */
