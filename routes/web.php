@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\{Auth, Route}; 
-use App\Http\Controllers\{HomeController, RebateController, ReportController, CatalogController, AccountController, SalesTeamController, SavedQueryController, CommissionController, ExcelImportController};
+use App\Http\Controllers\{HomeController, RebateController, ReportController, CatalogController, AccountController, SalesTeamController, SavedQueryController, CommissionController, CronResourcePage, ExcelImportController};
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -160,6 +160,9 @@ Route::group(['prefix' => 'admin'], function () {
 
         Route::post('/report/operational-anomaly/filter', [ReportController::class, 'operationalAnomalyReportFilter'])->name('report.operational_anomaly_report');
         Route::get('/reports/operational-anomaly/csv', [ReportController::class, 'operationalAnomalyReportExportCsv'])->name('operational-anomaly-report.export-csv');
+
+        /** Cron resource page route */
+        Route::get('/cron-resource_page', [CronResourcePage::class, 'index'])->name('cronIndex');
     });
 });
 

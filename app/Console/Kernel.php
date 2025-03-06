@@ -12,7 +12,6 @@ use App\Console\Commands\{
     DeleteUploadedFilesData,
     ProcessDeleteCommissions,
     ProcessCommissionAndRebate,
-    RemoveFrontZeroAccountNumber,
     RetrieveStaplesDiversityData,
 };
 
