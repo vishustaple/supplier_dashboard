@@ -117,132 +117,132 @@ class ProcessCommissionAndRebate extends Command
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
                     
                     continue;
-                    foreach ($query->get() as $value) {
-                        $totalAmount += $value->cost;
-                        $totalVolumeRebate += $value->volume_rebate;
-                        $totalCommissionRebate += $value->commissionss;
-                    }
+                    // foreach ($query->get() as $value) {
+                    //     $totalAmount += $value->cost;
+                    //     $totalVolumeRebate += $value->volume_rebate;
+                    //     $totalCommissionRebate += $value->commissionss;
+                    // }
 
-                    $dataExistCheck = DB::table('commissions_rebate')
-                        ->whereYear('start_date', $year)
-                        ->whereDate('start_date', '>=', $filter['start_date'])
-                        ->whereDate('end_date', '<=', $filter['end_date'])
-                        ->where('commissions_rebate.sales_rep', $values->sales_rep)
-                        ->first();
+                    // $dataExistCheck = DB::table('commissions_rebate')
+                    //     ->whereYear('start_date', $year)
+                    //     ->whereDate('start_date', '>=', $filter['start_date'])
+                    //     ->whereDate('end_date', '<=', $filter['end_date'])
+                    //     ->where('commissions_rebate.sales_rep', $values->sales_rep)
+                    //     ->first();
 
-                    if (!empty($dataExistCheck)) {
-                        if ($dataExistCheck->approved != 1 && $dataExistCheck->paid != 1) {
-                            CommissionRebate::where('id', $dataExistCheck->id)->update([
-                                'paid' => 0,
-                                'approved' => 0,
-                                'spend' => $totalAmount,
-                                'quarter' => $filters['quarter'],
-                                'end_date' => $filter['end_date'],
-                                'sales_rep' => $values->sales_rep,
-                                'start_date' => $filter['start_date'],
-                                'volume_rebate' => $totalVolumeRebate,
-                                'commissions' => $totalCommissionRebate,
-                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                            ]);
+                    // if (!empty($dataExistCheck)) {
+                    //     if ($dataExistCheck->approved != 1 && $dataExistCheck->paid != 1) {
+                    //         CommissionRebate::where('id', $dataExistCheck->id)->update([
+                    //             'paid' => 0,
+                    //             'approved' => 0,
+                    //             'spend' => $totalAmount,
+                    //             'quarter' => $filters['quarter'],
+                    //             'end_date' => $filter['end_date'],
+                    //             'sales_rep' => $values->sales_rep,
+                    //             'start_date' => $filter['start_date'],
+                    //             'volume_rebate' => $totalVolumeRebate,
+                    //             'commissions' => $totalCommissionRebate,
+                    //             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    //         ]);
                                     
-                            $dataExistCheck2 = DB::table('commissions_rebate_detail')
-                                ->whereYear('start_date', $year)
-                                ->whereDate('start_date', '>=', $filter['start_date'])
-                                ->whereDate('end_date', '<=', $filter['end_date'])
-                                ->where('commissions_rebate_id', $dataExistCheck->id)
-                                ->get();
+                    //         $dataExistCheck2 = DB::table('commissions_rebate_detail')
+                    //             ->whereYear('start_date', $year)
+                    //             ->whereDate('start_date', '>=', $filter['start_date'])
+                    //             ->whereDate('end_date', '<=', $filter['end_date'])
+                    //             ->where('commissions_rebate_id', $dataExistCheck->id)
+                    //             ->get();
 
-                            $countArray = count($dataExistCheck2);
-                            foreach ($query->get() as $key1 => $value) {
-                                if ($dataExistCheck2 && $countArray > 0) {
-                                    $countArray--;
-                                    CommissionRebateDetail::where('id', $dataExistCheck2[$key1]->id)->update([
-                                        'paid' => 0,
-                                        'approved' => 0,
-                                        'spend' => $value->cost,
-                                        'month' =>  $filter['month'],
-                                        'quarter' => $filters['quarter'],
-                                        'end_date' => $filter['end_date'],
-                                        'sales_rep' => $values->sales_rep,
-                                        'supplier' => $value->supplier_id,
-                                        'commissions' => $value->commissionss,
-                                        'start_date' => $filter['start_date'],
-                                        'account_name' => $value->account_name,
-                                        'volume_rebate' => $value->volume_rebate,
-                                        'commissions_end_date' => $value->end_date,
-                                        'commissions_start_date' => $value->start_date,
-                                        'commissions_percentage' => $value->commissions,
-                                        'volume_rebate_percentage' => $value->volume_rebates,
-                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    ]);
-                                } else {
-                                    CommissionRebateDetail::create([
-                                        'paid' => 0,
-                                        'approved' => 0,
-                                        'spend' => $value->cost,
-                                        'month' =>  $filter['month'],
-                                        'quarter' => $filters['quarter'],
-                                        'end_date' => $filter['end_date'],
-                                        'sales_rep' => $values->sales_rep,
-                                        'supplier' => $value->supplier_id,
-                                        'commissions' => $value->commissionss,
-                                        'start_date' => $filter['start_date'],
-                                        'account_name' => $value->account_name,
-                                        'volume_rebate' => $value->volume_rebate,
-                                        'commissions_end_date' => $value->end_date,
-                                        'commissions_start_date' => $value->start_date,
-                                        'commissions_percentage' => $value->commissions,
-                                        'commissions_rebate_id' => $dataExistCheck->id,
-                                        'volume_rebate_percentage' => $value->volume_rebates,
-                                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    ]);
-                                }
-                            }
-                        } else {
+                    //         $countArray = count($dataExistCheck2);
+                    //         foreach ($query->get() as $key1 => $value) {
+                    //             if ($dataExistCheck2 && $countArray > 0) {
+                    //                 $countArray--;
+                    //                 CommissionRebateDetail::where('id', $dataExistCheck2[$key1]->id)->update([
+                    //                     'paid' => 0,
+                    //                     'approved' => 0,
+                    //                     'spend' => $value->cost,
+                    //                     'month' =>  $filter['month'],
+                    //                     'quarter' => $filters['quarter'],
+                    //                     'end_date' => $filter['end_date'],
+                    //                     'sales_rep' => $values->sales_rep,
+                    //                     'supplier' => $value->supplier_id,
+                    //                     'commissions' => $value->commissionss,
+                    //                     'start_date' => $filter['start_date'],
+                    //                     'account_name' => $value->account_name,
+                    //                     'volume_rebate' => $value->volume_rebate,
+                    //                     'commissions_end_date' => $value->end_date,
+                    //                     'commissions_start_date' => $value->start_date,
+                    //                     'commissions_percentage' => $value->commissions,
+                    //                     'volume_rebate_percentage' => $value->volume_rebates,
+                    //                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    //                 ]);
+                    //             } else {
+                    //                 CommissionRebateDetail::create([
+                    //                     'paid' => 0,
+                    //                     'approved' => 0,
+                    //                     'spend' => $value->cost,
+                    //                     'month' =>  $filter['month'],
+                    //                     'quarter' => $filters['quarter'],
+                    //                     'end_date' => $filter['end_date'],
+                    //                     'sales_rep' => $values->sales_rep,
+                    //                     'supplier' => $value->supplier_id,
+                    //                     'commissions' => $value->commissionss,
+                    //                     'start_date' => $filter['start_date'],
+                    //                     'account_name' => $value->account_name,
+                    //                     'volume_rebate' => $value->volume_rebate,
+                    //                     'commissions_end_date' => $value->end_date,
+                    //                     'commissions_start_date' => $value->start_date,
+                    //                     'commissions_percentage' => $value->commissions,
+                    //                     'commissions_rebate_id' => $dataExistCheck->id,
+                    //                     'volume_rebate_percentage' => $value->volume_rebates,
+                    //                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    //                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    //                 ]);
+                    //             }
+                    //         }
+                    //     } else {
     
-                        }
-                    } else {
-                        if (!empty($totalAmount) && $totalAmount > 0) {
-                            $newCommissionRebate = CommissionRebate::create([
-                                'paid' => 0,
-                                'approved' => 0,
-                                'spend' => $totalAmount,
-                                'quarter' => $filters['quarter'],
-                                'end_date' => $filter['end_date'],
-                                'sales_rep' => $values->sales_rep,
-                                'start_date' => $filter['start_date'],
-                                'volume_rebate' => $totalVolumeRebate,
-                                'commissions' => $totalCommissionRebate,
-                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                            ]);
+                    //     }
+                    // } else {
+                    //     if (!empty($totalAmount) && $totalAmount > 0) {
+                    //         $newCommissionRebate = CommissionRebate::create([
+                    //             'paid' => 0,
+                    //             'approved' => 0,
+                    //             'spend' => $totalAmount,
+                    //             'quarter' => $filters['quarter'],
+                    //             'end_date' => $filter['end_date'],
+                    //             'sales_rep' => $values->sales_rep,
+                    //             'start_date' => $filter['start_date'],
+                    //             'volume_rebate' => $totalVolumeRebate,
+                    //             'commissions' => $totalCommissionRebate,
+                    //             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    //             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    //         ]);
             
-                            foreach ($query->get() as $value) {
-                                CommissionRebateDetail::create([
-                                    'paid' => 0,
-                                    'approved' => 0,
-                                    'spend' => $value->cost,
-                                    'month' =>  $filter['month'],
-                                    'quarter' => $filters['quarter'],
-                                    'end_date' => $filter['end_date'],
-                                    'sales_rep' => $values->sales_rep,
-                                    'supplier' => $value->supplier_id,
-                                    'commissions' => $value->commissionss,
-                                    'start_date' => $filter['start_date'],
-                                    'account_name' => $value->account_name,
-                                    'volume_rebate' => $value->volume_rebate,
-                                    'commissions_end_date' => $value->end_date,
-                                    'commissions_start_date' => $value->start_date,
-                                    'commissions_percentage' => $value->commissions,
-                                    'commissions_rebate_id' => $newCommissionRebate->id,
-                                    'volume_rebate_percentage' => $value->volume_rebates,
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                ]);
-                            }
-                        }
-                    }
+                    //         foreach ($query->get() as $value) {
+                    //             CommissionRebateDetail::create([
+                    //                 'paid' => 0,
+                    //                 'approved' => 0,
+                    //                 'spend' => $value->cost,
+                    //                 'month' =>  $filter['month'],
+                    //                 'quarter' => $filters['quarter'],
+                    //                 'end_date' => $filter['end_date'],
+                    //                 'sales_rep' => $values->sales_rep,
+                    //                 'supplier' => $value->supplier_id,
+                    //                 'commissions' => $value->commissionss,
+                    //                 'start_date' => $filter['start_date'],
+                    //                 'account_name' => $value->account_name,
+                    //                 'volume_rebate' => $value->volume_rebate,
+                    //                 'commissions_end_date' => $value->end_date,
+                    //                 'commissions_start_date' => $value->start_date,
+                    //                 'commissions_percentage' => $value->commissions,
+                    //                 'commissions_rebate_id' => $newCommissionRebate->id,
+                    //                 'volume_rebate_percentage' => $value->volume_rebates,
+                    //                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    //                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    //             ]);
+                    //         }
+                    //     }
+                    // }
                 }
             }
         }
