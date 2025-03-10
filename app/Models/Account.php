@@ -342,7 +342,7 @@ class Account extends Model
             }
 
             $finalArray = [];
-            dd($results);
+
             if ($results !== null) {
                 if (isset($search['check']) && $search['check'] == "true") {
                     foreach ($results as $value) {
