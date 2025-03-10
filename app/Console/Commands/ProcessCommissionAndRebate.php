@@ -111,7 +111,7 @@ class ProcessCommissionAndRebate extends Command
                     // });
                 
                     /** Group by with account name */
-                    $query->groupBy('commissions.account_name');
+                    $query->groupBy('commissions.account_name', 'commissions.supplier');
                     print_r($query->get()->toArray());
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
