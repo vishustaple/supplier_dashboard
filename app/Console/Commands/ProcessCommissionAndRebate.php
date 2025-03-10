@@ -93,6 +93,7 @@ class ProcessCommissionAndRebate extends Command
                     if (in_array($filter['month'], $res[4]) ) {
                         $filters['quarter'] = 4;
                     }
+                    $query->groupBy('commissions.account_name');
                     print_r($query->get()->toArray());
                     $query->where(function ($query) use ($filter)  {
                         $query->where(function ($subQuery) use ($filter) {
