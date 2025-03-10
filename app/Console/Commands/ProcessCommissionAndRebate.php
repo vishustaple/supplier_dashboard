@@ -64,11 +64,14 @@ class ProcessCommissionAndRebate extends Command
                     
                     ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
                     ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-                    ->leftJoin('rebate', function($join) {
+                    ->join('rebate', function($join) {
                         $join->on('m2.account_name', '=', 'rebate.account_name')
                         ->on('m2.supplier_id', '=', 'rebate.supplier');
                     })
-                    ->leftJoin('commissions', function ($join) { $join->on('commissions.supplier', '=', 'suppliers.id')->on('commissions.account_name', '=', 'm2.account_name'); });
+                    ->join('commissions', function ($join) { 
+                        $join->on('commissions.supplier', '=', 'suppliers.id')
+                        ->on('commissions.account_name', '=', 'm2.account_name');
+                    });
         
                     $query->where('commissions.sales_rep', $values->sales_rep);
         
@@ -108,7 +111,7 @@ class ProcessCommissionAndRebate extends Command
                     });
                 
                     /** Group by with account name */
-                    $query->groupBy('commissions.account_name', 'commissions.supplier');
+                    $query->groupBy('commissions.account_name');
         
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
