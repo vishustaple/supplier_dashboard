@@ -381,7 +381,9 @@ class ProcessUploadedFiles extends Command
                                         /** If account exist than we update the account otherwish we insert new account into 
                                          * account table
                                          */
-                                        $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
+                                        $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                        ->where('supplier_id', $fileValue->supplier_id)
+                                        ->first();
 
                                         if (!$customers) {
                                             $data = DB::table('customers')
@@ -470,7 +472,9 @@ class ProcessUploadedFiles extends Command
                                     /** Into case of some supplier which do not have grand parent and parent we will use this 
                                      * condition for insert and update into account table */
                                     if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
-                                        $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
+                                        $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                        ->where('supplier_id', $fileValue->supplier_id)
+                                        ->first();
                                         if (!$customers) {
                                             $data = DB::table('customers')
                                             ->where('customer_name', $row[$keyCustomerName])
