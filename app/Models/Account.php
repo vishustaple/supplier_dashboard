@@ -325,7 +325,11 @@ class Account extends Model
             ->where('master_account_detail.account_name', 'LIKE', '%' . $search['account_name'] . '%');
 
             if (isset($search['check']) && $search['check'] == "true") {
-                $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5]);
+                $allSupplierIdsArray = DB::table('suppliers')
+                ->where('show', 0)
+                ->pluck('id')
+                ->toArray();
+                $query->whereIn('master_account_detail.supplier_id', $allSupplierIdsArray);
                 $query->groupBy('master_account_detail.supplier_id');
                 $results = $query->get();
             } else {
