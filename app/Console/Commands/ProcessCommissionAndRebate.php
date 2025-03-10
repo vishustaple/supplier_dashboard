@@ -93,8 +93,7 @@ class ProcessCommissionAndRebate extends Command
                     if (in_array($filter['month'], $res[4]) ) {
                         $filters['quarter'] = 4;
                     }
-                    $query->groupBy('commissions.account_name');
-                    print_r($query->get()->toArray());
+                    
                     $query->where(function ($query) use ($filter)  {
                         $query->where(function ($subQuery) use ($filter) {
                             $subQuery->where('commissions.start_date', '>=', $filter['start_date'])
@@ -103,17 +102,17 @@ class ProcessCommissionAndRebate extends Command
                             $subQuery->where('commissions.start_date', '<', $filter['start_date'])
                                      ->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
                         });
-                    })
-                    ->where(function ($query) use ($filter) {
-                        $query->where(function ($subQuery) use ($filter) {
-                            $subQuery->where('commissions.end_date', '<', $filter['end_date'])
-                                     ->whereBetween('orders.date', [$filter['start_date'], DB::raw('commissions.end_date')]);
-                        })->orWhere('commissions.end_date', '>=', $filter['end_date']);
                     });
+                    // ->where(function ($query) use ($filter) {
+                    //     $query->where(function ($subQuery) use ($filter) {
+                    //         $subQuery->where('commissions.end_date', '<', $filter['end_date'])
+                    //                  ->whereBetween('orders.date', [$filter['start_date'], DB::raw('commissions.end_date')]);
+                    //     })->orWhere('commissions.end_date', '>=', $filter['end_date']);
+                    // });
                 
                     /** Group by with account name */
                     $query->groupBy('commissions.account_name');
-        
+                    print_r($query->get()->toArray());
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
                     
