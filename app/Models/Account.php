@@ -275,6 +275,10 @@ class Account extends Model
     }
 
     public static function getSearchCustomerData($search='', $supplier='', $supplierArray=[], $check=false, $allSupplier=false){
+        $allSupplierIdsArray = DB::table('suppliers')
+                        ->where('show', 0)
+                        ->pluck('id')
+                        ->toArray();
         if (!empty($search)) {
             $query = self::query()
             ->select(
@@ -288,12 +292,13 @@ class Account extends Model
                     $query->where('master_account_detail.supplier_id', $supplier);
                 } else if (!empty($supplierArray)) {
                     if ($supplierArray[0] == 'all') {
-                        $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                        
+                        $query->whereIn('master_account_detail.supplier_id', $allSupplierIdsArray);
                     } else {
                         $query->whereIn('master_account_detail.supplier_id', $supplierArray);
                     }
                 } else if ($allSupplier) {
-                    $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                    $query->whereIn('master_account_detail.supplier_id', $allSupplierIdsArray);
                 } else {
                     return [];
                 }
