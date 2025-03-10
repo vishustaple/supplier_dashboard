@@ -116,6 +116,7 @@ class ProcessCommissionAndRebate extends Command
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
                     print_r($query->get()->toArray());
+                    continue;
                     foreach ($query->get() as $value) {
                         $totalAmount += $value->cost;
                         $totalVolumeRebate += $value->volume_rebate;
