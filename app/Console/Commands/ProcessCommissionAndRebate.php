@@ -30,7 +30,7 @@ class ProcessCommissionAndRebate extends Command
     {
         $finalYear = date('Y');
         for ($year = 2022; $year <= $finalYear; $year++) {
-            // print_r($year);
+            print_r($year);
             $salesRep = SalesTeam::select('id as sales_rep')->get();
             $res[1] =['January', 'February', 'March'];
             $res[2] = ['April', 'May', 'June'];
@@ -112,7 +112,7 @@ class ProcessCommissionAndRebate extends Command
         
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
-
+                    print_r($query->get()->toArray());
                     foreach ($query->get() as $value) {
                         $totalAmount += $value->cost;
                         $totalVolumeRebate += $value->volume_rebate;
