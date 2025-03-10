@@ -105,14 +105,17 @@ class ProcessCommissionAndRebate extends Command
                     })
                     ->where(function ($query) use ($filter) {
                         $query->where(function ($subQuery) use ($filter) {
-                            $subQuery->where('commissions.end_date', '<', $filter['end_date']);
-                                    //  ->whereBetween('orders.date', [$filter['start_date'], DB::raw('commissions.end_date')]);
+                            $subQuery->where('commissions.end_date', '<', $filter['end_date'])
+                                     ->whereBetween('orders.date', [$filter['start_date'], DB::raw('commissions.end_date')]);
                         })->orWhere('commissions.end_date', '>=', $filter['end_date']);
                     });
                 
                     /** Group by with account name */
                     $query->groupBy('commissions.account_name', 'commissions.supplier');
                     print_r($query->get()->toArray());
+                    /** For debug query */
+                    // print_r($query->toSql(), $query->getBindings());
+
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
                     
