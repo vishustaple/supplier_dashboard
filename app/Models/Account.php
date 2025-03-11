@@ -348,6 +348,11 @@ class Account extends Model
                     foreach ($results as $value) {
                         $finalArray[] = ['supplier' => $value->supplier_name, 'id' => $value->id];
                     }
+
+                    if ($search['account_name'] == "Victoria's Secret") {
+                        $finalArray[1]['id'] = 14;
+                        $finalArray[1]['supplier'] = 'Staples Diversity';
+                    }
                 } else {
                     $finalArray[] = ['supplier' => $results->supplier_name, 'id' => $results->id];
                 }
