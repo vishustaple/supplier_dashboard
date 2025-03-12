@@ -73,10 +73,9 @@ class ProcessCommissionAndRebate extends Command
                         ->on('commissions.account_name', '=', 'm2.account_name');
                     });
         
-                    $allSupplierIdsArray = DB::table('suppliers')->where('show', 0)->pluck('id')->toArray();
-                    
                     $query->where('commissions.sales_rep', $values->sales_rep);
-                    $query->whereIn('commissions.supplier', $allSupplierIdsArray);      
+                    
+                    $query->whereIn('commissions.supplier', [1,2,3,4,5,6,7,14]);      
                 
                     /** Year and quarter filter here */
                     if (in_array($filter['month'], $res[1]) ) {
