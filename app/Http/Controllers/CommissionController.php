@@ -60,9 +60,9 @@ class CommissionController extends Controller
         /** Checking request is ajax or not */
         if ($request->ajax()) {
             /** Getting form data using methos request */
-            $start_date = $request->input('start_date');
             $end_date = $request->input('end_date');
             $supplier = $request->input('supplier');
+            $start_date = $request->input('start_date');
             $salesRep = $request->input('sales_rep');
             $commissions = $request->input('commissions');
             $accountName = $request->input('account_name');
