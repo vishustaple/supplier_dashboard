@@ -1,20 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{
-    HomeController,
-    RebateController,
-    ReportController,
-    CatalogController,
-    AccountController,
-    SalesTeamController,
-    SavedQueryController,
-    CommissionController,
-    ExcelImportController,
-    CategorySupplierController,
-};
+use Illuminate\Support\Facades\{Auth, Route}; 
 use App\Http\Controllers\Catalog\CatalogImportController;
-use Illuminate\Support\Facades\Auth; 
+use App\Http\Controllers\{HomeController, RebateController, ReportController, CatalogController, AccountController, SalesTeamController, SavedQueryController, CommissionController, CronResourcePage, ExcelImportController};
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -27,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
 */
 Route::get('/', function () {
     if(Auth::check()){
-        // return view('admin.export');
         return redirect()->intended('/admin/upload-sheet');
     }
     else{
@@ -43,12 +31,9 @@ Route::get('/user-logout', [HomeController::class, 'userLogout'])->name('user.lo
 Route::get('/user-forget', [HomeController::class, 'userForgetPassword'])->name('user.forget');
 Route::post('/user-reset', [HomeController::class, 'userResetPassword'])->name('user.reset');
 Route::post('/user-register', [HomeController::class, 'userRegister'])->name('user.register');
-  
-
 
 Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
-      
         Route::get('/queries', [SavedQueryController::class, 'index'])->name('queries.index');
         Route::get('/queries/create', [SavedQueryController::class, 'create'])->name('queries.create');
         Route::post('/queries', [SavedQueryController::class, 'store'])->name('queries.store');
@@ -56,7 +41,6 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/queries/{query}/edit', [SavedQueryController::class, 'edit'])->name('queries.edit');
         Route::put('/queries/{query}', [SavedQueryController::class, 'update'])->name('queries.update');
         Route::delete('/queries/delete/{query}', [SavedQueryController::class, 'destroy'])->name('queries.destroy');
-        
 
         Route::get('/supplier', [ExcelImportController::class, 'allSupplier'])->name('supplier');
         Route::get('/supplier/{id?}', [ExcelImportController::class, 'showSupplier'])->name('supplier.show');
@@ -119,6 +103,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/reports/commissionss/paid', [ReportController::class, 'paidUpdate'])->name('paid.update');
         Route::post('/reports/commissionss/approve', [ReportController::class, 'approvedUpdate'])->name('approved.update');
         Route::post('/reports/supplier-filter', [ReportController::class, 'supplierReportFilter'])->name('report.supplier_filter');
+        Route::post('/reports/validation-filter', [ReportController::class, 'supplierValidationReportFilter'])->name('report.supplier_validation_filter');
+
         Route::get('/reports/supplier-csv', [ReportController::class, 'supplierReportExportCsv'])->name('report.export-supplier_report-csv');
         Route::get('/reports/commissions-csv', [ReportController::class, 'downloadSampleCommissionFile'])->name('report.export-commission_report-csv');
         Route::post('/reports/commissions-report-filter', [ReportController::class, 'commissionReportFilter'])->name('report.commission_report_filter');
@@ -133,8 +119,6 @@ Route::group(['prefix' => 'admin'], function () {
     
         //not in use now this route     
         Route::get('/userlist', [HomeController::class, 'userview'])->name('user.show');
-
-
 
         Route::get('/powerbi', [HomeController::class, 'showPowerBi'])->name('power_bi.show');
         Route::post('/powerbi/ajax', [HomeController::class, 'showPowerBiAjax'])->name('power_bi.show.ajax');
@@ -153,7 +137,6 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/catalog/{catalogType}/{id?}', [CatalogController::class, 'index'])->name('catalog.list');
         Route::post('/catalog/filter', [CatalogController::class, 'catalogAjaxFilter'])->name('catalog.filter');
         Route::get('/catalogs/csv', [CatalogController::class, 'exportCatalogCsv'])->name('catalog.export-csv');
-      
         /** Catalog Section End */
 
         /**get column Route */
@@ -169,9 +152,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/sales/updatestatus', [SalesTeamController::class, 'status_sales'])->name('sales.status');
         Route::get('/sales/edit/{id}/{routename}', [SalesTeamController::class, 'editSales'])->name('sales.edit');
         Route::match(['get', 'post'], '/add-sales', [SalesTeamController::class, 'addsales'])->name('sales.add');
-
         /** Sales team Section End */
-
 
         /** Rebate Section Start */
         Route::get('/rebates/count', [RebateController::class, 'rebateCount'])->name('rebate.counts');
@@ -179,8 +160,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/rebate/{rebateType}/{id?}', [RebateController::class, 'index'])->name('rebate.list');
         Route::post('/rebates/filter', [RebateController::class, 'getRebateWithAjax'])->name('rebate.filter');
         Route::post('/rebates/update-filter', [RebateController::class, 'getUpdateRebateWithAjax'])->name('rebate.update-filter');
-        // Route::get('/rebates/csv' , [RebateController::class,'exportCatalogCsv'])->name('rebate.export-csv');
-        
+        Route::get('/rebates/csv' , [RebateController::class,'getRebateDownload'])->name('rebate.export-csv');
         /** Rebate Section End */
 
         /** Commission Section Start */
@@ -192,11 +172,13 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/commissionss/view-add', [CommissionController::class, 'commissionAddView'])->name('commissions.add-view');
         Route::get('/commissionss/customer-search', [CommissionController::class, 'commissionAjaxCustomerSearch'])->name('commissions.customerSearch');
         Route::get('/commissionss/supplier-search', [CommissionController::class, 'commissionAjaxSupplierSearch'])->name('commissions.supplierSearch');
-      
         /** Commission Section End */
 
         Route::post('/report/operational-anomaly/filter', [ReportController::class, 'operationalAnomalyReportFilter'])->name('report.operational_anomaly_report');
         Route::get('/reports/operational-anomaly/csv', [ReportController::class, 'operationalAnomalyReportExportCsv'])->name('operational-anomaly-report.export-csv');
+
+        /** Cron resource page route */
+        Route::get('/cron-resource_page', [CronResourcePage::class, 'index'])->name('cronIndex');
     });
 });
 
@@ -206,5 +188,4 @@ Route::group(['prefix' => 'admin'], function () {
 // });
 
 Route::get('/create-password', [HomeController::class, 'createPassword'])->name('create.password');
-Route::get('/random-function', [CategorySupplierController::class, 'index'])->name('random.number');
 Route::post('/update-password', [HomeController::class, 'updatePassword'])->name('update.password');

@@ -46,9 +46,6 @@ class CatalogController extends Controller
         /** Fetch data using the parameters and transform it into CSV format */
         /** Replace this with your actual data fetching logic */
         $data = Catalog::getFilterdCatalogData($filter, $csv);
-        // echo"<pre>";
-        // print_r($data);
-        // die;
 
         /** Create a stream for output */
         $stream = fopen('php://temp', 'w+');

@@ -2,25 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Models\Order;
-use App\Notifications\ExportReadyNotification;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\File;
-use League\Csv\Writer;
-use Illuminate\Queue\{
-    SerializesModels,
-    InteractsWithQueue,
-};
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\{
-    ShouldQueue,
-    ShouldBeUnique,
-};
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\{DB, Log};
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\{SerializesModels, InteractsWithQueue};
 
 class ExportConsolidatedReport implements ShouldQueue
 {

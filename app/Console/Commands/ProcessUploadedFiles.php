@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\{DB, File, Log};
+use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\{DB, File, Log};
 use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{Order, Account, OrderDetails, UploadedFiles, ManageColumns};
+use App\Models\{Order, Account, UploadedFiles, ManageColumns};
 
 class ProcessUploadedFiles extends Command
 {
@@ -32,9 +32,9 @@ class ProcessUploadedFiles extends Command
     public function handle()
     {
         $userFileExist = DB::table('consolidated_file')
-        ->select('id', 'file_name')
-        ->where('delete_check', 1)
-        ->get();
+            ->select('id', 'file_name')
+            ->where('delete_check', 1)
+            ->get();
 
         if ($userFileExist->isNotEmpty()) {
             foreach ($userFileExist as $key => $value) {
@@ -61,10 +61,10 @@ class ProcessUploadedFiles extends Command
         try {
             /** Select those file name where re_upload is 1 */
             $fileValue = DB::table('attachments')
-            ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
-            ->where('re_upload', '=', 1)
-            ->whereNull('deleted_by')
-            ->first();
+                ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
+                ->where('re_upload', '=', 1)
+                ->whereNull('deleted_by')
+                ->first();
 
             if ($fileValue !== null) {
                 $reUpload = true;
@@ -75,12 +75,11 @@ class ProcessUploadedFiles extends Command
             /** Select those file name where cron is 11 */
             if ($fileValue == null) {
                 $fileValue = DB::table('attachments')
-                ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
-                ->where('cron', '=', 11)
-                ->whereNull('deleted_by')
-                ->first();
+                    ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
+                    ->where('cron', '=', 11)
+                    ->whereNull('deleted_by')
+                    ->first();
             }
-            
             
             $suppliers = ManageColumns::getRequiredColumns();
 
@@ -89,10 +88,10 @@ class ProcessUploadedFiles extends Command
 
                 /** Update cron two means start processing data into excel */
                 DB::table('attachments')
-                ->where('id', $fileValue->id)
-                ->update([
-                    'cron' => UploadedFiles::CRON
-                ]);
+                    ->where('id', $fileValue->id)
+                    ->update([
+                        'cron' => UploadedFiles::CRON
+                    ]);
 
                 /** Add column name here those row you want to skip */
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
@@ -164,13 +163,6 @@ class ProcessUploadedFiles extends Command
                         $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
                     }
 
-                    // /** Updating the file upload status */
-                    // DB::table('attachments')
-                    // ->where('id', $fileValue->id)
-                    // ->update([
-                    //     'cron' => 4
-                    // ]);
-
                     /** Run the for loop for excel sheets */
                     for ($i = 0; $i <= $sheetCount; $i++) {
                         $count = $maxNonEmptyCount = 0;
@@ -230,19 +222,6 @@ class ProcessUploadedFiles extends Command
                             continue;
                         }
 
-                        // if ($fileValue->supplier_id == 7) {
-                        //     $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
-                        //     if (!empty($supplierYear)) {
-                        //         $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('attachment_id')->first();
-                        //         if (isset($dataIdForDeleteDuplicateData->attachment_id) && !empty($dataIdForDeleteDuplicateData->attachment_id)) {
-                        //             DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
-                        //             // DB::table('order_product_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                        //             DB::table('order_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                        //             DB::table('orders')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                        //         }
-                        //     }
-                        // }
-
                         if ($fileValue->supplier_id == 4) {
                             $columnArray2[$fileValue->supplier_id]["Group ID1"] = 'group_id';
                             $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
@@ -263,7 +242,6 @@ class ProcessUploadedFiles extends Command
                             $maxNonEmptyValue[44] = "Transaction Source System1";
                             $maxNonEmptyValue[45] = "Transaction Source System";
                         }
-
 
                         foreach ($workSheetArray as $key=>$value) {
                             $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
@@ -405,10 +383,10 @@ class ProcessUploadedFiles extends Command
                                          */
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
 
-                                        if (empty($customers)) {
+                                        if (!$customers) {
                                             $data = DB::table('customers')
-                                            ->where('customer_name', $row[$keyCustomerName])
-                                            ->first();
+                                                ->where('customer_name', $row[$keyCustomerName])
+                                                ->first();
 
                                             if (!$data) {
                                                 $insertId = DB::table('customers')
@@ -466,8 +444,7 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             }
 
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
-                                            ->update([
+                                            $data = [
                                                 'customer_id' => $insertId,
                                                 'parent_id' => (!empty($keyParent)) ? ($row[$keyParent]) : (''),
                                                 'parent_name' => (!empty($keyParentName)) ? ($row[$keyParentName]) : (''),
@@ -475,7 +452,16 @@ class ProcessUploadedFiles extends Command
                                                 'grandparent_name' => (!empty($keyGrandParentName)) ? ($row[$keyGrandParentName]) : (''),
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
-                                            ]);
+                                            ];
+                                            
+                                            /** Remove empty values */
+                                            $accountData = array_filter($data, function ($value) {
+                                                return $value !== '' && $value !== null;
+                                            });
+
+                                            Account::where('id', $customers->id)
+                                            ->update($accountData);
+                                            $accountData = [];
                                         }
                                     }
                                 }
@@ -485,7 +471,7 @@ class ProcessUploadedFiles extends Command
                                      * condition for insert and update into account table */
                                     if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
-                                        if (empty($customers)) {
+                                        if (!$customers) {
                                             $data = DB::table('customers')
                                             ->where('customer_name', $row[$keyCustomerName])
                                             ->first();
@@ -527,12 +513,22 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             }
 
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
-                                            ->update([
+                                            $data = [
                                                 'customer_id' => $insertId,
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'supplier_id' => $fileValue->supplier_id,
-                                            ]);
+                                            ];
+                                            
+                                            /** Remove empty values */
+                                            $accountData = array_filter($data, function ($value) {
+                                                return $value !== '' && $value !== null;
+                                            });
+
+                                            // Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            Account::where('id', $customers->id)
+                                            ->update($accountData);
+
+                                            $accountData = [];
                                         }
                                     }
                                 }

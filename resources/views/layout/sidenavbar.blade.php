@@ -88,6 +88,15 @@
                     </a>
                 @endif
 
+                @if(in_array('Cron Resource Page', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
+                    <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Cron Resource Page') ? 'active' : '' }}" href="{{route('cronIndex')}}">
+                        <div class="sb-nav-link-icon">
+                            <i class="fa fa-file"></i>
+                        </div>
+                        Cron Resource
+                    </a>
+                @endif
+
                 @if(in_array('PowerBi Reports', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                     <div id="powerbi_report"></div>
                 @endif

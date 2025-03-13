@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 use League\Csv\Writer;
 use App\Models\Account;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{DB, Validator};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AccountController extends Controller

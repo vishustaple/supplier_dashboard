@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{Account, Rebate};
-use Illuminate\Support\Facades\DB;
+use App\Models\{Account, CategorySupplier, Rebate};
+use League\Csv\Writer;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RebateController extends Controller
 {
@@ -37,7 +38,7 @@ class RebateController extends Controller
             ->groupBy('master_account_detail.account_name')
             ->groupBy('master_account_detail.supplier_id')
             ->getQuery()->getCountForPagination();
-            return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType], 'totalMissingRebate' => $missingRebate]);
+            return view('admin.rebate.'. $rebateType .'', ['pageTitle' => $setPageTitleArray[$rebateType], 'categorySuppliers' => CategorySupplier::where('show', 0)->whereNotIn('id', [15])->get(), 'totalMissingRebate' => $missingRebate]);
         }
     }
 
@@ -53,6 +54,45 @@ class RebateController extends Controller
             $formatuserdata = Account::getFilterdRebateData($request->all());
             return response()->json($formatuserdata);
         }
+    }
+
+    public function getRebateDownload(Request $request){
+        /** Retrieve data based on the provided parameters */
+        $filter['supplier_id'] = $request->input('supplier_id');
+
+        /** Fetch data using the parameters and transform it into CSV format */
+        /** Replace this with your actual data fetching logic */
+        $data = Account::getFilterdRebateData($filter, true);
+
+        /** Create a stream for output */
+        $stream = fopen('php://temp', 'w+');
+
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+        
+        $heading = $data['heading'];
+        unset($data['heading']);
+
+        /** Add column headings */
+        $csvWriter->insertOne($heading);
+
+        /** Insert the data into the CSV */
+        $csvWriter->insertAll($data);
+
+        /** Rewind the stream pointer */
+        rewind($stream);
+  
+        /** Create a streamed response with the CSV data */
+        $response = new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+        });
+
+        /** Set headers for CSV download */
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="SupplierRebates_'.now()->format('YmdHis').'.csv"');
+
+        /** return $csvResponse; */
+        return $response;
     }
 
     public function rebateCount(Request $request){

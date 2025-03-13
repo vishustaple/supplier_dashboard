@@ -39,21 +39,27 @@
                         <label for="enddate">Select Date:</label>
                         <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
                     </div> -->
-                    <div class="form-group relative  mb-3 row">
-                        <div class="col-6">
+                    <div class="form-group relative align-items-end mb-3 row">
+                        <div class="col-4">
                             <label for="startdate">Select Start Date:</label>
                             <input class="form-control" id="startdate" name="dates" placeholder="Enter Your Start Date " >
                         </div>  
-                        <div class="col-6">
+                        <div class="col-4">
                             <label for="enddate">Select End Date:</label>
                             <input class="form-control" id="enddate" name="dates" placeholder="Enter Your End Date " >
                         </div>
+                        <div class="form-group col-4 ps-5 mb-0">
+                        <input class="form-check-input" type="checkbox" name="account_number_show" value="1" id="account_number_show" checked>
+                        <label class="form-check-label" id="account_number_show_label" for="account_number_show">Group By Account Name</label>
                     </div>
-                    <div class="col-5 mt-2 text-end">
+                    <div class="col-12 mt-3">
                         <button type="submit" class="btn btn-primary m-1">Submit</button>
                         <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
                         <button id="downloadPdfBtn" class="btn-danger btn m-1 disabled" title="Pdf Download"><i class="fa-solid me-2 fa-file-pdf"></i>PDF</button>
                     </div>
+                    </div>
+                   
+                    
                 </div>
             </form>
         </div>
@@ -857,6 +863,8 @@
         function setPercentage() {
             if ($('.total_amount').val() != null) {
                 $('#total_spend').text($('.total_amount').val());
+            } else {
+                $('#total_spend').text("$0");
             }
 
             var selectedValues = $('#supplier').val();
@@ -871,12 +879,18 @@
                 $('#incentive_rebate_check').prop('checked', false);
             }
 
-            var $html = $('<div>' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="qualified_spend">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
+            var $html = $('<div>' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0"class="qualified_spend">') + ' ' + (supplierDataTable.column(4).data()[0] !== undefined ? supplierDataTable.column(4).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(5).data()[0] !== undefined ? supplierDataTable.column(5).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
             hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
             hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
             totalAmount = $html.find('.qualified_spend').val();
 
             $('#qualified_spend').text('$'+totalAmount);
+
+            if ($('#account_number_show').is(':checked')) {
+                supplierDataTable.column('account_number:name').visible(false);
+            } else {
+                supplierDataTable.column('account_number:name').visible(true);
+            }
 
             if ($('#volume_rebate_check').is(':checked')) {
                 supplierDataTable.column('volume_rebate:name').visible(true);
@@ -929,6 +943,7 @@
                     // Pass date range and supplier ID when making the request
                     d.supplier = $('#supplier').val();
                     d.rebate_check = $('input[name="rebate_check"]:checked').val();
+                    d.group_by = $('input[name="account_number_show"]:checked').val();
                     d.end_date = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
                     d.start_date = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
                 },
@@ -953,6 +968,7 @@
 
             columns: [
                 { data: 'supplier', name: 'supplier', title: 'Supplier'},
+                { data: 'account_number', name: 'account_number', title: 'Account Number'},
                 { data: 'account_name', name: 'account_name', title: 'Account Name'},
                 { data: 'cost', name: 'cost', title: 'Spend'},
                 { data: 'volume_rebate', name: 'volume_rebate', title: 'Volume Rebate'},

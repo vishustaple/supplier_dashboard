@@ -4,26 +4,11 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\QueryException;
-use PhpOffice\PhpSpreadsheet\Reader\Xls;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Validator;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx as Writer;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use PhpOffice\PhpSpreadsheet\Reader\Exception;
-use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{
-    UploadedFiles,
-    ManageColumns,
-    SupplierDetail,
-    CategorySupplier,
-    RequiredFieldName,
-};
+use Illuminate\Database\{QueryException, Schema\Blueprint};
+use Illuminate\Support\Facades\{DB, Log, Auth, Schema, Validator};
+use PhpOffice\PhpSpreadsheet\{Spreadsheet, Reader\Xls, Reader\Xlsx, Reader\Exception};
+use App\Models\{ UploadedFiles, ManageColumns, SupplierDetail, CategorySupplier, RequiredFieldName};
 
 class ExcelImportController extends Controller
 {
@@ -39,9 +24,7 @@ class ExcelImportController extends Controller
         $uploadData = UploadedFiles::query()->selectRaw("`attachments`.*, CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS user_name")
         ->leftJoin('users', 'attachments.created_by', '=', 'users.id')
         ->get();
-        // echo"<pre>";
-        // print_r($uploadData);
-        // die;
+
         $formattedData = [];
         $cronString=''; 
         $i=1;
@@ -176,7 +159,7 @@ class ExcelImportController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
-        // dd($supplierValues, $cleanedArray, $arrayDiff, $arrayDiff1);
+        
         /** Here we return the error into form of json */
         if ($validationCheck == false) {
             if (isset($arrayDiff1) && !empty($arrayDiff1)) {

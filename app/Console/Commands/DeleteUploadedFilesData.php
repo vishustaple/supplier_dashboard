@@ -4,11 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\UploadedFiles;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\{DB, Log, File};
 
 class DeleteUploadedFilesData extends Command
 {
@@ -44,28 +41,30 @@ class DeleteUploadedFilesData extends Command
             ->where('attachment_id', $fileData->id)
             ->first();
 
-            $greater = DB::table('odp_attachments')
-            ->where('attachment_id','>', $fileData->id)
-            ->where('year', $currentIdDetails->year)
-            ->first();
-
-            DB::table('odp_attachments')
-            ->where('attachment_id', $fileData->id)
-            ->delete();
-
-            if (!$greater && $currentIdDetails) {
-                $fileIdForUpdate = DB::table('odp_attachments')
-                ->where('attachment_id','<', $fileData->id)
+            if ($currentIdDetails) {
+                $greater = DB::table('odp_attachments')
+                ->where('attachment_id','>', $fileData->id)
                 ->where('year', $currentIdDetails->year)
-                ->orderBy('id', 'desc')
-                ->limit(1)
                 ->first();
 
-                if ($fileIdForUpdate) {
-                    UploadedFiles::where('id', $fileIdForUpdate->attachment_id)
-                    ->update([
-                        'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
-                    ]);
+                DB::table('odp_attachments')
+                ->where('attachment_id', $fileData->id)
+                ->delete();
+
+                if (!$greater && $currentIdDetails) {
+                    $fileIdForUpdate = DB::table('odp_attachments')
+                    ->where('attachment_id','<', $fileData->id)
+                    ->where('year', $currentIdDetails->year)
+                    ->orderBy('id', 'desc')
+                    ->limit(1)
+                    ->first();
+
+                    if ($fileIdForUpdate) {
+                        UploadedFiles::where('id', $fileIdForUpdate->attachment_id)
+                        ->update([
+                            'cron' => 11, /** Updating the cron value to 11 old file ready for upload again */
+                        ]);
+                    }
                 }
             }
         }
@@ -109,20 +108,20 @@ class DeleteUploadedFilesData extends Command
                     ->delete();
                 }    
                 
-                $supplierDataCount = DB::table('orders')
-                ->select('id')
-                ->where('supplier_id', $fileData->supplier_id)
-                ->first();
+                // $supplierDataCount = DB::table('orders')
+                // ->select('id')
+                // ->where('supplier_id', $fileData->supplier_id)
+                // ->first();
 
-                if (!$supplierDataCount) {
-                    DB::table('customer_suppliers')
-                    ->where('supplier_id', $fileData->supplier_id)
-                    ->delete();
+                // if (!$supplierDataCount) {
+                //     DB::table('customer_suppliers')
+                //     ->where('supplier_id', $fileData->supplier_id)
+                //     ->delete();
 
-                    DB::table('master_account_detail')
-                    ->where('supplier_id', $fileData->supplier_id)
-                    ->delete();
-                }
+                //     DB::table('master_account_detail')
+                //     ->where('supplier_id', $fileData->supplier_id)
+                //     ->delete();
+                // }
 
                 if (File::exists($filePath)) {
                     try {

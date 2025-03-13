@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use DateTime;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use League\Csv\Writer;
@@ -170,6 +169,13 @@ class ReportController extends Controller
     public function supplierReportFilter(Request $request) {
         if ($request->ajax()) {
             $formatuserdata = Order::getSupplierReportFilterdData($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
+
+    public function supplierValidationReportFilter(Request $request) {
+        if ($request->ajax()) {
+            $formatuserdata = Order::getSupplierValidationReportFilterdData($request->all());
             return response()->json($formatuserdata);
         }
     }

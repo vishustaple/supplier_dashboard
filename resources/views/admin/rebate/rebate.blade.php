@@ -17,6 +17,22 @@
             </div>
         </div> 
         <div class="container">
+            <div class="form-group col-md-3 relative  mb-3">
+                <label for="supplier">Select Supplier:</label>
+                <select id="supplier" name="supplier" class="form-control"> 
+                    <option value="" selected>--Select--</option>
+                    @if(isset($categorySuppliers))
+                        @foreach($categorySuppliers as $categorySupplier)
+                            @if($categorySupplier->id != 7)
+                                <option value="{{ $categorySupplier->id }}">{{ $categorySupplier->supplier_name }}</option>
+                            @endif
+                        @endforeach
+                    @endif
+                </select>
+            </div>
+            <div class="col-md-12 mb-0">
+                <button id="downloadCsvBtn" class="btn-success btn m-1" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>
+            </div>
             <div class="" id="successMessages"></div>
             <div class="" id="errorMessage"></div>
             <table id="rebate_data" class="data_table_files"></table>
@@ -62,8 +78,8 @@
                 { data: 'customer_name', name: 'customer_name', title: 'Customer Name' },
                 { data: 'account_name', name: 'account_name', title: 'Account Name' },
                 { data: 'supplier_name', name: 'supplier_name', title: 'Supplier' },
-                { data: 'volume_rebate', name: 'volume_rebate', 'orderable': false, 'searchable': false, title: 'Volume Rebate'  },
-                { data: 'incentive_rebate', name: 'incentive_rebate', 'orderable': false, 'searchable': false, title: 'Incentive Rebate'  },
+                { data: 'volume_rebate', name: 'volume_rebate', 'searchable': false, title: 'Volume Rebate'},
+                { data: 'incentive_rebate', name: 'incentive_rebate', 'searchable': false, title: 'Incentive Rebate'},
                 { data: 'id', name: 'id', 'orderable': false, 'searchable': false, title: 'Action' }
             ],
         });
@@ -108,6 +124,22 @@
                 }
             });
         });
+
+        $('#downloadCsvBtn').on('click', function () {
+            // Trigger CSV download
+            downloadCsv();
+        });
+
+        function downloadCsv() {
+            // You can customize this URL to match your backend route for CSV download
+            var csvUrl = '{{ route("rebate.export-csv") }}';
+
+            // Add query parameters for date range and supplier ID
+            csvUrl += '?supplier_id=' + $('#supplier').val();
+
+            // Open a new window to download the CSV file
+            window.open(csvUrl, '_blank');
+        }
     });
 </script>
 @endsection

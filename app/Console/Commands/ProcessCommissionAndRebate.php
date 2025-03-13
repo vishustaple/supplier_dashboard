@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use App\Models\{SalesTeam, Order, CommissionRebate, CommissionRebateDetail, Account};
+use Illuminate\Support\{Carbon, Facades\DB};
+use App\Models\{SalesTeam, Order, CommissionRebate, CommissionRebateDetail};
 
 
 class ProcessCommissionAndRebate extends Command
@@ -29,11 +28,10 @@ class ProcessCommissionAndRebate extends Command
      */
     public function handle()
     {
-        $finalYear = date("Y");
+        $finalYear = date('Y');
         for ($year = 2022; $year <= $finalYear; $year++) {
-            print_r($year);
             $salesRep = SalesTeam::select('id as sales_rep')->get();
-            $res[1] =['January', 'February', 'March'];
+            $res[1] = ['January', 'February', 'March'];
             $res[2] = ['April', 'May', 'June'];
             $res[3] = ['July', 'August', 'September'];
             $res[4] = ['October', 'November', 'December'];
@@ -65,15 +63,23 @@ class ProcessCommissionAndRebate extends Command
                     
                     ->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
                     ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id')
-                    ->leftJoin('rebate', function($join) {
+                    ->join('rebate', function($join) {
                         $join->on('m2.account_name', '=', 'rebate.account_name')
                         ->on('m2.supplier_id', '=', 'rebate.supplier');
                     })
-                    ->leftJoin('commissions', function ($join) { $join->on('commissions.supplier', '=', 'suppliers.id')->on('commissions.account_name', '=', 'm2.account_name'); });
-                    // $query->where('m2.account_number', '27391189');
-                    $query->where('commissions.sales_rep', $values->sales_rep);
+                    ->join('commissions', function ($join) { 
+                        $join->on('commissions.supplier', '=', 'suppliers.id')
+                        ->on('commissions.account_name', '=', 'm2.account_name');
+                    });
         
-                    $query->whereIn('commissions.supplier', DB::table('suppliers')->where('show', 0)->pluck('id')->toArray());      
+                    $query->where('commissions.sales_rep', $values->sales_rep);
+                    
+                    $allSupplierIdsArray = DB::table('suppliers')
+                    ->where('show', 0)
+                    ->pluck('id')
+                    ->toArray();
+
+                    $query->whereIn('commissions.supplier', $allSupplierIdsArray);      
                 
                     /** Year and quarter filter here */
                     if (in_array($filter['month'], $res[1]) ) {
@@ -91,11 +97,7 @@ class ProcessCommissionAndRebate extends Command
                     if (in_array($filter['month'], $res[4]) ) {
                         $filters['quarter'] = 4;
                     }
-
-                    // $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']])
-                    // ->where('commissions.start_date', '<=', $filter['start_date'])
-                    // ->where('commissions.end_date', '>=', $filter['end_date']);
-                
+                    
                     $query->where(function ($query) use ($filter)  {
                         $query->where(function ($subQuery) use ($filter) {
                             $subQuery->where('commissions.start_date', '>=', $filter['start_date'])
@@ -114,10 +116,14 @@ class ProcessCommissionAndRebate extends Command
         
                     /** Group by with account name */
                     $query->groupBy('commissions.account_name', 'commissions.supplier');
-        
+                    // print_r($query->get()->toArray());
+                    /** For debug query */
+                    // print_r($query->toSql(), $query->getBindings());
+
                     /** Calculating total volume rebate, total commissions on rebate and total cost */
                     $totalAmount = $totalVolumeRebate = $totalCommissionRebate = 0;
-
+                    
+                    // continue;
                     foreach ($query->get() as $value) {
                         // if (in_array($filter['month'], $res[4]) && $year == 2024 ) {
                         //     // dd($query->toSql(), $query->getBindings());
@@ -132,15 +138,14 @@ class ProcessCommissionAndRebate extends Command
                     }
 
                     $dataExistCheck = DB::table('commissions_rebate')
-                    ->whereYear('start_date', $year)
-                    ->whereDate('start_date', '>=', $filter['start_date'])
-                    ->whereDate('end_date', '<=', $filter['end_date'])
-                    ->where('commissions_rebate.sales_rep', $values->sales_rep)
-                    ->first();
+                        ->whereYear('start_date', $year)
+                        ->whereDate('start_date', '>=', $filter['start_date'])
+                        ->whereDate('end_date', '<=', $filter['end_date'])
+                        ->where('commissions_rebate.sales_rep', $values->sales_rep)
+                        ->first();
 
                     if (!empty($dataExistCheck)) {
                         if ($dataExistCheck->approved != 1 && $dataExistCheck->paid != 1) {
-                            // echo ' update ';
                             CommissionRebate::where('id', $dataExistCheck->id)->update([
                                 'paid' => 0,
                                 'approved' => 0,
@@ -155,17 +160,14 @@ class ProcessCommissionAndRebate extends Command
                             ]);
                                     
                             $dataExistCheck2 = DB::table('commissions_rebate_detail')
-                            ->whereYear('start_date', $year)
-                            ->whereDate('start_date', '>=', $filter['start_date'])
-                            ->whereDate('end_date', '<=', $filter['end_date'])
-                            ->where('commissions_rebate_id', $dataExistCheck->id)
-                            ->get();
+                                ->whereYear('start_date', $year)
+                                ->whereDate('start_date', '>=', $filter['start_date'])
+                                ->whereDate('end_date', '<=', $filter['end_date'])
+                                ->where('commissions_rebate_id', $dataExistCheck->id)
+                                ->get();
 
                             $countArray = count($dataExistCheck2);
                             foreach ($query->get() as $key1 => $value) {
-                                // echo ' update2 ';
-                                // echo ' '.$key1.' ';
-                                // print_r($dataExistCheck2);
                                 if ($dataExistCheck2 && $countArray > 0) {
                                     $countArray--;
                                     CommissionRebateDetail::where('id', $dataExistCheck2[$key1]->id)->update([
@@ -212,11 +214,10 @@ class ProcessCommissionAndRebate extends Command
                                 }
                             }
                         } else {
-                            // echo " not update ";
+    
                         }
                     } else {
                         if (!empty($totalAmount) && $totalAmount > 0) {
-                            // echo " Adding new record ";
                             $newCommissionRebate = CommissionRebate::create([
                                 'paid' => 0,
                                 'approved' => 0,
@@ -259,20 +260,5 @@ class ProcessCommissionAndRebate extends Command
                 }
             }
         }
-    
-        // $account = Account::all();
-        // foreach ($account as $key => $values) {
-        //     $customers = DB::table('orders')
-        //     ->where('supplier_id', 2)
-        //     ->where('customer_number', 'like', '%' . $values->account_number . '%')
-        //     ->get();
-            
-        //     if (isset($customers) && !$customers->isEmpty()) {
-        //         foreach ($customers as $key => $value) {
-        //             DB::table('orders')->where('customer_number', $value->customer_number)->update(['customer_number' => $values->account_number]);
-        //         }
-        //     } 
-        //     continue;
-        // }
     }   
 }
