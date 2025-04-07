@@ -13,6 +13,7 @@ use App\Console\Commands\{
     DeleteUploadedFilesData,
     ProcessDeleteCommissions,
     ProcessCommissionAndRebate,
+    RemoveFrontZeroAccountNumber,
     RetrieveStaplesDiversityData,
 };
 
@@ -23,19 +24,20 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command(RetrieveStaplesDiversityData::class)
-        // ->timezone('America/New_York')
-        // ->weekly()->tuesdays()->fridays() /** Runs on Tuesday (2) and Friday (5) */
-        // ->at('08:00')       /** Runs at 8 AM */
-        // ->withoutOverlapping();
-        // $schedule->command(ReportGenrate::class)->hourly()->withoutOverlapping();
-        // $schedule->command(SendReportEmail::class)->weeklyOn(1, '0:00')->withoutOverlapping();
-        // $schedule->command(ProcessDeleteCommissions::class)->weekends()->withoutOverlapping();
-        // $schedule->command(validateUploadedFile::class)->everyTenMinutes()->withoutOverlapping();
-        // $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes()->withoutOverlapping();
-        // $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes()->withoutOverlapping();
-        // $schedule->command(ProcessCommissionAndRebate::class)->everyFifteenMinutes()->withoutOverlapping();
+        $schedule->command(RetrieveStaplesDiversityData::class)
+        ->timezone('America/New_York')
+        ->weekly()->tuesdays()->fridays() /** Runs on Tuesday (2) and Friday (5) */
+        ->at('08:00')       /** Runs at 8 AM */
+        ->withoutOverlapping();
+        $schedule->command(ReportGenrate::class)->hourly()->withoutOverlapping();
+        $schedule->command(RemoveFrontZeroAccountNumber::class)->everyTenMinutes();
+        $schedule->command(SendReportEmail::class)->weeklyOn(1, '0:00')->withoutOverlapping();
+        $schedule->command(ProcessDeleteCommissions::class)->weekends()->withoutOverlapping();
+        $schedule->command(validateUploadedFile::class)->everyTenMinutes()->withoutOverlapping();
+        $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes()->withoutOverlapping();
         $schedule->command(CatalogUploadProcess::class)->everyFifteenMinutes()->withoutOverlapping();
+        $schedule->command(ProcessCommissionAndRebate::class)->everyFifteenMinutes()->withoutOverlapping();
     }
 
     /**

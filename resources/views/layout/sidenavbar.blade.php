@@ -97,9 +97,7 @@
                     </a>
                 @endif
 
-                @if(in_array('PowerBi Reports', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
-                    <div id="powerbi_report"></div>
-                @endif
+                <div id="powerbi_report"></div>
 
                 @if(in_array('Manage Users', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                     <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'User Data') ? 'active' : '' }}" href="{{route('user.show')}}">
