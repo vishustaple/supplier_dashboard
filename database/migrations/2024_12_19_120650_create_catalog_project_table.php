@@ -45,7 +45,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sub_category_id')->constrained('product_details_sub_category')->onDelete('cascade');
             $table->string('attribute_name');
-            $table->string('type')->nullable();
             $table->timestamps();
         });
 

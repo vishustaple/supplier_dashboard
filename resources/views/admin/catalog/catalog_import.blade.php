@@ -300,7 +300,6 @@
         $(document).ready(function() {
             // Convert the PHP data into a JavaScript object
             var catalogPriceType = @json($catalogPriceType);
-
             $('input[name="date"]').daterangepicker({
                 singleDatePicker: true,
                 showDropdowns: true,
@@ -414,7 +413,6 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        console.log(response);
                         $('html, body').animate({ scrollTop: 0 }, 'slow');
                         if(response.error){
                             button.innerHTML = '<i class="me-2 fa-solid fa-file-import"></i> Import';
@@ -448,8 +446,6 @@
                                 console.error('DataTable instance is not available or properly initialized.');
                             }
                         }
-                        // Handle success response
-                        // console.log(response);
                     },
                     error: function(xhr, status, error) {
                         // Handle error response
@@ -483,7 +479,6 @@
                     url: '{{ route("manage.columns") }}', // Replace with your actual route name
                     data: { dataIdValue: dataIdValue },
                     success: function(response) {
-                        console.log(response);
                         $("#tableBody").empty();
                         var i=1;
                         response.forEach(function(column) {
@@ -527,7 +522,6 @@
         
             $(document).on('click','.edit_column',function(){
                 var id = $(this).attr('data-id'); 
-                console.log(id);
                 var td = $(this).closest("tr").find("td:eq(1)");
                 var fieldValue = td.text().trim();
             

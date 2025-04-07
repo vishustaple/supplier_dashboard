@@ -24,7 +24,16 @@ class CatalogController extends Controller
             ->leftJoin('catalog_details', 'catalog.id', '=', 'catalog_details.catalog_id')
             ->where('catalog.id', '=', $id)
             ->whereNotNull('catalog_details.table_value')
-            ->select('catalog_details.table_key as key', 'catalog_details.table_value as value', 'catalog.sku as sku','catalog.price as price','suppliers.supplier_name as supplier_name','catalog.description as description')->get()->toArray();
+            ->select(
+                'catalog.sku as sku',
+                'catalog.price as price',
+                'catalog_details.table_key as key',
+                'catalog.description as description',
+                'catalog_details.table_value as value',
+                'suppliers.supplier_name as supplier_name',
+            )
+            ->get()
+            ->toArray();
             return view('admin.viewdetail',compact('catalog'));
         }
 

@@ -61,6 +61,7 @@ class CatalogAttachments extends Model
             `catalog_attachments`.`created_at` as `created_at`,
             `catalog_attachments`.`deleted_at` as `deleted_at`,
             `suppliers`.`supplier_name` as `supplier_name`,
+            `catalog_attachments`.`file_upload_percent` as `file_upload_percent`,
             CONCAT(`users`.`first_name`, ' ', `users`.`last_name`) AS `user_name`
         ")
 
@@ -102,26 +103,7 @@ class CatalogAttachments extends Model
         $filteredRecords = $query->getQuery()->getCountForPagination();
         
         $formatuserdata=[];
-        foreach ($filteredData as $key => $data) {
-            switch ($data->cron) {
-                case 1:
-                case 11:
-                    $cronString = 0;
-                    break;
-                case 2:
-                    $cronString = 30;
-                    break;
-                case 4:
-                    $cronString = 50;
-                    break;
-                case 5:
-                    $cronString = 70;
-                    break;
-                default:
-                    $cronString = 100; /** Default value */
-                    break;
-            }
-             
+        foreach ($filteredData as $key => $data) { 
             if (isset($data->deleted_at) && !empty($data->deleted_at)) {
                 $cronString = 'Deleted';
                 $formatuserdata[$key]['status'] = $cronString;
@@ -129,7 +111,7 @@ class CatalogAttachments extends Model
                 $cronString = 'File column not matching';
                 $formatuserdata[$key]['status'] = $cronString;
             } else {
-                $formatuserdata[$key]['status'] = '<div class="clear"></div><progress value="'.$cronString.'" max="100" id="progBar"><span id="downloadProgress"></span></progress><div id="progUpdate">'.$cronString.'% Uploaded</div>';
+                $formatuserdata[$key]['status'] = '<div class="clear"></div><progress value="'.$data->file_upload_percent.'" max="100" id="progBar"><span id="downloadProgress"></span></progress><div id="progUpdate">'.$data->file_upload_percent.'% Uploaded</div>';
             }
            
             $formatuserdata[$key]['uploaded_by'] = $data->user_name;

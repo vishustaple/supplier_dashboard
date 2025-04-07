@@ -49,8 +49,8 @@ class CatalogImportController extends Controller
         }
         
         $pageTitle = "Upload Catalog Sheets";
-        $data=json_encode($formattedData);
-        $catalogPriceType = DB::table('catalog_price_types')->get();
+        $data = json_encode($formattedData);
+        $catalogPriceType = DB::table('catalog_price_types')->where('id', '!=', 3)->get();
 
         return view('admin.catalog.catalog_import',compact('categorySuppliers','data', 'catalogPriceType', 'pageTitle'));
     }
