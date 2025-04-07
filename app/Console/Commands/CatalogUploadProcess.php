@@ -53,7 +53,7 @@ class CatalogUploadProcess extends Command
      */
     public function handle()
     {
-        $output = shell_exec('python3 /home/staple/Downloads/ODP_Web_Scraping_Code_Final.py');
+        $output = shell_exec('python3 '.env('SCRIPT_PATH'));
         echo $output;
         // $industryId = 1;
 
