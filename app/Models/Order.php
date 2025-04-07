@@ -326,7 +326,7 @@ class Order extends Model
                 SUM(total_spend) as total_spend'
             )
             ->groupBy('product');
-            $query->whereIn('sold_to_account', $accountNumber);
+            $query->whereIn('sold_toaccount', $accountNumber);
 
             if (isset($filter['year'])) {
                 $query->whereYear('date', $filter['year']);

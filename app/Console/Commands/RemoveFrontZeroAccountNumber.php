@@ -79,7 +79,7 @@ class RemoveFrontZeroAccountNumber extends Command
 
         /** Update for g_and_t_laboratories_charles_river_order */
         DB::table('g_and_t_laboratories_charles_river_order')
-            ->where('sold_to_account', 'LIKE', '0%')
-            ->update(['sold_to_account' => DB::raw("TRIM(LEADING '0' FROM `sold_to_account`)")]);
+            ->where('sold_toaccount', 'LIKE', '0%')
+            ->update(['sold_toaccount' => DB::raw("TRIM(LEADING '0' FROM `sold_toaccount`)")]);
     }
 }
