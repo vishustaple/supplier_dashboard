@@ -15,6 +15,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()  # This loads .env from current directory or parent
 
 LOG_FILE = os.getenv("CUSTOM_LOG_PATH", "/var/www/html/supplier_ds/importdemo/storage/logs/laravel.log")
+print(LOG_FILE)
+exit()
 
 def log_to_laravel(message):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
