@@ -27,7 +27,10 @@ def log_to_laravel(message):
 def adding_record_into_database(matched_row, scrap_data):
     # Connect to MySQL
     conn = mysql.connector.connect(
-        host="127.0.0.1", user="roo1", password="Password123#@!", database="sp16"
+        host=os.getenv("DB_HOST", "127.0.0.1"),
+        user=os.getenv("DB_USERNAME", "roo1"),
+        password=os.getenv("DB_PASSWORD", "Password123#@!"),
+        database=os.getenv("DB_DATABASE", "sp16")
     )
 
     cursor = conn.cursor(buffered=True)
@@ -727,16 +730,6 @@ def adding_record_into_database(matched_row, scrap_data):
         cursor.close()
         conn.close()  # Always close the connection to prevent memory leaks
 
-host=os.getenv("DB_HOST", "127.0.0.1")
-user=os.getenv("DB_USERNAME", "roo1")
-password=os.getenv("DB_PASSWORD", "Password123#@!")
-database=os.getenv("DB_DATABASE", "sp16")
-
-print(host,
-user,
-password,
-database)
-exit()
 # Connect to MySQL
 conn = mysql.connector.connect(
     host=os.getenv("DB_HOST", "127.0.0.1"),
