@@ -746,22 +746,41 @@ industry_id = 1
 # Define file path
 destination_path = os.getenv("DESTINATION_PATH","/var/www/html/supplier_ds/importdemo/public/excel_sheets")
 
-# Fetch the file where cron is 11
+# Fetch the file where cron is 5
 cursor.execute(
     """
     SELECT id, date, file_name, created_by, supplier_id, catalog_price_type_id 
     FROM catalog_attachments 
-    WHERE cron = 11 AND deleted_by IS NULL
+    WHERE cron = 5 AND deleted_by IS NULL
     LIMIT 1
 """
 )
-file_value = cursor.fetchone()
-# print(file_value)
+
+already_processing_file = cursor.fetchone()
+
+if already_processing_file:
+    file_value = None
+else:
+    # Fetch the file where cron is 11
+    cursor.execute(
+        """
+        SELECT id, date, file_name, created_by, supplier_id, catalog_price_type_id 
+        FROM catalog_attachments 
+        WHERE cron = 11 AND deleted_by IS NULL
+        LIMIT 1
+    """
+    )
+    file_value = cursor.fetchone()
+    # print(file_value)
 
 if file_value:
     file_id, date, input_file, created_by, supplier_id, catalog_price_type_id = (
         file_value
     )
+
+    # Update the cron column from cron = 11 to cron = 5
+    cursor.execute(" UPDATE catalog_attachments SET cron = %s WHERE id = %s",(5,file_id))
+    conn.commit()
 
     # Fetch supplier field mappings
     cursor.execute(
@@ -917,28 +936,6 @@ if file_value:
     results = []
     failed_skus = []  # Track failed SKUs
     max_retries = 2  # Maximum retries
-    pause_flag = False  # Global pause control
-
-    # # Function to check for pause input
-    # def check_for_pause():
-    #     global pause_flag
-    #     while True:
-    #         command = (
-    #             input(
-    #                 "Type 'pause' to pause, 'resume' to continue, or 'exit' to terminate: "
-    #             )
-    #             .strip()
-    #             .lower()
-    #         )
-    #         if command == "pause":
-    #             pause_flag = True
-    #             print("Script paused. Type 'resume' to continue.")
-    #         elif command == "resume":
-    #             pause_flag = False
-    #             print("Script resumed.")
-    #         elif command == "exit":
-    #             print("Terminating the script.")
-    #             exit()
 
     # Function to extract product details
     def extract_product_details(soup, product_info):
@@ -1052,9 +1049,76 @@ if file_value:
             print(f"Error processing {search_term}: {e}")
         return None
 
+    def adding_record_without_scraping_into_database(matched_row):
+        print(matched_row)
+
     # Process search terms with retries
     def process_with_retries(search_terms, max_retries):
-        global pause_flag,current_failed,not_available_sku_on_web
+        try:
+            chunk_size = 10000
+            # Step 3: Create a temporary table with correct collation
+            cursor.execute("DROP TEMPORARY TABLE IF EXISTS temp_skus")
+            cursor.execute("""
+                CREATE TEMPORARY TABLE temp_skus (
+                    sku VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci PRIMARY KEY
+                )
+            """)
+
+            # Step 4: Insert SKUs in chunks
+            for i in range(0, len(search_terms), chunk_size):
+                chunk = search_terms[i:i+chunk_size]
+                values = ', '.join(['(%s)'] * len(chunk))
+                query = f"INSERT IGNORE INTO temp_skus (sku) VALUES {values}"
+                cursor.execute(query, chunk)
+
+            conn.commit()
+
+            # Step 5: Get matching SKUs using JOIN with collation fix
+            cursor.execute("""
+                SELECT t.sku
+                FROM temp_skus t
+                JOIN catalog_items c 
+                ON CONVERT(c.sku USING utf8mb4) COLLATE utf8mb4_0900_ai_ci = t.sku
+            """)
+            matching_skus = [row[0] for row in cursor.fetchall()]
+
+            # Step 6: Get non-matching SKUs using LEFT JOIN with collation fix
+            cursor.execute("""
+                SELECT t.sku
+                FROM temp_skus t
+                LEFT JOIN catalog_items c 
+                ON CONVERT(c.sku USING utf8mb4) COLLATE utf8mb4_0900_ai_ci = t.sku
+                WHERE c.sku IS NULL
+            """)
+            non_matching_skus = [row[0] for row in cursor.fetchall()]
+
+            if matching_skus:
+                for sku in matching_skus:
+                    # Select the row where 'sku' matches the search term
+                    record = sku_data.loc[sku_data["sku"] == sku]
+
+                    # Drop columns where all values are NaN (None is treated as NaN in pandas)
+                    record = record.dropna(axis=1, how='all')
+
+                    # Drop columns that are literally named 'None' (as a string)
+                    record = record.loc[:, ~record.columns.astype(str).str.contains("^None$", na=False)]
+
+                    if not record.empty:
+                        matched_row = record.to_dict(orient="records")[0]  # Convert to dictionary for database insert
+
+                        # Passing excel data into database insert function
+                        adding_record_without_scraping_into_database(matched_row)
+                    else:
+                        print(f"SKU {result['search_term']} not found.")
+
+            # Output results
+            print(f"✅ Matching SKUs: {len(matching_skus)}")
+            print(f"❌ Non-Matching SKUs: {len(non_matching_skus)}")
+            exit()
+        finally:
+            cursor.close()
+
+        global current_failed,not_available_sku_on_web
         processed_count = 0
         not_available_sku_on_web = []
         for attempt in range(max_retries + 1):
@@ -1071,9 +1135,6 @@ if file_value:
                     # failed_skus.clear()
 
                     for future in as_completed(future_to_sku):
-                        while pause_flag:
-                            time.sleep(1)
-
                         sku = future_to_sku[future]
                         result = future.result()
                         if result:
@@ -1144,6 +1205,7 @@ if file_value:
     # Update cron status to indicate completion
     cursor.execute("UPDATE catalog_attachments SET cron = 6 WHERE id = %s", (file_id,))
     conn.commit()
+    conn.close()
 
     print("Uploaded files processed successfully.")
     print(current_failed)
