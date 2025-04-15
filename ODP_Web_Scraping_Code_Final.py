@@ -1524,19 +1524,19 @@ if file_value:
             cursor.close()
             conn.close()
 
-        # print("📦 Processing matched SKUs...")
-        # if matching_sku:
-        #     tqdm_args = dict(
-        #         total=len(matching_sku),
-        #         desc="Processing SKUs",
-        #         file=sys.stdout,
-        #         dynamic_ncols=True,
-        #         leave=True,
-        #         ncols=100
-        #     )
+        print("📦 Processing matched SKUs...")
+        if matching_sku:
+            tqdm_args = dict(
+                total=len(matching_sku),
+                desc="Processing SKUs",
+                file=sys.stdout,
+                dynamic_ncols=True,
+                leave=True,
+                ncols=100
+            )
 
-        #     batch_size = 1000  # or 5000 depending on memory
-        #     all_items = list(matching_sku.items())
+            batch_size = 1000  # or 5000 depending on memory
+            all_items = list(matching_sku.items())
 
             conn1 = mysql.connector.connect(
                 host=os.getenv("DB_HOST", "127.0.0.1"),
@@ -1546,42 +1546,42 @@ if file_value:
             )
 
             cursor1 = conn1.cursor()
-        #     with ThreadPoolExecutor(max_workers=5) as executor:                        
-        #         with tqdm(**tqdm_args) as pbar:
-        #             for i in range(0, len(all_items), batch_size):
-        #                 batch = all_items[i:i+batch_size]
-        #                 futures = []
-        #                 for item_id, sku in batch:
-        #                     record = sku_data.loc[sku_data["sku"] == sku]
-        #                     record = record.dropna(axis=1, how='all')
-        #                     record = record.loc[:, ~record.columns.astype(str).str.contains("^None$", na=False)]
+            with ThreadPoolExecutor(max_workers=5) as executor:                        
+                with tqdm(**tqdm_args) as pbar:
+                    for i in range(0, len(all_items), batch_size):
+                        batch = all_items[i:i+batch_size]
+                        futures = []
+                        for item_id, sku in batch:
+                            record = sku_data.loc[sku_data["sku"] == sku]
+                            record = record.dropna(axis=1, how='all')
+                            record = record.loc[:, ~record.columns.astype(str).str.contains("^None$", na=False)]
 
-        #                     if not record.empty:
-        #                         matched_row = record.to_dict(orient="records")[0]
-        #                         if matched_row.get('web_price'):
-        #                             futures.append(executor.submit(adding_record_without_scraping_into_database, matched_row, item_id))
-        #                     else:
-        #                         print(f"SKU {sku} not found in Excel.")
+                            if not record.empty:
+                                matched_row = record.to_dict(orient="records")[0]
+                                if matched_row.get('web_price'):
+                                    futures.append(executor.submit(adding_record_without_scraping_into_database, matched_row, item_id))
+                            else:
+                                print(f"SKU {sku} not found in Excel.")
 
-        #                 for future in as_completed(futures):
-        #                     try: 
-        #                         result = future.result(timeout=30)  # timeout for safety
-        #                     except Exception as e:
-        #                         print(f"❌ Error in threaded insert: {e}")
-        #                     finally:
-        #                         with lock:
-        #                             processed_count += 1
-        #                             pbar.update(1)
-        #                             new_percent = int((processed_count / len(search_terms)) * 100)
+                        for future in as_completed(futures):
+                            try: 
+                                result = future.result(timeout=30)  # timeout for safety
+                            except Exception as e:
+                                print(f"❌ Error in threaded insert: {e}")
+                            finally:
+                                with lock:
+                                    processed_count += 1
+                                    pbar.update(1)
+                                    new_percent = int((processed_count / len(main_search_term)) * 100)
 
-        #                             if new_percent > last_written_percent:
-        #                                 progress_percent_db = new_percent
-        #                                 last_written_percent = new_percent
-        #                                 cursor1.execute(
-        #                                     "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
-        #                                     (progress_percent_db, file_id)
-        #                                 )
-        #                                 conn1.commit()
+                                    if new_percent > last_written_percent:
+                                        progress_percent_db = new_percent
+                                        last_written_percent = new_percent
+                                        cursor1.execute(
+                                            "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
+                                            (progress_percent_db, file_id)
+                                        )
+                                        conn1.commit()
     
         search_terms = non_matching_skus
 
@@ -1658,6 +1658,9 @@ if file_value:
                             conn1.commit()
                     if not current_failed:
                         break
+                    else:
+                        processed_count = processed_count - int(len(current_failed))
+
                     search_terms = current_failed
                 executor.shutdown(wait=True)  # Ensure all threads finish before exiting
 
