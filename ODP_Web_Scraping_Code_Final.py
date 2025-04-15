@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import json
 import time
 import requests
@@ -7,12 +8,14 @@ import threading
 import pandas as pd
 from tqdm import tqdm
 import mysql.connector
+from threading import Lock
 from datetime import datetime
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 load_dotenv()  # This loads .env from current directory or parent
+lock = Lock()
 
 LOG_FILE = os.getenv("CUSTOM_LOG_PATH", "/var/www/html/supplier_ds/importdemo/storage/logs/laravel.log")
 # print(LOG_FILE)
@@ -25,17 +28,16 @@ def log_to_laravel(message):
         log_file.write(formatted)
 
 def adding_record_into_database(matched_row, scrap_data):
-    # Connect to MySQL
-    conn = mysql.connector.connect(
-        host=os.getenv("DB_HOST", "127.0.0.1"),
-        user=os.getenv("DB_USERNAME", "roo1"),
-        password=os.getenv("DB_PASSWORD", "Password123#@!"),
-        database=os.getenv("DB_DATABASE", "sp16")
-    )
-
-    cursor = conn.cursor(buffered=True)
-
     try:
+        # Connect to MySQL
+        conn = mysql.connector.connect(
+            host=os.getenv("DB_HOST", "127.0.0.1"),
+            user=os.getenv("DB_USERNAME", "roo1"),
+            password=os.getenv("DB_PASSWORD", "Password123#@!"),
+            database=os.getenv("DB_DATABASE", "sp16")
+        )
+
+        cursor = conn.cursor(buffered=True)
         ################ product_details_category Start #################
         # Check if the product_details_category exists
         try:
@@ -1049,78 +1051,548 @@ if file_value:
             print(f"Error processing {search_term}: {e}")
         return None
 
-    def adding_record_without_scraping_into_database(matched_row):
-        print(matched_row)
+    def adding_record_without_scraping_into_database(matched_row, catalog_item_id):
+        try:
+            # Connect to MySQL
+            conn = mysql.connector.connect(
+                host=os.getenv("DB_HOST", "127.0.0.1"),
+                user=os.getenv("DB_USERNAME", "roo1"),
+                password=os.getenv("DB_PASSWORD", "Password123#@!"),
+                database=os.getenv("DB_DATABASE", "sp16")
+            )
+
+            if not conn.is_connected():
+                conn.reconnect()
+
+            cursor = conn.cursor()
+
+            ################ catalog_prices Start #################
+            try:
+                # Check if the catalog_prices exists
+                cursor.execute(
+                    """SELECT id FROM catalog_prices 
+                    WHERE catalog_item_id = %s AND catalog_price_type_id = %s""",
+                    (
+                        catalog_item_id,
+                        catalog_price_type_id,
+                    ),
+                )
+                existing_record = cursor.fetchone()
+
+                if existing_record:
+                    catalog_price_id = existing_record[0]
+
+                    # If a greater date catalog file does not exist, update the catalog_prices
+                    if not greater_date_file_exist:
+                        try:
+                            cursor.execute(
+                                """UPDATE catalog_prices 
+                                SET customer_id = %s, value = %s, price_file_date = %s, updated_at = %s, core_list = %s 
+                                WHERE id = %s""",
+                                (
+                                    1,  # Replace with `matched_row.get("Customer Id", 1)` if needed
+                                    matched_row["value"],
+                                    date,
+                                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                    1 if matched_row["core_list"].strip() == "CN" else 0,
+                                    catalog_price_id,
+                                ),
+                            )
+                            conn.commit()
+                        except mysql.connector.Error as e:
+                            print(f"Error updating catalog_prices: {e}")
+                            log_to_laravel(f"Error updating catalog_prices: {e}")
+                            conn.rollback()  # Rollback in case of an error
+                else:
+                    # Insert a new catalog_prices
+                    try:
+                        cursor.execute(
+                            """INSERT INTO catalog_prices 
+                            (customer_id, value, catalog_item_id, price_file_date, created_at, updated_at, catalog_price_type_id, core_list) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                            (
+                                1,  # Replace with `matched_row.get("Customer Id", 1)` if needed
+                                matched_row["value"],
+                                catalog_item_id,
+                                date,
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                catalog_price_type_id,
+                                1 if matched_row["core_list"].strip() == "CN" else 0,
+                            ),
+                        )
+                        conn.commit()
+                    except mysql.connector.Error as e:
+                        print(f"Error inserting into catalog_prices: {e}")
+                        log_to_laravel(f"Table catalog_prices Unexpected error inserting into catalog_prices: {e}")
+                        conn.rollback()  # Rollback in case of an error
+
+            except mysql.connector.Error as e:
+                print(f"Database error: {e}")
+                log_to_laravel(f"Table catalog_prices Database error: {e}")
+                conn.rollback()  # Ensure rollback if any failure occurs
+
+            except KeyError as e:
+                print(f"Missing key in matched_row: {e}")
+                log_to_laravel(f"Table catalog_prices missing key in matched_row: {e}")
+
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                log_to_laravel(f"Table catalog_prices Unexpected error: {e}")
+            ################ catalog_prices End ###################
+
+            ################ catalog_prices web price Start #################
+            try:
+                # Check if the catalog_prices exists
+                cursor.execute(
+                    """SELECT id FROM catalog_prices 
+                    WHERE catalog_item_id = %s AND catalog_price_type_id = %s""",
+                    (
+                        catalog_item_id,
+                        3,
+                    ),
+                )
+                existing_record = cursor.fetchone()
+
+                if existing_record:
+                    catalog_price_id = existing_record[0]
+
+                    # If a greater date catalog file does not exist, update the catalog_prices
+                    if not greater_date_file_exist:
+                        try:
+                            cursor.execute(
+                                """UPDATE catalog_prices 
+                                SET customer_id = %s, value = %s, price_file_date = %s, updated_at = %s, core_list = %s 
+                                WHERE id = %s""",
+                                (
+                                    1,  # Replace with `matched_row.get("Customer Id", 1)` if needed
+                                    matched_row["web_price"],
+                                    date,
+                                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                    0,
+                                    catalog_price_id,
+                                ),
+                            )
+                            conn.commit()
+                        except mysql.connector.Error as e:
+                            print(f"Error updating catalog_prices: {e}")
+                            log_to_laravel(f"Error updating web_price catalog_prices : {e}")
+                            conn.rollback()  # Rollback in case of an error
+                else:
+                    # Insert a new catalog_prices
+                    try:
+                        cursor.execute(
+                            """INSERT INTO catalog_prices 
+                            (customer_id, value, catalog_item_id, price_file_date, created_at, updated_at, catalog_price_type_id, core_list) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                            (
+                                1,  # Replace with `matched_row.get("Customer Id", 1)` if needed
+                                matched_row["web_price"],
+                                catalog_item_id,
+                                date,
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                3,
+                                0,
+                            ),
+                        )
+                        conn.commit()
+                    except mysql.connector.Error as e:
+                        print(f"Error inserting into catalog_prices: {e}")
+                        log_to_laravel(f"Error inserting into web_price catalog_price: {e}")
+                        conn.rollback()  # Rollback in case of an error
+
+            except mysql.connector.Error as e:
+                print(f"Database error: {e}")
+                log_to_laravel(f"Database error web_price catalog_price: {e}")
+                conn.rollback()  # Ensure rollback if any failure occurs
+
+            except KeyError as e:
+                print(f"Missing key in matched_row: {e}")
+                log_to_laravel(f"Missing key in matched_row catalog_price: {e}")
+
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                log_to_laravel(f"Unexpected error web_price catalog_price: {e}")
+            ################ catalog_prices web price End ###################
+
+            ################ catalog_price_history Start #################
+            try:
+                # Check if the record exists
+                query = (
+                    "SELECT * FROM catalog_price_history WHERE catalog_item_id = %s AND "
+                    "catalog_price_type_id = %s AND year = %s LIMIT 1"
+                )
+                cursor.execute(
+                    query,
+                    (
+                        catalog_item_id,
+                        catalog_price_type_id,
+                        year,
+                    ),
+                )
+                price_history = cursor.fetchone()
+
+                if price_history:
+                    # Update existing record
+                    try:
+                        update_query = (
+                            f"UPDATE catalog_price_history SET {month_column} = %s, updated_at = %s "
+                            "WHERE id = %s"
+                        )
+                        cursor.execute(
+                            update_query,
+                            (
+                                matched_row["value"],
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                price_history[0],
+                            ),
+                        )
+                        conn.commit()
+                    except mysql.connector.Error as e:
+                        print(f"Error updating catalog_price_history: {e}")
+                        log_to_laravel(f"Error updating catalog_price_history: {e}")
+                        conn.rollback()  # Rollback in case of an error
+                else:
+                    # Insert new record
+                    try:
+                        insert_query = (
+                            f"INSERT INTO catalog_price_history (year, created_at, updated_at, catalog_item_id, "
+                            f"catalog_price_type_id, {month_column}) VALUES (%s, %s, %s, %s, %s, %s)"
+                        )
+                        cursor.execute(
+                            insert_query,
+                            (
+                                year,
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                catalog_item_id,
+                                catalog_price_type_id,
+                                matched_row["value"],
+                            ),
+                        )
+                        conn.commit()
+                    except mysql.connector.Error as e:
+                        print(f"Error inserting into catalog_price_history: {e}")
+                        log_to_laravel(f"Error inserting into catalog_price_history: {e}")
+                        conn.rollback()  # Rollback in case of an error
+
+            except mysql.connector.Error as e:
+                print(f"Database error: {e}")
+                log_to_laravel(f"Database error inserting into catalog_price_history: {e}")
+                conn.rollback()  # Ensure rollback if any failure occurs
+
+            except KeyError as e:
+                print(f"Missing key in matched_row: {e}")
+                log_to_laravel(f"Missing key in matched_row: {e}")
+
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                log_to_laravel(f"Unexpected error inserting into catalog_price_history: {e}")
+            ################ catalog_price_history End ###################
+
+            ################ catalog_price_history web price Start #################
+            try:
+                # Check if the record exists
+                query = (
+                    "SELECT * FROM catalog_price_history WHERE catalog_item_id = %s AND "
+                    "catalog_price_type_id = %s AND year = %s LIMIT 1"
+                )
+                cursor.execute(
+                    query,
+                    (
+                        catalog_item_id,
+                        3,
+                        year,
+                    ),
+                )
+                price_history = cursor.fetchone()
+
+                if price_history:
+                    # Update existing record
+                    try:
+                        update_query = (
+                            f"UPDATE catalog_price_history SET {month_column} = %s, updated_at = %s "
+                            "WHERE id = %s"
+                        )
+                        cursor.execute(
+                            update_query,
+                            (
+                                matched_row["web_price"],
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                price_history[0],  # Fixed incorrect placeholder value (was `0`)
+                            ),
+                        )
+                        conn.commit()
+                    except mysql.connector.Error as e:
+                        print(f"Error updating catalog_price_history: {e}")
+                        log_to_laravel(f"Error updating web_price catalog_price_history: {e}")
+                        conn.rollback()  # Rollback in case of an error
+                else:
+                    # Insert new record
+                    try:
+                        insert_query = (
+                            f"INSERT INTO catalog_price_history (year, created_at, updated_at, catalog_item_id, "
+                            f"catalog_price_type_id, {month_column}) VALUES (%s, %s, %s, %s, %s, %s)"
+                        )
+                        cursor.execute(
+                            insert_query,
+                            (
+                                year,
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                catalog_item_id,
+                                3,
+                                matched_row["web_price"],
+                            ),
+                        )
+                        conn.commit()
+                    except mysql.connector.Error as e:
+                        print(f"Error inserting into catalog_price_history: {e}")
+                        log_to_laravel(f"Error inserting web_price catalog_price_history: {e}")
+                        conn.rollback()  # Rollback in case of an error
+
+            except mysql.connector.Error as e:
+                print(f"Database error web_price catalog_price_history: {e}")
+                log_to_laravel(f"Database error web_price catalog_price_history: {e}")
+                conn.rollback()  # Ensure rollback if any failure occurs
+
+            except KeyError as e:
+                print(f"Missing key in matched_row web_price catalog_price_history: {e}")
+                log_to_laravel(f"Missing key in matched_row web_price catalog_price_history: {e}")
+
+            except Exception as e:
+                print(f"Unexpected error web_price catalog_price_history: {e}")
+                log_to_laravel(f"Unexpected error web_price catalog_price_history: {e}")
+            ################ catalog_price_history web price End ###################
+
+            ################ check_core_history Start #################
+            try:
+                # Check if the check_core_history exists
+                query = (
+                    "SELECT * FROM check_core_history WHERE catalog_item_id = %s AND "
+                    "catalog_price_type_id = %s LIMIT 1"
+                )
+                cursor.execute(
+                    query,
+                    (
+                        catalog_item_id,
+                        catalog_price_type_id,
+                    ),
+                )
+                check_core_history = cursor.fetchone()
+
+                core_list_value = 1 if matched_row.get("core_list", "").strip() == "CN" else 0
+
+                if check_core_history:
+                    # If greater date catalog file does not exist, update month data
+                    if not greater_date_file_exist:
+                        try:
+                            update_query = (
+                                "UPDATE check_core_history SET updated_at = %s, price_file_date = %s, core_list = %s "
+                                "WHERE id = %s"
+                            )
+                            cursor.execute(
+                                update_query,
+                                (
+                                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                    date,
+                                    core_list_value,
+                                    check_core_history[0],
+                                ),
+                            )
+                            conn.commit()
+                        except mysql.connector.Error as e:
+                            print(f"Error updating check_core_history: {e}")
+                            log_to_laravel(f"Error updating check_core_history: {e}")
+                            conn.rollback()  # Rollback on error
+                else:
+                    # Insert new check_core_history
+                    try:
+                        insert_query = (
+                            "INSERT INTO check_core_history (customer_id, catalog_item_id, price_file_date, created_at, "
+                            "updated_at, catalog_price_type_id, core_list) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                        )
+                        cursor.execute(
+                            insert_query,
+                            (
+                                1,  # Replace with `matched_row["Customer Id"]` if needed
+                                catalog_item_id,
+                                date,
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                catalog_price_type_id,
+                                core_list_value,
+                            ),
+                        )
+                        conn.commit()
+                    except mysql.connector.Error as e:
+                        print(f"Error inserting into check_core_history: {e}")
+                        log_to_laravel(f"Error inserting into check_core_history: {e}")
+                        conn.rollback()  # Rollback on error
+
+            except mysql.connector.Error as e:
+                print(f"Database error: {e}")
+                log_to_laravel(f"Database error updating check_core_history: {e}")
+                conn.rollback()
+
+            except KeyError as e:
+                print(f"Missing key in matched_row: {e}")
+                log_to_laravel(f"Missing key in matched_row check_core_history: {e}")
+
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                log_to_laravel(f"Unexpected error updating check_core_history: {e}")
+            ################ check_core_history End ###################
+        except mysql.connector.Error as err:
+            print(f"❌ DB Error for item {catalog_item_id}: {err}")
+            with lock:
+                current_faileds.append(catalog_item_id)
+            if conn.is_connected():
+                conn.rollback()
+
+        finally:
+            cursor.close()
+            conn.close()  # Always close the connection to prevent memory leaks
+            return True
 
     # Process search terms with retries
     def process_with_retries(search_terms, max_retries):
+        global main_search_term,progress_percent_db,future_to_sku,last_written_percent,current_failed,not_available_sku_on_web,current_faileds
+        processed_count = 0
+        current_faileds = []
+        not_available_sku_on_web = []
+        progress_percent_db = 0
+        future_to_sku = {}
+        last_written_percent = -1
+        main_search_term = search_terms
         try:
-            chunk_size = 10000
-            # Step 3: Create a temporary table with correct collation
+            conn = mysql.connector.connect(
+                host=os.getenv("DB_HOST", "127.0.0.1"),
+                user=os.getenv("DB_USERNAME", "roo1"),
+                password=os.getenv("DB_PASSWORD", "Password123#@!"),
+                database=os.getenv("DB_DATABASE", "sp16")
+            )
+            cursor = conn.cursor()
+            chunk_size = 100000
+
+            print("🔄 Dropping and creating temporary table...")
             cursor.execute("DROP TEMPORARY TABLE IF EXISTS temp_skus")
             cursor.execute("""
                 CREATE TEMPORARY TABLE temp_skus (
-                    sku VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci PRIMARY KEY
+                    sku VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PRIMARY KEY
                 )
             """)
 
-            # Step 4: Insert SKUs in chunks
+            print("🚀 Inserting SKUs into temp_skus...")
+            insert_query = "INSERT IGNORE INTO temp_skus (sku) VALUES (%s)"
             for i in range(0, len(search_terms), chunk_size):
                 chunk = search_terms[i:i+chunk_size]
-                values = ', '.join(['(%s)'] * len(chunk))
-                query = f"INSERT IGNORE INTO temp_skus (sku) VALUES {values}"
-                cursor.execute(query, chunk)
-
+                cursor.executemany(insert_query, [(sku,) for sku in chunk])
             conn.commit()
 
-            # Step 5: Get matching SKUs using JOIN with collation fix
+            print("🔍 Fetching matching SKUs...")
             cursor.execute("""
-                SELECT t.sku
+                SELECT c.id, t.sku
                 FROM temp_skus t
-                JOIN catalog_items c 
-                ON CONVERT(c.sku USING utf8mb4) COLLATE utf8mb4_0900_ai_ci = t.sku
+                JOIN catalog_items c ON c.sku = t.sku
             """)
-            matching_skus = [row[0] for row in cursor.fetchall()]
+            matching_rows = cursor.fetchall()
+            matching_sku = {item_id: sku for item_id, sku in matching_rows}
 
-            # Step 6: Get non-matching SKUs using LEFT JOIN with collation fix
+            print("✅ Updating active status...")
+            cursor.execute("""
+                UPDATE catalog_items c
+                JOIN temp_skus t ON c.sku = t.sku
+                SET c.active = 1
+            """)
+            conn.commit()
+
+            print("🔎 Getting non-matching SKUs...")
             cursor.execute("""
                 SELECT t.sku
                 FROM temp_skus t
-                LEFT JOIN catalog_items c 
-                ON CONVERT(c.sku USING utf8mb4) COLLATE utf8mb4_0900_ai_ci = t.sku
+                LEFT JOIN catalog_items c ON c.sku = t.sku
                 WHERE c.sku IS NULL
             """)
             non_matching_skus = [row[0] for row in cursor.fetchall()]
-
-            if matching_skus:
-                for sku in matching_skus:
-                    # Select the row where 'sku' matches the search term
-                    record = sku_data.loc[sku_data["sku"] == sku]
-
-                    # Drop columns where all values are NaN (None is treated as NaN in pandas)
-                    record = record.dropna(axis=1, how='all')
-
-                    # Drop columns that are literally named 'None' (as a string)
-                    record = record.loc[:, ~record.columns.astype(str).str.contains("^None$", na=False)]
-
-                    if not record.empty:
-                        matched_row = record.to_dict(orient="records")[0]  # Convert to dictionary for database insert
-
-                        # Passing excel data into database insert function
-                        adding_record_without_scraping_into_database(matched_row)
-                    else:
-                        print(f"SKU {result['search_term']} not found.")
-
-            # Output results
-            print(f"✅ Matching SKUs: {len(matching_skus)}")
-            print(f"❌ Non-Matching SKUs: {len(non_matching_skus)}")
-            exit()
+        except mysql.connector.Error as err:
+            print(f"❌ DB Error: {err}")
+            if conn.is_connected():
+                conn.rollback()
         finally:
             cursor.close()
+            conn.close()
 
-        global current_failed,not_available_sku_on_web
-        processed_count = 0
-        not_available_sku_on_web = []
+        # print("📦 Processing matched SKUs...")
+        # if matching_sku:
+        #     tqdm_args = dict(
+        #         total=len(matching_sku),
+        #         desc="Processing SKUs",
+        #         file=sys.stdout,
+        #         dynamic_ncols=True,
+        #         leave=True,
+        #         ncols=100
+        #     )
+
+        #     batch_size = 1000  # or 5000 depending on memory
+        #     all_items = list(matching_sku.items())
+
+            conn1 = mysql.connector.connect(
+                host=os.getenv("DB_HOST", "127.0.0.1"),
+                user=os.getenv("DB_USERNAME", "roo1"),
+                password=os.getenv("DB_PASSWORD", "Password123#@!"),
+                database=os.getenv("DB_DATABASE", "sp16")
+            )
+
+            cursor1 = conn1.cursor()
+        #     with ThreadPoolExecutor(max_workers=5) as executor:                        
+        #         with tqdm(**tqdm_args) as pbar:
+        #             for i in range(0, len(all_items), batch_size):
+        #                 batch = all_items[i:i+batch_size]
+        #                 futures = []
+        #                 for item_id, sku in batch:
+        #                     record = sku_data.loc[sku_data["sku"] == sku]
+        #                     record = record.dropna(axis=1, how='all')
+        #                     record = record.loc[:, ~record.columns.astype(str).str.contains("^None$", na=False)]
+
+        #                     if not record.empty:
+        #                         matched_row = record.to_dict(orient="records")[0]
+        #                         if matched_row.get('web_price'):
+        #                             futures.append(executor.submit(adding_record_without_scraping_into_database, matched_row, item_id))
+        #                     else:
+        #                         print(f"SKU {sku} not found in Excel.")
+
+        #                 for future in as_completed(futures):
+        #                     try: 
+        #                         result = future.result(timeout=30)  # timeout for safety
+        #                     except Exception as e:
+        #                         print(f"❌ Error in threaded insert: {e}")
+        #                     finally:
+        #                         with lock:
+        #                             processed_count += 1
+        #                             pbar.update(1)
+        #                             new_percent = int((processed_count / len(search_terms)) * 100)
+
+        #                             if new_percent > last_written_percent:
+        #                                 progress_percent_db = new_percent
+        #                                 last_written_percent = new_percent
+        #                                 cursor1.execute(
+        #                                     "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
+        #                                     (progress_percent_db, file_id)
+        #                                 )
+        #                                 conn1.commit()
+    
+        search_terms = non_matching_skus
+
+        print(f"\n✅ Matching SKUs: {len(matching_sku)}")
+        print(f"❌ Non-Matching SKUs: {len(non_matching_skus)}")
+        
+        print(len(search_terms))
+        processed_count = 133976
+   
+        cursor1 = conn1.cursor()
+        # For web scraping
         for attempt in range(max_retries + 1):
             with tqdm(
                 total=len(search_terms), desc=f"Processing SKUs (Attempt {attempt + 1})"
@@ -1153,8 +1625,9 @@ if file_value:
                                     if not record.empty:
                                         matched_row = record.to_dict(orient="records")[0]  # Convert to dictionary for database insert
 
-                                        # Passing excel and web scraped data into database insert function
-                                        adding_record_into_database(matched_row, result)
+                                        if matched_row.get('web_price'):  # safely checks key
+                                            # Passing excel and web scraped data into database insert function
+                                            adding_record_into_database(matched_row, result)
                                     else:
                                         print(f"SKU {result['search_term']} not found.")
 
@@ -1166,29 +1639,30 @@ if file_value:
                             if any(f['sku'] == sku and f['error'] == 'Timeout' for f in failed_skus):
                                 current_failed.append(sku)
 
-                        processed_count += 1
-
                         if processed_count % 250 == 0:
                             print("Waiting for 60 seconds...")
                             time.sleep(60)
 
                         pbar.update(1)
 
-                        # Calculate progress percentage
-                        progress_percent = (pbar.n / pbar.total) * 100
+                        processed_count += 1
+                        new_percent = int((processed_count / len(main_search_term)) * 100)
 
-                        if int(progress_percent) > 0:
-                            # Update cron status to indicate completion
-                            cursor.execute("UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s", (int(progress_percent),file_id,))
-                            conn.commit()
-                        
+                        if new_percent > last_written_percent:
+                            progress_percent_db = new_percent
+                            last_written_percent = new_percent
+                            cursor1.execute(
+                                "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
+                                (progress_percent_db, file_id)
+                            )
+                            conn1.commit()
                     if not current_failed:
                         break
                     search_terms = current_failed
                 executor.shutdown(wait=True)  # Ensure all threads finish before exiting
-    # pause_thread = threading.Thread(target=check_for_pause, daemon=True)
-    # pause_thread.start()
 
+        cursor1.close()
+        conn1.close()
     start_time = time.time()
     process_with_retries(search_terms, max_retries)
     

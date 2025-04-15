@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(validateUploadedFile::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes()->withoutOverlapping();
         $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes()->withoutOverlapping();
-        // $schedule->command(CatalogUploadProcess::class)->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command(CatalogUploadProcess::class)->everyFiveMinutes()->withoutOverlapping();
         $schedule->command(ProcessCommissionAndRebate::class)->everyFifteenMinutes()->withoutOverlapping();
     }
 
