@@ -1546,7 +1546,7 @@ if file_value:
             )
 
             cursor1 = conn1.cursor()
-            with ThreadPoolExecutor(max_workers=5) as executor:                        
+            with ThreadPoolExecutor(max_workers=3) as executor:                        
                 with tqdm(**tqdm_args) as pbar:
                     for i in range(0, len(all_items), batch_size):
                         batch = all_items[i:i+batch_size]
@@ -1589,7 +1589,7 @@ if file_value:
         print(f"❌ Non-Matching SKUs: {len(non_matching_skus)}")
         
         print(len(search_terms))
-        processed_count = 133976
+        # processed_count = 133976
    
         cursor1 = conn1.cursor()
         # For web scraping
