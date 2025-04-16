@@ -914,6 +914,9 @@ if file_value:
         print("❌ Could not find the required columns in the file. Please check the data.")
         exit()
     
+    cursor.close()
+    conn.close()
+
     sku_data.columns = header
     
     # Rename columns using header mapping
@@ -1052,24 +1055,27 @@ if file_value:
         return None
 
     def adding_record_without_scraping_into_database(matched_row, catalog_item_id):
+        # Connect to MySQL
+        conn2 = mysql.connector.connect(
+            host=os.getenv("DB_HOST", "127.0.0.1"),
+            user=os.getenv("DB_USERNAME", "roo1"),
+            password=os.getenv("DB_PASSWORD", "Password123#@!"),
+            database=os.getenv("DB_DATABASE", "sp16")
+        )
+
+        if not conn2.is_connected():
+            conn2.reconnect()
+
+        # Ensure manual control over transactions
+        conn2.autocommit = False
+
+        # Use buffered=True to prevent "Unread result found"
+        cursor2 = conn2.cursor(buffered=True)
         try:
-            # Connect to MySQL
-            conn = mysql.connector.connect(
-                host=os.getenv("DB_HOST", "127.0.0.1"),
-                user=os.getenv("DB_USERNAME", "roo1"),
-                password=os.getenv("DB_PASSWORD", "Password123#@!"),
-                database=os.getenv("DB_DATABASE", "sp16")
-            )
-
-            if not conn.is_connected():
-                conn.reconnect()
-
-            cursor = conn.cursor()
-
             ################ catalog_prices Start #################
             try:
                 # Check if the catalog_prices exists
-                cursor.execute(
+                cursor2.execute(
                     """SELECT id FROM catalog_prices 
                     WHERE catalog_item_id = %s AND catalog_price_type_id = %s""",
                     (
@@ -1077,7 +1083,7 @@ if file_value:
                         catalog_price_type_id,
                     ),
                 )
-                existing_record = cursor.fetchone()
+                existing_record = cursor2.fetchone()
 
                 if existing_record:
                     catalog_price_id = existing_record[0]
@@ -1085,7 +1091,7 @@ if file_value:
                     # If a greater date catalog file does not exist, update the catalog_prices
                     if not greater_date_file_exist:
                         try:
-                            cursor.execute(
+                            cursor2.execute(
                                 """UPDATE catalog_prices 
                                 SET customer_id = %s, value = %s, price_file_date = %s, updated_at = %s, core_list = %s 
                                 WHERE id = %s""",
@@ -1098,15 +1104,15 @@ if file_value:
                                     catalog_price_id,
                                 ),
                             )
-                            conn.commit()
+                            conn2.commit()
                         except mysql.connector.Error as e:
                             print(f"Error updating catalog_prices: {e}")
                             log_to_laravel(f"Error updating catalog_prices: {e}")
-                            conn.rollback()  # Rollback in case of an error
+                            conn2.rollback()  # Rollback in case of an error
                 else:
                     # Insert a new catalog_prices
                     try:
-                        cursor.execute(
+                        cursor2.execute(
                             """INSERT INTO catalog_prices 
                             (customer_id, value, catalog_item_id, price_file_date, created_at, updated_at, catalog_price_type_id, core_list) 
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
@@ -1121,16 +1127,16 @@ if file_value:
                                 1 if matched_row["core_list"].strip() == "CN" else 0,
                             ),
                         )
-                        conn.commit()
+                        conn2.commit()
                     except mysql.connector.Error as e:
                         print(f"Error inserting into catalog_prices: {e}")
                         log_to_laravel(f"Table catalog_prices Unexpected error inserting into catalog_prices: {e}")
-                        conn.rollback()  # Rollback in case of an error
+                        conn2.rollback()  # Rollback in case of an error
 
             except mysql.connector.Error as e:
                 print(f"Database error: {e}")
                 log_to_laravel(f"Table catalog_prices Database error: {e}")
-                conn.rollback()  # Ensure rollback if any failure occurs
+                conn2.rollback()  # Ensure rollback if any failure occurs
 
             except KeyError as e:
                 print(f"Missing key in matched_row: {e}")
@@ -1144,7 +1150,7 @@ if file_value:
             ################ catalog_prices web price Start #################
             try:
                 # Check if the catalog_prices exists
-                cursor.execute(
+                cursor2.execute(
                     """SELECT id FROM catalog_prices 
                     WHERE catalog_item_id = %s AND catalog_price_type_id = %s""",
                     (
@@ -1152,7 +1158,7 @@ if file_value:
                         3,
                     ),
                 )
-                existing_record = cursor.fetchone()
+                existing_record = cursor2.fetchone()
 
                 if existing_record:
                     catalog_price_id = existing_record[0]
@@ -1160,7 +1166,7 @@ if file_value:
                     # If a greater date catalog file does not exist, update the catalog_prices
                     if not greater_date_file_exist:
                         try:
-                            cursor.execute(
+                            cursor2.execute(
                                 """UPDATE catalog_prices 
                                 SET customer_id = %s, value = %s, price_file_date = %s, updated_at = %s, core_list = %s 
                                 WHERE id = %s""",
@@ -1173,15 +1179,15 @@ if file_value:
                                     catalog_price_id,
                                 ),
                             )
-                            conn.commit()
+                            conn2.commit()
                         except mysql.connector.Error as e:
                             print(f"Error updating catalog_prices: {e}")
                             log_to_laravel(f"Error updating web_price catalog_prices : {e}")
-                            conn.rollback()  # Rollback in case of an error
+                            conn2.rollback()  # Rollback in case of an error
                 else:
                     # Insert a new catalog_prices
                     try:
-                        cursor.execute(
+                        cursor2.execute(
                             """INSERT INTO catalog_prices 
                             (customer_id, value, catalog_item_id, price_file_date, created_at, updated_at, catalog_price_type_id, core_list) 
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
@@ -1196,16 +1202,16 @@ if file_value:
                                 0,
                             ),
                         )
-                        conn.commit()
+                        conn2.commit()
                     except mysql.connector.Error as e:
                         print(f"Error inserting into catalog_prices: {e}")
                         log_to_laravel(f"Error inserting into web_price catalog_price: {e}")
-                        conn.rollback()  # Rollback in case of an error
+                        conn2.rollback()  # Rollback in case of an error
 
             except mysql.connector.Error as e:
                 print(f"Database error: {e}")
                 log_to_laravel(f"Database error web_price catalog_price: {e}")
-                conn.rollback()  # Ensure rollback if any failure occurs
+                conn2.rollback()  # Ensure rollback if any failure occurs
 
             except KeyError as e:
                 print(f"Missing key in matched_row: {e}")
@@ -1223,7 +1229,7 @@ if file_value:
                     "SELECT * FROM catalog_price_history WHERE catalog_item_id = %s AND "
                     "catalog_price_type_id = %s AND year = %s LIMIT 1"
                 )
-                cursor.execute(
+                cursor2.execute(
                     query,
                     (
                         catalog_item_id,
@@ -1231,7 +1237,7 @@ if file_value:
                         year,
                     ),
                 )
-                price_history = cursor.fetchone()
+                price_history = cursor2.fetchone()
 
                 if price_history:
                     # Update existing record
@@ -1240,7 +1246,7 @@ if file_value:
                             f"UPDATE catalog_price_history SET {month_column} = %s, updated_at = %s "
                             "WHERE id = %s"
                         )
-                        cursor.execute(
+                        cursor2.execute(
                             update_query,
                             (
                                 matched_row["value"],
@@ -1248,11 +1254,11 @@ if file_value:
                                 price_history[0],
                             ),
                         )
-                        conn.commit()
+                        conn2.commit()
                     except mysql.connector.Error as e:
                         print(f"Error updating catalog_price_history: {e}")
                         log_to_laravel(f"Error updating catalog_price_history: {e}")
-                        conn.rollback()  # Rollback in case of an error
+                        conn2.rollback()  # Rollback in case of an error
                 else:
                     # Insert new record
                     try:
@@ -1260,7 +1266,7 @@ if file_value:
                             f"INSERT INTO catalog_price_history (year, created_at, updated_at, catalog_item_id, "
                             f"catalog_price_type_id, {month_column}) VALUES (%s, %s, %s, %s, %s, %s)"
                         )
-                        cursor.execute(
+                        cursor2.execute(
                             insert_query,
                             (
                                 year,
@@ -1271,16 +1277,16 @@ if file_value:
                                 matched_row["value"],
                             ),
                         )
-                        conn.commit()
+                        conn2.commit()
                     except mysql.connector.Error as e:
                         print(f"Error inserting into catalog_price_history: {e}")
                         log_to_laravel(f"Error inserting into catalog_price_history: {e}")
-                        conn.rollback()  # Rollback in case of an error
+                        conn2.rollback()  # Rollback in case of an error
 
             except mysql.connector.Error as e:
                 print(f"Database error: {e}")
                 log_to_laravel(f"Database error inserting into catalog_price_history: {e}")
-                conn.rollback()  # Ensure rollback if any failure occurs
+                conn2.rollback()  # Ensure rollback if any failure occurs
 
             except KeyError as e:
                 print(f"Missing key in matched_row: {e}")
@@ -1298,7 +1304,7 @@ if file_value:
                     "SELECT * FROM catalog_price_history WHERE catalog_item_id = %s AND "
                     "catalog_price_type_id = %s AND year = %s LIMIT 1"
                 )
-                cursor.execute(
+                cursor2.execute(
                     query,
                     (
                         catalog_item_id,
@@ -1306,7 +1312,7 @@ if file_value:
                         year,
                     ),
                 )
-                price_history = cursor.fetchone()
+                price_history = cursor2.fetchone()
 
                 if price_history:
                     # Update existing record
@@ -1315,7 +1321,7 @@ if file_value:
                             f"UPDATE catalog_price_history SET {month_column} = %s, updated_at = %s "
                             "WHERE id = %s"
                         )
-                        cursor.execute(
+                        cursor2.execute(
                             update_query,
                             (
                                 matched_row["web_price"],
@@ -1323,11 +1329,11 @@ if file_value:
                                 price_history[0],  # Fixed incorrect placeholder value (was `0`)
                             ),
                         )
-                        conn.commit()
+                        conn2.commit()
                     except mysql.connector.Error as e:
                         print(f"Error updating catalog_price_history: {e}")
                         log_to_laravel(f"Error updating web_price catalog_price_history: {e}")
-                        conn.rollback()  # Rollback in case of an error
+                        conn2.rollback()  # Rollback in case of an error
                 else:
                     # Insert new record
                     try:
@@ -1335,7 +1341,7 @@ if file_value:
                             f"INSERT INTO catalog_price_history (year, created_at, updated_at, catalog_item_id, "
                             f"catalog_price_type_id, {month_column}) VALUES (%s, %s, %s, %s, %s, %s)"
                         )
-                        cursor.execute(
+                        cursor2.execute(
                             insert_query,
                             (
                                 year,
@@ -1346,16 +1352,16 @@ if file_value:
                                 matched_row["web_price"],
                             ),
                         )
-                        conn.commit()
+                        conn2.commit()
                     except mysql.connector.Error as e:
                         print(f"Error inserting into catalog_price_history: {e}")
                         log_to_laravel(f"Error inserting web_price catalog_price_history: {e}")
-                        conn.rollback()  # Rollback in case of an error
+                        conn2.rollback()  # Rollback in case of an error
 
             except mysql.connector.Error as e:
                 print(f"Database error web_price catalog_price_history: {e}")
                 log_to_laravel(f"Database error web_price catalog_price_history: {e}")
-                conn.rollback()  # Ensure rollback if any failure occurs
+                conn2.rollback()  # Ensure rollback if any failure occurs
 
             except KeyError as e:
                 print(f"Missing key in matched_row web_price catalog_price_history: {e}")
@@ -1373,14 +1379,14 @@ if file_value:
                     "SELECT * FROM check_core_history WHERE catalog_item_id = %s AND "
                     "catalog_price_type_id = %s LIMIT 1"
                 )
-                cursor.execute(
+                cursor2.execute(
                     query,
                     (
                         catalog_item_id,
                         catalog_price_type_id,
                     ),
                 )
-                check_core_history = cursor.fetchone()
+                check_core_history = cursor2.fetchone()
 
                 core_list_value = 1 if matched_row.get("core_list", "").strip() == "CN" else 0
 
@@ -1392,7 +1398,7 @@ if file_value:
                                 "UPDATE check_core_history SET updated_at = %s, price_file_date = %s, core_list = %s "
                                 "WHERE id = %s"
                             )
-                            cursor.execute(
+                            cursor2.execute(
                                 update_query,
                                 (
                                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -1401,11 +1407,11 @@ if file_value:
                                     check_core_history[0],
                                 ),
                             )
-                            conn.commit()
+                            conn2.commit()
                         except mysql.connector.Error as e:
                             print(f"Error updating check_core_history: {e}")
                             log_to_laravel(f"Error updating check_core_history: {e}")
-                            conn.rollback()  # Rollback on error
+                            conn2.rollback()  # Rollback on error
                 else:
                     # Insert new check_core_history
                     try:
@@ -1413,7 +1419,7 @@ if file_value:
                             "INSERT INTO check_core_history (customer_id, catalog_item_id, price_file_date, created_at, "
                             "updated_at, catalog_price_type_id, core_list) VALUES (%s, %s, %s, %s, %s, %s, %s)"
                         )
-                        cursor.execute(
+                        cursor2.execute(
                             insert_query,
                             (
                                 1,  # Replace with `matched_row["Customer Id"]` if needed
@@ -1425,16 +1431,16 @@ if file_value:
                                 core_list_value,
                             ),
                         )
-                        conn.commit()
+                        conn2.commit()
                     except mysql.connector.Error as e:
                         print(f"Error inserting into check_core_history: {e}")
                         log_to_laravel(f"Error inserting into check_core_history: {e}")
-                        conn.rollback()  # Rollback on error
+                        conn2.rollback()  # Rollback on error
 
             except mysql.connector.Error as e:
                 print(f"Database error: {e}")
                 log_to_laravel(f"Database error updating check_core_history: {e}")
-                conn.rollback()
+                conn2.rollback()
 
             except KeyError as e:
                 print(f"Missing key in matched_row: {e}")
@@ -1448,12 +1454,12 @@ if file_value:
             print(f"❌ DB Error for item {catalog_item_id}: {err}")
             with lock:
                 current_faileds.append(catalog_item_id)
-            if conn.is_connected():
-                conn.rollback()
+            if conn2.is_connected():
+                conn2.rollback()
 
         finally:
-            cursor.close()
-            conn.close()  # Always close the connection to prevent memory leaks
+            cursor2.close()
+            conn2.close()  # Always close the connection to prevent memory leaks
             return True
 
     # Process search terms with retries
@@ -1538,14 +1544,6 @@ if file_value:
             batch_size = 1000  # or 5000 depending on memory
             all_items = list(matching_sku.items())
 
-            conn1 = mysql.connector.connect(
-                host=os.getenv("DB_HOST", "127.0.0.1"),
-                user=os.getenv("DB_USERNAME", "roo1"),
-                password=os.getenv("DB_PASSWORD", "Password123#@!"),
-                database=os.getenv("DB_DATABASE", "sp16")
-            )
-
-            cursor1 = conn1.cursor()
             with ThreadPoolExecutor(max_workers=3) as executor:                        
                 with tqdm(**tqdm_args) as pbar:
                     for i in range(0, len(all_items), batch_size):
@@ -1577,11 +1575,27 @@ if file_value:
                                     if new_percent > last_written_percent:
                                         progress_percent_db = new_percent
                                         last_written_percent = new_percent
-                                        cursor1.execute(
-                                            "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
-                                            (progress_percent_db, file_id)
-                                        )
-                                        conn1.commit()
+                                        try:
+                                            conn1 = mysql.connector.connect(
+                                                host=os.getenv("DB_HOST", "127.0.0.1"),
+                                                user=os.getenv("DB_USERNAME", "roo1"),
+                                                password=os.getenv("DB_PASSWORD", "Password123#@!"),
+                                                database=os.getenv("DB_DATABASE", "sp16")
+                                            )
+
+                                            cursor1 = conn1.cursor()
+                                            cursor1.execute(
+                                                "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
+                                                (progress_percent_db, file_id)
+                                            )
+                                            conn1.commit()
+                                        except mysql.connector.Error as err:
+                                            print(f"❌ DB Error: {err}")
+                                            if conn1.is_connected():
+                                                conn1.rollback()
+                                        finally:
+                                            cursor1.close()
+                                            conn1.close()
     
         search_terms = non_matching_skus
 
@@ -1590,8 +1604,7 @@ if file_value:
         
         print(len(search_terms))
         # processed_count = 133976
-   
-        cursor1 = conn1.cursor()
+
         # For web scraping
         for attempt in range(max_retries + 1):
             with tqdm(
@@ -1651,11 +1664,27 @@ if file_value:
                         if new_percent > last_written_percent:
                             progress_percent_db = new_percent
                             last_written_percent = new_percent
-                            cursor1.execute(
-                                "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
-                                (progress_percent_db, file_id)
-                            )
-                            conn1.commit()
+                            try:
+                                conn1 = mysql.connector.connect(
+                                    host=os.getenv("DB_HOST", "127.0.0.1"),
+                                    user=os.getenv("DB_USERNAME", "roo1"),
+                                    password=os.getenv("DB_PASSWORD", "Password123#@!"),
+                                    database=os.getenv("DB_DATABASE", "sp16")
+                                )
+
+                                cursor1 = conn1.cursor()
+                                cursor1.execute(
+                                    "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
+                                    (progress_percent_db, file_id)
+                                )
+                                conn1.commit()
+                            except mysql.connector.Error as err:
+                                print(f"❌ DB Error: {err}")
+                                if conn1.is_connected():
+                                    conn1.rollback()
+                            finally:
+                                cursor1.close()
+                                conn1.close()
                     if not current_failed:
                         break
                     else:
@@ -1663,9 +1692,6 @@ if file_value:
 
                     search_terms = current_failed
                 executor.shutdown(wait=True)  # Ensure all threads finish before exiting
-
-        cursor1.close()
-        conn1.close()
     start_time = time.time()
     process_with_retries(search_terms, max_retries)
     
@@ -1679,10 +1705,24 @@ if file_value:
     # Save back to the same Excel file (overwrite)
     # sku_data.to_excel(input_file, index=False)
 
-    # Update cron status to indicate completion
-    cursor.execute("UPDATE catalog_attachments SET cron = 6 WHERE id = %s", (file_id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn = mysql.connector.connect(
+            host=os.getenv("DB_HOST", "127.0.0.1"),
+            user=os.getenv("DB_USERNAME", "roo1"),
+            password=os.getenv("DB_PASSWORD", "Password123#@!"),
+            database=os.getenv("DB_DATABASE", "sp16")
+        )
+
+        cursor = conn.cursor()
+        # Update cron status to indicate completion
+        cursor.execute("UPDATE catalog_attachments SET cron = 6 WHERE id = %s", (file_id,))
+    except mysql.connector.Error as err:
+        print(f"❌ DB Error: {err}")
+        if conn.is_connected():
+            conn.rollback()
+    finally:
+        cursor.close()
+        conn.close()
 
     print("Uploaded files processed successfully.")
     print(current_failed)
