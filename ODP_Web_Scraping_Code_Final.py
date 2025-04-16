@@ -1544,7 +1544,7 @@ if file_value:
             batch_size = 1000  # or 5000 depending on memory
             all_items = list(matching_sku.items())
 
-            with ThreadPoolExecutor(max_workers=3) as executor:                        
+            with ThreadPoolExecutor(max_workers=2) as executor:                        
                 with tqdm(**tqdm_args) as pbar:
                     for i in range(0, len(all_items), batch_size):
                         batch = all_items[i:i+batch_size]
@@ -1610,7 +1610,7 @@ if file_value:
             with tqdm(
                 total=len(search_terms), desc=f"Processing SKUs (Attempt {attempt + 1})"
             ) as pbar:
-                with ThreadPoolExecutor(max_workers=3) as executor:
+                with ThreadPoolExecutor(max_workers=2) as executor:
                     future_to_sku = {
                         executor.submit(process_search_term, term): term
                         for term in search_terms
