@@ -1610,7 +1610,7 @@ if file_value:
             with tqdm(
                 total=len(search_terms), desc=f"Processing SKUs (Attempt {attempt + 1})"
             ) as pbar:
-                with ThreadPoolExecutor(max_workers=5) as executor:
+                with ThreadPoolExecutor(max_workers=3) as executor:
                     future_to_sku = {
                         executor.submit(process_search_term, term): term
                         for term in search_terms
