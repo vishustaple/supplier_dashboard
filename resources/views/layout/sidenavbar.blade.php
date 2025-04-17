@@ -58,12 +58,12 @@
                     </a>
                 @endif
                 
-                <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Catalog List') ? 'active' : '' }}" href="{{route('catalog.list', ['catalogType' => 'catalog'])}}">
+                <!-- <a class="nav-link {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Catalog List') ? 'active' : '' }}" href="{{route('catalog.list', ['catalogType' => 'catalog'])}}">
                     <div class="sb-nav-link-icon">
                         <i class="fa fa-book" aria-hidden="true"></i>
                     </div>
                     Catalog List
-                </a>
+                </a> -->
 
                 @if(in_array('Rebate', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                     <div class="manage_account_link">
