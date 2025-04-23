@@ -2484,20 +2484,30 @@ class Order extends Model
             $dbVolumeRebate = isset($item1[$orderColumnArray[3]]) ? "$" . number_format((float) $item1[$orderColumnArray[3]], 2) : "$0";
             $fileCost = isset($item2['cost']) ? "$" . number_format((float) $item2['cost'], 2) : "$0";
             $fileVolumeRebate = isset($item2[$orderColumnArray[3]]) ? "$" . number_format((float) $item2[$orderColumnArray[3]], 2) : "$0";
-        
+
+            $dbVolumeRebateForCal = isset($item1[$orderColumnArray[3]]) ? (float) $item1[$orderColumnArray[3]] : 0;
+            $fileVolumeRebateForCal = isset($item2[$orderColumnArray[3]]) ? (float) $item2[$orderColumnArray[3]] : 0;
+
+            $difference = $fileVolumeRebateForCal - $dbVolumeRebateForCal;
+            if ($fileVolumeRebateForCal != 0) {
+                $percentage = round(($difference / $fileVolumeRebateForCal) * 100, 2);
+            } else {
+                $percentage = 0; // or null, or any fallback value you prefer
+            }
+
             $val1 = (float) ($item1[$orderColumnArray[3]] ?? 0);
             $val2 = (float) ($item2[$orderColumnArray[3]] ?? 0);
             $df = "$" . number_format($val2 - $val1, 2);
         
             $mergedArray[] = [
-                'df' => $df,
+                'df' => $df . ' (' . $percentage . '%)',
                 'db_cost' => $dbCost,
                 'file_cost' => $fileCost,
                 'db_volume_rebate' => $dbVolumeRebate,
                 'file_volume_rebate' => $fileVolumeRebate,
                 'account_name' => $item1['account_name'] ?? ($item2['account_name'] ?? NULL),
-                'rebate_percent' => isset($item1['rebate_percent']) ? '%' . $item1['rebate_percent'] : "%0",
-                'file_rebate_percent' => isset($item2['rebate_percent']) ? '%' . $item2['rebate_percent'] : "%0",
+                'rebate_percent' => isset($item1['rebate_percent']) ? $item1['rebate_percent'] . '%' : "0%",
+                'file_rebate_percent' => isset($item2['rebate_percent']) ? $item2['rebate_percent'] . '%' : "0%",
             ];
         }
 
