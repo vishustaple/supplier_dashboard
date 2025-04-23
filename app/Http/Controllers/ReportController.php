@@ -22,6 +22,7 @@ class ReportController extends Controller
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
             'operational_anomaly_report' => 'Operational Anomaly Report',
+            'account_validation_rebate_report' => 'Account Validation Rebate Report',
         ];
 
         $reportType = $request->route('reportType');
