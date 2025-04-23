@@ -1590,6 +1590,7 @@ if file_value:
                                             )
                                             conn1.commit()
                                         except mysql.connector.Error as err:
+                                            log_to_laravel(f"❌ DB Error during percentage update: {err}")
                                             print(f"❌ DB Error: {err}")
                                             if conn1.is_connected():
                                                 conn1.rollback()
@@ -1680,6 +1681,7 @@ if file_value:
                                 conn1.commit()
                             except mysql.connector.Error as err:
                                 print(f"❌ DB Error: {err}")
+                                log_to_laravel(f"❌ DB Error during percentage update: {err}")
                                 if conn1.is_connected():
                                     conn1.rollback()
                             finally:
@@ -1706,23 +1708,24 @@ if file_value:
     # sku_data.to_excel(input_file, index=False)
 
     try:
-        conn = mysql.connector.connect(
+        conn4 = mysql.connector.connect(
             host=os.getenv("DB_HOST", "127.0.0.1"),
             user=os.getenv("DB_USERNAME", "roo1"),
             password=os.getenv("DB_PASSWORD", "Password123#@!"),
             database=os.getenv("DB_DATABASE", "sp16")
         )
 
-        cursor = conn.cursor()
+        cursor4 = conn4.cursor()
         # Update cron status to indicate completion
-        cursor.execute("UPDATE catalog_attachments SET cron = 6 WHERE id = %s", (file_id,))
+        cursor4.execute("UPDATE catalog_attachments SET cron = 6 WHERE id = %s", (file_id,))
     except mysql.connector.Error as err:
         print(f"❌ DB Error: {err}")
-        if conn.is_connected():
-            conn.rollback()
+        log_to_laravel(f"❌ DB Error during cron update: {err}")
+        if conn4.is_connected():
+            conn4.rollback()
     finally:
-        cursor.close()
-        conn.close()
+        cursor4.close()
+        conn4.close()
 
     print("Uploaded files processed successfully.")
     print(current_failed)

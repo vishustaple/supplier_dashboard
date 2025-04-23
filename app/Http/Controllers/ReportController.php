@@ -48,6 +48,7 @@ class ReportController extends Controller
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
             'operational_anomaly_report' => 'Operational Anomaly Report',
+            'account_validation_rebate_report' => 'Account Validation Rebate Report',
         ];
 
         if(isset($id) && isset($reportType)){
@@ -178,6 +179,60 @@ class ReportController extends Controller
             $formatuserdata = Order::getSupplierValidationReportFilterdData($request->all());
             return response()->json($formatuserdata);
         }
+    }
+
+    public function accountValidationReportFilter(Request $request) {
+        if ($request->ajax()) {
+            $formatuserdata = Order::getAccountValidationReportFilterdData($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
+
+    public function accountReportExportCsv(Request $request) {
+        /** Retrieve data based on the provided parameters */
+        $filter['order'][0]['column'] = $request->input('column');
+        $filter['order'][0]['dir'] = $request->input('order');
+        $filter['start_date'] = $request->input('start_date');
+        $filter['end_date'] = $request->input('end_date');
+        $filter['supplier'] = $request->input('supplier');
+        $filter['rebate_check'] = $request->input('rebate_check');
+
+        // dd($filter);
+        $csv = true;
+
+        /** Fetch data using the parameters and transform it into CSV format */
+        /** Replace this with your actual data fetching logic */
+        $data = Order::getSupplierReportFilterdData($filter, $csv);
+
+        /** Create a stream for output */
+        $stream = fopen('php://temp', 'w+');
+
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+        
+        $heading = $data['heading'];
+        unset($data['heading']);
+
+        /** Add column headings */
+        $csvWriter->insertOne($heading);
+
+        /** Insert the data into the CSV */
+        $csvWriter->insertAll($data);
+
+        /** Rewind the stream pointer */
+        rewind($stream);
+
+        /** Create a streamed response with the CSV data */
+        $response = new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+        });
+
+        /** Set headers for CSV download */
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="supplierRebateReport_'.now()->format('YmdHis').'.csv"');
+  
+        /** return $csvResponse; */
+        return $response;
     }
 
     public function getCommissionsWithAjax(Request $request) {

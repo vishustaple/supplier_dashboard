@@ -104,6 +104,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/reports/commissionss/approve', [ReportController::class, 'approvedUpdate'])->name('approved.update');
         Route::post('/reports/supplier-filter', [ReportController::class, 'supplierReportFilter'])->name('report.supplier_filter');
         Route::post('/reports/validation-filter', [ReportController::class, 'supplierValidationReportFilter'])->name('report.supplier_validation_filter');
+        Route::post('/reports/account-validation-filter', [ReportController::class, 'accountValidationReportFilter'])->name('report.account_validation_filter');
+        Route::get('/reports/account-csv', [ReportController::class, 'accountReportExportCsv'])->name('report.export-account_report-csv');
 
         Route::get('/reports/supplier-csv', [ReportController::class, 'supplierReportExportCsv'])->name('report.export-supplier_report-csv');
         Route::get('/reports/commissions-csv', [ReportController::class, 'downloadSampleCommissionFile'])->name('report.export-commission_report-csv');
