@@ -2034,7 +2034,7 @@ class Order extends Model
                 if ($filter['supplier'] == 3 || $filter['supplier'] == 5) {
                     $result[$id][$rebate] += (float) $item[$rebate];
                 } elseif ($filter['supplier'] == 2) {
-                    $rebateAmount = (3 / 100) * (float) $result[$id]['cost'];
+                    $rebateAmount = (3 / 100) * (float) $item['cost'];
                     $result[$id][$rebate] += (float) $rebateAmount;
                 }
             }
@@ -2539,7 +2539,8 @@ class Order extends Model
             $fileVolumeRebateForCal = isset($item2[$orderColumnArray[3]]) ? (float) $item2[$orderColumnArray[3]] : 0;
 
             $difference = $fileVolumeRebateForCal - $dbVolumeRebateForCal;
-            if ($fileVolumeRebateForCal != 0) {
+
+            if ($fileVolumeRebateForCal != 0 && $difference > 0) {
                 $percentage = round(($difference / $fileVolumeRebateForCal) * 100, 2);
             } else {
                 $percentage = 0; /** or null, or any fallback value you prefer */
