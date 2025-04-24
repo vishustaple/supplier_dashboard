@@ -1818,9 +1818,9 @@ class Order extends Model
     }
 
     public static function importRelevantSheets($filter) {
-        // Remove limits for large Excel processing
-        set_time_limit(0); // Unlimited execution time
-        ini_set('memory_limit', '1024M'); // Increase memory if needed
+        /** Remove limits for large Excel processing */
+        set_time_limit(0); /** Unlimited execution time */
+        ini_set('memory_limit', '1024M'); /** Increase memory if needed */
 
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
             $rebate = 'volume_rebate';
@@ -1829,7 +1829,7 @@ class Order extends Model
         }
 
         $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
-        $reader->setReadDataOnly(true); // Ignore formatting, speeds up processing
+        $reader->setReadDataOnly(true); /** Ignore formatting, speeds up processing */
     
         $spreadsheet = $reader->load($filter['file']);
         $finalData = [];
@@ -1842,7 +1842,7 @@ class Order extends Model
             $headersFound = false;
             $headerMap = [];
     
-            // Try to detect headers in the first 10 rows only
+            /** Try to detect headers in the first 10 rows only */
             for ($rowIndex = 1; $rowIndex <= min($highestRow, 20); $rowIndex++) {
                 $row = $sheet->rangeToArray("A{$rowIndex}:{$highestColumn}{$rowIndex}", null, true, false)[0];
                 $headers = array_map(function ($val) {
@@ -1852,14 +1852,13 @@ class Order extends Model
                 if ($filter['supplier'] == 3 && in_array('customer account id', $headers) && in_array('customer account name', $headers)) {
                     $headersFound = true;
                     foreach ($headers as $index => $header) {
-                        // print_r(" ".$header." ");
-                        if ($filter['supplier'] == 3 && $rebate == 'incentive_rebate') {
+                        if ($rebate == 'incentive_rebate') {
                             if ($header =='net sales') $headerMap[$index] = 'cost';
                             if ($header == '5% rebate') $headerMap[$index] = $rebate;
                             if ($header == 'rebate_percent') $headerMap[$index] = 'rebate_percent';
                             if ($header == 'customer account id') $headerMap[$index] = 'account_number';
                             if ($header == 'customer account name') $headerMap[$index] = 'account_name';
-                        } elseif ($filter['supplier'] == 3 && $rebate == 'volume_rebate') {
+                        } else {
                             if ($header =='net sales') $headerMap[$index] = 'cost';
                             if ($header =='Net Sales') $headerMap[$index] = 'cost';
                             if ($header == 'rebate @ 8%') $headerMap[$index] = $rebate;
@@ -1867,26 +1866,32 @@ class Order extends Model
                             if ($header == 'base rebate %') $headerMap[$index] = 'rebate_percent';
                             if ($header == 'customer account id') $headerMap[$index] = 'account_number';
                             if ($header == 'customer account name') $headerMap[$index] = 'account_name';
-                        } else {
-
                         }
-                        
-                        // if (Str::contains($header, 'base rebate %')) $headerMap[$index] = 'base_rebate_percent';
-                        // if (Str::contains($header, 'member rebate %')) $headerMap[$index] = 'member_rebate_percent';
-                        // if (Str::contains($header, 'member rebate')) $headerMap[$index] = 'member_rebate_amount';
-                        // if (Str::contains($header, 'total rebate')) $headerMap[$index] = 'total_rebate_amount';
                     }
     
-                    // Start processing data rows after header
+                    /** Start processing data rows after header */
                     for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
                         $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
                         $dataRow = [];
     
                         foreach ($headerMap as $colIndex => $field) {
                             $value = $rowData[$colIndex] ?? null;
-                            $value = is_string($value) ? str_replace(['$', '%', ','], '', $value) : $value;
-    
-                            $dataRow[$field] = trim($value);
+
+                            if (is_string($value)) {
+                                $value = str_replace(['$', ',', '%'], '', $value);
+                            }
+
+                            if ($field === 'rebate_percent') {
+                                $value = is_numeric($value) ? (float)$value : 0.0;
+                                if ($value > 0 && $value < 1) {
+                                    $value *= 100;
+                                } elseif ($value > 100) {
+                                    $value = 100; /** cap at 100% */
+                                }
+                                $value = round($value, 2); /** clean to 2 decimals */
+                            }
+
+                            $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
                         }
     
                         if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
@@ -1894,13 +1899,13 @@ class Order extends Model
                         }
                     }
     
-                    break; // Stop checking more rows/sheets
+                    break; /** Stop checking more rows/sheets */
                 }
 
                 if ($filter['supplier'] == 2 && in_array('account number', $headers) && in_array('account name', $headers)) {
                     $headersFound = true;
                     foreach ($headers as $index => $header) {
-                        if ($filter['supplier'] == 2 && $rebate == 'volume_rebate') {
+                        if ($rebate == 'volume_rebate') {
                             if ($header =='$ total revenue') $headerMap[$index] = 'cost';
                             if ($header == 'account number') $headerMap[$index] = 'account_number';
                             if ($header == 'account name') $headerMap[$index] = 'account_name';
@@ -1909,16 +1914,29 @@ class Order extends Model
                         }
                     }
     
-                    // Start processing data rows after header
+                    /** Start processing data rows after header */
                     for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
                         $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
                         $dataRow = [];
     
                         foreach ($headerMap as $colIndex => $field) {
                             $value = $rowData[$colIndex] ?? null;
-                            $value = is_string($value) ? str_replace(['$', '%', ','], '', $value) : $value;
-    
-                            $dataRow[$field] = trim($value);
+
+                            if (is_string($value)) {
+                                $value = str_replace(['$', ',', '%'], '', $value);
+                            }
+
+                            if ($field === 'rebate_percent') {
+                                $value = is_numeric($value) ? (float)$value : 0.0;
+                                if ($value > 0 && $value < 1) {
+                                    $value *= 100;
+                                } elseif ($value > 100) {
+                                    $value = 100; /** cap at 100% */
+                                }
+                                $value = round($value, 2); /** clean to 2 decimals */
+                            }
+
+                            $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
                         }
     
                         if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
@@ -1926,12 +1944,59 @@ class Order extends Model
                         }
                     }
     
-                    break; // Stop checking more rows/sheets
+                    break; /** Stop checking more rows/sheets */
+                }
+
+                if ($filter['supplier'] == 5 && in_array('rebate %', $headers)) {
+                    $headersFound = true;
+                    foreach ($headers as $index => $header) {
+                        if ($rebate == 'volume_rebate') {
+                            if ($header =='rebate due') $headerMap[$index] = $rebate;
+                            if ($header =='sum of sales') $headerMap[$index] = 'cost';
+                            if ($header =='rebate %') $headerMap[$index] = 'rebate_percent';
+                            if ($header == 'account#') $headerMap[$index] = 'account_number';
+                            if ($header == 'account name') $headerMap[$index] = 'account_name';
+                        } else {
+
+                        }
+                    }
+    
+                    /** Start processing data rows after header */
+                    for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
+                        $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                        $dataRow = [];
+    
+                        foreach ($headerMap as $colIndex => $field) {
+                            $value = $rowData[$colIndex] ?? null;
+
+                            if (is_string($value)) {
+                                $value = str_replace(['$', ',', '%'], '', $value);
+                            }
+
+                            if ($field === 'rebate_percent') {
+                                $value = is_numeric($value) ? (float)$value : 0.0;
+                                if ($value > 0 && $value < 1) {
+                                    $value *= 100;
+                                } elseif ($value > 100) {
+                                    $value = 100; /** cap at 100% */
+                                }
+                                $value = round($value, 2); /** clean to 2 decimals */
+                            }
+
+                            $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                        }
+    
+                        if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                            $finalData[] = $dataRow;
+                        }
+                    }
+    
+                    break; /** Stop checking more rows/sheets */
                 }
             }
     
             if (!$headersFound) {
-                continue; // Go to next sheet if headers were not found in first 10 rows
+                continue; /** Go to next sheet if headers were not found in first 10 rows */
             }
         }
 
@@ -1943,39 +2008,39 @@ class Order extends Model
             $id = ltrim($item['account_number'], '0');
 
             if (!isset($result[$id])) {
-                // Initialize if not already set 
-                    $result[$id]['account_number'] = $id;
-                    $result[$id]['cost'] = (float) $item['cost'];
-
-                    $result[$id]['account_name'] = $item['account_name'];
-                    
-                    if ($filter['supplier'] == 3) {
-                        $result[$id][$rebate] = (float) $item[$rebate];
-
-                        if ($filter['rebate_check'] == 1) {
-                            $result[$id]['rebate_percent'] = (isset($item['rebate_percent']) && !empty($item['rebate_percent'])) ? ($item['rebate_percent']) : (8);
-                        } else {
-                            $result[$id]['rebate_percent'] = 5;
-                        }
-                    } elseif ($filter['supplier'] == 2) {
-                        $result[$id]['rebate_percent'] = 3;
-                        $rebateAmount = (3 / 100) * (float) $item['cost'];
-                        $result[$id][$rebate] = (float) $rebateAmount;
-                    }
+                /** Initialize if not already set */
+                $result[$id]['account_number'] = $id;
+                $result[$id]['cost'] = (float) $item['cost'];
+                $result[$id]['account_name'] = $item['account_name'];
                 
-            } else {
-                // Add to existing
-                $result[$id]['cost'] += (float) $item['cost'];
-                if ($filter['supplier'] == 3) {
-                    $result[$id][$rebate] = (float) $item[$rebate];
-                } elseif ($filter['supplier'] == 2) {
+                if ($filter['supplier'] == 2) {
+                    $result[$id]['rebate_percent'] = 3;
                     $rebateAmount = (3 / 100) * (float) $item['cost'];
                     $result[$id][$rebate] = (float) $rebateAmount;
+                } elseif ($filter['supplier'] == 3) {
+                    $result[$id][$rebate] = (float) $item[$rebate];
+                    if ($filter['rebate_check'] == 1) {
+                        $result[$id]['rebate_percent'] = (isset($item['rebate_percent']) && !empty($item['rebate_percent'])) ? ($item['rebate_percent']) : (8);
+                    } else {
+                        $result[$id]['rebate_percent'] = 5;
+                    }
+                } elseif ($filter['supplier'] == 5) {
+                    $result[$id][$rebate] = (float) $item[$rebate];
+                    $result[$id]['rebate_percent'] = $item['rebate_percent'];
+                }
+            } else {
+                /** Add to existing */
+                $result[$id]['cost'] += (float) $item['cost'];
+                if ($filter['supplier'] == 3 || $filter['supplier'] == 5) {
+                    $result[$id][$rebate] += (float) $item[$rebate];
+                } elseif ($filter['supplier'] == 2) {
+                    $rebateAmount = (3 / 100) * (float) $result[$id]['cost'];
+                    $result[$id][$rebate] += (float) $rebateAmount;
                 }
             }
         }
 
-        // If you want a zero-based indexed array
+        /** If you want a zero-based indexed array */
         $result = array_values($result);
         // dd($result);
         return $result;
@@ -2332,7 +2397,6 @@ class Order extends Model
         }
 
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
-            // `rebate`.`volume_rebate` AS `volume_rebates`,
             $query = self::query()->selectRaw("
                 `orders`.`date` AS `date`,
                 SUM(`orders`.`cost`) AS `cost`,
@@ -2342,7 +2406,6 @@ class Order extends Model
                 ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
             ");
         } else {
-            // `rebate`.`incentive_rebate` AS `incentive_rebates`,
             $query = self::query()->selectRaw("
                 `orders`.`date` AS `date`,
                 SUM(`orders`.`cost`) AS `cost`,
@@ -2442,23 +2505,10 @@ class Order extends Model
         $query->groupBy('m2.account_number');
         $totalRecords = 1;
 
-        /** Calculating total volume rebate, total incentive rebate and total cost */
-        // $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
-        // $formatuserdata = $query->get()->toArray();
-        // $excelFiledata = Order::importRelevantSheets($filter);
-
-        // if (count($formatuserdata) > count($excelFiledata)) {
-        //     $firstArray = $formatuserdata;
-        //     $secondArray = $excelFiledata;
-        // } else {
-        //     $firstArray = $excelFiledata;
-        //     $secondArray = $formatuserdata;
-        // }
-
-        $firstArray = $query->get()->toArray(); // Your first array (37 items)
-        $secondArray = Order::importRelevantSheets($filter); // Your second array (103 items)
+        $firstArray = $query->get()->toArray(); /** Your first array (37 items) */
+        $secondArray = Order::importRelevantSheets($filter); /** Your second array (103 items) */
         // dd($secondArray);
-        // Index both arrays by account number
+        /** Index both arrays by account number */
         $firstMap = [];
         foreach ($firstArray as $item) {
             $firstMap[$item['account_number']] = $item;
@@ -2469,7 +2519,7 @@ class Order extends Model
             $secondMap[$item['account_number']] = $item;
         }
 
-        // Get all unique account numbers from both arrays
+        /** Get all unique account numbers from both arrays */
         $allAccountNumbers = array_unique(array_merge(
             array_keys($firstMap),
             array_keys($secondMap)
@@ -2492,7 +2542,7 @@ class Order extends Model
             if ($fileVolumeRebateForCal != 0) {
                 $percentage = round(($difference / $fileVolumeRebateForCal) * 100, 2);
             } else {
-                $percentage = 0; // or null, or any fallback value you prefer
+                $percentage = 0; /** or null, or any fallback value you prefer */
             }
 
             $val1 = (float) ($item1[$orderColumnArray[3]] ?? 0);

@@ -981,15 +981,15 @@
             },
 
             columns: [
-                { data: 'account_name', name: 'account_name', title: 'Account Name'},
-                { data: 'db_cost', name: 'db_cost', title: 'DB Spend'},
-                { data: 'db_volume_rebate', name: 'db_volume_rebate', title: 'DB Volume Rebate'},
-                { data: 'db_volume_rebate', name: 'incentive_rebate', title: 'DB Incentive Rebate'},
-                { data: 'rebate_percent', name: 'rebate_percent', title: 'DB Rebate Percentage'},
-                { data: 'file_cost', name: 'file_cost', title: 'File Spend'},
-                { data: 'file_volume_rebate', name: 'file_volume_rebate', title: 'File Rebate'},
-                { data: 'file_rebate_percent', name: 'file_rebate_percent', title: 'File Rebate Percentage'},
-                { data: 'df', name: 'df', title: 'Rebate Difference (%)'},
+                { data: 'account_name', name: 'account_name', title: 'Account Name' , 'orderable': false, 'searchable': false },
+                { data: 'db_cost', name: 'db_cost', title: 'DB Spend' , 'orderable': false, 'searchable': false },
+                { data: 'db_volume_rebate', name: 'db_volume_rebate', title: 'DB Volume Rebate' , 'orderable': false, 'searchable': false },
+                { data: 'db_volume_rebate', name: 'incentive_rebate', title: 'DB Incentive Rebate' , 'orderable': false, 'searchable': false },
+                { data: 'rebate_percent', name: 'rebate_percent', title: 'DB Rebate Percentage' , 'orderable': false, 'searchable': false },
+                { data: 'file_cost', name: 'file_cost', title: 'File Spend' , 'orderable': false, 'searchable': false },
+                { data: 'file_volume_rebate', name: 'file_volume_rebate', title: 'File Rebate' , 'orderable': false, 'searchable': false },
+                { data: 'file_rebate_percent', name: 'file_rebate_percent', title: 'File Rebate Percentage' , 'orderable': false, 'searchable': false },
+                { data: 'df', name: 'df', title: 'Rebate Difference (%)' , 'orderable': false, 'searchable': false },
             ],
 
             fnDrawCallback: function( oSettings ) {
