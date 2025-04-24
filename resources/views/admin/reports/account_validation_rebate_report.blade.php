@@ -25,12 +25,6 @@
                             @endif
                         </select>
                     </div>
-                    <div class="form-check relative col-2  mb-0">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="account_check" value="1" id="account_check">
-                            <label class="form-check-label" id="account_check_label" for="account_check">Account Check</label>
-                        </div>
-                    </div>
                     <div class="form-group relative col-md-6 pt-4 mb-0">
                         <label for="file">Supplier Rebate Data Import:</label>
                         <input type="file" name="file" id="file" class="form-control">
@@ -883,32 +877,32 @@
                 $('#incentive_rebate_check').prop('checked', false);
             }
 
-            var $html = $('<div>' + (supplierDataTable.column(1).data()[0] !== undefined ? supplierDataTable.column(1).data()[0] : '<input type="hidden" value="0"class="qualified_spend">') + ' ' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
-            hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
-            hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
-            totalAmount = $html.find('.qualified_spend').val();
+            // var $html = $('<div>' + (supplierDataTable.column(1).data()[0] !== undefined ? supplierDataTable.column(1).data()[0] : '<input type="hidden" value="0"class="qualified_spend">') + ' ' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
+            // hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
+            // hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
+            // totalAmount = $html.find('.qualified_spend').val();
 
             // $('#qualified_spend').text('$'+totalAmount);
 
-            if ($('#volume_rebate_check').is(':checked')) {
-                supplierDataTable.column('volume_rebate:name').visible(true);
-                $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + hiddenVolumeRebateInputValue : 'N/A'));
-                $('.volume_rebate_header').attr('style', 'display:flex !important;');
-            } else {
-                supplierDataTable.column('volume_rebate:name').visible(false);
-                $('.volume_rebate_header').attr('style', 'display:none !important;');
-                $('#volume_rebate').text('');
-            }
+            // if ($('#volume_rebate_check').is(':checked')) {
+            //     supplierDataTable.column('volume_rebate:name').visible(true);
+            //     $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + hiddenVolumeRebateInputValue : 'N/A'));
+            //     $('.volume_rebate_header').attr('style', 'display:flex !important;');
+            // } else {
+            //     supplierDataTable.column('volume_rebate:name').visible(false);
+            //     $('.volume_rebate_header').attr('style', 'display:none !important;');
+            //     $('#volume_rebate').text('');
+            // }
 
-            if ($('#incentive_rebate_check').is(':checked')) {
-                supplierDataTable.column('incentive_rebate:name').visible(true);
-                $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + hiddenIncentiveRebateInputValue : 'N/A'));
-                $('.incentive_rebate_header').attr('style', 'display:flex !important;');
-            } else {
-                supplierDataTable.column('incentive_rebate:name').visible(false);
-                $('.incentive_rebate_header').attr('style', 'display:none !important;');
-                $('#incentive_rebate').text('');
-            }
+            // if ($('#incentive_rebate_check').is(':checked')) {
+            //     supplierDataTable.column('incentive_rebate:name').visible(true);
+            //     $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + hiddenIncentiveRebateInputValue : 'N/A'));
+            //     $('.incentive_rebate_header').attr('style', 'display:flex !important;');
+            // } else {
+            //     supplierDataTable.column('incentive_rebate:name').visible(false);
+            //     $('.incentive_rebate_header').attr('style', 'display:none !important;');
+            //     $('#incentive_rebate').text('');
+            // }
         }
 
         // End Date Picker - Simple calendar
@@ -927,12 +921,11 @@
         var supplierDataTable = $('#supplier_report_data').DataTable({
             oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
             processing: true,
-            serverSide: true, 
+            serverSide: false, 
             lengthMenu: [40], // Specify the options you want to show
             lengthChange: false, // Hide the "Show X entries" dropdown
             searching:false, 
             pageLength: 40,
-            // order: [[3, 'desc']],
             ajax: {
                 url: '{{ route("report.account_validation_filter") }}',
                 type: 'POST',
@@ -947,10 +940,6 @@
                     var fileInput = document.getElementById('file');
                     if (fileInput.files.length > 0) {
                         formData.append('file', fileInput.files[0]);
-                    }
-
-                    if ($('input[name="account_check"]:checked').length) {
-                        formData.append('account_check', $('input[name="account_check"]:checked').val());
                     }
 
                     // Append other parameters
@@ -973,23 +962,18 @@
                 // Hide both the DataTables processing indicator and the manual loader when the DataTable has finished loading
                 $('.dataTables_processing').hide();
                 $('#manualLoader').hide();
-                if (businessdataTable.data().count() > 40) {
-                    $('#business_data_paginate').show(); // Enable pagination
-                } else {
-                    $('#business_data_paginate').hide();
-                }
             },
 
             columns: [
-                { data: 'account_name', name: 'account_name', title: 'Account Name' , 'orderable': false, 'searchable': false },
-                { data: 'db_cost', name: 'db_cost', title: 'DB Spend' , 'orderable': false, 'searchable': false },
-                { data: 'db_volume_rebate', name: 'db_volume_rebate', title: 'DB Volume Rebate' , 'orderable': false, 'searchable': false },
-                { data: 'db_volume_rebate', name: 'incentive_rebate', title: 'DB Incentive Rebate' , 'orderable': false, 'searchable': false },
-                { data: 'rebate_percent', name: 'rebate_percent', title: 'DB Rebate Percentage' , 'orderable': false, 'searchable': false },
-                { data: 'file_cost', name: 'file_cost', title: 'File Spend' , 'orderable': false, 'searchable': false },
-                { data: 'file_volume_rebate', name: 'file_volume_rebate', title: 'File Rebate' , 'orderable': false, 'searchable': false },
-                { data: 'file_rebate_percent', name: 'file_rebate_percent', title: 'File Rebate Percentage' , 'orderable': false, 'searchable': false },
-                { data: 'df', name: 'df', title: 'Rebate Difference (%)' , 'orderable': false, 'searchable': false },
+                { data: 'account_name', name: 'account_name', title: 'Account Name' },
+                { data: 'db_cost', name: 'db_cost', title: 'DB Spend' },
+                { data: 'db_volume_rebate', name: 'db_volume_rebate', title: 'DB Volume Rebate' },
+                { data: 'db_volume_rebate', name: 'incentive_rebate', title: 'DB Incentive Rebate' },
+                { data: 'rebate_percent', name: 'rebate_percent', title: 'DB Rebate Percentage' },
+                { data: 'file_cost', name: 'file_cost', title: 'File Spend' },
+                { data: 'file_volume_rebate', name: 'file_volume_rebate', title: 'File Rebate' },
+                { data: 'file_rebate_percent', name: 'file_rebate_percent', title: 'File Rebate Percentage' },
+                { data: 'df', name: 'df', title: 'Rebate Difference (%)' },
             ],
 
             fnDrawCallback: function( oSettings ) {
