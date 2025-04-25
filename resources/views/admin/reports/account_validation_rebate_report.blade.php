@@ -3,6 +3,8 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => $pageTitle])
     <div id="layoutSidenav_content">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
         <div class="container">
             <div class="m-1 mb-2 row align-items-start justify-content-between">
                 <div class="col-md-4">
@@ -28,6 +30,7 @@
                     <div class="form-group relative col-md-6 pt-4 mb-0">
                         <label for="file">Supplier Rebate Data Import:</label>
                         <input type="file" name="file" id="file" class="form-control">
+                        <div id="selected_files" class="mt-2 text-sm text-muted"></div>
                     </div>
                     <div class="form-check relative col-2  mb-0">
                         <div class="form-check">
@@ -511,10 +514,26 @@
             });
         });
         
+        let customFiles = []; // Keep track of manually managed files
+
         // Assuming your select element has id 'mySelect'
         $('#supplier').change(function() {
+
             // Get the selected value
             var selectedValue = $(this).val();
+            const filesInput = document.getElementById('file'),
+            selectedFilesDiv = document.getElementById('selected_files');
+
+            if (selectedValue == 4) {
+                filesInput.setAttribute('multiple', 'multiple');
+            } else {
+                filesInput.removeAttribute('multiple');
+            }
+
+            // Reset file input and list on supplier change
+            filesInput.value = '';
+            customFiles = [];
+            selectedFilesDiv.innerHTML = '';
             
             if (selectedValue == 1) {
                  // Grand & Toy
@@ -836,6 +855,96 @@
                 $('#incentive_rebate_check').prop('checked', false);
             }
         });
+
+
+        // Handle file input change
+        document.getElementById('file').addEventListener('change', function (e) {
+            const selectedValue = $('#supplier').val();
+
+            const newFiles = Array.from(e.target.files);
+            if (selectedValue == 4) {
+                // Staples - allow multiple file additions
+                customFiles = customFiles.concat(newFiles);
+            } else {
+                // Others - only one file
+                customFiles = newFiles.length > 0 ? [newFiles[0]] : [];
+            }
+
+            renderSelectedFiles();
+
+            // Always reset input so new selection triggers event again
+            e.target.value = '';
+        });
+
+        // Render file list with remove buttons
+        function renderSelectedFiles() {
+            const selectedFilesDiv = document.getElementById('selected_files');
+            selectedFilesDiv.innerHTML = '';
+
+            if (customFiles.length === 0) {
+                selectedFilesDiv.innerHTML = '<em>No files selected.</em>';
+                return;
+            }
+
+            // const list = document.createElement('ul');
+            // customFiles.forEach((file, index) => {
+            //     const li = document.createElement('li');
+            //     li.innerHTML = `${file.name} <span class="btn btn-danger btn-sm rounded-circle remove-file" data-index="${index}"cursor:pointer;">X</span>`;
+            //     list.appendChild(li);
+            // });
+            const list = document.createElement('ul');
+            list.className = 'list-unstyled'; // Removes bullets
+            list.style.width = '100%'; // Optional for alignment
+            customFiles.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'd-flex align-items-center justify-content-between mb-1';
+
+                li.innerHTML = `
+                    <div class="d-flex align-items-center gap-2" style="max-width: 90%;">
+                        <i class="bi bi-file-earmark-text" style="font-size: 1.2rem;"></i>
+                        <span class="text-truncate">${file.name}</span>
+                    </div>
+                    <span class="btn btn-danger btn-sm remove-file ms-2" data-index="${index}" 
+                        style="width: 24px; height: 24px; line-height: 21px; padding: 0; text-align: center; font-size: 25px;">×</span>
+                `;
+
+                list.appendChild(li);
+            });
+
+            selectedFilesDiv.appendChild(list);
+        }
+
+        // Remove file handler using event delegation
+        document.getElementById('selected_files').addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-file')) {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                removeFile(index);
+            }
+        });
+
+        // Remove file by index
+        function removeFile(index) {
+            customFiles.splice(index, 1);
+            renderSelectedFiles();
+        }
+
+        // Use this when building your FormData before AJAX:
+        function buildFormData() {
+            const formData = new FormData();
+            const filesInput = document.getElementById('file');
+
+            // Append selected files manually
+            for (let i = 0; i < customFiles.length; i++) {
+                formData.append('files[]', customFiles[i]);
+            }
+
+            formData.append('supplier', $('#supplier').val());
+            formData.append('rebate_check', $('input[name=rebate_check]:checked').val());
+            formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+            formData.append('end_date', moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+
+            return formData;
+        }
         // $('#enddate').daterangepicker({
         //     autoApply: true,
         //     showDropdowns: true,
@@ -859,12 +968,6 @@
         });
 
         function setPercentage() {
-            // if ($('.total_amount').val() != null) {
-            //     $('#total_spend').text($('.total_amount').val());
-            // } else {
-            //     $('#total_spend').text("$0");
-            // }
-
             var selectedValues = $('#supplier').val();
         
             if (selectedValues == 3) {
@@ -876,33 +979,6 @@
                 $('#incentive_rebate_check_label').hide();
                 $('#incentive_rebate_check').prop('checked', false);
             }
-
-            // var $html = $('<div>' + (supplierDataTable.column(1).data()[0] !== undefined ? supplierDataTable.column(1).data()[0] : '<input type="hidden" value="0"class="qualified_spend">') + ' ' + (supplierDataTable.column(2).data()[0] !== undefined ? supplierDataTable.column(2).data()[0] : '<input type="hidden" value="0"class="input_volume_rebate">') + ' ' + (supplierDataTable.column(3).data()[0] !== undefined ? supplierDataTable.column(3).data()[0] : '<input type="hidden" value="0" class="input_incentive_rebate">') + '</div>'),
-            // hiddenVolumeRebateInputValue = $html.find('.input_volume_rebate').val(),
-            // hiddenIncentiveRebateInputValue = $html.find('.input_incentive_rebate').val(),
-            // totalAmount = $html.find('.qualified_spend').val();
-
-            // $('#qualified_spend').text('$'+totalAmount);
-
-            // if ($('#volume_rebate_check').is(':checked')) {
-            //     supplierDataTable.column('volume_rebate:name').visible(true);
-            //     $('#volume_rebate').text((hiddenVolumeRebateInputValue !== '0' ? '$' + hiddenVolumeRebateInputValue : 'N/A'));
-            //     $('.volume_rebate_header').attr('style', 'display:flex !important;');
-            // } else {
-            //     supplierDataTable.column('volume_rebate:name').visible(false);
-            //     $('.volume_rebate_header').attr('style', 'display:none !important;');
-            //     $('#volume_rebate').text('');
-            // }
-
-            // if ($('#incentive_rebate_check').is(':checked')) {
-            //     supplierDataTable.column('incentive_rebate:name').visible(true);
-            //     $('#incentive_rebate').text((hiddenIncentiveRebateInputValue !== '0' ? '$' + hiddenIncentiveRebateInputValue : 'N/A'));
-            //     $('.incentive_rebate_header').attr('style', 'display:flex !important;');
-            // } else {
-            //     supplierDataTable.column('incentive_rebate:name').visible(false);
-            //     $('.incentive_rebate_header').attr('style', 'display:none !important;');
-            //     $('#incentive_rebate').text('');
-            // }
         }
 
         // End Date Picker - Simple calendar
@@ -934,19 +1010,27 @@
                 contentType: false,  // Important: Set contentType to false for FormData
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    var formData = new FormData();
+                    var formData = buildFormData();
             
-                    // Append file data
-                    var fileInput = document.getElementById('file');
-                    if (fileInput.files.length > 0) {
-                        formData.append('file', fileInput.files[0]);
-                    }
+                    // // Append file data
+                    // fileInput = document.getElementById('file');
 
-                    // Append other parameters
-                    formData.append('supplier', $('#supplier').val());
-                    formData.append('rebate_check', $('input[name="rebate_check"]:checked').val());
-                    formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
-                    formData.append('end_date', moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+                    // // If supplier is Staples, allow multiple files
+                    // if ($('#supplier').val() == 4) {
+                    //     for (var i = 0; i < fileInput.files.length; i++) {
+                    //         formData.append('files[]', fileInput.files[i]); // Notice 'files[]'
+                    //     }
+                    // } else {
+                    //     if (fileInput.files.length > 0) {
+                    //         formData.append('file', fileInput.files[0]);
+                    //     }
+                    // }
+
+                    // // Append other parameters
+                    // formData.append('supplier', $('#supplier').val());
+                    // formData.append('rebate_check', $('input[name="rebate_check"]:checked').val());
+                    // formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+                    // formData.append('end_date', moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
 
                     return formData;
                 },
@@ -965,6 +1049,7 @@
             },
 
             columns: [
+                { data: 'account_number', name: 'account_number', title: 'Account Number' },
                 { data: 'account_name', name: 'account_name', title: 'Account Name' },
                 { data: 'db_cost', name: 'db_cost', title: 'DB Spend' },
                 { data: 'db_volume_rebate', name: 'db_volume_rebate', title: 'DB Volume Rebate' },

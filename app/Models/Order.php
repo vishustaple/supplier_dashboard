@@ -1828,183 +1828,238 @@ class Order extends Model
             $rebate = 'incentive_rebate';
         }
 
-        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
-        $reader->setReadDataOnly(true); /** Ignore formatting, speeds up processing */
-    
-        $spreadsheet = $reader->load($filter['file']);
-        $finalData = [];
-    
-        foreach ($spreadsheet->getWorksheetIterator() as $sheet) {
-            $highestRow = $sheet->getHighestRow();
-            $highestColumn = $sheet->getHighestColumn();
-            $sheetTitle = $sheet->getTitle();
-    
-            $headersFound = false;
-            $headerMap = [];
-    
-            /** Try to detect headers in the first 10 rows only */
-            for ($rowIndex = 1; $rowIndex <= min($highestRow, 20); $rowIndex++) {
-                $row = $sheet->rangeToArray("A{$rowIndex}:{$highestColumn}{$rowIndex}", null, true, false)[0];
-                $headers = array_map(function ($val) {
-                    return strtolower(trim((string)$val));
-                }, $row);
-    
-                if ($filter['supplier'] == 3 && in_array('customer account id', $headers) && in_array('customer account name', $headers)) {
-                    $headersFound = true;
-                    foreach ($headers as $index => $header) {
-                        if ($rebate == 'incentive_rebate') {
-                            if ($header =='net sales') $headerMap[$index] = 'cost';
-                            if ($header == '5% rebate') $headerMap[$index] = $rebate;
-                            if ($header == 'rebate_percent') $headerMap[$index] = 'rebate_percent';
-                            if ($header == 'customer account id') $headerMap[$index] = 'account_number';
-                            if ($header == 'customer account name') $headerMap[$index] = 'account_name';
-                        } else {
-                            if ($header =='net sales') $headerMap[$index] = 'cost';
-                            if ($header =='Net Sales') $headerMap[$index] = 'cost';
-                            if ($header == 'rebate @ 8%') $headerMap[$index] = $rebate;
-                            if ($header == 'base rebate $') $headerMap[$index] = $rebate;
-                            if ($header == 'base rebate %') $headerMap[$index] = 'rebate_percent';
-                            if ($header == 'customer account id') $headerMap[$index] = 'account_number';
-                            if ($header == 'customer account name') $headerMap[$index] = 'account_name';
-                        }
-                    }
-    
-                    /** Start processing data rows after header */
-                    for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
-                        $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
-                        $dataRow = [];
-    
-                        foreach ($headerMap as $colIndex => $field) {
-                            $value = $rowData[$colIndex] ?? null;
-
-                            if (is_string($value)) {
-                                $value = str_replace(['$', ',', '%'], '', $value);
+        $mainResult = [];
+        foreach ($filter['files'] as $file) {
+            $reader = new Xlsx();
+            $reader->setReadDataOnly(true); /** Ignore formatting, speeds up processing */
+        
+            $spreadsheet = $reader->load($file);
+            $finalData = [];
+        
+            foreach ($spreadsheet->getWorksheetIterator() as $sheet) {
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+                $sheetTitle = $sheet->getTitle();
+        
+                $headersFound = false;
+                $headerMap = [];
+        
+                /** Try to detect headers in the first 10 rows only */
+                for ($rowIndex = 1; $rowIndex <= min($highestRow, 20); $rowIndex++) {
+                    $row = $sheet->rangeToArray("A{$rowIndex}:{$highestColumn}{$rowIndex}", null, true, false)[0];
+                    $headers = array_map(function ($val) {
+                        return strtolower(trim((string)$val));
+                    }, $row);
+        
+                    if ($filter['supplier'] == 3 && in_array('customer account id', $headers) && in_array('customer account name', $headers)) {
+                        $headersFound = true;
+                        foreach ($headers as $index => $header) {
+                            if ($rebate == 'incentive_rebate') {
+                                if ($header =='net sales') $headerMap[$index] = 'cost';
+                                if ($header == '5% rebate') $headerMap[$index] = $rebate;
+                                if ($header == 'rebate_percent') $headerMap[$index] = 'rebate_percent';
+                                if ($header == 'customer account id') $headerMap[$index] = 'account_number';
+                                if ($header == 'customer account name') $headerMap[$index] = 'account_name';
+                            } else {
+                                if ($header =='net sales') $headerMap[$index] = 'cost';
+                                if ($header =='Net Sales') $headerMap[$index] = 'cost';
+                                if ($header == 'rebate @ 8%') $headerMap[$index] = $rebate;
+                                if ($header == 'base rebate $') $headerMap[$index] = $rebate;
+                                if ($header == 'base rebate %') $headerMap[$index] = 'rebate_percent';
+                                if ($header == 'customer account id') $headerMap[$index] = 'account_number';
+                                if ($header == 'customer account name') $headerMap[$index] = 'account_name';
                             }
-
-                            if ($field === 'rebate_percent') {
-                                $value = is_numeric($value) ? (float)$value : 0.0;
-                                if ($value > 0 && $value < 1) {
-                                    $value *= 100;
-                                } elseif ($value > 100) {
-                                    $value = 100; /** cap at 100% */
+                        }
+        
+                        /** Start processing data rows after header */
+                        for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
+                            $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                            $dataRow = [];
+        
+                            foreach ($headerMap as $colIndex => $field) {
+                                $value = $rowData[$colIndex] ?? null;
+    
+                                if (is_string($value)) {
+                                    $value = str_replace(['$', ',', '%'], '', $value);
                                 }
-                                $value = round($value, 2); /** clean to 2 decimals */
-                            }
-
-                            $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
-                        }
     
-                        if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
-                            $finalData[] = $dataRow;
+                                if ($field === 'rebate_percent') {
+                                    $value = is_numeric($value) ? (float)$value : 0.0;
+                                    if ($value > 0 && $value < 1) {
+                                        $value *= 100;
+                                    } elseif ($value > 100) {
+                                        $value = 100; /** cap at 100% */
+                                    }
+                                    $value = round($value, 2); /** clean to 2 decimals */
+                                }
+    
+                                $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                            }
+        
+                            if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                                $finalData[] = $dataRow;
+                            }
                         }
+        
+                        break; /** Stop checking more rows/sheets */
                     }
     
-                    break; /** Stop checking more rows/sheets */
+                    if ($filter['supplier'] == 2 && in_array('account number', $headers) && in_array('account name', $headers)) {
+                        $headersFound = true;
+                        foreach ($headers as $index => $header) {
+                            if ($rebate == 'volume_rebate') {
+                                if ($header =='$ total revenue') $headerMap[$index] = 'cost';
+                                if ($header == 'account number') $headerMap[$index] = 'account_number';
+                                if ($header == 'account name') $headerMap[$index] = 'account_name';
+                            } else {
+    
+                            }
+                        }
+        
+                        /** Start processing data rows after header */
+                        for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
+                            $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                            $dataRow = [];
+        
+                            foreach ($headerMap as $colIndex => $field) {
+                                $value = $rowData[$colIndex] ?? null;
+    
+                                if (is_string($value)) {
+                                    $value = str_replace(['$', ',', '%'], '', $value);
+                                }
+    
+                                if ($field === 'rebate_percent') {
+                                    $value = is_numeric($value) ? (float)$value : 0.0;
+                                    if ($value > 0 && $value < 1) {
+                                        $value *= 100;
+                                    } elseif ($value > 100) {
+                                        $value = 100; /** cap at 100% */
+                                    }
+                                    $value = round($value, 2); /** clean to 2 decimals */
+                                }
+    
+                                $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                            }
+        
+                            if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                                $finalData[] = $dataRow;
+                            }
+                        }
+        
+                        break; /** Stop checking more rows/sheets */
+                    }
+    
+                    if ($filter['supplier'] == 5 && in_array('rebate %', $headers)) {
+                        $headersFound = true;
+                        foreach ($headers as $index => $header) {
+                            if ($rebate == 'volume_rebate') {
+                                if ($header =='rebate due') $headerMap[$index] = $rebate;
+                                if ($header =='sum of sales') $headerMap[$index] = 'cost';
+                                if ($header =='rebate %') $headerMap[$index] = 'rebate_percent';
+                                if ($header == 'account#') $headerMap[$index] = 'account_number';
+                                if ($header == 'account name') $headerMap[$index] = 'account_name';
+                            } else {
+    
+                            }
+                        }
+        
+                        /** Start processing data rows after header */
+                        for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
+                            $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                            $dataRow = [];
+        
+                            foreach ($headerMap as $colIndex => $field) {
+                                $value = $rowData[$colIndex] ?? null;
+    
+                                if (is_string($value)) {
+                                    $value = str_replace(['$', ',', '%'], '', $value);
+                                }
+    
+                                if ($field === 'rebate_percent') {
+                                    $value = is_numeric($value) ? (float)$value : 0.0;
+                                    if ($value > 0 && $value < 1) {
+                                        $value *= 100;
+                                    } elseif ($value > 100) {
+                                        $value = 100; /** cap at 100% */
+                                    }
+                                    $value = round($value, 2); /** clean to 2 decimals */
+                                }
+    
+                                $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                            }
+        
+                            if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                                $finalData[] = $dataRow;
+                            }
+                        }
+        
+                        break; /** Stop checking more rows/sheets */
+                    }
+
+                    if ($filter['supplier'] == 4 && in_array('master customer number', $headers)) {
+                        $headersFound = true;
+                        foreach ($headers as $index => $header) {
+                            if ($rebate == 'volume_rebate') {
+                                if ($header =='rebate due') $headerMap[$index] = $rebate;
+                                if ($header =='sum of sales') $headerMap[$index] = 'cost';
+                                if ($header =='rebate %') $headerMap[$index] = 'rebate_percent';
+                                if ($header == 'master customer number') $headerMap[$index] = 'account_number';
+                                if ($header == 'master customer name') $headerMap[$index] = 'account_name';
+                            } else {
+    
+                            }
+                        }
+        
+                        /** Start processing data rows after header */
+                        for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
+                            $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                            $dataRow = [];
+        
+                            foreach ($headerMap as $colIndex => $field) {
+                                $value = $rowData[$colIndex] ?? null;
+    
+                                if (is_string($value)) {
+                                    $value = str_replace(['$', ',', '%'], '', $value);
+                                }
+    
+                                if ($field === 'rebate_percent') {
+                                    $value = is_numeric($value) ? (float)$value : 0.0;
+                                    if ($value > 0 && $value < 1) {
+                                        $value *= 100;
+                                    } elseif ($value > 100) {
+                                        $value = 100; /** cap at 100% */
+                                    }
+                                    $value = round($value, 2); /** clean to 2 decimals */
+                                }
+    
+                                $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                            }
+        
+                            if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                                $finalData[] = $dataRow;
+                            }
+                        }
+        
+                        break; /** Stop checking more rows/sheets */
+                    }
                 }
-
-                if ($filter['supplier'] == 2 && in_array('account number', $headers) && in_array('account name', $headers)) {
-                    $headersFound = true;
-                    foreach ($headers as $index => $header) {
-                        if ($rebate == 'volume_rebate') {
-                            if ($header =='$ total revenue') $headerMap[$index] = 'cost';
-                            if ($header == 'account number') $headerMap[$index] = 'account_number';
-                            if ($header == 'account name') $headerMap[$index] = 'account_name';
-                        } else {
-
-                        }
-                    }
-    
-                    /** Start processing data rows after header */
-                    for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
-                        $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
-                        $dataRow = [];
-    
-                        foreach ($headerMap as $colIndex => $field) {
-                            $value = $rowData[$colIndex] ?? null;
-
-                            if (is_string($value)) {
-                                $value = str_replace(['$', ',', '%'], '', $value);
-                            }
-
-                            if ($field === 'rebate_percent') {
-                                $value = is_numeric($value) ? (float)$value : 0.0;
-                                if ($value > 0 && $value < 1) {
-                                    $value *= 100;
-                                } elseif ($value > 100) {
-                                    $value = 100; /** cap at 100% */
-                                }
-                                $value = round($value, 2); /** clean to 2 decimals */
-                            }
-
-                            $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
-                        }
-    
-                        if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
-                            $finalData[] = $dataRow;
-                        }
-                    }
-    
-                    break; /** Stop checking more rows/sheets */
-                }
-
-                if ($filter['supplier'] == 5 && in_array('rebate %', $headers)) {
-                    $headersFound = true;
-                    foreach ($headers as $index => $header) {
-                        if ($rebate == 'volume_rebate') {
-                            if ($header =='rebate due') $headerMap[$index] = $rebate;
-                            if ($header =='sum of sales') $headerMap[$index] = 'cost';
-                            if ($header =='rebate %') $headerMap[$index] = 'rebate_percent';
-                            if ($header == 'account#') $headerMap[$index] = 'account_number';
-                            if ($header == 'account name') $headerMap[$index] = 'account_name';
-                        } else {
-
-                        }
-                    }
-    
-                    /** Start processing data rows after header */
-                    for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
-                        $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
-                        $dataRow = [];
-    
-                        foreach ($headerMap as $colIndex => $field) {
-                            $value = $rowData[$colIndex] ?? null;
-
-                            if (is_string($value)) {
-                                $value = str_replace(['$', ',', '%'], '', $value);
-                            }
-
-                            if ($field === 'rebate_percent') {
-                                $value = is_numeric($value) ? (float)$value : 0.0;
-                                if ($value > 0 && $value < 1) {
-                                    $value *= 100;
-                                } elseif ($value > 100) {
-                                    $value = 100; /** cap at 100% */
-                                }
-                                $value = round($value, 2); /** clean to 2 decimals */
-                            }
-
-                            $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
-                        }
-    
-                        if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
-                            $finalData[] = $dataRow;
-                        }
-                    }
-    
-                    break; /** Stop checking more rows/sheets */
+        
+                if (!$headersFound) {
+                    continue; /** Go to next sheet if headers were not found in first 10 rows */
                 }
             }
     
-            if (!$headersFound) {
-                continue; /** Go to next sheet if headers were not found in first 10 rows */
-            }
+            // dd($finalData);
+            // if (!empty($mainResult)) {
+            //     $mainResult = array_merge_recursive($mainResult, $finalData);
+            // } else {
+                $mainResult = $finalData;
+            // }
         }
-
-        // dd($finalData);
 
         $result = [];
 
-        foreach ($finalData as $item) {
+        foreach ($mainResult as $item) {
             $id = ltrim($item['account_number'], '0');
 
             if (!isset($result[$id])) {
@@ -2042,7 +2097,7 @@ class Order extends Model
 
         /** If you want a zero-based indexed array */
         $result = array_values($result);
-        // dd($result);
+        
         return $result;
     }
 
@@ -2557,6 +2612,7 @@ class Order extends Model
                 'db_volume_rebate' => $dbVolumeRebate,
                 'file_volume_rebate' => $fileVolumeRebate,
                 'account_name' => $item1['account_name'] ?? ($item2['account_name'] ?? NULL),
+                'account_number' => $item1['account_number'] ?? ($item2['account_number'] ?? NULL),
                 'rebate_percent' => isset($item1['rebate_percent']) ? $item1['rebate_percent'] . '%' : "0%",
                 'file_rebate_percent' => isset($item2['rebate_percent']) ? $item2['rebate_percent'] . '%' : "0%",
             ];
