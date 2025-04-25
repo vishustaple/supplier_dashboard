@@ -123,13 +123,13 @@
                     </a>
                 @endif
 
-                <div class="collapse {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Business Report', 'Quarter Report', 'Consolidated Supplier Report', 'Supplier Rebate Report', 'Validation Rebate Report', 'Commission Report'])) ? 'show' : '' }}" id="submenuSupplier">
-                    @if(in_array('Business Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
+                <div class="collapse {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Account Validation Rebate Report', 'Business Report', 'Quarter Report', 'Consolidated Supplier Report', 'Supplier Rebate Report', 'Validation Rebate Report', 'Commission Report'])) ? 'show' : '' }}" id="submenuSupplier">
+                    <!-- @if(in_array('Business Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                         <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Business Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'business_report'])}}">Business Report</a>
                     @endif
                     @if(in_array('Quarter Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                         <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Quarter Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'optimization_report'])}}">Quarter Report</a>
-                    @endif
+                    @endif -->
                     @if(in_array('Consolidated Supplier Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                         <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Consolidated Supplier Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'consolidated_report'])}}">Consolidated Supplier Report</a>
                     @endif
@@ -145,9 +145,9 @@
                     @if(in_array('Commission Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                         <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Commission Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'commission_report'])}}">Commission Report</a>
                     @endif
-                    @if(in_array('Operational Anomaly Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
+                    <!-- @if(in_array('Operational Anomaly Report', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                         <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Operational Anomaly Report') ? 'active' : '' }}" href="{{route('report.type', ['reportType' => 'operational_anomaly_report'])}}">Operational Anomaly Report</a>
-                    @endif
+                    @endif -->
                 </div>
                 @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || !in_array(auth()->user()->user_type, [\App\Models\User::USER_TYPE_USER, \App\Models\User::USER_TYPE_ADMIN]))
                 <a class="nav-link" target="_blank" href="http://74.207.229.111:8089/phpmyadmin/index.php">
