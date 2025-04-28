@@ -1840,10 +1840,14 @@ class Order extends Model
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
                 $sheetTitle = $sheet->getTitle();
-        
+
+                if ($filter['supplier'] == 4 && $sheetTitle != "ShipTo Level Sales Details") {
+                    continue;
+                }
+
                 $headersFound = false;
                 $headerMap = [];
-        
+                
                 /** Try to detect headers in the first 10 rows only */
                 for ($rowIndex = 1; $rowIndex <= min($highestRow, 20); $rowIndex++) {
                     $row = $sheet->rangeToArray("A{$rowIndex}:{$highestColumn}{$rowIndex}", null, true, false)[0];
@@ -2000,13 +2004,11 @@ class Order extends Model
                         $headersFound = true;
                         foreach ($headers as $index => $header) {
                             if ($rebate == 'volume_rebate') {
-                                if ($header =='rebate due') $headerMap[$index] = $rebate;
-                                if ($header =='sum of sales') $headerMap[$index] = 'cost';
-                                if ($header =='rebate %') $headerMap[$index] = 'rebate_percent';
-                                if ($header == 'master customer number') $headerMap[$index] = 'account_number';
+                                if ($header == '5% fee') $headerMap[$index] = 'cost';
+                                if ($header == 'existing 2.5% fee') $headerMap[$index] = 'cost1';
+                                if ($header == 'new to staples 5% fee') $headerMap[$index] = 'cost';
                                 if ($header == 'master customer name') $headerMap[$index] = 'account_name';
-                            } else {
-    
+                                if ($header == 'master customer number') $headerMap[$index] = 'account_number';
                             }
                         }
         
@@ -2050,11 +2052,11 @@ class Order extends Model
             }
     
             // dd($finalData);
-            // if (!empty($mainResult)) {
-            //     $mainResult = array_merge_recursive($mainResult, $finalData);
-            // } else {
+            if (!empty($mainResult)) {
+                $mainResult = array_merge_recursive($mainResult, $finalData);
+            } else {
                 $mainResult = $finalData;
-            // }
+            }
         }
 
         $result = [];
@@ -2065,14 +2067,15 @@ class Order extends Model
             if (!isset($result[$id])) {
                 /** Initialize if not already set */
                 $result[$id]['account_number'] = $id;
-                $result[$id]['cost'] = (float) $item['cost'];
                 $result[$id]['account_name'] = $item['account_name'];
                 
                 if ($filter['supplier'] == 2) {
+                    $result[$id]['cost'] = (float) $item['cost'];
                     $result[$id]['rebate_percent'] = 3;
                     $rebateAmount = (3 / 100) * (float) $item['cost'];
                     $result[$id][$rebate] = (float) $rebateAmount;
                 } elseif ($filter['supplier'] == 3) {
+                    $result[$id]['cost'] = (float) $item['cost'];
                     $result[$id][$rebate] = (float) $item[$rebate];
                     if ($filter['rebate_check'] == 1) {
                         $result[$id]['rebate_percent'] = (isset($item['rebate_percent']) && !empty($item['rebate_percent'])) ? ($item['rebate_percent']) : (8);
@@ -2080,17 +2083,41 @@ class Order extends Model
                         $result[$id]['rebate_percent'] = 5;
                     }
                 } elseif ($filter['supplier'] == 5) {
+                    $result[$id]['cost'] = (float) $item['cost'];
                     $result[$id][$rebate] = (float) $item[$rebate];
                     $result[$id]['rebate_percent'] = $item['rebate_percent'];
+                } elseif ($filter['supplier'] == 4) {
+                    if (isset($item['cost']) && $item['cost'] != NULL) {
+                        $result[$id]['rebate_percent'] = 5;
+                        $result[$id]['cost'] = (float) $item['cost'];
+                        $rebateAmount = (5 / 100) * (float) $item['cost'];
+                        $result[$id][$rebate] = (float) $rebateAmount;
+                    } elseif (isset($item['cost1']) && $item['cost1'] != NULL) {
+                        $result[$id]['rebate_percent'] = 2.5;
+                        $result[$id]['cost'] = (float) $item['cost1'];
+                        $rebateAmount = (2.5 / 100) * (float) $item['cost1'];
+                        $result[$id][$rebate] = (float) $rebateAmount;   
+                    }
                 }
             } else {
                 /** Add to existing */
-                $result[$id]['cost'] += (float) $item['cost'];
                 if ($filter['supplier'] == 3 || $filter['supplier'] == 5) {
                     $result[$id][$rebate] += (float) $item[$rebate];
+                    $result[$id]['cost'] += (float) $item['cost'];
                 } elseif ($filter['supplier'] == 2) {
+                    $result[$id]['cost'] += (float) $item['cost'];
                     $rebateAmount = (3 / 100) * (float) $item['cost'];
                     $result[$id][$rebate] += (float) $rebateAmount;
+                } elseif ($filter['supplier'] == 4) {
+                    if (isset($item['cost']) && $item['cost'] != NULL) {
+                        $result[$id]['cost'] += (float) $item['cost'];
+                        $rebateAmount = (5 / 100) * (float) $item['cost'];
+                        $result[$id][$rebate] += (float) $rebateAmount;
+                    } elseif (isset($item['cost1']) && $item['cost1'] != NULL) {
+                        $result[$id]['cost'] += (float) $item['cost1'];
+                        $rebateAmount = (2.5 / 100) * (float) $item['cost1'];
+                        $result[$id][$rebate] += (float) $rebateAmount;   
+                    }
                 }
             }
         }
@@ -2469,18 +2496,6 @@ class Order extends Model
                 rebate.incentive_rebate AS `rebate_percent`,
                 ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`
             ");
-        }
-
-        $query1 = self::query()->selectRaw("SUM(`orders`.`cost`) AS `cost`");
-        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
-            $query1->where('orders.supplier_id', $filter['supplier']);
-
-            /** Year and quarter filter here */
-            if (isset($filter['end_date']) && isset($filter['start_date'])) {
-                $query1->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
-            }
-
-            $totalAmount1 = $query1->first()->cost;
         }
 
         $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number');
