@@ -1968,7 +1968,7 @@ class Order extends Model
                         }
         
                         /** Start processing data rows after header */
-                        for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
+                        for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
                             $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
                             $dataRow = [];
         
@@ -2006,14 +2006,16 @@ class Order extends Model
                             if ($rebate == 'volume_rebate') {
                                 if ($header == '5% fee') $headerMap[$index] = 'cost';
                                 if ($header == 'existing 2.5% fee') $headerMap[$index] = 'cost1';
+                                if ($header == 'centerpoint existing 2.5% fee') $headerMap[$index] = 'cost1';
                                 if ($header == 'new to staples 5% fee') $headerMap[$index] = 'cost';
+                                if ($header == 'centerpoint new - 5% fee') $headerMap[$index] = 'cost';
                                 if ($header == 'master customer name') $headerMap[$index] = 'account_name';
                                 if ($header == 'master customer number') $headerMap[$index] = 'account_number';
                             }
                         }
         
                         /** Start processing data rows after header */
-                        for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
+                        for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
                             $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
                             $dataRow = [];
         
