@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\{Account, CategorySupplier, Rebate};
+use Illuminate\Support\Facades\Auth;
 use League\Csv\Writer;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -114,8 +115,10 @@ class RebateController extends Controller
         }
     }
 
-    public function rebateUpdate(Request $request){
-        if ($request->ajax()) {
+    public function rebateUpdate(Request $request) {
+        $user = Auth::user(); // Get the logged-in user
+        $userType = $user->user_type;
+        if ($request->ajax() && $userType == 1) {
             // dd($request->all());
             $rebate = Rebate::where(['account_name'=> $request->account_name, 'supplier'=> $request->supplier_id])->first();
 
@@ -139,6 +142,8 @@ class RebateController extends Controller
 
                 return response()->json(['success' => 'Record added successfully'], 200);
             }
+        } else {
+            return response()->json(['success' => 'User do not have permission to update and add rebate.'], 200);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Support\{Carbon, Facades\DB};
 use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
+use Illuminate\Support\Facades\Auth;
 
 class Account extends Model
 {
@@ -463,15 +464,27 @@ class Account extends Model
             $formatuserdata[$key]['customer_name'] = $data->customer_name;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['account_number'] = $data->account_number;
-            $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
-           
-            if ($data->supplier_id == 3) {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
-            } else {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' disabled value='0'  required/>";
+
+            $user = Auth::user(); // Get the logged-in user
+
+            if ($user) {
+                $userType = $user->user_type; // Assuming your users table has a 'type' column
+                if ($userType == 1) {
+                    $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
+                
+                    if ($data->supplier_id == 3) {
+                        $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                    } else {
+                        $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' disabled value='0'  required/>";
+                    }
+                    
+                    $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
+                } else {
+                    $formatuserdata[$key]['volume_rebate'] = "<input type='text' disabled class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>";
+                    $formatuserdata[$key]['incentive_rebate'] = "<input type='text' disabled class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                    $formatuserdata[$key]['id'] = '<button disabled class="btn btn-success"> Save </button>';
+                } 
             }
-            
-            $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
         }
 
         /** Return the result along with total and filtered counts */
@@ -580,15 +593,26 @@ class Account extends Model
                 $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
                 $formatuserdata[$key]['account_number'] = $data->account_number;
-                $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
-    
-                if ($data->supplier_id == 3) {
-                    $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
-                } else {
-                    $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='0' required/>";
+                $user = Auth::user(); // Get the logged-in user
+
+                if ($user) {
+                    $userType = $user->user_type; // Assuming your users table has a 'type' column
+                    if ($userType == 1) {
+                        $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
+            
+                        if ($data->supplier_id == 3) {
+                            $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                        } else {
+                            $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='0' required/>";
+                        }
+            
+                        $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';
+                    } else {
+                        $formatuserdata[$key]['volume_rebate'] = "<input type='text' class='form-control form-control-sm volume_rebate' disabled name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
+                        $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' disabled class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                        $formatuserdata[$key]['id'] = '<button class="disabled btn btn-success"> Update </button>';
+                    }       
                 }
-    
-                $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';
             }
         }
 

@@ -52,7 +52,7 @@ class HomeController extends Controller
         foreach ($userdata as $data) {
             $formatuserdata[] = [
                 $data->first_name . ' ' . $data->last_name,
-                ($data->user_type == 3) ? 'User' : 'Admin',
+                ($data->user_type == 3) ? 'User' : (($data->user_type == 1) ? 'Super Admin' : 'Admin'),
                 ($data->status == 1) ? 'Active' : 'In-Active',
                 (($data->user_type != 2 && $userInfo->user_type == 2) || $userInfo->user_type == 1 || (!in_array($data->user_type, [2, 3]) && $userInfo->user_type == 3)) ? ('<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser" data-userid="' . Crypt::encryptString($data->id) . '"><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . Crypt::encryptString($data->id) . '" class="btn btn-danger btn-xs remove" title="Remove User"><i class="fa-solid fa-trash"></i></button>') : (''),
             ];

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\{DB, File, Log};
 use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use App\Models\{Order, Account, UploadedFiles, ManageColumns};
+use DateTime;
 
 class ProcessUploadedFiles extends Command
 {
@@ -566,10 +567,19 @@ class ProcessUploadedFiles extends Command
                                                     /** Creating the excel insert array for supplier table insert using date column conditions */
                                                     if ($fileValue->supplier_id != 7) {
                                                         if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == $date) {
-                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] =  (!empty($value)) ? Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s') : ('');
+                                                            if (str_contains($value, '/')) {
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = (!empty($value)) ? DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d H:i:s') : ('');
+                                                            } else {
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] =  (!empty($value)) ? Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s') : ('');
+                                                            }
                                                         } else {
-                                                            if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1])  && !empty($value)) { 
-                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
+                                                            if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1])  && !empty($value)) {
+                                                                if (str_contains($value, '/')) {
+                                                                    $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d H:i:s');
+                                                                } else {
+                                                                    $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
+                                                                } 
+                                                                
                                                             } else {
                                                                 $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = $value;
                                                             }
@@ -616,7 +626,7 @@ class ProcessUploadedFiles extends Command
                                                  */
                                                 if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1]) && !empty($value)) {
                                                     $finalInsertArray[] = [
-                                                        'value' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s'),
+                                                        'value' => (isset($value) && !empty($value)) ? ((str_contains($value, '/')) ? (DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s'))) : (''),
                                                         'attachment_id' => $fileValue->id,
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         // 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -646,7 +656,7 @@ class ProcessUploadedFiles extends Command
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                                         'cost' => str_replace(",", "", number_format($row[$key], 2, '.')),
-                                                        'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : (''),
+                                                        'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : (''),
                                                         'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -667,7 +677,7 @@ class ProcessUploadedFiles extends Command
                                                     'supplier_id' => $fileValue->supplier_id,
                                                     'cost' => round($row[$keyAmount] * $convertedPrice, 2),
                                                     'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
-                                                    'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : (''),
+                                                    'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? ((str_contains($row[$keyInvoiceDate], '/')) ? (DateTime::createFromFormat('d/m/Y', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : (''),
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                     'customer_number' => $customerNumber[0],

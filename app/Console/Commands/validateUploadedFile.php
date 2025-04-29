@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\{Order, ManageColumns};
+use DateTime;
 use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use Illuminate\Support\{Carbon, Facades\Log, Facades\DB};
@@ -113,7 +114,7 @@ class validateUploadedFile extends Command
             foreach ($columnValues as $key => $value) {
                 $columnArray[$value->supplier_id]['invoice_date'] = $value->label;
             }
-
+            
             /** Checking the all sheets of excel using loop */
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 /** Compairing date of excel sheet data using loop */
@@ -199,7 +200,12 @@ class validateUploadedFile extends Command
                                         $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
                                     }
                                 } else {
-                                    $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                                    if (str_contains($row[$keyInvoiceDate], '/')) {
+                                        $dates[] = DateTime::createFromFormat('d/m/Y', $row[$keyInvoiceDate])->format('Y-m-d');
+                                    } else {
+                                        $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                                    }
+                                    var_dump($row[$keyInvoiceDate]);
                                 }
                                 
                                 if ($chunkSize == 1000) {
