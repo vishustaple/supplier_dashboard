@@ -28,6 +28,7 @@
                     <div class="form-group relative col-md-6 pt-4 mb-0">
                         <label for="file">Supplier Rebate Data Import:</label>
                         <input type="file" name="file" id="file" class="form-control">
+                        <div id="selected_files" class="mt-2 text-sm text-muted"></div>
                     </div>
                     <div class="form-check relative col-2  mb-0">
                         <div class="form-check">
@@ -511,10 +512,24 @@
             });
         });
         
+        let customFiles = []; // Keep track of manually managed files
         // Assuming your select element has id 'mySelect'
         $('#supplier').change(function() {
             // Get the selected value
             var selectedValue = $(this).val();
+            const filesInput = document.getElementById('file'),
+            selectedFilesDiv = document.getElementById('selected_files');
+
+            if (selectedValue == 4) {
+                filesInput.setAttribute('multiple', 'multiple');
+            } else {
+                filesInput.removeAttribute('multiple');
+            }
+
+            // Reset file input and list on supplier change
+            filesInput.value = '';
+            customFiles = [];
+            selectedFilesDiv.innerHTML = '';
             
             if (selectedValue == 1) {
                  // Grand & Toy
@@ -836,6 +851,95 @@
                 $('#incentive_rebate_check').prop('checked', false);
             }
         });
+
+         // Handle file input change
+         document.getElementById('file').addEventListener('change', function (e) {
+            const selectedValue = $('#supplier').val();
+
+            const newFiles = Array.from(e.target.files);
+            if (selectedValue == 4) {
+                // Staples - allow multiple file additions
+                customFiles = customFiles.concat(newFiles);
+            } else {
+                // Others - only one file
+                customFiles = newFiles.length > 0 ? [newFiles[0]] : [];
+            }
+
+            renderSelectedFiles();
+
+            // Always reset input so new selection triggers event again
+            e.target.value = '';
+        });
+
+        // Render file list with remove buttons
+        function renderSelectedFiles() {
+            const selectedFilesDiv = document.getElementById('selected_files');
+            selectedFilesDiv.innerHTML = '';
+
+            if (customFiles.length === 0) {
+                selectedFilesDiv.innerHTML = '<em>No files selected.</em>';
+                return;
+            }
+
+            // const list = document.createElement('ul');
+            // customFiles.forEach((file, index) => {
+            //     const li = document.createElement('li');
+            //     li.innerHTML = `${file.name} <span class="btn btn-danger btn-sm rounded-circle remove-file" data-index="${index}"cursor:pointer;">X</span>`;
+            //     list.appendChild(li);
+            // });
+            const list = document.createElement('ul');
+            list.className = 'list-unstyled'; // Removes bullets
+            list.style.width = '100%'; // Optional for alignment
+            customFiles.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'd-flex align-items-center justify-content-between mb-1';
+
+                li.innerHTML = `
+                    <div class="d-flex align-items-center gap-2" style="max-width: 90%;">
+                        <i class="bi bi-file-earmark-text" style="font-size: 1.2rem;"></i>
+                        <span class="text-truncate">${file.name}</span>
+                    </div>
+                    <span class="btn btn-danger btn-sm remove-file ms-2" data-index="${index}" 
+                        style="width: 24px; height: 24px; line-height: 21px; padding: 0; text-align: center; font-size: 25px;">×</span>
+                `;
+
+                list.appendChild(li);
+            });
+
+            selectedFilesDiv.appendChild(list);
+        }
+
+        // Remove file handler using event delegation
+        document.getElementById('selected_files').addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-file')) {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                removeFile(index);
+            }
+        });
+
+        // Remove file by index
+        function removeFile(index) {
+            customFiles.splice(index, 1);
+            renderSelectedFiles();
+        }
+
+        // Use this when building your FormData before AJAX:
+        function buildFormData() {
+            const formData = new FormData();
+            const filesInput = document.getElementById('file');
+
+            // Append selected files manually
+            for (let i = 0; i < customFiles.length; i++) {
+                formData.append('files[]', customFiles[i]);
+            }
+
+            formData.append('supplier', $('#supplier').val());
+            formData.append('rebate_check', $('input[name=rebate_check]:checked').val());
+            formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+            formData.append('end_date', moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+
+            return formData;
+        }
         // $('#enddate').daterangepicker({
         //     autoApply: true,
         //     showDropdowns: true,
@@ -939,19 +1043,21 @@
                     // d.rebate_check = $('input[name="rebate_check"]:checked').val();
                     // d.end_date = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
                     // d.start_date = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
-                    var formData = new FormData();
+                    // var formData = new FormData();
             
-                    // Append file data
-                    var fileInput = document.getElementById('file');
-                    if (fileInput.files.length > 0) {
-                        formData.append('file', fileInput.files[0]);
-                    }
+                    // // Append file data
+                    // var fileInput = document.getElementById('file');
+                    // if (fileInput.files.length > 0) {
+                    //     formData.append('file', fileInput.files[0]);
+                    // }
 
-                    // Append other parameters
-                    formData.append('supplier', $('#supplier').val());
-                    formData.append('rebate_check', $('input[name="rebate_check"]:checked').val());
-                    formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
-                    formData.append('end_date', moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+                    // // Append other parameters
+                    // formData.append('supplier', $('#supplier').val());
+                    // formData.append('rebate_check', $('input[name="rebate_check"]:checked').val());
+                    // formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+                    // formData.append('end_date', moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
+                    
+                    var formData = buildFormData();
 
                     return formData;
                 },
