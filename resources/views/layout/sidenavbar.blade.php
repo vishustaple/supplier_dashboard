@@ -39,14 +39,20 @@
                         <i class="fas fa-caret-down"></i>
                     </a>
 
-                    <a href="{{ route('account.customer-edit')}}" class="bell_icon_link position-relative">
+                    <a href="javascript:void(0)" class="bell_icon_link position-relative">
                         <i class="fa-solid fa-bell"></i>
-                        <span class="notification-count" id="account_count" style="display:none"></span>
+                        <span class="notification-count" id="notification_span" style="display:none; width: 10px !important;height: 10px !important; font-size: 10px !important;"></span>
                     </a>
                 </div>
                 <div class="collapse {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Accounts Data', 'Rebate', 'User Data'])) ? 'show' : '' }}" id="admin">
-                    <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Accounts Data') ? 'active' : '' }}" href="{{route('account')}}">Manage Accounts</a>
-
+                    <div class="manage_account_link">
+                        <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Accounts Data') ? 'active' : '' }}" href="{{route('account')}}">Manage Accounts</a>
+                        <a href="{{ route('account.customer-edit')}}" class="bell_icon_link position-relative">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="notification-count" id="account_count" style="display:none"></span>
+                        </a>
+                    </div> 
+                    
                     @if(in_array('Rebate', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                         <div class="manage_account_link">
                             <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Rebate') ? 'active' : '' }}" href="{{route('rebate.list', ['rebateType' => 'rebate'])}}">
@@ -208,6 +214,7 @@
 
             if(response.success){
                 $('#account_count').css('display','flex');
+                $('#notification_span').css('display','flex');
                 $('#account_count').text(response.success);
             }
         },
@@ -231,6 +238,7 @@
 
             if(response.success){
                 $('#rebate_count').css('display','flex');
+                $('#notification_span').css('display','flex');
                 $('#rebate_count').text(response.success);
             }
         },
