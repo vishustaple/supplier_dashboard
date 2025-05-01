@@ -540,16 +540,57 @@ class HomeController extends Controller
 
                 /** Generate the HTML content */
                 $data = '
-                    <a class="nav-link ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'active' : '') . '" data-toggle="collapse" href="#subMenuPowerBi">
-                        <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
+                    <a class="nav-link ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles) || $pageTitleCheck == 'Power Bi') ? 'active' : '') . '" data-toggle="collapse" href="#subMenuPowerBi">
+                        <div class="sb-nav-link-icon">
+                            <i class="fa fa-th-list" aria-hidden="true"></i>
+                        </div>
                         PowerBi Reports<i class="fas fa-caret-down"></i>
                     </a>
-                    <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'show' : '') . '" id="subMenuPowerBi">';
+                    <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles) || $pageTitleCheck == 'Power Bi') ? 'show' : '') . '" id="subMenuPowerBi">';
+
+                if (
+                    in_array('Manage Power BI Reports', auth()->user()->permissions->pluck('name')->toArray()) ||
+                    auth()->user()->user_type != \App\Models\User::USER_TYPE_USER
+                ) {
+                    $data .= '
+                        <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == 'Power Bi') ? 'active' : '') . '" href="' . route('power_bi.show') . '">
+                            Manage Power BI Reports
+                        </a>';
+                }
 
                 foreach ($record as $value) {
                     $data .= '
                         <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == $value->title) ? 'active' : '') . '" href="' . route('powerbi_report.type', ['id' => $value->id, 'reportType' => $value->title]) . '">' . htmlspecialchars($value->title, ENT_QUOTES, 'UTF-8') . '</a>';
                 }
+
+                $data .= '</div>';
+
+                return response()->json([
+                    'data' => $data,
+                    'success' => true,
+                ]);
+            } else if (
+                in_array('Manage Power BI Reports', auth()->user()->permissions->pluck('name')->toArray()) ||
+                auth()->user()->user_type != \App\Models\User::USER_TYPE_USER
+            ) {
+
+                $titles = ['Power Bi'];
+                $pageTitleCheck = 'Power Bi';
+
+                /** Generate the HTML content */
+                $data = '
+                    <a class="nav-link ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'active' : '') . '" data-toggle="collapse" href="#subMenuPowerBi">
+                        <div class="sb-nav-link-icon">
+                            <i class="fa fa-th-list" aria-hidden="true"></i>
+                        </div>
+                        PowerBi Reports<i class="fas fa-caret-down"></i>
+                    </a>
+                    <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'show' : '') . '" id="subMenuPowerBi">';
+
+                $data .= '
+                    <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == 'Power Bi') ? 'active' : '') . '" href="' . route('power_bi.show') . '">
+                        Manage Power BI Reports
+                    </a>';
 
                 $data .= '</div>';
 
