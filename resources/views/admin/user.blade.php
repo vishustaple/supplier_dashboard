@@ -106,7 +106,10 @@
                                     <label for="userrole">User Role</label>
                                     <select id="user_role" name="user_role" class="form-control"> 
                                         <option value="" selected>--Select--</option>
-                                        <option value="2">Admin</option>
+                                        @if (auth()->user()->user_type == 1)
+                                            <option value="1">Super Admin</option>
+                                            <option value="2">Admin</option>
+                                        @endif
                                         <option value="3">User</option>
                                     </select>
                                 </div>
@@ -222,7 +225,10 @@
                                     <label for="userrole">User Role</label>
                                         <select id="update_user_role" name="update_user_role" class="form-control"> 
                                         <option value="" selected>--Select--</option>
-                                        <option value="2">Admin</option>
+                                        @if (auth()->user()->user_type == 1)
+                                            <option value="1">Super Admin</option>
+                                            <option value="2">Admin</option>
+                                        @endif
                                         <option value="3">User</option>
                                         </select>
                                 </div>
@@ -240,9 +246,7 @@
             </div>
         </div>
         <div class="container">
-            <table id="user_data" class="data_table_files">
-            <!-- Your table content goes here -->
-            </table>
+            <table id="user_data" class="data_table_files"></table>
         </div>
     </div>
 </div>
@@ -622,17 +626,45 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url:"{{route('user.remove')}}",
                         data:{id:id},
+                        url:"{{route('user.remove')}}",
                         success:function(data){
                             $('#user_del_success').html('');
                             $('#user_del_success').css('display','block');
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
                             $('#user_del_success').append('<div class="alert alert-success alert-dismissible fade show m-3" role="alert"> User Delete Successfully! <button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
                         },
                         error:function(error){
                             console.log(error);
                         }
                     });
+                }
+            });
+        });
+
+         //to resend email to user 
+        $(document).on('click','.resend',function(){               
+            var email = $(this).attr('data-email');
+            $.ajax({
+                type: 'POST',
+                data:{email:email},
+                url:"{{route('user.resend')}}",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                success:function(data){
+                    if (data.success) {
+                        $('#user_del_success').html('');
+                        $('#user_del_success').css('display','block');
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        $('#user_del_success').append('<div class="alert alert-success alert-dismissible fade show m-3" role="alert">' + data.msg + '<button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
+                    } else {
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        $('#user_del_success').html('');
+                        $('#user_del_success').css('display','block');
+                        $('#user_del_success').append('<div class="alert alert-danger alert-dismissible fade show m-3" role="alert">' + data.msg + '<button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
+                    }
+                },
+                error:function(error){
+                    console.log(error);
                 }
             });
         });

@@ -45,7 +45,7 @@ class HomeController extends Controller
 
     public function userview()
     {
-        $userdata = User::where('user_type', '!=', User::USER_TYPE_SUPERADMIN)->orderBy('id', 'desc')->get();
+        $userdata = User::orderBy('id', 'desc')->get();
         $formatuserdata = [];
         $i = 1;
         $userInfo = Auth::user();
@@ -54,7 +54,25 @@ class HomeController extends Controller
                 $data->first_name . ' ' . $data->last_name,
                 ($data->user_type == 3) ? 'User' : (($data->user_type == 1) ? 'Super Admin' : 'Admin'),
                 ($data->status == 1) ? 'Active' : 'In-Active',
-                (($data->user_type != 2 && $userInfo->user_type == 2) || $userInfo->user_type == 1 || (!in_array($data->user_type, [2, 3]) && $userInfo->user_type == 3)) ? ('<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser" data-userid="' . Crypt::encryptString($data->id) . '"><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . Crypt::encryptString($data->id) . '" class="btn btn-danger btn-xs remove" title="Remove User"><i class="fa-solid fa-trash"></i></button>') : (''),
+                (($data->user_type == 3 && $userInfo->user_type == 2) || $userInfo->user_type == 1) 
+                ? 
+                    '<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser" data-userid="' . Crypt::encryptString($data->id) . '">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    <button data-id="' . Crypt::encryptString($data->id) . '" class="btn btn-danger btn-xs remove" title="Remove User">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>' 
+                    . 
+                    (($data->remember_token != '') 
+                        ? 
+                        '<button data-email="' . $data->email . '" class="btn btn-success btn-xs resend" title="Resend mail to user">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                        </button>' 
+                        : 
+                        ''
+                    )
+                : 
+                ''
             ];
             $i++;
         }
@@ -93,8 +111,8 @@ class HomeController extends Controller
         } else {
             try {
                 $user1 = Auth::user();
-                $userType = ($request->user_role == USER::USER_TYPE_ADMIN) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
-                if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
+                $userType = $request->user_role;
+                if (($userType == 3 && $user1->user_type == 2) || $user1->user_type == 1) {
                     $token = Str::random(40);
                     if ($user1->user_type == 1) {
                         $user = User::create([
@@ -144,6 +162,31 @@ class HomeController extends Controller
                 return response()->json(['error' => $e->getMessage()], 200);
             }
         }
+    }
+
+    public function resendUserEmail(Request $request) {
+        $email = $request->email;
+        $user = User::where('email', $email)->first();
+        $key = env('APP_KEY');
+        $salt = openssl_random_pseudo_bytes(16);
+        /** Generate salt */
+        $data = '' . $user->id . '|' . $user->remember_token . '';
+
+        try {
+            Log::info('Attempting to send email...');
+            Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function ($message) use ($email) {
+                $message->to($email)
+                    ->subject('Password Creation Form');
+            });
+
+            Log::info('Email sent successfully');
+            return response()->json(['success' => true, 'msg' => 'Email sent successfully'], 200);
+        } catch (\Exception $e) {
+            /** Handle the exception here */
+            Log::error('Email sending failed: ' . $e->getMessage());
+            return response()->json(['error' => true, 'msg' => 'Email sending failed: ' . $e->getMessage()], 200);
+        }
+        
     }
 
     public function userLogin(Request $request)

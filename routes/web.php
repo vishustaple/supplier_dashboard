@@ -31,6 +31,7 @@ Route::get('/user-logout', [HomeController::class, 'userLogout'])->name('user.lo
 Route::get('/user-forget', [HomeController::class, 'userForgetPassword'])->name('user.forget');
 Route::post('/user-reset', [HomeController::class, 'userResetPassword'])->name('user.reset');
 Route::post('/user-register', [HomeController::class, 'userRegister'])->name('user.register');
+Route::post('/user-resend', [HomeController::class, 'resendUserEmail'])->name('user.resend');
 
 Route::group(['prefix' => 'admin'], function () {
     Route::middleware(['auth'])->group(function () {
