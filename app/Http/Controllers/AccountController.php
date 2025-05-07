@@ -57,14 +57,12 @@ class AccountController extends Controller
         }
     }
 
-    public function getEmptyAccountNameAccounts(Request $request) {
-        if ($request->ajax()) {
-            $missingAccount = Account::whereNull('account_name')
-            ->orWhere('account_name', '')
-            ->get();
-            $totalmissingaccount = count($missingAccount);
-            return response()->json(['success' => $totalmissingaccount], 200);
-        }
+    public static function getEmptyAccountNameAccounts() {
+        $missingAccount = Account::whereNull('account_name')
+        ->orWhere('account_name', '')
+        ->get();
+        $totalmissingaccount = count($missingAccount);
+        return response()->json(['success' => $totalmissingaccount], 200);
     }
    
     public function getAccountsWithAjax(Request $request) {
