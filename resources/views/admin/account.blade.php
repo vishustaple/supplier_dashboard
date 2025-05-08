@@ -3,7 +3,7 @@
     <div id="layoutSidenav">
         @include('layout.sidenavbar', ['pageTitleCheck' => 'Accounts Data','totalmissingaccount' => $totalmissingaccount])
         <div id="layoutSidenav_content" >
-            <h3 class="mb-0 ps-2 ms-1">Manage Accounts</h3>
+            <h3 class="mb-0 ps-2 ms-1">Client Accounts</h3>
             <div class="row align-items-end border-bottom pb-3 pe-3 mb-4">
                 <div class="col-md-12 mb-0 text-end">
                     <button id="downloadAccountCsvBtn" class="btn-success btn" title="Csv Download"><i class="fa-solid me-2 fa-file-csv"></i>Download</button>

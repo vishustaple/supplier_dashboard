@@ -35,7 +35,7 @@
                         <div class="sb-nav-link-icon">
                             <i class="fa fa-users" aria-hidden="true"></i>
                         </div>
-                        Admin
+                        Account Tools
                         <i class="fas fa-caret-down"></i>
                     </a>
 
@@ -46,7 +46,7 @@
                 </div>
                 <div class="collapse {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Accounts Data', 'Rebate', 'User Data'])) ? 'show' : '' }}" id="admin">
                     <div class="manage_account_link">
-                        <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Accounts Data') ? 'active' : '' }}" href="{{route('account')}}">Manage Accounts</a>
+                        <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Accounts Data') ? 'active' : '' }}" href="{{route('account')}}">Client Accounts</a>
                         <a href="{{ route('account.customer-edit')}}" class="bell_icon_link position-relative">
                             <i class="fa-solid fa-bell"></i>
                             <span class="notification-count" id="account_count" style="display:none"></span>
