@@ -35,7 +35,7 @@
                                         $user = Auth::user();
                                     @endphp
 
-                                    @if ($user && ($user->can('Client Accounts Edit')))
+                                    @if ($user && ($user->can('Client Accounts Edit') || $user->user_type == 1))
                                         <td class="missing_value"><input class="form-control" type="text" placeholder="Account Name" value=""></td>
                                         <td>{{getSupplierName($missingarray->supplier_id)}}</td>
                                         <td><button type="button" class="btn btn-primary missing_save" data-id="{{$missingarray->id}}">Save</button></td>
