@@ -184,8 +184,17 @@ class Account extends Model
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
                 $formatuserdata[$key]['customer_number'] = $data->customer_number;
                 $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
-                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" data-parent_name="'.$data->parent_name.'" data-parent_number="'.$data->parent_id.'"data-customer_id="'.$data->customer_id.'" data-customer_name="'.$data->customer_name.'" data-category_name="'.$data->record_type.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit
-              </a></div></div>';
+
+                $user = Auth::user();
+                
+                if ($user) {
+                    $userType = $user->user_type; // Assuming your users table has a 'type' column
+                    if (auth()->user()->can('Rebate Edit') || $userType == 1) {
+                        $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" data-parent_name="'.$data->parent_name.'" data-parent_number="'.$data->parent_id.'"data-customer_id="'.$data->customer_id.'" data-customer_name="'.$data->customer_name.'" data-category_name="'.$data->record_type.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+                    } else {
+                        $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a></div></div>';
+                    }
+                }
             }
         }
 
@@ -469,7 +478,7 @@ class Account extends Model
 
             if ($user) {
                 $userType = $user->user_type; // Assuming your users table has a 'type' column
-                if ($userType == 1) {
+                if (auth()->user()->can('Rebate Edit') || $userType == 1) {
                     $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
                 
                     if ($data->supplier_id == 3) {
@@ -597,7 +606,7 @@ class Account extends Model
 
                 if ($user) {
                     $userType = $user->user_type; // Assuming your users table has a 'type' column
-                    if ($userType == 1) {
+                    if (auth()->user()->can('Rebate Edit') || $userType == 1) {
                         $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
             
                         if ($data->supplier_id == 3) {

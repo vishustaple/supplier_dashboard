@@ -12,6 +12,7 @@ class RebateController extends Controller
 {
     public function __construct(){
         $this->middleware('permission:Rebate')->only(['index', 'getUpdateRebateWithAjax', 'getRebateWithAjax', 'rebateCount', 'rebateUpdate']);
+        $this->middleware('permission:Rebate Edit')->only(['rebateUpdate']);
     }
 
     public function index(Request $request, $rebateType, $id=null){
@@ -116,9 +117,7 @@ class RebateController extends Controller
     }
 
     public function rebateUpdate(Request $request) {
-        $user = Auth::user(); // Get the logged-in user
-        $userType = $user->user_type;
-        if ($request->ajax() && $userType == 1) {
+        if ($request->ajax()) {
             // dd($request->all());
             $rebate = Rebate::where(['account_name'=> $request->account_name, 'supplier'=> $request->supplier_id])->first();
 

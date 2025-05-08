@@ -288,7 +288,7 @@
 
                 $('input[type="checkbox"]').prop('checked', false);
                 $('input[type="checkbox"]').parent().hide();
-                $('input[type="checkbox"][value="4"]').parent().show();
+                $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
             } else if ($(this).val() == 3) {
                 $('.permission_heading').show();
                 $('.report_permission_heading').show();
@@ -407,7 +407,8 @@
 
             $('input[type="checkbox"]').parent().hide();
             $('input[type="checkbox"]').prop('checked', false);
-            $('input[type="checkbox"][value="4"]').parent().show();
+            $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
+
         } else if ($('#user_role').val() == 3) {
             $('.permission_heading').show();
             $('.report_permission_heading').show();
@@ -436,7 +437,9 @@
 
                 $('input[type="checkbox"]').prop('checked', false);
                 $('input[type="checkbox"]').parent().hide();
-                $('input[type="checkbox"][value="4"]').parent().show();
+                $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
+
+                // $('input[type="checkbox"][value="4"]').parent().show();
             } else if ($(this).val() == 3) {
                 $('.permission_heading').show();
                 $('.report_permission_heading').show();
@@ -498,7 +501,9 @@
                             $('.permission_heading').show();
                             $('input[type="checkbox"]').parent().hide();
                             $('input[type="checkbox"]').prop('checked', false);
-                            $('input[type="checkbox"][value="4"]').parent().show();
+                            $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
+
+                            // $('input[type="checkbox"][value="4"]').parent().show();
                         } else if ($('#user_role').val() == 3) {
                             $('.permission_heading').show();
                             $('input[type="checkbox"]').prop('checked', false);
@@ -543,11 +548,11 @@
 
                     $('#updateuserModal').modal('show');
                     const responses = await fetchUserPermissions(id);
-
+                    
                     await renderPermissions(responses.user, responses.permissions);
                     if ($('#update_user_role').val() == 2) {
                         $('input[type="checkbox"]').parent().hide();
-                        $('input[type="checkbox"][value="4"]').parent().show();
+                        $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
                     }                    
                 }
             } catch (error) {

@@ -31,9 +31,19 @@
                                 <tr>
                                     <td>{{$missingarray->account_number}}</td>
                                     <td>{{$missingarray->customer_name}}</td>
-                                    <td class="missing_value"><input class="form-control" type="text" placeholder="Account Name" value=""></td>
-                                    <td>{{getSupplierName($missingarray->supplier_id)}}</td>
-                                    <td><button type="button" class="btn btn-primary missing_save" data-id="{{$missingarray->id}}">Save</button></td>
+                                    @php
+                                        $user = Auth::user();
+                                    @endphp
+
+                                    @if ($user && ($user->can('Client Accounts Edit')))
+                                        <td class="missing_value"><input class="form-control" type="text" placeholder="Account Name" value=""></td>
+                                        <td>{{getSupplierName($missingarray->supplier_id)}}</td>
+                                        <td><button type="button" class="btn btn-primary missing_save" data-id="{{$missingarray->id}}">Save</button></td>
+                                    @else
+                                        <td><input class="form-control" type="text" placeholder="Account Name" disabled value=""></td>
+                                        <td>{{getSupplierName($missingarray->supplier_id)}}</td>
+                                        <td><button type="button" class="btn btn-primary" disabled data-id="{{$missingarray->id}}">Save</button></td>
+                                    @endif
                                 </tr>
                             @endforeach
                             @endif
