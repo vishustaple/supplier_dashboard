@@ -2468,8 +2468,6 @@ class Order extends Model
         /** For debug query */
         // dd($query->toSql(), $query->getBindings());
 
-        
-
         /** Making final array */
         $finalArray=[];
         if (isset($formatuserdata) && !$formatuserdata->isEmpty()) {

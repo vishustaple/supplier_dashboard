@@ -41,6 +41,27 @@
 </div>
 <script>
     $(document).ready(function(){
+        $('#supplier').on('change', function () {
+            var selectedSupplier = $(this).val().toLowerCase();
+            $('#rebate_data').DataTable().ajax.reload();
+            
+            if (selectedSupplier === '6') {
+                // Change column header
+                $('#rebate_data thead th').each(function () {
+                    if ($(this).text().trim() === 'Incentive Rebate') {
+                        $(this).text('Rebate Two');
+                    }
+                });
+            } else {
+                // Revert back to original name
+                $('#rebate_data thead th').each(function () {
+                    if ($(this).text().trim() === 'Rebate Two') {
+                        $(this).text('Incentive Rebate');
+                    }
+                });
+            }
+        });
+
         var accountTable = $('#rebate_data').DataTable({
             oLanguage: {
                 sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'
@@ -56,9 +77,9 @@
                 },
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    d.start_date = $('#start_date').val();
-                    d.end_date = $('#end_date').val();
-                    d.supplierId = $('#supplierId').val();
+                    // d.start_date = $('#start_date').val();
+                    // d.end_date = $('#end_date').val();
+                    d.supplier_id = $('#supplier').val();
                 },
             },
             beforeSend: function() {
