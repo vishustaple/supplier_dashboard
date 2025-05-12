@@ -2131,7 +2131,7 @@ class Order extends Model
     }
 
     public static function getSupplierValidationReportFilterdData($filter=[]) {
-        dd($filter);
+        // dd($filter);
         if (isset($filter['files'])) {
             foreach ($filter['files'] as $key => $file) {  
                 $reader = new Xlsx(); /** Creating object of php excel library class */
