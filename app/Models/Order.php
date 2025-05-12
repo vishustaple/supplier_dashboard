@@ -2324,13 +2324,14 @@ class Order extends Model
                     SUM(
                         CASE 
                             WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
-                                THEN orders.cost * ?
-                            ELSE orders.cost * ?
+                                THEN ((SUM(`orders`.`cost` * ?)) / 100) * ?
+                            ELSE ((SUM(`orders`.`cost` * ?)) / 100) * ?
                         END
                     ) AS `volume_rebate`
                 ", [
-                    // $filter['rate'],  // e.g., 1.0 or currency conversion rate
+                    $filter['rate'],  // e.g., 1.0 or currency conversion rate
                     0.02,             // 2% for PPE
+                    $filter['rate'],
                     0.04              // 4% for non-PPE
                 ]);
 

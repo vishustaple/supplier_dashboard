@@ -527,7 +527,7 @@
             if (selectedValue === '6') {
                 inputContainer.append(`
                     <label for="conversion-rate">Conversion Rate:</label>
-                    <input type="number" id="conversion-rate" min="0" name="conversion_rate" class="form-control mt-1" />
+                    <input type="text" id="conversion-rate" step="0.01" min="1" name="conversion_rate" class="form-control mt-1" />
                 `);
             }
 
