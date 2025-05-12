@@ -825,15 +825,15 @@ class ProcessUploadedFiles extends Command
                             
                             if ($success > 0) {
                                 /** Setting the email where we want to send email */
-                                // $emails = [
-                                //     'anurag@centerpointgroup.com',
-                                //     'santosh@centerpointgroup.com',
-                                //     'mgaballa@centerpointgroup.com',
-                                // ];
                                 $emails = [
-                                    'vishustaple.in@gmail.com',
-                                    'kekohokubri-2165@yopmail.com',
+                                    'anurag@centerpointgroup.com',
+                                    'santosh@centerpointgroup.com',
+                                    'mgaballa@centerpointgroup.com',
                                 ];
+                                // $emails = [
+                                //     'vishustaple.in@gmail.com',
+                                //     'kekohokubri-2165@yopmail.com',
+                                // ];
                     
                                 $data = [
                                     'link' => url('admin/accounts/customer-edit'),
@@ -1119,15 +1119,15 @@ class ProcessUploadedFiles extends Command
                             
                             if ($success > 0) {
                                 /** Setting the email where we want to send email */
-                                // $emails = [
-                                //     'anurag@centerpointgroup.com',
-                                //     'santosh@centerpointgroup.com',
-                                //     'mgaballa@centerpointgroup.com',
-                                // ];
                                 $emails = [
-                                    'vishustaple.in@gmail.com',
-                                    'kekohokubri-2165@yopmail.com',
+                                    'anurag@centerpointgroup.com',
+                                    'santosh@centerpointgroup.com',
+                                    'mgaballa@centerpointgroup.com',
                                 ];
+                                // $emails = [
+                                //     'vishustaple.in@gmail.com',
+                                //     'kekohokubri-2165@yopmail.com',
+                                // ];
                     
                                 $data = [
                                     'link' => url('admin/accounts/customer-edit'),
