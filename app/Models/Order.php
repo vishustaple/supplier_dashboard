@@ -2324,8 +2324,8 @@ class Order extends Model
                     SUM(
                         CASE 
                             WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
-                                THEN (`orders`.`cost` * ? * 0.02)
-                            ELSE (`orders`.`cost` * ? * 0.04)
+                                THEN (((`orders`.`cost` * ?) / 100) * 0.02)
+                            ELSE (((`orders`.`cost` * ?) / 100) * 0.04)
                         END
                     ) AS `volume_rebate`
                 ", [
