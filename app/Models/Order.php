@@ -2131,7 +2131,6 @@ class Order extends Model
     }
 
     public static function getSupplierValidationReportFilterdData($filter=[]) {
-        // dd($filter);
         if (isset($filter['files'])) {
             foreach ($filter['files'] as $key => $file) {  
                 $reader = new Xlsx(); /** Creating object of php excel library class */
@@ -2294,7 +2293,16 @@ class Order extends Model
                         $fileRebate += $workSheetArray[17][1];
                     }
                     
+                } elseif($filter['supplier'] == 6) {
+                    $workSheetArray = $spreadSheet->getSheet(0)->toArray();
+
+                    if (!isset($fileRebate)) {
+                        $fileRebate = $workSheetArray[15][27];
+                    }
+
+                    $fileTotal = 0.0;
                 }
+
             }
         } else {
             $fileTotal = 0.0;
@@ -2308,13 +2316,34 @@ class Order extends Model
         }
 
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
-            // `rebate`.`volume_rebate` AS `volume_rebates`,
-            $query = self::query()->selectRaw("
-                `orders`.`date` AS `date`,
-                SUM(`orders`.`cost`) AS `cost`,
-                `suppliers`.`supplier_name` AS `supplier_name`, 
-                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
-            ");
+            if ($filter['supplier'] == 6) {
+                $query = self::query()->selectRaw("
+                    `orders`.`date` AS `date`,
+                    SUM(`orders`.`cost`) AS `cost`,
+                    `suppliers`.`supplier_name` AS `supplier_name`,
+                    SUM(
+                        CASE 
+                            WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
+                                THEN orders.cost * ?
+                            ELSE orders.cost * ?
+                        END
+                    ) AS `volume_rebate`
+                ", [
+                    // $filter['rate'],  // e.g., 1.0 or currency conversion rate
+                    0.02,             // 2% for PPE
+                    0.04              // 4% for non-PPE
+                ]);
+
+                $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+                $query->where('order_details.supplier_field_id', 413);
+            } else {
+                $query = self::query()->selectRaw("
+                    `orders`.`date` AS `date`,
+                    SUM(`orders`.`cost`) AS `cost`,
+                    `suppliers`.`supplier_name` AS `supplier_name`, 
+                    ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
+                ");
+            }
         } else {
             // `rebate`.`incentive_rebate` AS `incentive_rebates`,
             $query = self::query()->selectRaw("
@@ -2417,10 +2446,21 @@ class Order extends Model
         $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
         $formatuserdata = $query->get();
 
-        foreach ($formatuserdata as $key => $value) {
-            $totalAmount += $value->cost;
-            $totalVolumeRebate += $value->volume_rebate;
-            $totalIncentiveRebate += $value->incentive_rebate;
+        if (!$formatuserdata->isEmpty()) {
+            foreach ($formatuserdata as $key => $value) {
+                $totalAmount += $value->cost;
+                $totalVolumeRebate += $value->volume_rebate;
+                $totalIncentiveRebate += $value->incentive_rebate;
+            }
+
+            /** Formatting this */
+            $totalAmounts = number_format($totalAmount, 2);
+            $totalVolumeRebates = number_format($totalVolumeRebate, 2);
+            $totalIncentiveRebates = number_format($totalIncentiveRebate, 2);
+        } else {
+            $totalAmount = 0.00;
+            $totalVolumeRebate = 0.00;
+            $totalIncentiveRebate = 0.00;
         }
 
         // dd($formatuserdata);
@@ -2428,14 +2468,11 @@ class Order extends Model
         /** For debug query */
         // dd($query->toSql(), $query->getBindings());
 
-        /** Formatting this */
-        $totalAmounts = number_format($totalAmount, 2);
-        $totalVolumeRebates = number_format($totalVolumeRebate, 2);
-        $totalIncentiveRebates = number_format($totalIncentiveRebate, 2);
+        
 
         /** Making final array */
         $finalArray=[];
-        if (isset($formatuserdata) && !empty($formatuserdata)) {
+        if (isset($formatuserdata) && !$formatuserdata->isEmpty()) {
             if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
                 if ($filter['supplier'] == 2) {
                     $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $totalVolumeRebate);
@@ -2445,10 +2482,16 @@ class Order extends Model
                     $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
                     $fileTotal = "$" . number_format($fileTotal, 2);
                     $fileRebate = "$" . number_format($fileRebate, 2);
+                } elseif ($filter['supplier'] == 6) {
+                    $difference = (int) $fileRebate - (int) $totalVolumeRebate;
+                    $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
+                    $totalAmount = round($totalAmount * (float) $filter['rate'], 2); 
+                    $fileTotal = "$" . number_format($fileTotal, 2);
+                    $fileRebate = "$" . number_format($fileRebate, 2);
                 }
 
                 $finalArray[] = [
-                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount, 2) . '">'.$formatuserdata[0]->supplier_name,
+                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount, 2) . '">'. (!$formatuserdata->isEmpty()) ? ($formatuserdata[0]->supplier_name) : (''),
                     'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($totalAmount, 2),
                     'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.$totalVolumeRebates,
                     'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.$totalIncentiveRebates,
