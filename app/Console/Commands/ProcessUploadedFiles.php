@@ -816,6 +816,45 @@ class ProcessUploadedFiles extends Command
                             }
                         }
 
+                        /** We use try catch to handle errors during email send */
+                        try {
+                            Log::info('Attempting to send email...');
+                            echo "Attempting to send email...";
+                            $response = AccountController::getEmptyAccountNameAccounts();
+                            $success = $response->getData()->success;
+                            
+                            if ($success > 0) {
+                                /** Setting the email where we want to send email */
+                                // $emails = [
+                                //     'anurag@centerpointgroup.com',
+                                //     'santosh@centerpointgroup.com',
+                                //     'mgaballa@centerpointgroup.com',
+                                // ];
+                                $emails = [
+                                    'vishustaple.in@gmail.com',
+                                    'kekohokubri-2165@yopmail.com',
+                                ];
+                    
+                                $data = [
+                                    'link' => url('admin/accounts/customer-edit'),
+                                    'body' => 'A new account has been added to the database. Please check the link below.',
+                                ];
+                    
+                                /** Sending email here */
+                                Mail::send('mail.newaccount', $data, function($message) use ($emails) {
+                                    $message->to($emails)
+                                            ->subject('New Account in Database');
+                                });
+                    
+                                echo "Email sent successfully";
+                                Log::info('Email sent successfully');
+                            }
+                        } catch (\Exception $e) {
+                            /** Handle the exception here */
+                            Log::error('Email sending failed: ' . $e->getMessage());
+                            echo "Email sending failed: " . $e->getMessage();
+                        }
+
                         $this->info('Uploaded files processed successfully.');
                     } catch (QueryException $e) {
                         /** Handling the QueryException using try catch */
@@ -1080,15 +1119,15 @@ class ProcessUploadedFiles extends Command
                             
                             if ($success > 0) {
                                 /** Setting the email where we want to send email */
-                                $emails = [
-                                    'anurag@centerpointgroup.com',
-                                    'santosh@centerpointgroup.com',
-                                    'mgaballa@centerpointgroup.com',
-                                ];
                                 // $emails = [
-                                //     'vishustaple.in@gmail.com',
-                                //     'kekohokubri-2165@yopmail.com',
+                                //     'anurag@centerpointgroup.com',
+                                //     'santosh@centerpointgroup.com',
+                                //     'mgaballa@centerpointgroup.com',
                                 // ];
+                                $emails = [
+                                    'vishustaple.in@gmail.com',
+                                    'kekohokubri-2165@yopmail.com',
+                                ];
                     
                                 $data = [
                                     'link' => url('admin/accounts/customer-edit'),
