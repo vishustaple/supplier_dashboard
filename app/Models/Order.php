@@ -2324,15 +2324,13 @@ class Order extends Model
                     SUM(
                         CASE 
                             WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
-                                THEN (`orders`.`cost` * ?) * ?
-                            ELSE (`orders`.`cost` * ?) * ?
+                                THEN (`orders`.`cost` * ? * 0.02)
+                            ELSE (`orders`.`cost` * ? * 0.04)
                         END
                     ) AS `volume_rebate`
                 ", [
-                    $filter['rate'],  // conversion rate
-                    0.02,             // 2% for PPE
-                    $filter['rate'],  // conversion rate again
-                    0.04              // 4% for non-PPE
+                    $filter['rate'],  // conversion rate for PPE
+                    $filter['rate'],  // conversion rate for non-PPE
                 ]);
 
                 $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
