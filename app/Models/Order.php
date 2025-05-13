@@ -2297,12 +2297,11 @@ class Order extends Model
                     $workSheetArray = $spreadSheet->getSheet(0)->toArray();
 
                     if (!isset($fileRebate)) {
-                        $fileRebate = $workSheetArray[15][27];
+                        $fileRebate = round((int) $workSheetArray[15][27] * $filter['rate'], 2);
                     }
 
                     $fileTotal = 0.0;
                 }
-
             }
         } else {
             $fileTotal = 0.0;
