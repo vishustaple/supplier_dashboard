@@ -2209,7 +2209,7 @@ class Order extends Model
 
         /** If you want a zero-based indexed array */
         $result = array_values($result);
-        
+        // dd($result);
         return $result;
     }
 
@@ -2739,7 +2739,7 @@ class Order extends Model
         }
 
         if ($filter['supplier'] == 6) {
-            $query->groupBy('m2.account_name');
+            $query->groupBy('m2.account_name', 'rebate_percent');
         } else {
             $query->groupByRaw("m2.account_number");
         }
