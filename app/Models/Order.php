@@ -1904,7 +1904,7 @@ class Order extends Model
                         // }
                     
                         $onePercentAmount = round($item['cost']/$percentage, 2);
-                        $totalAmount = round($onePercentAmount * 100, 2);
+                        $totalAmount = round(($onePercentAmount * 100) * $filter['rate'], 2);
 
                         return [
                             'cost' => $totalAmount,
