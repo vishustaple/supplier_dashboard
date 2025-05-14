@@ -2644,16 +2644,15 @@ class Order extends Model
                 $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
                 $query->where('order_details.supplier_field_id', 413);
             } else {
-                
+                $query = self::query()->selectRaw("
+                    `orders`.`date` AS `date`,
+                    SUM(`orders`.`cost`) AS `cost`,
+                    m2.account_number AS account_number,
+                    customers.customer_name AS account_name,
+                    rebate.volume_rebate AS `rebate_percent`,
+                    ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
+                ");
             }
-            $query = self::query()->selectRaw("
-                `orders`.`date` AS `date`,
-                SUM(`orders`.`cost`) AS `cost`,
-                m2.account_number AS account_number,
-                customers.customer_name AS account_name,
-                rebate.volume_rebate AS `rebate_percent`,
-                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
-            ");
         } else {
             $query = self::query()->selectRaw("
                 `orders`.`date` AS `date`,
@@ -2772,8 +2771,6 @@ class Order extends Model
                 $secondMap[$item['account_number']] = $item;
             }
         }
-
-        
 
         /** Get all unique account numbers from both arrays */
         $allAccountNumbers = array_unique(array_merge(
