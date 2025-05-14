@@ -2738,8 +2738,12 @@ class Order extends Model
             ];
         }
 
-        // $query->groupBy('m2.account_number');
-        $query->groupByRaw("m2.account_number");
+        if ($filter['supplier'] == 6) {
+            $query->groupBy('m2.account_name');
+        } else {
+            $query->groupByRaw("m2.account_number");
+        }
+
         $totalRecords = 1;
 
         $firstArray = $query->get()->toArray(); /** Your first array (37 items) */
@@ -2748,14 +2752,27 @@ class Order extends Model
         // dd($secondArray);
         /** Index both arrays by account number */
         $firstMap = [];
-        foreach ($firstArray as $item) {
-            $firstMap[$item['account_number']] = $item;
+        if ($filter['supplier'] == 6) {
+            foreach ($firstArray as $item) {
+                $firstMap[$item['account_name']] = $item;
+            }
+    
+            $secondMap = [];
+            foreach ($secondArray as $item) {
+                $secondMap[$item['account_name']] = $item;
+            }
+        } else {
+            foreach ($firstArray as $item) {
+                $firstMap[$item['account_number']] = $item;
+            }
+    
+            $secondMap = [];
+            foreach ($secondArray as $item) {
+                $secondMap[$item['account_number']] = $item;
+            }
         }
 
-        $secondMap = [];
-        foreach ($secondArray as $item) {
-            $secondMap[$item['account_number']] = $item;
-        }
+        
 
         /** Get all unique account numbers from both arrays */
         $allAccountNumbers = array_unique(array_merge(
