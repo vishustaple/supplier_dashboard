@@ -1893,14 +1893,14 @@ class Order extends Model
                         $account_name = str_replace('CRL Volume rebate', 'Charles River Laboratories', $account_name);
 
                         // Determine account number
-                        if (str_contains($account_name_raw, 'CRL Volume rebate')) {
-                            // $account_number = 81093059;
-                            $account_number = 5092432;
-                        } elseif (str_contains($account_name_raw, 'BONY Volume rebate')) {
-                            $account_number = 0;
-                        } else {
-                            $account_number = null; // fallback if needed
-                        }
+                        // if (str_contains($account_name_raw, 'CRL Volume rebate')) {
+                        //     // $account_number = 81093059;
+                        //     $account_number = 5092432;
+                        // } elseif (str_contains($account_name_raw, 'BONY Volume rebate')) {
+                        //     $account_number = 0;
+                        // } else {
+                        //     $account_number = null; // fallback if needed
+                        // }
                     
                         $onePercentAmount = round($item['cost']/$percentage, 2);
                         $totalAmount = round($onePercentAmount * 100, 2);
@@ -1909,7 +1909,8 @@ class Order extends Model
                             'cost' => $totalAmount,
                             'account_name' => $account_name,
                             'rebate_percent' => $percentage,
-                            'account_number' => $account_number,
+                            'account_number' => '',
+                            // 'account_number' => $account_number,
                             $rebate => round($item['cost'] * $filter['rate'], 2),
                         ];
                     })->toArray();
