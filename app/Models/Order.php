@@ -2736,8 +2736,11 @@ class Order extends Model
             ];
         }
 
-    
-        $query->groupByRaw("m2.account_number");
+        if ($filter['supplier'] == 6) {
+            $query->groupByRaw("m2.account_name");
+        } else {
+            $query->groupByRaw("m2.account_number");
+        }
     
 
         $totalRecords = 1;
