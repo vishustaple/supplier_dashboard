@@ -2623,13 +2623,11 @@ class Order extends Model
                     SUM(`orders`.`cost`) AS `cost`,
                     m2.account_number AS account_number,
                     m2.account_name AS account_name,
-                    SUM(
-                        CASE 
-                            WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
-                                THEN 2
-                            ELSE 4
-                        END
-                    ) AS `rebate_percent`,
+                    CASE 
+                        WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
+                            THEN 2
+                        ELSE 4
+                    END AS `rebate_percent`,
                     SUM(
                         CASE 
                             WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
@@ -2738,11 +2736,9 @@ class Order extends Model
             ];
         }
 
-        if ($filter['supplier'] == 6) {
-            $query->groupBy('m2.account_number');
-        } else {
-            $query->groupByRaw("m2.account_number");
-        }
+    
+        $query->groupByRaw("m2.account_number");
+    
 
         $totalRecords = 1;
 
