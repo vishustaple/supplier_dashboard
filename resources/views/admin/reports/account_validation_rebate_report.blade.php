@@ -26,6 +26,7 @@
                                 @endforeach
                             @endif
                         </select>
+                        <div class="pt-4" id="additional-inputs"></div>
                     </div>
                     <div class="form-group relative col-md-6 pt-4 mb-0">
                         <label for="file">Supplier Rebate Data Import:</label>
@@ -520,9 +521,21 @@
         $('#supplier').change(function() {
 
             // Get the selected value
-            var selectedValue = $(this).val();
+            var selectedValue = $(this).val(),
+            inputContainer = $('#additional-inputs'); // Target container
             const filesInput = document.getElementById('file'),
             selectedFilesDiv = document.getElementById('selected_files');
+
+            // Clear previous inputs
+            inputContainer.empty();
+
+            // Check if "Lyreco" (value 6) is selected
+            if (selectedValue === '6') {
+                inputContainer.append(`
+                    <label for="conversion-rate">Conversion Rate:</label>
+                    <input type="text" id="conversion-rate" step="0.01" min="1" name="conversion_rate" class="form-control mt-1" />
+                `);
+            }
 
             if (selectedValue == 4) {
                 filesInput.setAttribute('multiple', 'multiple');
@@ -938,6 +951,10 @@
                 formData.append('files[]', customFiles[i]);
             }
 
+            if ($('#supplier').val() == 6) {
+                formData.append('rate', $('#conversion-rate').val());
+            }
+            
             formData.append('supplier', $('#supplier').val());
             formData.append('rebate_check', $('input[name=rebate_check]:checked').val());
             formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));

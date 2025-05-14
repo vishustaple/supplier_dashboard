@@ -1840,6 +1840,88 @@ class Order extends Model
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
                 $sheetTitle = $sheet->getTitle();
+                  // Supplier 6 logic
+                if ($filter['supplier'] ==  6) {
+                    $highestRow = $sheet->getHighestDataRow();
+                    $highestColumn = $sheet->getHighestDataColumn();
+                    // dd($highestRow, $highestColumn);
+                    $workSheetArray = $sheet->toArray();
+                    // Define the target strings (trimmed)
+                    $normalize = function ($str) {
+                        return trim(preg_replace('/\s+/', ' ', $str)); // Replace multiple whitespace (incl. \n) with single space
+                    };
+                    
+                    // Normalized target strings
+                    $targets = [
+                        $normalize("CRL Volume rebate:\n\n4% on TO min PPE"),
+                        $normalize("CRL Volume rebate:\n\n2% on TO PPE"),
+                        $normalize("BONY Volume rebate:\n\n2% on TO min PPE"),
+                    ];
+                    
+                    $newArray = [];                    
+
+                    foreach ($workSheetArray as $key => $value) {
+                        $filteredRow = array_filter($value, fn($val) => !is_null($val));
+                    
+                        if (isset($filteredRow[1])) {
+                            $normalized = $normalize($filteredRow[1]);
+                            if (in_array($normalized, $targets)) {
+                                $data = array_values($filteredRow); // Reindex for clean output
+                                // print_r($data);
+                                if (!empty($data)) {
+                                    $first = reset($data);             // First element
+                                    $last = end($data);                // Last element
+                                   
+                                    $newArray[] = [
+                                        'cost' => $last,
+                                        'account_name' => $first,
+                                    ];
+                                }            
+                            }
+                        }
+                    }
+
+                    // Extract percentage (e.g., 2%, 4%)
+                    $updated = collect($newArray)->map(function ($item) use ($filter, $rebate) {
+                    preg_match('/(\d+)%/', $item['account_name'], $matches);
+                        $percentage = $matches[1] ?? null;
+                    
+                        // Split by line and clean the first line
+                        $lines = preg_split('/\r\n|\r|\n/', $item['account_name']);
+                        $account_name_raw = trim($lines[0]);
+                        $account_name = str_replace(':', '', $account_name_raw);
+                        $account_name = str_replace('CRL Volume rebate', 'Charles River Laboratories', $account_name);
+
+                        // Determine account number
+                        if (str_contains($account_name_raw, 'CRL Volume rebate')) {
+                            // $account_number = 81093059;
+                            $account_number = 5092432;
+                        } elseif (str_contains($account_name_raw, 'BONY Volume rebate')) {
+                            $account_number = 0;
+                        } else {
+                            $account_number = null; // fallback if needed
+                        }
+                    
+                        $onePercentAmount = round($item['cost']/$percentage, 2);
+                        $totalAmount = round($onePercentAmount * 100, 2);
+
+                        return [
+                            'cost' => $totalAmount,
+                            'account_name' => $account_name,
+                            'rebate_percent' => $percentage,
+                            'account_number' => $account_number,
+                            $rebate => round($item['cost'] * $filter['rate'], 2),
+                        ];
+                    })->toArray();
+
+                    // dd($updated);
+
+                    // $updated[0]['account_number'] = 5092432;
+
+                    return $updated;
+
+                    continue; // move to next sheet if only one relevant
+                }
 
                 if ($filter['supplier'] == 4 && $sheetTitle != "ShipTo Level Sales Details") {
                     continue;
@@ -2534,6 +2616,35 @@ class Order extends Model
         }
 
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+            if ($filter['supplier'] == 6) {
+                $query = self::query()->selectRaw("
+                    `orders`.`date` AS `date`,
+                    SUM(`orders`.`cost`) AS `cost`,
+                    m2.account_number AS account_number,
+                    customers.customer_name AS account_name,
+                    SUM(
+                        CASE 
+                            WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
+                                THEN 2
+                            ELSE 4
+                        END
+                    ) AS `rebate_percent`,
+                    SUM(
+                        CASE 
+                            WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
+                                THEN ((`orders`.`cost` * ?) * 0.02)
+                            ELSE ((`orders`.`cost` * ?) * 0.04)
+                        END
+                    ) AS `volume_rebate`
+                ", [
+                    $filter['rate'],  // conversion rate for PPE
+                    $filter['rate'],  // conversion rate for non-PPE
+                ]);
+                $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+                $query->where('order_details.supplier_field_id', 413);
+            } else {
+                
+            }
             $query = self::query()->selectRaw("
                 `orders`.`date` AS `date`,
                 SUM(`orders`.`cost`) AS `cost`,
@@ -2627,10 +2738,12 @@ class Order extends Model
             ];
         }
 
-        $query->groupBy('m2.account_number');
+        // $query->groupBy('m2.account_number');
+        $query->groupByRaw("m2.account_number");
         $totalRecords = 1;
 
         $firstArray = $query->get()->toArray(); /** Your first array (37 items) */
+        // dd($firstArray);
         $secondArray = Order::importRelevantSheets($filter); /** Your second array (103 items) */
         // dd($secondArray);
         /** Index both arrays by account number */
