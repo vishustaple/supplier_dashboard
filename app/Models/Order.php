@@ -2622,7 +2622,7 @@ class Order extends Model
                     `orders`.`date` AS `date`,
                     SUM(`orders`.`cost`) AS `cost`,
                     m2.account_number AS account_number,
-                    customers.customer_name AS account_name,
+                    m2.account_name AS account_name,
                     SUM(
                         CASE 
                             WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
