@@ -1891,6 +1891,7 @@ class Order extends Model
                         $account_name_raw = trim($lines[0]);
                         $account_name = str_replace(':', '', $account_name_raw);
                         $account_name = str_replace('CRL Volume rebate', 'Charles River Laboratories', $account_name);
+                        $account_name = str_replace('BONY Volume rebate', 'BONY', $account_name);
 
                         // Determine account number
                         // if (str_contains($account_name_raw, 'CRL Volume rebate')) {
@@ -1915,7 +1916,20 @@ class Order extends Model
                         ];
                     })->toArray();
 
-                    // dd($updated);
+                    $grouped = collect($updated)
+                        ->groupBy('account_name')
+                        ->map(function ($items, $account_name) {
+                            return [
+                                'account_name'   => $account_name,
+                                'cost'           => $items->sum('cost'),
+                                'volume_rebate'  => $items->sum('volume_rebate'),
+                                'rebate_percent' => $items->first()['rebate_percent'], // or max(), or average
+                                'account_number' => $items->first()['account_number'], // assumes same
+                            ];
+                        })
+                        ->values() // optional: to reset keys
+                        ->toArray();
+                    // dd($grouped);
 
                     // $updated[0]['account_number'] = 5092432;
 
