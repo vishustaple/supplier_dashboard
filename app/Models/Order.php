@@ -2739,7 +2739,7 @@ class Order extends Model
         }
 
         if ($filter['supplier'] == 6) {
-            $query->groupBy('m2.account_name', 'rebate_percent');
+            $query->groupBy('m2.account_name', 'm2.account_number');
         } else {
             $query->groupByRaw("m2.account_number");
         }
