@@ -782,7 +782,7 @@ if file_value:
 
     # Update the cron column from cron = 11 to cron = 5
     cursor1.execute(" UPDATE catalog_attachments SET cron = %s WHERE id = %s",(5,file_id))
-    conn.commit()
+    conn1.commit()
 
     # Fetch supplier field mappings
     cursor1.execute(
