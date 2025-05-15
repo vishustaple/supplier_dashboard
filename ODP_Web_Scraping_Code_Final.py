@@ -733,14 +733,14 @@ def adding_record_into_database(matched_row, scrap_data):
         conn.close()  # Always close the connection to prevent memory leaks
 
 # Connect to MySQL
-conn = mysql.connector.connect(
+conn1 = mysql.connector.connect(
     host=os.getenv("DB_HOST", "127.0.0.1"),
     user=os.getenv("DB_USERNAME", "roo1"),
     password=os.getenv("DB_PASSWORD", "Password123#@!"),
     database=os.getenv("DB_DATABASE", "sp16")
 )
 
-cursor = conn.cursor()
+cursor1 = conn1.cursor()
 
 # Define industry ID
 industry_id = 1
@@ -749,7 +749,7 @@ industry_id = 1
 destination_path = os.getenv("DESTINATION_PATH","/var/www/html/supplier_ds/importdemo/public/excel_sheets")
 
 # Fetch the file where cron is 5
-cursor.execute(
+cursor1.execute(
     """
     SELECT id, date, file_name, created_by, supplier_id, catalog_price_type_id 
     FROM catalog_attachments 
@@ -758,13 +758,13 @@ cursor.execute(
 """
 )
 
-already_processing_file = cursor.fetchone()
+already_processing_file = cursor1.fetchone()
 
 if already_processing_file:
     file_value = None
 else:
     # Fetch the file where cron is 11
-    cursor.execute(
+    cursor1.execute(
         """
         SELECT id, date, file_name, created_by, supplier_id, catalog_price_type_id 
         FROM catalog_attachments 
@@ -772,7 +772,7 @@ else:
         LIMIT 1
     """
     )
-    file_value = cursor.fetchone()
+    file_value = cursor1.fetchone()
     # print(file_value)
 
 if file_value:
@@ -781,11 +781,11 @@ if file_value:
     )
 
     # Update the cron column from cron = 11 to cron = 5
-    cursor.execute(" UPDATE catalog_attachments SET cron = %s WHERE id = %s",(5,file_id))
+    cursor1.execute(" UPDATE catalog_attachments SET cron = %s WHERE id = %s",(5,file_id))
     conn.commit()
 
     # Fetch supplier field mappings
-    cursor.execute(
+    cursor1.execute(
         """
         SELECT csf.label, crf.field_name 
         FROM catalog_supplier_fields csf
@@ -795,7 +795,7 @@ if file_value:
         (supplier_id,),
     )
 
-    column_values = cursor.fetchall()
+    column_values = cursor1.fetchall()
     header_mapping1 = [row[0] for row in column_values]
     header_mapping = {row[0]: row[1] for row in column_values}
 
@@ -822,7 +822,7 @@ if file_value:
     month_column = month_columns[month]
 
     # Check if an older file exists
-    cursor.execute(
+    cursor1.execute(
         """
         SELECT id FROM catalog_attachments 
         WHERE cron != 11 
@@ -836,10 +836,10 @@ if file_value:
             str(year),
         ),
     )
-    first_file_uploaded = cursor.fetchone()
+    first_file_uploaded = cursor1.fetchone()
 
     # Check if a future file exists
-    cursor.execute(
+    cursor1.execute(
         """
         SELECT id FROM catalog_attachments 
         WHERE cron != 11
@@ -853,11 +853,11 @@ if file_value:
             str(year),
         ),
     )
-    greater_date_file_exist = cursor.fetchone()
+    greater_date_file_exist = cursor1.fetchone()
 
     # Deactivate previous records if needed
     if first_file_uploaded:
-        cursor.execute(
+        cursor1.execute(
             """
             UPDATE catalog_items 
             SET active = 0, updated_at = %s 
@@ -868,7 +868,7 @@ if file_value:
                 supplier_id,
             ),
         )
-        conn.commit()
+        conn1.commit()
 
     # Load Excel file
     file_path = f"{destination_path}/{input_file}"
@@ -897,25 +897,25 @@ if file_value:
 
         if missing_columns:
             print("⚠️ The following required columns are missing from the file:", missing_columns)
-            cursor.execute(
+            cursor1.execute(
                 "UPDATE catalog_attachments SET cron = 10 WHERE id = %s", (file_id,)
             )
-            conn.commit()
+            conn1.commit()
             exit()
         else:
             # Get header row
             header = actual_columns
             print("✅ All required columns are present.")
     else:
-        cursor.execute(
+        cursor1.execute(
             "UPDATE catalog_attachments SET cron = 10 WHERE id = %s", (file_id,)
         )
-        conn.commit()
+        conn1.commit()
         print("❌ Could not find the required columns in the file. Please check the data.")
         exit()
     
-    cursor.close()
-    conn.close()
+    cursor1.close()
+    conn1.close()
 
     sku_data.columns = header
     
@@ -1416,8 +1416,8 @@ if file_value:
                     # Insert new check_core_history
                     try:
                         insert_query = (
-                            "INSERT INTO check_core_history (customer_id, catalog_item_id, price_file_date, created_at, "
-                            "updated_at, catalog_price_type_id, core_list) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                            """INSERT INTO check_core_history (customer_id, catalog_item_id, price_file_date, created_at,
+                            updated_at, catalog_price_type_id, core_list) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
                         )
                         cursor2.execute(
                             insert_query,
@@ -1714,18 +1714,23 @@ if file_value:
             password=os.getenv("DB_PASSWORD", "Password123#@!"),
             database=os.getenv("DB_DATABASE", "sp16")
         )
-
         cursor4 = conn4.cursor()
+        
         # Update cron status to indicate completion
         cursor4.execute("UPDATE catalog_attachments SET cron = 6 WHERE id = %s", (file_id,))
+        conn4.commit()
+
     except mysql.connector.Error as err:
         print(f"❌ DB Error: {err}")
         log_to_laravel(f"❌ DB Error during cron update: {err}")
-        if conn4.is_connected():
+        if 'conn4' in locals() and conn4.is_connected():
             conn4.rollback()
+
     finally:
-        cursor4.close()
-        conn4.close()
+        if 'cursor4' in locals() and cursor4:
+            cursor4.close()
+        if 'conn4' in locals() and conn4.is_connected():
+            conn4.close()
 
     print("Uploaded files processed successfully.")
     print(current_failed)
