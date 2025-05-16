@@ -44,19 +44,28 @@
         $('#supplier').on('change', function () {
             var selectedSupplier = $(this).val().toLowerCase();
             $('#rebate_data').DataTable().ajax.reload();
-            
+
             if (selectedSupplier === '6') {
                 // Change column header
                 $('#rebate_data thead th').each(function () {
                     if ($(this).text().trim() === 'Incentive Rebate') {
-                        $(this).text('Rebate Two');
+                        $(this).text('Volume Rebate PPE');
+                    }
+
+                    if ($(this).text().trim() === 'Volume Rebate') {
+                        $(this).text('Volume Rebate Non PPE');
                     }
                 });
+                
             } else {
                 // Revert back to original name
                 $('#rebate_data thead th').each(function () {
-                    if ($(this).text().trim() === 'Rebate Two') {
+                    if ($(this).text().trim() === 'Volume Rebate PPE') {
                         $(this).text('Incentive Rebate');
+                    }
+
+                    if ($(this).text().trim() === 'Volume Rebate Non PPE') {
+                        $(this).text('Volume Rebate');
                     }
                 });
             }
