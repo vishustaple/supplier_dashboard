@@ -1519,7 +1519,8 @@ if file_value:
                 SELECT t.sku
                 FROM temp_skus t
                 LEFT JOIN catalog_items c ON c.sku = t.sku
-                WHERE c.sku IS NULL
+                LEFT JOIN failed_sku f ON f.sku = t.sku
+                WHERE c.sku IS NULL AND f.sku IS NULL
             """)
             non_matching_skus = [row[0] for row in cursor.fetchall()]
         except mysql.connector.Error as err:
@@ -1723,8 +1724,8 @@ if file_value:
     except mysql.connector.Error as err:
         print(f"❌ DB Error: {err}")
         log_to_laravel(f"❌ DB Error during cron update: {err}")
-        if 'conn4' in locals() and conn4.is_connected():
-            conn4.rollback()
+        # if 'conn4' in locals() and conn4.is_connected():
+            # conn4.rollback()
 
     finally:
         if 'cursor4' in locals() and cursor4:
@@ -1748,7 +1749,35 @@ if file_value:
         with open(os.path.join(output_dir, f"{timestamp}_{json_file_name}.json"), "w") as json_file:
             json.dump(results, json_file, indent=4)
 
-    if not_available_sku_on_web:    
+    if not_available_sku_on_web:
+        conn5 = mysql.connector.connect(
+            host=os.getenv("DB_HOST", "127.0.0.1"),
+            user=os.getenv("DB_USERNAME", "roo1"),
+            password=os.getenv("DB_PASSWORD", "Password123#@!"),
+            database=os.getenv("DB_DATABASE", "sp16")
+        )
+        cursor5 = conn5.cursor()
+
+        for sku in not_available_sku_on_web:
+            try:
+                # Check if the sku exists
+                cursor5.execute("SELECT * FROM failed_sku WHERE sku = %s LIMIT 1", (sku["search_term"],),)
+                exist_sku = cursor5.fetchone()
+                
+                if exist_sku is None:
+                    # Insert not find skus into failed_sku table
+                    cursor5.execute("INSERT INTO `failed_sku` (`sku`, `created_at`, `updated_at`) VALUES(%s, %s, %s)", (sku["search_term"], datetime.now().strftime("%Y-%m-%d %H:%M:%S"), datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                    conn5.commit()
+
+            except mysql.connector.Error as err:
+                print(f"❌ DB Error: {err}")
+                log_to_laravel(f"❌ DB Error during cron update: {err}")
+            finally:
+                if 'cursor5' in locals() and cursor5:
+                    cursor5.close()
+                if 'conn5' in locals() and conn5.is_connected():
+                    conn5.close()    
+        
         pd.DataFrame(not_available_sku_on_web).to_excel(
             os.path.join(output_dir, f"{timestamp}_{json_file_name}_faild_skus.xlsx"), index=False
         )

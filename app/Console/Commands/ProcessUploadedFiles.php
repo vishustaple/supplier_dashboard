@@ -826,6 +826,7 @@ class ProcessUploadedFiles extends Command
                             if ($success > 0) {
                                 /** Setting the email where we want to send email */
                                 $emails = [
+                                    'vishustaple.in@gmail.com',
                                     'anurag@centerpointgroup.com',
                                     'santosh@centerpointgroup.com',
                                     'mgaballa@centerpointgroup.com',
@@ -1120,6 +1121,7 @@ class ProcessUploadedFiles extends Command
                             if ($success > 0) {
                                 /** Setting the email where we want to send email */
                                 $emails = [
+                                    'vishustaple.in@gmail.com',
                                     'anurag@centerpointgroup.com',
                                     'santosh@centerpointgroup.com',
                                     'mgaballa@centerpointgroup.com',

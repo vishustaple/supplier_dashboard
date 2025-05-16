@@ -1907,10 +1907,10 @@ class Order extends Model
                         $totalAmount = round(($onePercentAmount * 100) * $filter['rate'], 2);
 
                         return [
+                            'account_number' => '',
                             'cost' => $totalAmount,
                             'account_name' => $account_name,
                             'rebate_percent' => $percentage,
-                            'account_number' => '',
                             // 'account_number' => $account_number,
                             $rebate => round($item['cost'] * $filter['rate'], 2),
                         ];
@@ -2824,8 +2824,8 @@ class Order extends Model
                 'file_volume_rebate' => $fileVolumeRebate,
                 'account_name' => $item1['account_name'] ?? ($item2['account_name'] ?? NULL),
                 'account_number' => $item1['account_number'] ?? ($item2['account_number'] ?? NULL),
-                'rebate_percent' => isset($item1['rebate_percent']) ? $item1['rebate_percent'] . '%' : "0%",
-                'file_rebate_percent' => isset($item2['rebate_percent']) ? $item2['rebate_percent'] . '%' : "0%",
+                'rebate_percent' => ($filter['supplier'] == 6) ? ("4 % non PPE, 2 % PPE") : (isset($item1['rebate_percent']) ? $item1['rebate_percent'] . '%' : "0%"),
+                'file_rebate_percent' => ($filter['supplier'] == 6) ? ("4 % non PPE, 2 % PPE") : (isset($item2['rebate_percent']) ? $item2['rebate_percent'] . '%' : "0%"),
             ];
         }
 
