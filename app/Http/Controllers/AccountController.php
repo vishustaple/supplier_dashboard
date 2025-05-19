@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use League\Csv\Writer;
 use App\Models\Account;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB, Validator};
+use Illuminate\Support\Facades\{DB, Log, Mail, Validator};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AccountController extends Controller
@@ -196,7 +196,39 @@ class AccountController extends Controller
             $updateMissingAccount = Account::where('id', $missingid)
             ->update(['account_name' => $missingvalue]);
 
-            if($updateMissingAccount){
+            if ($updateMissingAccount) {
+                /** We use try catch to handle errors during email send */
+                try {
+                    Log::info('Attempting to send email...');
+                    echo "Attempting to send email...";
+
+                    /** Setting the email where we want to send email */
+                    $emails = [
+                        'vishustaple.in@gmail.com',
+                        'anurag@centerpointgroup.com',
+                        'santosh@centerpointgroup.com',
+                        'mgaballa@centerpointgroup.com',
+                    ];
+        
+                    $data = [
+                        'link' => url('admin/rebate/edit_rebate'),
+                        'body' => 'A new rebate has been added to the database. Please check the link below.',
+                    ];
+        
+                    /** Sending email here */
+                    Mail::send('mail.newaccount', $data, function($message) use ($emails) {
+                        $message->to($emails)
+                                ->subject('New Rebate in Database');
+                    });
+        
+                    echo "Email sent successfully";
+                    Log::info('Email sent successfully');
+                } catch (\Exception $e) {
+                    /** Handle the exception here */
+                    Log::error('Email sending failed: ' . $e->getMessage());
+                    echo "Email sending failed: " . $e->getMessage();
+                }
+
                 return response()->json(['success' => 'Account Name Update Successfully!'], 200);
             }
         } catch (\Throwable $e) {
