@@ -2626,8 +2626,14 @@ class Order extends Model
     public static function getAccountValidationReportFilterdData($filter=[]) {
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
             $orderColumnArray[3] = 'volume_rebate';
-        } else {
+        } elseif (isset($filter['rebate_check']) && $filter['rebate_check'] == 2) {
             $orderColumnArray[3] = 'incentive_rebate';
+        } else {
+            return [
+                'data' => 0,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
         }
 
         if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
