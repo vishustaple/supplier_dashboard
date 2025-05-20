@@ -2553,9 +2553,9 @@ class Order extends Model
             $totalVolumeRebates = number_format($totalVolumeRebate, 2);
             $totalIncentiveRebates = number_format($totalIncentiveRebate, 2);
         } else {
-            $totalAmount = 0.00;
-            $totalVolumeRebate = 0.00;
-            $totalIncentiveRebate = 0.00;
+            $totalAmounts = $totalAmount = 0.00;
+            $totalVolumeRebates = $totalVolumeRebate = 0.00;
+            $totalIncentiveRebates = $totalIncentiveRebate = 0.00;
         }
 
         // dd($formatuserdata);
@@ -2605,9 +2605,9 @@ class Order extends Model
                 
                 $finalArray[] = [
                     'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount, 2) . '">'.$formatuserdata[0]->supplier_name,
-                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($totalAmount, 2),
-                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebates.'"class="input_volume_rebate"> $'.number_format($totalVolumeRebates, 2),
-                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebates.'" class="input_incentive_rebate"> $'.number_format($totalIncentiveRebates, 2),
+                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.$totalAmounts,
+                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebates.'"class="input_volume_rebate"> $'.$totalVolumeRebates,
+                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebates.'" class="input_incentive_rebate"> $'.$totalIncentiveRebates,
                     'sfs' => $fileTotal,
                     'sb' => $fileRebate,
                     'df' => '$'.number_format($difference, 2).'('.$percentage.'%)'
