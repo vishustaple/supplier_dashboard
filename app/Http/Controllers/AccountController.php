@@ -205,14 +205,15 @@ class AccountController extends Controller
                     /** Setting the email where we want to send email */
                     $emails = [
                         'vishustaple.in@gmail.com',
-                        'anurag@centerpointgroup.com',
-                        'santosh@centerpointgroup.com',
-                        'mgaballa@centerpointgroup.com',
+                        // 'anurag@centerpointgroup.com',
+                        // 'santosh@centerpointgroup.com',
+                        // 'mgaballa@centerpointgroup.com',
                     ];
         
                     $data = [
                         'link' => url('admin/rebate/edit_rebate'),
-                        'body' => 'A new rebate has been added to the database. Please check the link below.',
+                        'body' => 'The following accounts need to have their rebates updated: -',
+                        'account_name' => $missingvalue,
                     ];
         
                     /** Sending email here */
