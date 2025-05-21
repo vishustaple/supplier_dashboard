@@ -205,9 +205,9 @@ class AccountController extends Controller
                     /** Setting the email where we want to send email */
                     $emails = [
                         'vishustaple.in@gmail.com',
-                        // 'anurag@centerpointgroup.com',
-                        // 'santosh@centerpointgroup.com',
-                        // 'mgaballa@centerpointgroup.com',
+                        'anurag@centerpointgroup.com',
+                        'santosh@centerpointgroup.com',
+                        'mgaballa@centerpointgroup.com',
                     ];
         
                     $data = [
