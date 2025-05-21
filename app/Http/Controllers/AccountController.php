@@ -212,7 +212,7 @@ class AccountController extends Controller
         
                     $data = [
                         'link' => url('admin/rebate/edit_rebate'),
-                        'body' => 'The following accounts need to have their rebates updated: -',
+                        'body' => 'The following account need to have their rebates updated: -',
                         'account_name' => $missingvalue,
                     ];
         
