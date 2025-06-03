@@ -2921,10 +2921,11 @@ class Order extends Model
             ];
         }
 
-        $formattedData['heading'] = ['Event Time', 'User Host', 'Query'];
-
+       
         // Return based on CSV or DataTables format
         if ($csv) {
+            $formattedData['heading'] = ['Event Time', 'User Host', 'Query'];
+
             return $formattedData;
         } else {
             return [
