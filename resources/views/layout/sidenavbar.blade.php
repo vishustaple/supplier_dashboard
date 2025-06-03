@@ -77,7 +77,7 @@
                 @endphp
 
                 @if($hasResourcesPermission || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
-                    <a class="nav-link {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Cron Resource Page', 'Save SQL Queries'])) ? 'active' : '' }}" data-toggle="collapse" href="#resources">
+                    <a class="nav-link {{ (isset($pageTitleCheck) && in_array($pageTitleCheck, ['Cron Resource Page', 'Save SQL Queries', 'Mysql Queries'])) ? 'active' : '' }}" data-toggle="collapse" href="#resources">
                         <div class="sb-nav-link-icon">
                             <i class="fa fa-file"></i>
                         </div>
@@ -92,6 +92,9 @@
                     @endif
                     @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
                         <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Save SQL Queries') ? 'active' : '' }}" href="{{route('queries.index')}}">Save SQL Queries</a>
+                    @endif
+                    @if(in_array('Mysql Queries', auth()->user()->permissions->pluck('name')->toArray()) || auth()->user()->user_type != \App\Models\User::USER_TYPE_USER)
+                        <a class="nav-link ml-3 {{ (isset($pageTitleCheck) && $pageTitleCheck == 'Mysql Queries') ? 'active' : '' }}" href="{{route('query-filter')}}">Mysql Queries</a>
                     @endif
                 </div>
 

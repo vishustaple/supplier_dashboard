@@ -1625,8 +1625,7 @@ if file_value:
                         sku = future_to_sku[future]
                         result = future.result()
                         if result:
-                            # print(result["breadcrumbs"])
-                            if result["sku_availabe"] is None:
+                            if result.get("sku_availabe") is None:
                                 if result["category"] and result["sub_category"]:
                                     # Select the row where 'sku' matches the search term
                                     record = sku_data.loc[sku_data["sku"] == result["search_term"]]
@@ -1648,7 +1647,8 @@ if file_value:
 
                                     results.append(result)
                             else:
-                                not_available_sku_on_web.append(results)
+                                print(result)
+                                not_available_sku_on_web.append(result['search_term'])
                         else:
                             sku = future_to_sku[future]
                             if any(f['sku'] == sku and f['error'] == 'Timeout' for f in failed_skus):
@@ -1726,14 +1726,12 @@ if file_value:
         log_to_laravel(f"❌ DB Error during cron update: {err}")
         # if 'conn4' in locals() and conn4.is_connected():
             # conn4.rollback()
-
     finally:
-        if 'cursor4' in locals() and cursor4:
-            cursor4.close()
-        if 'conn4' in locals() and conn4.is_connected():
-            conn4.close()
+        cursor4.close()
+        conn4.close()
 
     print("Uploaded files processed successfully.")
+    print(not_available_sku_on_web)
     print(current_failed)
     print(failed_skus)
     # exit()
@@ -1761,22 +1759,20 @@ if file_value:
         for sku in not_available_sku_on_web:
             try:
                 # Check if the sku exists
-                cursor5.execute("SELECT * FROM failed_sku WHERE sku = %s LIMIT 1", (sku["search_term"],),)
+                cursor5.execute("SELECT * FROM failed_sku WHERE sku = %s LIMIT 1", (sku,),)
                 exist_sku = cursor5.fetchone()
                 
                 if exist_sku is None:
                     # Insert not find skus into failed_sku table
-                    cursor5.execute("INSERT INTO `failed_sku` (`sku`, `created_at`, `updated_at`) VALUES(%s, %s, %s)", (sku["search_term"], datetime.now().strftime("%Y-%m-%d %H:%M:%S"), datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                    cursor5.execute("INSERT INTO `failed_sku` (`sku`, `created_at`, `updated_at`) VALUES(%s, %s, %s)", (sku, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
                     conn5.commit()
 
             except mysql.connector.Error as err:
                 print(f"❌ DB Error: {err}")
                 log_to_laravel(f"❌ DB Error during cron update: {err}")
             finally:
-                if 'cursor5' in locals() and cursor5:
-                    cursor5.close()
-                if 'conn5' in locals() and conn5.is_connected():
-                    conn5.close()    
+                cursor5.close()
+                conn5.close()    
         
         pd.DataFrame(not_available_sku_on_web).to_excel(
             os.path.join(output_dir, f"{timestamp}_{json_file_name}_faild_skus.xlsx"), index=False

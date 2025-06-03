@@ -182,6 +182,9 @@ Route::group(['prefix' => 'admin'], function () {
 
         /** Cron resource page route */
         Route::get('/cron-resource_page', [CronResourcePage::class, 'index'])->name('cronIndex');
+        Route::get('/old-queries', [CronResourcePage::class, 'queryFilter'])->name('query-filter');
+        Route::post('/query/type-filter', [CronResourcePage::class, 'queryTypeFilter'])->name('query.type_filter');
+        Route::get('/query/query_type-csv', [CronResourcePage::class, 'queriesExportCsv'])->name('query.csv-export-query');
     });
 });
 

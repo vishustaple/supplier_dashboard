@@ -2844,4 +2844,94 @@ class Order extends Model
             'recordsFiltered' => $totalRecords, /** Use total records from the query */
         ];
     }
+
+    public static function getQueryTypeFilteredData($filter = [], $csv = false)
+    {
+        $orderColumnArray = [
+            0 => 'event_time',
+            1 => 'user_host',
+            2 => 'argument',
+        ];
+
+        // Start base query
+        $query = DB::table('mysql.general_log')
+            ->select('event_time', 'user_host', 'argument')
+            ->where('command_type', 'Query');
+
+        // Filter by query_type
+        if (!empty($filter['query_type'])) {
+            $types = [
+                1 => 'DELETE',
+                2 => 'UPDATE',
+                3 => 'INSERT',
+            ];
+            $sqlType = $types[$filter['query_type']] ?? null;
+
+            if ($sqlType) {
+                $query->where('argument', 'REGEXP', '^(' . $sqlType . ')[[:space:]]');
+            }
+        } else {
+            // Default: Only DML queries if no specific type selected
+            $query->where(function ($q) {
+                $q->where('argument', 'REGEXP', '^(INSERT|UPDATE|DELETE)[[:space:]]');
+            });
+        }
+
+        // Filter by date range
+        if (!empty($filter['start_date']) && !empty($filter['end_date'])) {
+            $query->whereBetween(DB::raw('DATE(event_time)'), [
+                $filter['start_date'],
+                $filter['end_date']
+            ]);
+        }
+
+        // Search (optional)
+        if (!empty($filter['search']['value'])) {
+            $searchTerm = $filter['search']['value'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->orWhere('user_host', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('argument', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Total records (after filtering)
+        $totalRecords = $query->count();
+
+        // Order
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']])) {
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir'] ?? 'asc');
+        } else {
+            $query->orderBy('event_time', 'desc');
+        }
+
+        // Pagination
+        if (!$csv && isset($filter['start']) && isset($filter['length'])) {
+            $query->skip($filter['start'])->take($filter['length']);
+        }
+
+        $filteredData = $query->get();
+
+        // Format the results
+        $formattedData = [];
+        foreach ($filteredData as $item) {
+            $formattedData[] = [
+                'event_time' => date('Y-m-d H:i:s', strtotime($item->event_time)),
+                'user_host' => $item->user_host,
+                'query' => $item->argument,
+            ];
+        }
+
+        $formattedData['heading'] = ['Event Time', 'User Host', 'Query'];
+
+        // Return based on CSV or DataTables format
+        if ($csv) {
+            return $formattedData;
+        } else {
+            return [
+                'data' => $formattedData,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+            ];
+        }
+    }
 }
