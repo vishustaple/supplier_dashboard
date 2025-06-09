@@ -11,6 +11,7 @@ class CronResourcePage extends Controller
 {
     public function __construct() {
         $this->middleware('permission:Cron Resource Page')->only(['index']);
+        $this->middleware('permission:Database Log')->only(['queryFilter', 'queryTypeFilter', 'queriesExportCsv']);
     }
 
     public function index() {
@@ -18,7 +19,7 @@ class CronResourcePage extends Controller
     }
 
     public function queryFilter() {
-        return view('admin.query_filter', ['pageTitle' => "Mysql Queries"]);
+        return view('admin.query_filter', ['pageTitle' => "Database Log"]);
     }
 
     public function queryTypeFilter(Request $request) {
