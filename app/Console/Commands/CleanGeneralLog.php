@@ -52,6 +52,8 @@ class CleanGeneralLog extends Command
             // Step 3: Truncate the log table (clears all entries)
             DB::statement("TRUNCATE TABLE mysql.general_log");
     
+            DB::statement("SET GLOBAL log_output = 'TABLE'");
+
             // Step 4: Re-enable logging
             DB::statement("SET GLOBAL general_log = 'ON'");
     

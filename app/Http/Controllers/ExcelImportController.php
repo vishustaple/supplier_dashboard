@@ -62,6 +62,7 @@ class ExcelImportController extends Controller
     public function import(Request $request) {
         /** Increasing memory for smoothly process data of excel file */
         ini_set('memory_limit', '1024M');
+        ini_set('max_execution_time', 300);
 
         /** Getting suppliers ids and its required columns */
         $suppliers = ManageColumns::getRequiredColumns();
@@ -189,7 +190,7 @@ class ExcelImportController extends Controller
             $user = Auth::user();
 
             try {
-                if ($request->supplierselect == 6) {
+                if ($request->supplierselect == 6 || $request->supplierselect == 16) {
                     UploadedFiles::create([
                         'file_name' => $fileName,
                         'created_by' => $user->id,

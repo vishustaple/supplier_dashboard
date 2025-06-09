@@ -205,7 +205,6 @@ class validateUploadedFile extends Command
                                     } else {
                                         $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
                                     }
-                                    var_dump($row[$keyInvoiceDate]);
                                 }
                                 
                                 if ($chunkSize == 1000) {

@@ -617,6 +617,32 @@ class ProcessUploadedFiles extends Command
                                                     }
                                                 }
 
+                                                /** We also need to add attachment id, converted_price, created_at and updated at keys into the excel insert array */
+                                                if ($fileValue->supplier_id == 16) {
+                                                    if (!empty($fileValue->conversion_rate) && isset($row[$keyAmount])) {
+                                                        $amount = $row[$keyAmount];
+
+                                                        $newKey = $keyAmount + 2;
+                                                        $newKey1 = $keyAmount - 1;
+
+                                                        $thridAmount = $row[$newKey];
+                                                        $secondAmount = $row[$newKey1];
+
+                                                        $convertedPrice = (float) $fileValue->conversion_rate; /** Cast to float */
+                                                        $calculatedAmount = round($amount * $convertedPrice, 2); /** Perform the calculation */
+                                                        $calculatedAmount2 = round($secondAmount * $convertedPrice, 2); /** Perform the calculation */
+                                                        $calculatedAmount3 = round($thridAmount * $convertedPrice, 2); /** Perform the calculation */
+                                                        
+                                                        $excelInsertArray[$key]['converted_sales'] = $calculatedAmount;
+                                                        $excelInsertArray[$key]['converted_unit_price'] = $calculatedAmount2;
+                                                        $excelInsertArray[$key]['converted_web_price'] = $calculatedAmount3;
+                                                    } else {
+                                                        $excelInsertArray[$key]['converted_unit_price'] = 0;
+                                                        $excelInsertArray[$key]['converted_sales'] = 0;
+                                                        $excelInsertArray[$key]['converted_web_price'] = 0;
+                                                    }
+                                                }
+
                                                 $excelInsertArray[$key]['attachment_id'] = $fileValue->id;
                                                 $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                                                 $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');

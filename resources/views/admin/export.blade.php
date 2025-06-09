@@ -469,7 +469,7 @@
             inputContainer.empty();
 
             // Check if "Lyreco" (value 6) is selected
-            if (selectedValue === '6') {
+            if (selectedValue === '6' || selectedValue === '16') {
                 inputContainer.append(`
                     <label for="conversion-rate">Conversion Rate:</label>
                     <input type="number" id="conversion-rate" min="0" name="conversion_rate" class="form-control mt-1" />
@@ -530,10 +530,9 @@
         });
       
         $(document).on('click','.edit_column',function(){
-            var id = $(this).attr('data-id'); 
-            console.log(id);
-            var td = $(this).closest("tr").find("td:eq(1)");
-            var fieldValue = td.text().trim();
+            var id = $(this).attr('data-id'),
+            td = $(this).closest("tr").find("td:eq(1)"),
+            fieldValue = td.text().trim();
            
             // Replace content with input field
             td.html("<input type='text' name='field_names[]' data-id="+ id +" class='form-control' id='final_column' value='" + fieldValue + "' required>");
@@ -556,10 +555,9 @@
             $('input[name="field_names[]"]').each(function(index) {
                 var fieldValue = $(this).val(); // Get the value of the input field
                 fieldValue = htmlspecialchars(fieldValue); 
-                console.log(fieldValue);
                 var fieldId = $(this).data('id'); // Get the name attribute of the input field
                 let inputField = $(this);
-                console.log();
+                
                 // Check if the field value is blank
                 if (fieldValue === '') {
                     isValid = false;

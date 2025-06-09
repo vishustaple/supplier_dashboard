@@ -97,27 +97,48 @@
             }
         });
 
-        ranges = {
-            'Last Quarter': [moment().subtract(3, 'month').startOf('quarter'), moment().subtract(3, 'month').endOf('quarter')],
-            'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
-            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-            'Last 6 Months': [moment().subtract(6, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+        const ranges = {
+            'Last Quarter': [
+                moment().subtract(1, 'quarter').startOf('quarter'),
+                moment().subtract(1, 'quarter').endOf('quarter')
+            ],
+            'Last Year': [
+                moment().subtract(1, 'year').startOf('year'),
+                moment().subtract(1, 'year').endOf('year')
+            ],
+            'Last Month': [
+                moment().subtract(1, 'month').startOf('month'),
+                moment().subtract(1, 'month').endOf('month')
+            ],
+            'Last 6 Months': [
+                moment().subtract(6, 'month').startOf('month'),
+                moment().subtract(1, 'month').endOf('month')
+            ],
         };
+
         $('#startdate').daterangepicker({
             autoApply: true,
             showDropdowns: true,
-            singleDatePicker: true,
+            singleDatePicker: true, // This makes the UI show only one calendar
             showCustomRangeLabel: true,
             minYear: moment().subtract(7, 'years').year(),
             maxYear: moment().add(7, 'years').year(),
             ranges: ranges,
-        }, function(start, end, label) {
-            // If a normal date is picked, only set the startDate
+            locale: {
+                format: 'MM/DD/YYYY'
+            }
+        }, function (start, end, label) {
             $('#startdate').val(start.format('MM/DD/YYYY'));
-            $('#enddate').val(end.format('MM/DD/YYYY'));
+
+            // Only set end date if range is selected (i.e., start !== end)
+            if (!start.isSame(end, 'day')) {
+                $('#enddate').val(end.format('MM/DD/YYYY'));
+            } else {
+                // $('#enddate').val(''); // Clear end date if it's the same as start
+            }
         });
 
-        // End Date Picker - Simple calendar
+        // Optional: end date picker as fallback/manual override
         $('#enddate').daterangepicker({
             autoApply: true,
             showDropdowns: true,
@@ -125,8 +146,8 @@
             locale: {
                 format: 'MM/DD/YYYY'
             }
-        }, function(start) {
-            $('#enddate').val(start.format('MM/DD/YYYY')); // Manually set the selected date for end date
+        }, function (start) {
+            $('#enddate').val(start.format('MM/DD/YYYY'));
         });
 
         // Button click event
