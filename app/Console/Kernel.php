@@ -31,10 +31,10 @@ class Kernel extends ConsoleKernel
         ->at('08:00')       /** Runs at 8 AM */
         ->withoutOverlapping();
         $schedule->command(ReportGenrate::class)->hourly()->withoutOverlapping();
-        $schedule->command(CleanGeneralLog::class)->hourly()->withoutOverlapping();
         $schedule->command(RemoveFrontZeroAccountNumber::class)->everyTenMinutes();
         $schedule->command(SendReportEmail::class)->weeklyOn(1, '0:00')->withoutOverlapping();
         $schedule->command(ProcessDeleteCommissions::class)->weekends()->withoutOverlapping();
+        $schedule->command(CleanGeneralLog::class)->everyFifteenMinutes()->withoutOverlapping();
         $schedule->command(validateUploadedFile::class)->everyTenMinutes()->withoutOverlapping();
         $schedule->command(ProcessUploadedFiles::class)->everyFiveMinutes()->withoutOverlapping();
         $schedule->command(DeleteUploadedFilesData::class)->everyFiveMinutes()->withoutOverlapping();
