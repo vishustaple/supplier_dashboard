@@ -116,12 +116,15 @@
             ],
         };
 
+        const minSelectableDate = moment('2025-06-06', 'YYYY-MM-DD');
+
         $('#startdate').daterangepicker({
             autoApply: true,
             showDropdowns: true,
             singleDatePicker: true, // This makes the UI show only one calendar
             showCustomRangeLabel: true,
-            minYear: moment().subtract(7, 'years').year(),
+            minDate: minSelectableDate,
+            minYear: minSelectableDate.year(),
             maxYear: moment().add(7, 'years').year(),
             ranges: ranges,
             locale: {
@@ -143,6 +146,7 @@
             autoApply: true,
             showDropdowns: true,
             singleDatePicker: true,
+            minDate: minSelectableDate,
             locale: {
                 format: 'MM/DD/YYYY'
             }
