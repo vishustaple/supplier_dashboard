@@ -34,7 +34,7 @@ def adding_record_into_database(matched_row, scrap_data):
             host=os.getenv("DB_HOST", "127.0.0.1"),
             user=os.getenv("DB_USERNAME", "roo1"),
             password=os.getenv("DB_PASSWORD", "Password123#@!"),
-            database=os.getenv("DB_DATABASE", "sp16")
+            database=os.getenv("DB_SECOND_DATABASE", "sp16")
         )
 
         cursor = conn.cursor(buffered=True)
@@ -737,7 +737,7 @@ conn1 = mysql.connector.connect(
     host=os.getenv("DB_HOST", "127.0.0.1"),
     user=os.getenv("DB_USERNAME", "roo1"),
     password=os.getenv("DB_PASSWORD", "Password123#@!"),
-    database=os.getenv("DB_DATABASE", "sp16")
+    database=os.getenv("DB_SECOND_DATABASE", "sp16")
 )
 
 cursor1 = conn1.cursor()
@@ -1060,7 +1060,7 @@ if file_value:
             host=os.getenv("DB_HOST", "127.0.0.1"),
             user=os.getenv("DB_USERNAME", "roo1"),
             password=os.getenv("DB_PASSWORD", "Password123#@!"),
-            database=os.getenv("DB_DATABASE", "sp16")
+            database=os.getenv("DB_SECOND_DATABASE", "sp16")
         )
 
         if not conn2.is_connected():
@@ -1477,7 +1477,7 @@ if file_value:
                 host=os.getenv("DB_HOST", "127.0.0.1"),
                 user=os.getenv("DB_USERNAME", "roo1"),
                 password=os.getenv("DB_PASSWORD", "Password123#@!"),
-                database=os.getenv("DB_DATABASE", "sp16")
+                database=os.getenv("DB_SECOND_DATABASE", "sp16")
             )
             cursor = conn.cursor()
             chunk_size = 100000
@@ -1581,7 +1581,7 @@ if file_value:
                                                 host=os.getenv("DB_HOST", "127.0.0.1"),
                                                 user=os.getenv("DB_USERNAME", "roo1"),
                                                 password=os.getenv("DB_PASSWORD", "Password123#@!"),
-                                                database=os.getenv("DB_DATABASE", "sp16")
+                                                database=os.getenv("DB_SECOND_DATABASE", "sp16")
                                             )
 
                                             cursor1 = conn1.cursor()
@@ -1671,7 +1671,7 @@ if file_value:
                                     host=os.getenv("DB_HOST", "127.0.0.1"),
                                     user=os.getenv("DB_USERNAME", "roo1"),
                                     password=os.getenv("DB_PASSWORD", "Password123#@!"),
-                                    database=os.getenv("DB_DATABASE", "sp16")
+                                    database=os.getenv("DB_SECOND_DATABASE", "sp16")
                                 )
 
                                 cursor1 = conn1.cursor()
@@ -1713,7 +1713,7 @@ if file_value:
             host=os.getenv("DB_HOST", "127.0.0.1"),
             user=os.getenv("DB_USERNAME", "roo1"),
             password=os.getenv("DB_PASSWORD", "Password123#@!"),
-            database=os.getenv("DB_DATABASE", "sp16")
+            database=os.getenv("DB_SECOND_DATABASE", "sp16")
         )
         cursor4 = conn4.cursor()
         
@@ -1752,7 +1752,7 @@ if file_value:
             host=os.getenv("DB_HOST", "127.0.0.1"),
             user=os.getenv("DB_USERNAME", "roo1"),
             password=os.getenv("DB_PASSWORD", "Password123#@!"),
-            database=os.getenv("DB_DATABASE", "sp16")
+            database=os.getenv("DB_SECOND_DATABASE", "sp16")
         )
         cursor5 = conn5.cursor()
 

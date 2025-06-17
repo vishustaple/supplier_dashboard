@@ -11,6 +11,7 @@ class CatalogAttachments extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $connection = 'second_db';
     protected $table = 'catalog_attachments';
 
     /**

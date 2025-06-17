@@ -50,7 +50,7 @@ class CatalogImportController extends Controller
         
         $pageTitle = "Upload Catalog Sheets";
         $data = json_encode($formattedData);
-        $catalogPriceType = DB::table('catalog_price_types')->where('id', '!=', 3)->get();
+        $catalogPriceType = DB::connection('second_db')->table('catalog_price_types')->where('id', '!=', 3)->get();
 
         return view('admin.catalog.catalog_import',compact('categorySuppliers','data', 'catalogPriceType', 'pageTitle'));
     }
@@ -336,7 +336,7 @@ class CatalogImportController extends Controller
         }
 
         if (!empty($insertArray)) {
-            DB::table('catalog_supplier_fields')->insert($insertArray);
+            DB::connection('second_db')->table('catalog_supplier_fields')->insert($insertArray);
         }
         
         return response()->json(['success' => "Columns added successfully"], 200);
@@ -353,7 +353,8 @@ class CatalogImportController extends Controller
         }
 
         foreach ($request->input('required_field_id') as $key => $value) {
-            DB::table('catalog_supplier_fields')
+            DB::connection('second_db')
+            ->table('catalog_supplier_fields')
             ->where('id', $request->input('manage_columns_id')[$key])
             ->update([
                 'label' => $request->input('raw_label')[$key],
@@ -367,7 +368,8 @@ class CatalogImportController extends Controller
     }
 
     public function removeSupplierCatalogFileFormatImport(Request $request) {
-        DB::table('catalog_supplier_fields')
+        DB::connection('second_db')
+        ->table('catalog_supplier_fields')
         ->where(
             'supplier_id',
             $request->input('id')

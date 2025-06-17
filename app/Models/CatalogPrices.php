@@ -9,6 +9,7 @@ class CatalogPrices extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'catalog_prices';
 
     protected $fillable = [

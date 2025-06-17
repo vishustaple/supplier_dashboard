@@ -10,6 +10,7 @@ class CatalogSupplierFields extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'catalog_supplier_fields';
     
     protected $fillable = [

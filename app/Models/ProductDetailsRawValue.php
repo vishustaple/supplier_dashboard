@@ -8,6 +8,7 @@ class ProductDetailsRawValue extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'product_details_raw_values';
 
     protected $fillable = [

@@ -9,6 +9,7 @@ class CheckCoreHistory extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'check_core_history';
     
     protected $fillable = [

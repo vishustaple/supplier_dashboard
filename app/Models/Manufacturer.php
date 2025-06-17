@@ -8,6 +8,7 @@ class Manufacturer extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'manufacturers';
 
     protected $fillable = [

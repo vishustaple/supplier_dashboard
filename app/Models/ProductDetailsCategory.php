@@ -8,6 +8,7 @@ class ProductDetailsCategory extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'product_details_category';
 
     protected $fillable = [

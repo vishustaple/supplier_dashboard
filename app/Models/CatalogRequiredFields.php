@@ -9,6 +9,7 @@ class CatalogRequiredFields extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'catalog_required_fields';
     
     /**

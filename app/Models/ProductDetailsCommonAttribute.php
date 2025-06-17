@@ -8,6 +8,7 @@ class ProductDetailsCommonAttribute extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'product_details_common_attributes';
 
     protected $fillable = [
