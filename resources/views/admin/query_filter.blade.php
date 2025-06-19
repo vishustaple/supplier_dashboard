@@ -171,25 +171,18 @@
             processing: true,
             serverSide: true, 
             lengthMenu: [40], // Specify the options you want to show
-            lengthChange: true, // Hide the "Show X entries" dropdown
+            lengthChange: false, // Hide the "Show X entries" dropdown
             searching:false, 
             pageLength: 40,
             ajax: {
                 url: '{{ route("query.type_filter") }}',
                 type: 'POST',
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                processData: false,  // Important: Prevent jQuery from processing the data
-                contentType: false,  // Important: Set contentType to false for FormData
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    var formData = new FormData();
-
-                    // Append other parameters
-                    formData.append('query_type', $('#query_type').val());
-                    formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
-                    formData.append('end_date', moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
-
-                    return formData;
+                    d.query_type = $('#query_type').val();
+                    d.start_date = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
+                    d.end_date = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
                 },
             },
 
