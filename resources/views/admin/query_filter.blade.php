@@ -20,7 +20,6 @@
                             <option value="" selected>--Select--</option>
                             <option value="1" >Delete</option>
                             <option value="2" >Update</option>
-                            <option value="3" >Insert</option>
                         </select>
                     </div>
                     <div class="form-group relative  mb-3 row">
