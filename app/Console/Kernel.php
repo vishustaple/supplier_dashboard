@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
         ->weekly()->tuesdays()->fridays() /** Runs on Tuesday (2) and Friday (5) */
         ->at('08:00')       /** Runs at 8 AM */
         ->withoutOverlapping();
-        $schedule->command(ReportGenrate::class)->hourly()->withoutOverlapping();
+        // $schedule->command(ReportGenrate::class)->hourly()->withoutOverlapping();
         $schedule->command(RemoveFrontZeroAccountNumber::class)->everyTenMinutes();
         // $schedule->command(SendReportEmail::class)->weeklyOn(1, '0:00')->withoutOverlapping();
         $schedule->command(ProcessDeleteCommissions::class)->weekends()->withoutOverlapping();
