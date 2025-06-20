@@ -28,7 +28,8 @@ class CleanGeneralLog extends Command
     {
         try {
             // Step 1: Insert only UPDATE and DELETE queries into your custom log table
-            DB::statement("
+            DB::connection('log_db')
+            ->statement("
                 INSERT INTO custom_query_log (event_time, user_host, argument, query_type, created_at)
                 SELECT 
                     event_time,
@@ -47,12 +48,15 @@ class CleanGeneralLog extends Command
             $this->info('Archived UPDATE and DELETE queries to custom_query_log.');
     
             // Step 2: Disable general logging temporarily
-            DB::statement("SET GLOBAL general_log = 'OFF'");
+            DB::connection('log_db')
+            ->statement("SET GLOBAL general_log = 'OFF'");
     
             // Step 3: Truncate the log table (clears all entries)
-            DB::statement("TRUNCATE TABLE mysql.general_log");
+            DB::connection('log_db')
+            ->statement("TRUNCATE TABLE mysql.general_log");
     
-            DB::statement("SET GLOBAL log_output = 'TABLE'");
+            DB::connection('log_db')
+            ->statement("SET GLOBAL log_output = 'TABLE'");
 
             // Step 4: Re-enable logging
             DB::statement("SET GLOBAL general_log = 'ON'");

@@ -20,7 +20,6 @@
                             <option value="" selected>--Select--</option>
                             <option value="1" >Delete</option>
                             <option value="2" >Update</option>
-                            <option value="3" >Insert</option>
                         </select>
                     </div>
                     <div class="form-group relative  mb-3 row">
@@ -169,7 +168,7 @@
         var supplierDataTable = $('#supplier_report_data').DataTable({
             oLanguage: {sProcessing: '<div id="page-loader"><div id="page-loader-wrap"><div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-success" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-danger" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-warning" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-info" role="status"><span class="sr-only">Loading...</span></div><div class="spinner-grow text-light" role="status"><span class="sr-only">Loading...</span></div></div></div>'},
             processing: true,
-            serverSide: false, 
+            serverSide: true, 
             lengthMenu: [40], // Specify the options you want to show
             lengthChange: false, // Hide the "Show X entries" dropdown
             searching:false, 
@@ -178,18 +177,11 @@
                 url: '{{ route("query.type_filter") }}',
                 type: 'POST',
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                processData: false,  // Important: Prevent jQuery from processing the data
-                contentType: false,  // Important: Set contentType to false for FormData
                 data: function (d) {
                     // Pass date range and supplier ID when making the request
-                    var formData = new FormData();
-
-                    // Append other parameters
-                    formData.append('query_type', $('#query_type').val());
-                    formData.append('start_date', moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
-                    formData.append('end_date', moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'));
-
-                    return formData;
+                    d.query_type = $('#query_type').val();
+                    d.start_date = moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
+                    d.end_date = moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
                 },
             },
 

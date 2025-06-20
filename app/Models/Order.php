@@ -2854,7 +2854,8 @@ class Order extends Model
         ];
     
         // Start base query
-        $query = DB::table('custom_query_log')
+        $query = DB::connection('log_db')
+        ->table('custom_query_log')
             ->select('event_time', 'user_host', 'argument');
     
         // Filter by query_type
