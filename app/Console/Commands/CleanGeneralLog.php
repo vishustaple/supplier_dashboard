@@ -56,7 +56,9 @@ class CleanGeneralLog extends Command
 
             // Step 4: Re-enable logging
             DB::statement("SET GLOBAL general_log = 'ON'");
-    
+            
+            // INSERT INTO sqldb2.users SELECT * FROM sqldb1.users;
+            // INSERT INTO sqldb2.suppliers SELECT * FROM sqldb1.suppliers;
             $this->info('Truncated mysql.general_log and re-enabled logging.');
         } catch (\Exception $e) {
             $this->error('Error processing general_log: ' . $e->getMessage());
