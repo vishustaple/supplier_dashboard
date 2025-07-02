@@ -1300,7 +1300,7 @@ class Order extends Model
                 /** Prepare the final array for non-CSV */
                 $finalArray[$key]['account_name'] = "
                 <div class='form-check'>
-                    <input class='form-check-input' type='checkbox'>
+                    <input class='form-check-input checkbox-trigger' type='checkbox'>
                     <input class='form-check-input' type='hidden' value='".$value->supplier_id."'>
                     <label class='form-check-label'>
                         ".$value->account_name."
@@ -1336,7 +1336,7 @@ class Order extends Model
         }
     }
 
-    public static function getConsolidatedDownloadData($filter=[]) {
+    public static function getConsolidatedDownloadData($filter=[], $checkDataCount=false) {
         /** Increasing the memory limit becouse memory limit issue */
         // ini_set('memory_limit', '25024M');
         $query = self::query()
@@ -1385,6 +1385,11 @@ class Order extends Model
             }
         } else {
 
+        }
+
+        if (isset($checkDataCount) && $checkDataCount == true) {
+            // dd($query->count());
+            return $query->count();
         }
 
         $queryData = $query->get();
