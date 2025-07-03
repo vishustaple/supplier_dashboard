@@ -138,7 +138,7 @@
         $(document).ready(function() {
             $('#consolidated_supplier_data').on('change', '.checkbox-trigger', function () {
             
-                if ($(this).is(':checked')) {
+                // if ($(this).is(':checked')) {
                     // Get all checked checkboxes within the DataTable
                     var oldselect = 0,
                         checkedValues = [],
@@ -217,7 +217,7 @@
                             });
                         }
                     }
-                }
+                // }
             });
 
             // Check if the button with a specific ID exists

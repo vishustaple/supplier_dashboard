@@ -1545,6 +1545,8 @@ if file_value:
             batch_size = 1000  # or 5000 depending on memory
             all_items = list(matching_sku.items())
 
+            main_search_term = len(matching_sku) + len(non_matching_skus)
+
             with ThreadPoolExecutor(max_workers=2) as executor:                        
                 with tqdm(**tqdm_args) as pbar:
                     for i in range(0, len(all_items), batch_size):
@@ -1571,7 +1573,7 @@ if file_value:
                                 with lock:
                                     processed_count += 1
                                     pbar.update(1)
-                                    new_percent = int((processed_count / len(main_search_term)) * 100)
+                                    new_percent = int((processed_count / main_search_term) * 100)
 
                                     if new_percent > last_written_percent:
                                         progress_percent_db = new_percent
@@ -1603,9 +1605,6 @@ if file_value:
 
         print(f"\n✅ Matching SKUs: {len(matching_sku)}")
         print(f"❌ Non-Matching SKUs: {len(non_matching_skus)}")
-        
-        print(len(search_terms))
-        # processed_count = 133976
 
         # For web scraping
         for attempt in range(max_retries + 1):
@@ -1661,7 +1660,10 @@ if file_value:
                         pbar.update(1)
 
                         processed_count += 1
-                        new_percent = int((processed_count / len(main_search_term)) * 100)
+                       if main_search_term > 0:
+                            new_percent = int((processed_count / main_search_term) * 100)
+                        else:
+                            new_percent = 0  # Or handle appropriately if zero total SKUs
 
                         if new_percent > last_written_percent:
                             progress_percent_db = new_percent
