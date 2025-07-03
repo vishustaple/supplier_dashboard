@@ -708,7 +708,23 @@ class ProcessUploadedFiles extends Command
                                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                     'customer_number' => $customerNumber[0],
                                                 ]);
-                                            } else {
+                                            } else if ($fileValue->supplier_id == 16) {
+                                                $convertedPrice = (float) $fileValue->conversion_rate; /** Cast to float */
+
+                                                /** Inserting the excel data into the orders table and getting the last 
+                                                 * insert id  for further insertion */
+                                                $orderLastInsertId = Order::create([
+                                                    'attachment_id' => $fileValue->id,
+                                                    'created_by' => $fileValue->created_by,
+                                                    'supplier_id' => $fileValue->supplier_id,
+                                                    'cost' => round($row[$keyAmount] * $convertedPrice, 2),
+                                                    'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
+                                                    'date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : (''),
+                                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'customer_number' => ltrim($row[$keyCustomerNumber], '0'),
+                                                ]);
+                                            } else  {
                                                 /** Inserting the excel data into the orders table and getting the last 
                                                  * insert id  for further insertion */
                                                 $orderLastInsertId = Order::create([

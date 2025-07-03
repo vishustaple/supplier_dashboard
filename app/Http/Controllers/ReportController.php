@@ -984,6 +984,16 @@ class ReportController extends Controller
             'end_date' => $request->input('end_date')
         ];
 
+        $checkRowsData = $request->input('check_rows');
+
+        if (isset($checkRowsData) && $checkRowsData == 1) {
+            /** Increasing the memory limit becouse memory limit issue */
+            ini_set('memory_limit', '1024M');
+
+            $rowsCount = Order::getConsolidatedDownloadData($filter, true);
+            return response()->json(['count' => $rowsCount]);
+        }
+
         $smallDataCheck = $request->input('small_data');
 
         if (isset($smallDataCheck) && $smallDataCheck == 1) {

@@ -61,9 +61,9 @@
                                     @elseif($file_user_id)
                                         <button id="queProcess" class="btn-success px-3 btn m-1 disabled" href=""><i class="fa-solid me-1 fa-file-csv"></i>Download Genrated Report</button>
                                     @else
-                                        <button id="downloadButton" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Large Selected Account Data</button>
+                                        <button id="downloadButton" style="display:none" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Large Selected Account Data</button>
                                     @endif
-                                    <button id="downloadButtonSmall" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
+                                    <button id="downloadButtonSmall" style="display:none" class="btn-success px-3 btn m-1" title="Csv Download"><i class="fa-solid me-1 fa-file-csv"></i>Download Selected Account Data</button>
                                 </div>
                             </div>
                         </div>
@@ -136,8 +136,92 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-             // Check if the button with a specific ID exists
-             if ($('#queProcess').length > 0) {
+            $('#consolidated_supplier_data').on('change', '.checkbox-trigger', function () {
+            
+                // if ($(this).is(':checked')) {
+                    // Get all checked checkboxes within the DataTable
+                    var oldselect = 0,
+                        checkedValues = [],
+                        selectedAccounts = [],
+                        selectedSupplierIds = [];
+                    
+                    // Selecting the account name and create the selectedAccounts array
+                    $('#consolidated_supplier_data tbody tr').each(function() {
+                        var checkbox = $(this).find('input[type="checkbox"]:checked');
+                        if (checkbox.length > 0) {
+                            var accountName = $(this).find('td').eq(0).text().trim(), // Assuming the Account Name is in the first column
+                                selectedSupplier = $(this).find('input[type="hidden"]').val(); // Assuming the Supplier Ids is hidden
+                
+                            selectedAccounts.push(accountName);
+                            if (oldselect !== selectedSupplier) {
+                                oldselect = selectedSupplier;
+
+                                selectedSupplierIds.push(selectedSupplier);
+                            }
+                        }
+                    });
+
+                    if ($('#selectAllAccounts').is(':checked')) {
+                        checkedAllAccount = 1;
+                    } else {
+                        checkedAllAccount = 0;
+                    }
+
+                    // Selecting the supplier_id and create the supplier_id array
+                    $('.checkboxs:checked').each(function() {
+                        checkedValues.push($(this).val());
+                    });
+
+                    if (checkedAllAccount == 1) {
+                        selectedSupplierIds = checkedValues;
+                    }
+
+                    // alert(checkedValues);
+                    // Added validation of empty supplier_id array
+                    if (checkedValues.length === 0) {
+                        $('#error').append('<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></symbol></svg><div class="alert alert-danger alert-dismissible fade show" role="alert">  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg><strong>Error</strong> Please the supplier.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    } else {
+                        // Added validation of empty account name array
+                        if (selectedAccounts.length === 0) {
+                            $('#error').append('<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></symbol></svg><div class="alert alert-danger alert-dismissible fade show" role="alert">  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg><strong>Error</strong> Please check the account.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                        } else {
+                            // var button = document.getElementById('downloadButton'),
+                            formData = new FormData($('#import_form')[0]);
+                            // button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading';
+                            // button.disabled = true;
+                            // After checked the validation finally send ajax request
+                            $.ajax({
+                                url: '{{ route("consolidated-report.download") }}',
+                                type: 'POST',
+                                data: { 
+                                    account_name: selectedAccounts,
+                                    supplier_id: selectedSupplierIds,
+                                    checkedAllAccount:checkedAllAccount,
+                                    check_rows:1,
+                                    start_date: moment($('#startdate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD'),
+                                    end_date: moment($('#enddate').val(), 'MM/DD/YYYY').format('YYYY-MM-DD') 
+                                },
+                                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                                success: function (response) {
+                                    if (response.count <= 520000) {
+                                        $('#downloadButton').hide();
+                                        $('#downloadButtonSmall').show();
+                                    } else {
+                                        $('#downloadButton').show();
+                                        $('#downloadButtonSmall').hide();
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error('Error:', error);
+                                } 
+                            });
+                        }
+                    }
+                // }
+            });
+
+            // Check if the button with a specific ID exists
+            if ($('#queProcess').length > 0) {
                 // Set the interval time (in milliseconds)
                 var intervalTime = 2000; // 5 seconds
 
@@ -349,7 +433,7 @@
 
                 // Added validation of empty supplier_id array
                 if (checkedValues.length === 0) {
-                    $('#error').append('<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></symbol></svg><div class="alert alert-danger alert-dismissible fade show" role="alert">  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg><strong>Error</strong> Please the supplier.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    $('#error').append('<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></symbol></svg><div class="alert alert-danger alert-dismissible fade show" role="alert">  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg><strong>Error</strong> Please check the supplier.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
                 } else {
                     // Added validation of empty account name array
                     if (selectedAccounts.length === 0) {
