@@ -1660,7 +1660,7 @@ if file_value:
                         pbar.update(1)
 
                         processed_count += 1
-                       if main_search_term > 0:
+                        if main_search_term > 0:
                             new_percent = int((processed_count / main_search_term) * 100)
                         else:
                             new_percent = 0  # Or handle appropriately if zero total SKUs
