@@ -2386,6 +2386,7 @@ class Order extends Model
                     }
                 } elseif($filter['supplier'] == 4) {
                     $originalName = $file->getClientOriginalName(); // gets 'CENTERPOINT_Diversity_Rebate_May_2025 (1).xlsx'
+                    $workSheetArray = $spreadSheet->getSheet(1)->toArray();
                     if (stripos($originalName, 'CENTERPOINT_Diversity_Rebate') !== false) {
                         if (!isset($fileTotal) && !isset($fileRebate)) {
                             $fileTotal = $workSheetArray[29][1];
@@ -2395,8 +2396,6 @@ class Order extends Model
                             $fileRebate += $workSheetArray[32][1];
                         }
                     } else {
-                        $workSheetArray = $spreadSheet->getSheet(1)->toArray();
-
                         if (!isset($fileTotal) && !isset($fileRebate)) {
                             $fileTotal = $workSheetArray[15][1];
                             $fileRebate = $workSheetArray[17][1];
