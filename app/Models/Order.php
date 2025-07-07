@@ -2825,8 +2825,39 @@ class Order extends Model
 
             $val1 = (float) ($item1[$orderColumnArray[3]] ?? 0);
             $val2 = (float) ($item2[$orderColumnArray[3]] ?? 0);
+
+            $account_number = $item1['account_number'] ?? ($item2['account_number'] ?? NULL);
+            if ($filter['supplier'] == 4 && $account_number == "27373825") {
+                foreach ($filter['files'] as $file) {
+                    // Check if the file name contains 'CENTERPOINT_Diversity_Rebate'
+                    $originalName = $file->getClientOriginalName(); // gets 'CENTERPOINT_Diversity_Rebate_May_2025 (1).xlsx'
+                    if (stripos($originalName, 'CENTERPOINT_Diversity_Rebate') !== false) {
+                        $reader = new Xlsx();
+                        $reader->setReadDataOnly(true); // Ignore formatting, speeds up processing
+
+                        $spreadsheet = $reader->load($file);
+
+                        // Try to get the sheet named 'Rebate Calculation'
+                        $sheet = $spreadsheet->getSheetByName('Rebate Calculation');
+
+                        if ($sheet !== null) {
+                            $workSheetArray = $spreadsheet->getSheet(1)->toArray();
+                            $mainRebat = (5 / 100) * (float) $workSheetArray[28][1];
+                            $deducation = $mainRebat - $workSheetArray[32][1];
+                            $val2 =  $val2 - $deducation;
+
+                            $fileVolumeRebate = floatval(str_replace(['$', ','], '', $fileVolumeRebate)) - $deducation;
+                            $fileCost = floatval(str_replace(['$', ','], '', $fileCost)) - $workSheetArray[29][1];
+
+                            $fileVolumeRebate = "$" . number_format((float) $fileVolumeRebate, 2);
+                            $fileCost = "$" . number_format((float) $fileCost, 2);
+                        }
+                    }
+                }
+            }
+
             $df = "$" . number_format($val2 - $val1, 2);
-        
+            // dd($val2);
             $mergedArray[] = [
                 'df' => $df . ' (' . $percentage . '%)',
                 'db_cost' => $dbCost,
@@ -2841,7 +2872,7 @@ class Order extends Model
         }
 
         $finalArray = $mergedArray;       
-
+        // dd($finalArray);
         /** Defining final array for datatable */
         return [
             'data' => $finalArray,
