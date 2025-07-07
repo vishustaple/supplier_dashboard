@@ -2385,16 +2385,26 @@ class Order extends Model
                         }
                     }
                 } elseif($filter['supplier'] == 4) {
-                    $workSheetArray = $spreadSheet->getSheet(1)->toArray();
+                    $originalName = $file->getClientOriginalName(); // gets 'CENTERPOINT_Diversity_Rebate_May_2025 (1).xlsx'
+                    if (stripos($originalName, 'CENTERPOINT_Diversity_Rebate') !== false) {
+                        if (!isset($fileTotal) && !isset($fileRebate)) {
+                            $fileTotal = $workSheetArray[29][1];
+                            $fileRebate = $workSheetArray[32][1];
+                        } elseif(isset($fileTotal) && isset($fileRebate)) {
+                            $fileTotal += $workSheetArray[29][1];
+                            $fileRebate += $workSheetArray[32][1];
+                        }
+                    } else {
+                        $workSheetArray = $spreadSheet->getSheet(1)->toArray();
 
-                    if (!isset($fileTotal) && !isset($fileRebate)) {
-                        $fileTotal = $workSheetArray[15][1];
-                        $fileRebate = $workSheetArray[17][1];
-                    } elseif(isset($fileTotal) && isset($fileRebate)) {
-                        $fileTotal += $workSheetArray[15][1];
-                        $fileRebate += $workSheetArray[17][1];
+                        if (!isset($fileTotal) && !isset($fileRebate)) {
+                            $fileTotal = $workSheetArray[15][1];
+                            $fileRebate = $workSheetArray[17][1];
+                        } elseif(isset($fileTotal) && isset($fileRebate)) {
+                            $fileTotal += $workSheetArray[15][1];
+                            $fileRebate += $workSheetArray[17][1];
+                        }
                     }
-                    
                 } elseif($filter['supplier'] == 6) {
                     $workSheetArray = $spreadSheet->getSheet(0)->toArray();
 
@@ -2848,9 +2858,7 @@ class Order extends Model
                     }
                 }
             }
-
             
-
             $difference = $fileVolumeRebateForCal - $dbVolumeRebateForCal;
 
             if ($fileVolumeRebateForCal != 0 && $difference > 0) {
