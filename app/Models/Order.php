@@ -2815,14 +2815,6 @@ class Order extends Model
             $dbVolumeRebateForCal = isset($item1[$orderColumnArray[3]]) ? (float) $item1[$orderColumnArray[3]] : 0;
             $fileVolumeRebateForCal = isset($item2[$orderColumnArray[3]]) ? (float) $item2[$orderColumnArray[3]] : 0;
 
-            $difference = $fileVolumeRebateForCal - $dbVolumeRebateForCal;
-
-            if ($fileVolumeRebateForCal != 0 && $difference > 0) {
-                $percentage = round(($difference / $fileVolumeRebateForCal) * 100, 2);
-            } else {
-                $percentage = 0; /** or null, or any fallback value you prefer */
-            }
-
             $val1 = (float) ($item1[$orderColumnArray[3]] ?? 0);
             $val2 = (float) ($item2[$orderColumnArray[3]] ?? 0);
 
@@ -2847,6 +2839,7 @@ class Order extends Model
                             $val2 =  $val2 - $deducation;
 
                             $fileVolumeRebate = floatval(str_replace(['$', ','], '', $fileVolumeRebate)) - $deducation;
+                            $fileVolumeRebateForCal = $fileVolumeRebateForCal - $deducation;
                             $fileCost = floatval(str_replace(['$', ','], '', $fileCost)) - $workSheetArray[29][1];
 
                             $fileVolumeRebate = "$" . number_format((float) $fileVolumeRebate, 2);
@@ -2856,6 +2849,16 @@ class Order extends Model
                 }
             }
 
+            
+
+            $difference = $fileVolumeRebateForCal - $dbVolumeRebateForCal;
+
+            if ($fileVolumeRebateForCal != 0 && $difference > 0) {
+                $percentage = round(($difference / $fileVolumeRebateForCal) * 100, 2);
+            } else {
+                $percentage = 0; /** or null, or any fallback value you prefer */
+            }
+            
             $df = "$" . number_format($val2 - $val1, 2);
             // dd($val2);
             $mergedArray[] = [
