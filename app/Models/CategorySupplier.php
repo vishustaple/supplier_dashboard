@@ -154,7 +154,6 @@ class CategorySupplier extends Model
     'suppliers.category',
     'suppliers.hide_show',
     'suppliers.supplier_name',
-    'supplier_fields.id',
 ]);
         
         $filteredRecords = $query->getQuery()->getCountForPagination();
