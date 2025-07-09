@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx as Writer;
 use Illuminate\Database\{QueryException, Schema\Blueprint};
 use Illuminate\Support\Facades\{DB, Log, Auth, Schema, Validator};
 use PhpOffice\PhpSpreadsheet\{Spreadsheet, Reader\Xls, Reader\Xlsx, Reader\Exception};
-use App\Models\{ UploadedFiles, ManageColumns, SupplierDetail, CategorySupplier, RequiredFieldName};
+use App\Models\{ UploadedFiles, ManageColumns, SupplierDetail, Supplier, CategorySupplier, RequiredFieldName};
 
 class ExcelImportController extends Controller
 {
@@ -244,7 +244,7 @@ class ExcelImportController extends Controller
 
     public function ShowAllSupplier(Request $request) {
         if ($request->ajax()) {
-            $response = CategorySupplier::supplierShowDataTable($request->all());
+            $response = Supplier::supplierShowDataTable($request->all());
             return response()->json($response);
         }
     }
