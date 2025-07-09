@@ -153,7 +153,6 @@ class CategorySupplier extends Model
     'suppliers.show',
     'suppliers.category',
     'suppliers.hide_show',
-    'department.department',
     'suppliers.supplier_name',
     'supplier_fields.id',
 ]);
