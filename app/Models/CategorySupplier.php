@@ -153,13 +153,9 @@ class CategorySupplier extends Model
     'suppliers.show',
     'suppliers.category',
     'suppliers.hide_show',
-    'supplier_contacts.email',
-    'supplier_contacts.phone',
-    'supplier_contacts.status',
     'department.department',
     'suppliers.supplier_name',
     'supplier_fields.id',
-    DB::raw("CONCAT(supplier_contacts.first_name, ' ', supplier_contacts.last_name)")
 ]);
         
         $filteredRecords = $query->getQuery()->getCountForPagination();
