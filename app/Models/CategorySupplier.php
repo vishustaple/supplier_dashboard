@@ -9,6 +9,8 @@ class CategorySupplier extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
+    
     protected $table = 'suppliers';
 
     protected $fillable = [
