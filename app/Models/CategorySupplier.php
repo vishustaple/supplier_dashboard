@@ -10,7 +10,7 @@ class CategorySupplier extends Model
     use HasFactory;
 
     protected $connection = 'second_db';
-    
+
     protected $table = 'suppliers';
 
     protected $fillable = [
@@ -148,7 +148,7 @@ class CategorySupplier extends Model
             });
         }
 
-        $query->groupBy('suppliers.id');
+        $query->groupBy('suppliers.id', 'suppliers.category');
         
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
