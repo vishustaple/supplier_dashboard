@@ -148,14 +148,7 @@ class CategorySupplier extends Model
             });
         }
 
-        $query->groupBy([
-    'suppliers.id',
-    'suppliers.show',
-    'suppliers.category',
-    'suppliers.hide_show',
-    'suppliers.supplier_name',
-    'catalog_supplier_fields.id',
-]);
+        $query->groupBy(['suppliers.id']);
         
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
