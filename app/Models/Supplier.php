@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\{Carbon, Facades\DB};
 use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
 
 class Supplier extends Model
