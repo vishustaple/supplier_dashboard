@@ -2860,7 +2860,7 @@ class Order extends Model
             
             $difference = $fileVolumeRebateForCal - $dbVolumeRebateForCal;
 
-            if ($fileVolumeRebateForCal != 0 && $difference > 0) {
+            if ($fileVolumeRebateForCal != 0 && $difference != 0) {
                 $percentage = round(($difference / $fileVolumeRebateForCal) * 100, 2);
             } else {
                 $percentage = 0; /** or null, or any fallback value you prefer */
