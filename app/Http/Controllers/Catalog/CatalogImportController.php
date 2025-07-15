@@ -63,9 +63,6 @@ class CatalogImportController extends Controller
     }
 
     public function import(Request $request) {
-        /** Increasing memory for smoothly process data of excel file */
-        // ini_set('memory_limit', '1024M');
-
         /** Getting suppliers ids and its required columns */
         $suppliers = CatalogSupplierFields::getRequiredColumns();
         

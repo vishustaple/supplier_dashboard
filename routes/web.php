@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\{Auth, Route}; 
 use App\Http\Controllers\Catalog\CatalogImportController;
-use App\Http\Controllers\{HomeController, RebateController, ReportController, CatalogController, AccountController, SalesTeamController, SavedQueryController, CommissionController, CronResourcePage, ExcelImportController};
+use App\Http\Controllers\{AYDController, HomeController, RebateController, ReportController, CatalogController, AccountController, SalesTeamController, SavedQueryController, CommissionController, CronResourcePage, ExcelImportController};
 
 /*
 |--------------------------------------------------------------------------
@@ -185,6 +185,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/old-queries', [CronResourcePage::class, 'queryFilter'])->name('query-filter');
         Route::post('/query/type-filter', [CronResourcePage::class, 'queryTypeFilter'])->name('query.type_filter');
         Route::get('/query/query_type-csv', [CronResourcePage::class, 'queriesExportCsv'])->name('query.csv-export-query');
+
+        Route::post('/ayd-session', [AYDController::class, 'createSession']);
     });
 });
 
