@@ -157,12 +157,12 @@
                     DB Backend
                 </a>
                 @endif
-                <!-- @if(in_array('SQL Maintenance', auth()->user()->permissions->pluck('name')->toArray()) || !in_array(auth()->user()->user_type, [\App\Models\User::USER_TYPE_USER, \App\Models\User::USER_TYPE_ADMIN])) -->
+                @if(in_array('Ask Your Database', auth()->user()->permissions->pluck('name')->toArray()) || !in_array(auth()->user()->user_type, [\App\Models\User::USER_TYPE_USER, \App\Models\User::USER_TYPE_ADMIN]))
                 <a class="nav-link" target="_blank" href="{{route('ayd-views')}}">
                     <div class="sb-nav-link-icon"><i class="fa fa-database" aria-hidden="true"></i></div>
                     Ask Your Database
                 </a>
-                <!-- @endif -->
+                @endif
                 <a class="nav-link" href="{{route('user.logout')}}">
                     <div class="sb-nav-link-icon">
                         <i class="fa fa-sign-out" aria-hidden="true"></i>
