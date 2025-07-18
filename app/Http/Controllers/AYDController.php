@@ -3,27 +3,39 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
 class AYDController extends Controller
 {
+    public function index(){
+        $pageTitle = 'Ask Your Database';
+        return view('admin.ayd', ['pageTitle' => $pageTitle]);
+    }
+
     public function createSession(Request $request)
     {
         $apiKey = env('AYD_API_KEY');
         $chatbotId = env('AYD_CHATBOT_ID');
 
-        // Pull user details (from session or auth middleware)
-        $user = auth()->user(); // or customize based on your setup
+        // Optional: Log the API key and bot ID (check .env is loading correctly)
+        // dd('Using API Key: ' . $apiKey);
+        // dd('Using Chatbot ID: ' . $chatbotId);
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $apiKey,
+            'Authorization' => "Bearer {$apiKey}",
+            'Accept'        => 'application/json, text/plain, */*',
             'Content-Type'  => 'application/json',
         ])->post('https://www.askyourdatabase.com/api/chatbot/v2/session', [
             'chatbotid' => $chatbotId,
-            'name'      => $user->name ?? 'Guest',
-            'email'     => $user->email ?? 'guest@example.com',
+            'name'      => $user->name ?? 'Ankit',
+            'email'     => $user->email ?? 'ankit@centerpointgroup.com',
         ]);
 
-        return response()->json($response->json());
+        // Log the full response for debugging
+        // dd('AYD Response: ' . json_encode($response->json()));
+
+        // Return full response to frontend
+        return response()->json($response->json(), $response->status());
     }
 }

@@ -186,7 +186,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/query/type-filter', [CronResourcePage::class, 'queryTypeFilter'])->name('query.type_filter');
         Route::get('/query/query_type-csv', [CronResourcePage::class, 'queriesExportCsv'])->name('query.csv-export-query');
 
-        Route::post('/ayd-session', [AYDController::class, 'createSession']);
+        Route::get('/ayd-view', [AYDController::class, 'index'])->name('ayd-views');
+        Route::post('/ayd-session', [AYDController::class, 'createSession'])->name('ayd-session');
     });
 });
 
