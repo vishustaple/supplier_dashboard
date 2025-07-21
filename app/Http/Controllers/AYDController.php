@@ -25,7 +25,8 @@ class AYDController extends Controller
         // Optional: Log the API key and bot ID (check .env is loading correctly)
         // dd('Using API Key: ' . $apiKey);
         // dd('Using Chatbot ID: ' . $chatbotId);
-
+        $user = auth()->user(); // or customize based on your setup
+        
         $response = Http::withHeaders([
             'Authorization' => "Bearer {$apiKey}",
             'Accept'        => 'application/json, text/plain, */*',
