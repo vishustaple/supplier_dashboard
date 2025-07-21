@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Http;
 
 class AYDController extends Controller
 {
+    public function __construct(){
+        $this->middleware('permission:Ask Your Database')->only(['index', 'createSession']);
+    }
+
     public function index(){
         $pageTitle = 'Ask Your Database';
         return view('admin.ayd', ['pageTitle' => $pageTitle]);
