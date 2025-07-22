@@ -26,14 +26,14 @@ class AYDController extends Controller
         // dd('Using API Key: ' . $apiKey);
         // dd('Using Chatbot ID: ' . $chatbotId);
         $user = auth()->user(); // or customize based on your setup
-        
+
         $response = Http::withHeaders([
             'Authorization' => "Bearer {$apiKey}",
             'Accept'        => 'application/json, text/plain, */*',
             'Content-Type'  => 'application/json',
         ])->post('https://www.askyourdatabase.com/api/chatbot/v2/session', [
             'chatbotid' => $chatbotId,
-            'name'      => $user->name ?? 'Ankit',
+            'name'      => $user->first_name.' '.$user->last_name ?? 'Ankit',
             'email'     => $user->email ?? 'ankit@centerpointgroup.com',
         ]);
 
