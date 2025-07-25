@@ -1845,7 +1845,7 @@ class Order extends Model
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
                 $sheetTitle = $sheet->getTitle();
-                  // Supplier 6 logic
+                // Supplier 6 logic
                 if ($filter['supplier'] ==  6) {
                     $highestRow = $sheet->getHighestDataRow();
                     $highestColumn = $sheet->getHighestDataColumn();
@@ -1976,7 +1976,7 @@ class Order extends Model
                                 if ($header == 'customer account name') $headerMap[$index] = 'account_name';
                             }
                         }
-        
+
                         /** Start processing data rows after header */
                         for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
                             $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
@@ -1991,11 +1991,13 @@ class Order extends Model
     
                                 if ($field === 'rebate_percent') {
                                     $value = is_numeric($value) ? (float)$value : 0.0;
+
                                     if ($value > 0 && $value < 1) {
                                         $value *= 100;
                                     } elseif ($value > 100) {
                                         $value = 100; /** cap at 100% */
                                     }
+
                                     $value = round($value, 2); /** clean to 2 decimals */
                                 }
     
@@ -2006,7 +2008,6 @@ class Order extends Model
                                 $finalData[] = $dataRow;
                             }
                         }
-        
                         break; /** Stop checking more rows/sheets */
                     }
     
@@ -2182,7 +2183,7 @@ class Order extends Model
                     $result[$id]['cost'] = (float) $item['cost'];
                     $result[$id][$rebate] = (float) $item[$rebate];
                     if ($filter['rebate_check'] == 1) {
-                        $result[$id]['rebate_percent'] = (isset($item['rebate_percent']) && !empty($item['rebate_percent'])) ? ($item['rebate_percent']) : (8);
+                        $result[$id]['rebate_percent'] = (isset($item['rebate_percent'])) ? ($item['rebate_percent']) : (8);
                     } else {
                         $result[$id]['rebate_percent'] = 5;
                     }
