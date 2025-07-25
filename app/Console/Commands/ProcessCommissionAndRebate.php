@@ -72,6 +72,8 @@ class ProcessCommissionAndRebate extends Command
                         ->on('commissions.account_name', '=', 'm2.account_name');
                     });
         
+                    $query->where('commissions.status', 1);
+
                     $query->where('commissions.sales_rep', $values->sales_rep);
                     
                     $allSupplierIdsArray = DB::table('suppliers')
