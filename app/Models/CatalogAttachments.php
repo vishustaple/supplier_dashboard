@@ -32,7 +32,7 @@ class CatalogAttachments extends Model
     protected $dates = ['deleted_at'];
 
     public function supplier(): BelongsTo {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(CategorySupplier::class);
     }
 
     public function user(): BelongsTo {

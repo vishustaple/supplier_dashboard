@@ -24,7 +24,7 @@ class CatalogSupplierFields extends Model
     ];
 
     public static function getRequiredColumns(){
-        $columnValues = DB::table('catalog_supplier_fields')
+        $columnValues = DB::connection('second_db')->table('catalog_supplier_fields')
         ->select('supplier_id', 'label')
         ->where('deleted', 0)
         ->whereNotNull('catalog_required_field_id')
@@ -38,7 +38,7 @@ class CatalogSupplierFields extends Model
     }
 
     public static function getColumns(){
-        $columnValues = DB::table('catalog_supplier_fields')
+        $columnValues = DB::connection('second_db')->table('catalog_supplier_fields')
         ->select('supplier_id', 'label')
         ->where('deleted', 0)
         ->get();

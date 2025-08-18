@@ -94,7 +94,6 @@ class CatalogImportController extends Controller
         if (isset($suppliers[$request->supplierselect])) {
             /** Get the authenticated user */
             $user = Auth::user();
-
             try {
                 CatalogAttachments::create([
                     'date' => $request->date,
