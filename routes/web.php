@@ -198,3 +198,26 @@ Route::group(['prefix' => 'admin'], function () {
 
 Route::get('/create-password', [HomeController::class, 'createPassword'])->name('create.password');
 Route::post('/update-password', [HomeController::class, 'updatePassword'])->name('update.password');
+
+Route::get('/test-email', function () {
+    try {
+        Log::info('Attempting to send test email...');
+        echo "Attempting to send test email...";
+
+        $emails = ['ankitsainisaini3333@gmail.com'];
+
+        $data = [
+            'link' => url('admin/accounts/customer-edit'),
+            'body' => 'Test email from Brevo SMTP.',
+        ];
+
+        Mail::send('mail.newaccount', $data, function($message) use ($emails) {
+            $message->to($emails)->subject('Test Email from Brevo');
+        });
+
+        echo "Email sent.";
+    } catch (\Exception $e) {
+        Log::error('Mail send failed: ' . $e->getMessage());
+        echo "Error: " . $e->getMessage();
+    }
+});
