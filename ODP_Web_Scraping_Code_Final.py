@@ -768,7 +768,7 @@ else:
         """
         SELECT id, date, file_name, created_by, supplier_id, catalog_price_type_id 
         FROM catalog_attachments 
-        WHERE cron = 11 AND deleted_by IS NULL
+        WHERE cron = 11 AND supplier_id = 3 AND deleted_by IS NULL
         LIMIT 1
     """
     )
@@ -827,7 +827,8 @@ if file_value:
         SELECT id FROM catalog_attachments 
         WHERE cron != 11 
         AND MONTH(date) = %s 
-        AND YEAR(date) = %s 
+        AND YEAR(date) = %s
+        AND supplier_id = 3 
         AND deleted_at IS NULL 
         LIMIT 1
     """,
@@ -845,6 +846,7 @@ if file_value:
         WHERE cron != 11
         AND MONTH(date) > %s 
         AND YEAR(date) >= %s
+        AND supplier_id = 3
         AND deleted_at IS NULL
         LIMIT 1
     """,

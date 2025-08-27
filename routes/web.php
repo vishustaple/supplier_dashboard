@@ -204,7 +204,7 @@ Route::get('/test-email', function () {
         Log::info('Attempting to send test email...');
         echo "Attempting to send test email...";
 
-        $emails = ['ankitsainisaini3333@gmail.com'];
+        $emails = ['vishustaple.in@gmail.com'];
 
         $data = [
             'link' => url('admin/accounts/customer-edit'),

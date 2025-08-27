@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\{Str, Carbon};
 use Illuminate\Database\QueryException;
+use App\Mail\{NewUserMail, ExistingUserMail};
 use App\Models\{User, Permission, ShowPowerBi};
 use Illuminate\Support\Facades\{DB, Log, Auth, Mail, Http, Crypt, Session, Validator};
 
@@ -104,6 +105,7 @@ class HomeController extends Controller
             'user_role' => 'required',
             'first_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -112,53 +114,94 @@ class HomeController extends Controller
             try {
                 $user1 = Auth::user();
                 $userType = $request->user_role;
+                $password = $request->password;
+              
                 if (($userType == 3 && $user1->user_type == 2) || $user1->user_type == 1) {
-                    $token = Str::random(40);
-                    if ($user1->user_type == 1) {
-                        $user = User::create([
-                            'user_type' => $userType,
-                            'email' => $request->email,
-                            'remember_token' => $token,
-                            'status' => $request->user_status,
-                            'last_name' => $request->last_name,
-                            'first_name' => $request->first_name,
-                        ]);
-                    } else {
-                        $user = User::create([
-                            'user_type' => $userType,
-                            'email' => $request->email,
-                            'remember_token' => $token,
-                            'last_name' => $request->last_name,
-                            'first_name' => $request->first_name,
-                        ]);
-                    }
+                        if ($user1->user_type == 1) {
+                            $userData = [
+                                'user_type' => $userType,
+                                'email' => $request->email,
+                                'status' => $request->user_status,
+                                'last_name' => $request->last_name,
+                                'first_name' => $request->first_name,
+                                'password' => bcrypt($password),
+                            ];
+                        } else {
+                            $userData = [
+                                'user_type' => $userType,
+                                'email' => $request->email,
+                                'last_name' => $request->last_name,
+                                'first_name' => $request->first_name,
+                                'password' => bcrypt($password),
+                            ];
+                        }
+                        $user = User::create($userData);
+                        DB::connection('second_db')
+                            ->table('users')
+                            ->insert($userData);
+                    // }
+                    //  else {
+                    //     $token = Str::random(40);
+                    //     if ($user1->user_type == 1) {
+                    //         $userData = [
+                    //             'user_type' => $userType,
+                    //             'email' => $request->email,
+                    //             'remember_token' => $token,
+                    //             'status' => $request->user_status,
+                    //             'last_name' => $request->last_name,
+                    //             'first_name' => $request->first_name,
+                    //         ];
+                    //     } else {
+                    //         $userData = [
+                    //             'user_type' => $userType,
+                    //             'email' => $request->email,
+                    //             'remember_token' => $token,
+                    //             'last_name' => $request->last_name,
+                    //             'first_name' => $request->first_name,
+                    //         ];
+                    //     }
 
+                    //     $user = User::create($userData);
+                    //     DB::connection('second_db')
+                    //         ->table('users')
+                    //         ->insert($userData);
+                    // }
+    
                     /** Sync permissions for the user */
                     $user->permissions()->sync($request->input('permissions'));
 
                     $email = $request->email;
-                    $key = env('APP_KEY');
-                    $salt = openssl_random_pseudo_bytes(16);
-                    /** Generate salt */
-                    $data = '' . $user->id . '|' . $user->remember_token . '';
 
                     try {
-                        Log::info('Attempting to send email...');
-                        Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function ($message) use ($email) {
-                            $message->to($email)
-                                ->subject('Password Creation Form');
-                        });
-
-                        Log::info('Email sent successfully');
-                    } catch (\Exception $e) {
-                        /** Handle the exception here */
-                        Log::error('Email sending failed: ' . $e->getMessage());
+                        Mail::to($email)->send(new NewUserMail($user, $password)); // Replace with actual if generated
+                    } catch (Exception $e) {
+                        Log::error('Failed to send new user email: ' . $e->getMessage());
                     }
+                        // $key = env('APP_KEY');
+                        // $salt = openssl_random_pseudo_bytes(16);
+                        // /** Generate salt */
+                        // $data = '' . $user->id . '|' . $user->remember_token . '';
+    
+                        // try {
+                        //     Log::info('Attempting to send email...');
+                        //     Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function ($message) use ($email) {
+                        //         $message->to($email)
+                        //             ->subject('Password Creation Form');
+                        //     });
+    
+                        //     Log::info('Email sent successfully');
+                        // } catch (Exception $e) {
+                        //     /** Handle the exception here */
+                        //     Log::error('Email sending failed: ' . $e->getMessage());
+                        // }
+                    
+
                     return response()->json(['success' => 'Add User Successfully!'], 200);
+
                 } else {
                     return response()->json(['error' => 'You do not have permission to add user'], 200);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return response()->json(['error' => $e->getMessage()], 200);
             }
         }
@@ -181,7 +224,7 @@ class HomeController extends Controller
 
             Log::info('Email sent successfully');
             return response()->json(['success' => true, 'msg' => 'Email sent successfully'], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** Handle the exception here */
             Log::error('Email sending failed: ' . $e->getMessage());
             return response()->json(['error' => true, 'msg' => 'Email sending failed: ' . $e->getMessage()], 200);
@@ -295,13 +338,14 @@ class HomeController extends Controller
 
                         /** Sync user permissions */
                         $user->permissions()->sync($request->input('permissions'));
+                        
                     } else {
                         return response()->json(['error' => 'You do not have permission to update this user'], 200);
                     }
                 }
 
                 return response()->json(['success' => 'Update User Successfully!'], 200);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return response()->json(['error' => $e->getMessage()], 200);
             }
         }
@@ -312,6 +356,25 @@ class HomeController extends Controller
         $user = User::find(Crypt::decryptString($request->id));
         $user1 = Auth::user();
         if (($user->user_type != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($user->user_type, [2, 3]) && $user1->user_type == 3)) {
+            DB::connection('second_db')->beginTransaction();
+
+            try {
+                DB::connection('second_db')->statement('SET FOREIGN_KEY_CHECKS=0');
+
+                DB::connection('second_db')
+                    ->table('users')
+                    ->where('id', Crypt::decryptString($request->id))
+                    ->delete();
+
+                DB::connection('second_db')->statement('SET FOREIGN_KEY_CHECKS=1');
+
+                DB::connection('second_db')->commit();
+            } catch (Exception $e) {
+                DB::connection('second_db')->rollBack();
+                Log::error('User deletion failed: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to delete user.'], 500);
+            }
+
             /** Disable foreign key checks */
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
@@ -319,6 +382,7 @@ class HomeController extends Controller
 
             /** Re-enable foreign key checks */
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
             return response()->json(['success' => true]);
         } else {
             return response()->json(['success' => false]);
@@ -387,7 +451,7 @@ class HomeController extends Controller
             } else {
                 return view('admin.linkexpire');
                 /** Token does not match, return error or redirect back */
-                return redirect()->back()->with('error', 'Invalid token.');
+                // return redirect()->back()->with('error', 'Invalid token.');
             }
         }
     }
@@ -435,7 +499,7 @@ class HomeController extends Controller
                         });
 
                         Log::info('Email sent successfully');
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         /** Handle the exception here */
                         Log::error('Email sending failed: ' . $e->getMessage());
                     }
@@ -445,7 +509,7 @@ class HomeController extends Controller
                 } else {
                     session()->flash('error', 'Please enter valid account email.');
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 session()->flash('error', $e->getMessage());
             }
         }
@@ -474,8 +538,8 @@ class HomeController extends Controller
                 ]);
 
             return redirect()->route('power_bi.show');
-        } catch (\Exception $e) {
-            Log::error('error', $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('error', [$e->getMessage()]);
         }
     }
 
@@ -512,8 +576,8 @@ class HomeController extends Controller
                 ]);
 
             return redirect()->route('power_bi.show');
-        } catch (\Exception $e) {
-            Log::error('error', $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('error', [$e->getMessage()]);
         }
     }
 
@@ -544,7 +608,7 @@ class HomeController extends Controller
 
             return redirect()->route('power_bi.show');
         } catch (QueryException $e) {
-            Log::error('error', $e->getMessage());
+            Log::error('error', [$e->getMessage()]);
         }
     }
 
@@ -593,7 +657,7 @@ class HomeController extends Controller
 
                 if (
                     in_array('Manage Power BI Reports', auth()->user()->permissions->pluck('name')->toArray()) ||
-                    auth()->user()->user_type != \App\Models\User::USER_TYPE_USER
+                    auth()->user()->user_type != User::USER_TYPE_USER
                 ) {
                     $data .= '
                         <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == 'Power Bi') ? 'active' : '') . '" href="' . route('power_bi.show') . '">
@@ -614,7 +678,7 @@ class HomeController extends Controller
                 ]);
             } else if (
                 in_array('Manage Power BI Reports', auth()->user()->permissions->pluck('name')->toArray()) ||
-                auth()->user()->user_type != \App\Models\User::USER_TYPE_USER
+                auth()->user()->user_type != User::USER_TYPE_USER
             ) {
 
                 $titles = ['Power Bi'];

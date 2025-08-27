@@ -75,25 +75,37 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3 mb-md-0">
-                                            <label for="inputFirstName">First name</label>
+                                            <label for="inputFirstName">First name*</label>
                                             <input class="form-control" id="inputFirstName" name="first_name" type="text" placeholder="Enter your first name" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="inputLastName">Last name</label>
+                                            <label for="inputLastName">Last name*</label>
                                             <input class="form-control" id="inputLastName" name="last_name"type="text" placeholder="Enter your last name" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="inputEmail">Email address</label>
+                                    <label for="inputPassword">Password</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="inputPassword" name="password" type="password" />
+                                        <div class="input-group-append">
+                                            <button type="button" id="generatePassword" class="btn btn-secondary">Generate</button>
+                                            <button type="button" id="togglePassword" class="btn btn-outline-secondary">
+                                                <i class="fa fa-eye-slash" id="toggleIcon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="inputEmail">Email address*</label>
                                     <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
                                 </div>
                                 @auth
                                     @if (Auth::user()->user_type == 1)
                                         <div class="form-group mb-3">
-                                            <label for="userrole">User Status</label>
+                                            <label for="userrole">User Status*</label>
                                             <select id="user_status" name="user_status" class="form-control"> 
                                                 <option value="" selected>--Select--</option>
                                                 <option value="1">Active</option>
@@ -103,7 +115,7 @@
                                     @endif
                                 @endauth
                                 <div class="form-group mb-3">
-                                    <label for="userrole">User Role</label>
+                                    <label for="userrole">User Role*</label>
                                     <select id="user_role" name="user_role" class="form-control"> 
                                         <option value="" selected>--Select--</option>
                                         @if (auth()->user()->user_type == 1)
@@ -194,25 +206,25 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3 mb-md-0">
-                                            <label for="inputFirstName">First name</label>
+                                            <label for="inputFirstName">First name*</label>
                                             <input class="form-control" id="updateFirstName" name="first_name" type="text" placeholder="Enter your first name" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="inputLastName">Last name</label>
+                                            <label for="inputLastName">Last name*</label>
                                             <input class="form-control" id="updateLastName" name="last_name"type="text" placeholder="Enter your last name" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="inputEmail">Email address</label>
+                                    <label for="inputEmail">Email address*</label>
                                     <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
                                 </div>
                                 @auth
                                     @if (Auth::user()->user_type == 1)
                                         <div class="form-group mb-3">
-                                            <label for="userrole">User Status</label>
+                                            <label for="userrole">User Status*</label>
                                             <select id="updateinputStatus" name="update_user_status" class="form-control"> 
                                                 <option value="" selected>--Select--</option>
                                                 <option value="0">In-Active</option>
@@ -222,7 +234,7 @@
                                     @endif
                                 @endauth
                                 <div class="form-group mb-3">
-                                    <label for="userrole">User Role</label>
+                                    <label for="userrole">User Role*</label>
                                         <select id="update_user_role" name="update_user_role" class="form-control"> 
                                         <option value="" selected>--Select--</option>
                                         @if (auth()->user()->user_type == 1)
@@ -252,7 +264,32 @@
 </div>
 
 <script type="text/javascript">
+    function generateStrongPassword(length = 12) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?';
+        let password = '';
+        for (let i = 0; i < length; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
+    }
+
     $(document).ready(function() {
+        $('#generatePassword').on('click', function() {
+            const newPassword = generateStrongPassword(14); // You can change length here
+            $('#inputPassword').val(newPassword);
+        });
+
+         // Toggle password visibility
+        $('#togglePassword').on('click', function () {
+            const passwordField = $('#inputPassword');
+            const icon = $('#toggleIcon');
+
+            const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+            passwordField.attr('type', type);
+
+            icon.toggleClass('fa-eye fa-eye-slash');
+        });
+
         var userTable = $('#user_data').DataTable({
             "paging": true,   // Enable pagination
             "ordering": false, // Enable sorting
