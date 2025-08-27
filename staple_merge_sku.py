@@ -226,398 +226,390 @@ if file_value:
     # Rename columns using header mapping
     sku_data.rename(columns=header_mapping, inplace=True)
 
-    # error_urls = []
-    # matched_urls = []
-    # SCROLL_TIMES = 18
-    # SCROLL_STEP = 300
-    # item_numbers = set()
-    # processed_links = set()
-    # extracted_links = set()
-    # SCROLL_DELAY = 1  # seconds
-    # semaphore = asyncio.Semaphore(5)
-    # BASE_URL = "https://www.staplesadvantage.com"
+    error_urls = []
+    matched_urls = []
+    SCROLL_TIMES = 18
+    SCROLL_STEP = 300
+    item_numbers = set()
+    processed_links = set()
+    extracted_links = set()
+    SCROLL_DELAY = 1  # seconds
+    semaphore = asyncio.Semaphore(5)
+    BASE_URL = "https://www.staplesadvantage.com"
 
-    # # ------------------------------ Cookie Consent ------------------------------ #
-    # async def accept_cookie_consent(page):
-    #     try:
-    #         await page.wait_for_selector("iframe.truste_popframe", timeout=6000)
-    #         frame = page.frame(name="trustarc_cm")
+    # ------------------------------ Cookie Consent ------------------------------ #
+    async def accept_cookie_consent(page):
+        try:
+            await page.wait_for_selector("iframe.truste_popframe", timeout=6000)
+            frame = page.frame(name="trustarc_cm")
 
-    #         if frame:
-    #             await frame.wait_for_selector("a.call", timeout=5000)
-    #             agree_button = frame.locator("a.call", has_text="Agree and Proceed")
+            if frame:
+                await frame.wait_for_selector("a.call", timeout=5000)
+                agree_button = frame.locator("a.call", has_text="Agree and Proceed")
 
-    #             if await agree_button.is_visible():
-    #                 print("🍪 Clicking 'Agree and Proceed' in iframe...")
-    #                 async with page.expect_navigation(wait_until="domcontentloaded", timeout=10000):
-    #                     await agree_button.click()
-    #                 print("🔄 Page reloaded after accepting cookie consent.")
-    #             else:
-    #                 print("ℹ️ Consent button not visible in iframe.")
-    #         else:
-    #             print("⚠️ TrustArc iframe not found.")
-    #     except Exception as e:
-    #         print(f"❌ Error during cookie consent: {e}")
+                if await agree_button.is_visible():
+                    print("🍪 Clicking 'Agree and Proceed' in iframe...")
+                    async with page.expect_navigation(wait_until="domcontentloaded", timeout=10000):
+                        await agree_button.click()
+                    print("🔄 Page reloaded after accepting cookie consent.")
+                else:
+                    print("ℹ️ Consent button not visible in iframe.")
+            else:
+                print("⚠️ TrustArc iframe not found.")
+        except Exception as e:
+            print(f"❌ Error during cookie consent: {e}")
 
-    # # ------------------------------ Link Extraction ------------------------------ #
-    # def extract_links(soup):
-    #     link_tags = []
+    # ------------------------------ Link Extraction ------------------------------ #
+    def extract_links(soup):
+        link_tags = []
 
-    #     patterns = [
-    #         lambda x: x and any(cls.startswith("link-box") for cls in x.split()),
-    #         lambda x: x and any(cls.startswith("popular-category") for cls in x.split()),
-    #         lambda x: x and ("seo-component__seoLink" in x or "popular-category-card__HomePageAnchorDiv" in x),
-    #         lambda x: x and "link-box" in x,
-    #     ]
+        patterns = [
+            lambda x: x and any(cls.startswith("link-box") for cls in x.split()),
+            lambda x: x and any(cls.startswith("popular-category") for cls in x.split()),
+            lambda x: x and ("seo-component__seoLink" in x or "popular-category-card__HomePageAnchorDiv" in x),
+            lambda x: x and "link-box" in x,
+        ]
 
-    #     for pattern in patterns:
-    #         link_tags.extend(soup.find_all("a", class_=pattern))
+        for pattern in patterns:
+            link_tags.extend(soup.find_all("a", class_=pattern))
 
-    #     containers = [
-    #         ("div", "link-box__listBoxWrapper"),
-    #         ("div", "link-box__appendExtraHeight"),
-    #         ("div", lambda x: x and "popular-categories__PopularCategoriesContainer" in x),
-    #         ("div", lambda x: x and "sc-1u3l2ng-6" in x)
-    #     ]
+        containers = [
+            ("div", "link-box__listBoxWrapper"),
+            ("div", "link-box__appendExtraHeight"),
+            ("div", lambda x: x and "popular-categories__PopularCategoriesContainer" in x),
+            ("div", lambda x: x and "sc-1u3l2ng-6" in x)
+        ]
 
-    #     for tag, cls in containers:
-    #         for container in soup.find_all(tag, class_=cls):
-    #             a_tag = container.find("a", href=True)
-    #             if a_tag:
-    #                 link_tags.append(a_tag)
+        for tag, cls in containers:
+            for container in soup.find_all(tag, class_=cls):
+                a_tag = container.find("a", href=True)
+                if a_tag:
+                    link_tags.append(a_tag)
 
-    #     unique_links = {}
-    #     for tag in link_tags:
-    #         href = tag.get("href")
-    #         if href:
-    #             span = tag.find("span")
-    #             text = span.get_text(strip=True) if span else tag.get_text(strip=True)
-    #             unique_links[href] = text
+        unique_links = {}
+        for tag in link_tags:
+            href = tag.get("href")
+            if href:
+                span = tag.find("span")
+                text = span.get_text(strip=True) if span else tag.get_text(strip=True)
+                unique_links[href] = text
 
-    #     return unique_links
+        return unique_links
 
-    # # ------------------------------ Scroll Utilities ------------------------------ #
-    # async def scroll_and_get_soup(page):
-    #     print("🔻 Scrolling page to load more content...")
-    #     for i in range(SCROLL_TIMES):
-    #         await page.evaluate(f"window.scrollBy(0, {SCROLL_STEP});")
-    #         await asyncio.sleep(SCROLL_DELAY)
-    #     print("✅ Scroll complete. Parsing HTML...")
-    #     content = await page.content()
-    #     return BeautifulSoup(content, "html.parser")
+    # ------------------------------ Scroll Utilities ------------------------------ #
+    async def scroll_and_get_soup(page):
+        print("🔻 Scrolling page to load more content...")
+        for i in range(SCROLL_TIMES):
+            await page.evaluate(f"window.scrollBy(0, {SCROLL_STEP});")
+            await asyncio.sleep(SCROLL_DELAY)
+        print("✅ Scroll complete. Parsing HTML...")
+        content = await page.content()
+        return BeautifulSoup(content, "html.parser")
 
-    # async def gradual_scroll(page, scroll_step=300, delay=1, max_steps=18):
-    #     for _ in range(max_steps):
-    #         await page.evaluate(f"window.scrollBy(0, {scroll_step})")
-    #         await asyncio.sleep(delay)
+    async def gradual_scroll(page, scroll_step=300, delay=1, max_steps=18):
+        for _ in range(max_steps):
+            await page.evaluate(f"window.scrollBy(0, {scroll_step})")
+            await asyncio.sleep(delay)
 
-    # # ------------------------------ Product Extraction ------------------------------ #
-    # async def extract_item_numbers_from_page(page):
-    #     print("🔍 Extracting item numbers...")
-    #     page_items = set()
-    #     try:
-    #         while True:
-    #             await gradual_scroll(page)
-    #             await page.wait_for_selector(".standard-tile__product_id_wrapper", timeout=10000)
+    # ------------------------------ Product Extraction ------------------------------ #
+    async def extract_item_numbers_from_page(page):
+        print("🔍 Extracting item numbers...")
+        page_items = set()
+        try:
+            while True:
+                await gradual_scroll(page)
+                await page.wait_for_selector(".standard-tile__product_id_wrapper", timeout=10000)
 
-    #             items = await page.locator(".standard-tile__product_id").all_inner_texts()
-    #             for text in items:
-    #                 match = re.search(r"Item:\s*([\w-]+)", text)
-    #                 if match:
-    #                     item = match.group(1)
-    #                     if item not in item_numbers:
-    #                         item_numbers.add(item)
-    #                         page_items.add(item)
+                items = await page.locator(".standard-tile__product_id").all_inner_texts()
+                for text in items:
+                    match = re.search(r"Item:\s*([\w-]+)", text)
+                    if match:
+                        item = match.group(1)
+                        if item not in item_numbers:
+                            item_numbers.add(item)
+                            page_items.add(item)
 
-    #             next_btn = page.locator("a.sc-1npzh55-3[aria-label='Next page of results']")
-    #             if not await next_btn.is_visible() or await next_btn.get_attribute("aria-disabled") == "true":
-    #                 break
+                next_btn = page.locator("a.sc-1npzh55-3[aria-label='Next page of results']")
+                if not await next_btn.is_visible() or await next_btn.get_attribute("aria-disabled") == "true":
+                    break
 
-    #             print("   ⏭️ Clicking Next page...")
-    #             await next_btn.click()
-    #             await page.wait_for_timeout(3000)
-    #     except Exception as e:
-    #         print(f"⚠️ Error extracting items from {page.url}: {e}")
+                print("   ⏭️ Clicking Next page...")
+                await next_btn.click()
+                await page.wait_for_timeout(3000)
+        except Exception as e:
+            print(f"⚠️ Error extracting items from {page.url}: {e}")
 
-    #     print(f"   ✅ Found {len(page_items)} new items.")
+        print(f"   ✅ Found {len(page_items)} new items.")
 
-    # # ------------------------------ Retry + Consent ------------------------------ #
-    # async def retry_page_load(page, url, retries=2, wait=5):
-    #     for attempt in range(retries + 1):
-    #         try:
-    #             await page.goto(url, wait_until="domcontentloaded")
-    #             await asyncio.sleep(wait)
+    # ------------------------------ Retry + Consent ------------------------------ #
+    async def retry_page_load(page, url, retries=2, wait=5):
+        for attempt in range(retries + 1):
+            try:
+                await page.goto(url, wait_until="domcontentloaded")
+                await asyncio.sleep(wait)
 
-    #             await accept_cookie_consent(page)  # ✅ Always check for cookies
+                await accept_cookie_consent(page)  # ✅ Always check for cookies
 
-    #             return await scroll_and_get_soup(page)
+                return await scroll_and_get_soup(page)
 
-    #         except Exception as e:
-    #             print(f"   🔁 Retry {attempt + 1}/{retries} for {url}: {e}")
-    #             if attempt == retries:
-    #                 raise e
-    #             await asyncio.sleep(wait)
+            except Exception as e:
+                print(f"   🔁 Retry {attempt + 1}/{retries} for {url}: {e}")
+                if attempt == retries:
+                    raise e
+                await asyncio.sleep(wait)
 
-    # # ------------------------------ Target Element Check ------------------------------ #
-    # def check_target_element(soup):
-    #     return any([
-    #         soup.find("span", class_="sc-1npzh55-7 hjrnTk"),
-    #         soup.find("div", class_="sc-1npzh55-4 cngNqr"),
-    #         soup.find("div", class_="sc-fKAtdO llutEA"),
-    #         soup.find("div", class_="sc-1gktvoi-0 iWbUMS"),
-    #     ])
+    # ------------------------------ Target Element Check ------------------------------ #
+    def check_target_element(soup):
+        return any([
+            soup.find("span", class_="sc-1npzh55-7 hjrnTk"),
+            soup.find("div", class_="sc-1npzh55-4 cngNqr"),
+            soup.find("div", class_="sc-fKAtdO llutEA"),
+            soup.find("div", class_="sc-1gktvoi-0 iWbUMS"),
+        ])
 
-    # # ------------------------------ Main Page Processor ------------------------------ #
-    # async def process_url(browser, start_url):
-    #     async with semaphore:
-    #         context = await browser.new_context()
-    #         page = await context.new_page()
-    #         try:
-    #             print(f"\n🌐 Visiting start page: {start_url}")
-    #             soup = await retry_page_load(page, start_url)
-    #             initial_links = extract_links(soup)
-    #             print(f"🔗 Found {len(initial_links)} initial links.")
+    # ------------------------------ Main Page Processor ------------------------------ #
+    async def process_url(browser, start_url):
+        async with semaphore:
+            context = await browser.new_context()
+            page = await context.new_page()
+            try:
+                print(f"\n🌐 Visiting start page: {start_url}")
+                soup = await retry_page_load(page, start_url)
+                initial_links = extract_links(soup)
+                print(f"🔗 Found {len(initial_links)} initial links.")
 
-    #             for href, text in initial_links.items():
-    #                 full_url = href if href.startswith("http") else BASE_URL + href
-    #                 if "product_" in full_url or full_url in processed_links:
-    #                     continue
+                for href, text in initial_links.items():
+                    full_url = href if href.startswith("http") else BASE_URL + href
+                    if "product_" in full_url or full_url in processed_links:
+                        continue
 
-    #                 processed_links.add(full_url)
-    #                 extracted_links.add(full_url)
-    #                 print(f"➡️ Following: {full_url}")
+                    processed_links.add(full_url)
+                    extracted_links.add(full_url)
+                    print(f"➡️ Following: {full_url}")
 
-    #                 try:
-    #                     soup = await retry_page_load(page, full_url)
+                    try:
+                        soup = await retry_page_load(page, full_url)
 
-    #                     if check_target_element(soup):
-    #                         print(f"✅ Product listing page: {full_url}")
-    #                         matched_urls.append(full_url)
-    #                         await extract_item_numbers_from_page(page)
-    #                         continue
-    #                     else:
-    #                         print(f"❌ No product listing elements on: {full_url}")
+                        if check_target_element(soup):
+                            print(f"✅ Product listing page: {full_url}")
+                            matched_urls.append(full_url)
+                            await extract_item_numbers_from_page(page)
+                            continue
+                        else:
+                            print(f"❌ No product listing elements on: {full_url}")
 
-    #                     next_links = extract_links(soup)
-    #                     print(f"🔁 Found {len(next_links)} nested links.")
-    #                     for nhref in next_links:
-    #                         nested_url = nhref if nhref.startswith("http") else BASE_URL + nhref
-    #                         if "product_" in nested_url or nested_url in processed_links:
-    #                             continue
-    #                         processed_links.add(nested_url)
-    #                         extracted_links.add(nested_url)
+                        next_links = extract_links(soup)
+                        print(f"🔁 Found {len(next_links)} nested links.")
+                        for nhref in next_links:
+                            nested_url = nhref if nhref.startswith("http") else BASE_URL + nhref
+                            if "product_" in nested_url or nested_url in processed_links:
+                                continue
+                            processed_links.add(nested_url)
+                            extracted_links.add(nested_url)
 
-    #                         try:
-    #                             print(f"   🔍 Visiting nested: {nested_url}")
-    #                             soup = await retry_page_load(page, nested_url)
+                            try:
+                                print(f"   🔍 Visiting nested: {nested_url}")
+                                soup = await retry_page_load(page, nested_url)
 
-    #                             if check_target_element(soup):
-    #                                 print(f"   ✅ Product listing: {nested_url}")
-    #                                 matched_urls.append(nested_url)
-    #                                 await extract_item_numbers_from_page(page)
-    #                         except Exception as e:
-    #                             print(f"   ❌ Nested URL error on {nested_url}: {e}")
-    #                             error_urls.append(nested_url)
+                                if check_target_element(soup):
+                                    print(f"   ✅ Product listing: {nested_url}")
+                                    matched_urls.append(nested_url)
+                                    await extract_item_numbers_from_page(page)
+                            except Exception as e:
+                                print(f"   ❌ Nested URL error on {nested_url}: {e}")
+                                error_urls.append(nested_url)
 
-    #                 except Exception as e:
-    #                     print(f"❌ Error visiting {full_url}: {e}")
-    #                     error_urls.append(full_url)
+                    except Exception as e:
+                        print(f"❌ Error visiting {full_url}: {e}")
+                        error_urls.append(full_url)
 
-    #         except Exception as e:
-    #             print(f"❌ Failed to process start URL {start_url}: {e}")
-    #             error_urls.append(start_url)
+            except Exception as e:
+                print(f"❌ Failed to process start URL {start_url}: {e}")
+                error_urls.append(start_url)
 
-    #         await context.close()
+            await context.close()
 
-    # # ------------------------------ Main Entry Point ------------------------------ #
-    # async def main():
-    #     target_urls = [
-    #         f"{BASE_URL}/office-supplies/cat_SC273214",
-    #         f"{BASE_URL}/coffee-water-snacks/cat_SC215",
-    #         f"{BASE_URL}/paper/cat_SC204",
-    #         f"{BASE_URL}/cleaning-supplies/cat_SC213",
-    #         f"{BASE_URL}/education/cat_SC208",
-    #         f"{BASE_URL}/furniture/cat_SC212",
-    #         f"{BASE_URL}/computers-accessories/cat_SC202",
-    #         f"{BASE_URL}/phones-cameras-electronics/cat_SC285699",
-    #         f"{BASE_URL}/printers-scanners/cat_SC216",
-    #         f"{BASE_URL}/shipping-packing-mailing-supplies/cat_SC211",
-    #         f"{BASE_URL}/facilities/cat_SC400125",
-    #         f"{BASE_URL}/safety-supplies/cat_SC90229",
-    #     ]
+    # ------------------------------ Main Entry Point ------------------------------ #
+    async def main():
+        target_urls = [
+            f"{BASE_URL}/office-supplies/cat_SC273214",
+            f"{BASE_URL}/coffee-water-snacks/cat_SC215",
+            f"{BASE_URL}/paper/cat_SC204",
+            f"{BASE_URL}/cleaning-supplies/cat_SC213",
+            f"{BASE_URL}/education/cat_SC208",
+            f"{BASE_URL}/furniture/cat_SC212",
+            f"{BASE_URL}/computers-accessories/cat_SC202",
+            f"{BASE_URL}/phones-cameras-electronics/cat_SC285699",
+            f"{BASE_URL}/printers-scanners/cat_SC216",
+            f"{BASE_URL}/shipping-packing-mailing-supplies/cat_SC211",
+            f"{BASE_URL}/facilities/cat_SC400125",
+            f"{BASE_URL}/safety-supplies/cat_SC90229",
+        ]
 
-    #     async with async_playwright() as p:
-    #         browser = await p.chromium.launch(headless=True)
-    #         await asyncio.gather(*(process_url(browser, url) for url in target_urls))
-    #         await browser.close()
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            await asyncio.gather(*(process_url(browser, url) for url in target_urls))
+            await browser.close()
 
-    #     print("\n✅ Completed all scraping tasks.")
-    #     print(f"\n📄 Total matched listing pages: {len(matched_urls)}")
-    #     print(f"🛒 Total unique item numbers: {len(item_numbers)}")
+        print("\n✅ Completed all scraping tasks.")
+        print(f"\n📄 Total matched listing pages: {len(matched_urls)}")
+        print(f"🛒 Total unique item numbers: {len(item_numbers)}")
 
-    #     df = pd.DataFrame(sorted(item_numbers), columns=["Item Number"])
+        df = pd.DataFrame(sorted(item_numbers), columns=["Item Number"])
 
-    #     output_dir = os.getenv("CATALOG_JSON_OUTPUT_DIR", "/var/www/html/supplier_ds/importdemo/storage/catalog_json")
-    #     output_path = f"{output_dir}/staples_item_numbers.xlsx"
+        output_dir = os.getenv("CATALOG_JSON_OUTPUT_DIR", "/var/www/html/supplier_ds/importdemo/storage/catalog_json")
+        output_path = f"{output_dir}/staples_item_numbers.xlsx"
         
-    #     df.to_excel(output_path, index=False)
-    #     print("📊 Saved results to 'staples_item_numbers.xlsx'")
+        df.to_excel(output_path, index=False)
+        print("📊 Saved results to 'staples_item_numbers.xlsx'")
 
-    #     if error_urls:
-    #         print("\n🚨 Errors encountered on:")
-    #         for url in error_urls:
-    #             print(f" - {url}")
+        if error_urls:
+            print("\n🚨 Errors encountered on:")
+            for url in error_urls:
+                print(f" - {url}")
 
-    # if __name__ == "__main__":
-    #     import nest_asyncio
-    #     nest_asyncio.apply()
-    #     asyncio.get_event_loop().run_until_complete(main())
+    if __name__ == "__main__":
+        import nest_asyncio
+        nest_asyncio.apply()
+        asyncio.get_event_loop().run_until_complete(main())
 
-    # BASE_URL = "https://www.staplesadvantage.com/search"
-    # CONCURRENCY_LIMIT = 10
-    # MIN_ITEMS_PER_PAGE = 40
-    # MAX_RETRIES = 5
+    BASE_URL = "https://www.staplesadvantage.com/search"
+    CONCURRENCY_LIMIT = 10
+    MIN_ITEMS_PER_PAGE = 40
+    MAX_RETRIES = 5
 
-    # async def gradual_scroll(page, step=400, delay=1000, max_scrolls=50):
-    #     for _ in range(max_scrolls):
-    #         await page.evaluate(f"window.scrollBy(0, {step})")
-    #         await page.wait_for_timeout(delay)
+    async def gradual_scroll(page, step=400, delay=1000, max_scrolls=50):
+        for _ in range(max_scrolls):
+            await page.evaluate(f"window.scrollBy(0, {step})")
+            await page.wait_for_timeout(delay)
 
-    # def get_page_url(term, page_number):
-    #     return f"{BASE_URL}?pn={page_number}&term={term.replace(' ', '%20')}"
+    def get_page_url(term, page_number):
+        return f"{BASE_URL}?pn={page_number}&term={term.replace(' ', '%20')}"
 
-    # async def scrape_page(context, term, page_number, semaphore, attempt=1):
-    #     url = get_page_url(term, page_number)
-    #     async with semaphore:
-    #         print(f"\n🔗 [Page {page_number}] Attempt {attempt} → {url}")
-    #         page = await context.new_page()
-    #         try:
-    #             await page.goto(url)
-    #             await page.wait_for_timeout(3000)
+    async def scrape_page(context, term, page_number, semaphore, attempt=1):
+        url = get_page_url(term, page_number)
+        async with semaphore:
+            print(f"\n🔗 [Page {page_number}] Attempt {attempt} → {url}")
+            page = await context.new_page()
+            try:
+                await page.goto(url)
+                await page.wait_for_timeout(3000)
 
-    #             print(f"🔃 [Page {page_number}] Scrolling...")
-    #             await gradual_scroll(page)
+                print(f"🔃 [Page {page_number}] Scrolling...")
+                await gradual_scroll(page)
 
-    #             print(f"🔍 [Page {page_number}] Extracting item numbers...")
+                print(f"🔍 [Page {page_number}] Extracting item numbers...")
 
-    #             raw_items = await page.locator("div.list-tile__id_element, div.standard-tile__product_id").all_inner_texts()
+                raw_items = await page.locator("div.list-tile__id_element, div.standard-tile__product_id").all_inner_texts()
 
-    #             extracted = []
-    #             for item in raw_items:
-    #                 if item.strip().lower().startswith("item"):
-    #                     match = re.search(r"(?:Item|SKU|Part)\s*#?\s*[:\-]?\s*([A-Za-z0-9\-]+)", item)
-    #                     if match:
-    #                         extracted.append(match.group(1))
+                extracted = []
+                for item in raw_items:
+                    if item.strip().lower().startswith("item"):
+                        match = re.search(r"(?:Item|SKU|Part)\s*#?\s*[:\-]?\s*([A-Za-z0-9\-]+)", item)
+                        if match:
+                            extracted.append(match.group(1))
 
-    #             print(f"✅ [Page {page_number}] Found {len(extracted)} items.")
+                print(f"✅ [Page {page_number}] Found {len(extracted)} items.")
 
-    #             if len(extracted) < MIN_ITEMS_PER_PAGE and attempt < MAX_RETRIES:
-    #                 print(f"⚠️ [Page {page_number}] Less than {MIN_ITEMS_PER_PAGE} items. Retrying (Attempt {attempt + 1})...")
-    #                 await page.close()
-    #                 return await scrape_page(context, term, page_number, semaphore, attempt + 1)
+                if len(extracted) < MIN_ITEMS_PER_PAGE and attempt < MAX_RETRIES:
+                    print(f"⚠️ [Page {page_number}] Less than {MIN_ITEMS_PER_PAGE} items. Retrying (Attempt {attempt + 1})...")
+                    await page.close()
+                    return await scrape_page(context, term, page_number, semaphore, attempt + 1)
 
-    #             if len(extracted) < MIN_ITEMS_PER_PAGE:
-    #                 print(f"🚫 [Page {page_number}] Final attempt. Still < {MIN_ITEMS_PER_PAGE} items. Ignoring page.")
-    #                 extracted = []
+                if len(extracted) < MIN_ITEMS_PER_PAGE:
+                    print(f"🚫 [Page {page_number}] Final attempt. Still < {MIN_ITEMS_PER_PAGE} items. Ignoring page.")
+                    extracted = []
 
-    #             for i in extracted:
-    #                 print(f"    🧾 Item: {i}")
+                for i in extracted:
+                    print(f"    🧾 Item: {i}")
 
-    #             # ✅ Enhanced last page detection
-    #             next_button = page.locator("a[aria-label*='Next page of results']")
-    #             has_next = await next_button.count() > 0
-    #             is_disabled = False
+                # ✅ Enhanced last page detection
+                next_button = page.locator("a[aria-label*='Next page of results']")
+                has_next = await next_button.count() > 0
+                is_disabled = False
 
-    #             if has_next:
-    #                 aria_disabled = await next_button.get_attribute("aria-disabled")
-    #                 aria_label = await next_button.get_attribute("aria-label")
-    #                 has_disabled_attr = await next_button.get_attribute("disabled") is not None
+                if has_next:
+                    aria_disabled = await next_button.get_attribute("aria-disabled")
+                    aria_label = await next_button.get_attribute("aria-label")
+                    has_disabled_attr = await next_button.get_attribute("disabled") is not None
 
-    #                 is_disabled = (
-    #                     (aria_disabled and aria_disabled.lower() == "true") or
-    #                     (aria_label and "disabled" in aria_label.lower()) or
-    #                     has_disabled_attr
-    #                 )
+                    is_disabled = (
+                        (aria_disabled and aria_disabled.lower() == "true") or
+                        (aria_label and "disabled" in aria_label.lower()) or
+                        has_disabled_attr
+                    )
 
-    #             await page.close()
-    #             return {
-    #                 "page": page_number,
-    #                 "items": extracted,
-    #                 "has_next": has_next and not is_disabled
-    #             }
+                await page.close()
+                return {
+                    "page": page_number,
+                    "items": extracted,
+                    "has_next": has_next and not is_disabled
+                }
 
-    #         except Exception as e:
-    #             print(f"❌ [Page {page_number}] Error: {e}")
-    #             await page.close()
-    #             return {
-    #                 "page": page_number,
-    #                 "items": [],
-    #                 "has_next": False
-    #             }
+            except Exception as e:
+                print(f"❌ [Page {page_number}] Error: {e}")
+                await page.close()
+                return {
+                    "page": page_number,
+                    "items": [],
+                    "has_next": False
+                }
 
-    # async def scrape_items():
-    #     async with async_playwright() as p:
-    #         browser = await p.chromium.launch(headless=True)
-    #         context = await browser.new_context()
+    async def scrape_items():
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            context = await browser.new_context()
 
-    #         term = "ink and toner"
-    #         semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
-    #         all_items = set()
-    #         page_number = 1
-    #         has_next = True
+            term = "ink and toner"
+            semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
+            all_items = set()
+            page_number = 1
+            has_next = True
 
-    #         while has_next:
-    #             print(f"\n🚀 Launching batch: Pages {page_number} to {page_number + CONCURRENCY_LIMIT - 1}")
-    #             tasks = [scrape_page(context, term, pn, semaphore) for pn in range(page_number, page_number + CONCURRENCY_LIMIT)]
-    #             results = await asyncio.gather(*tasks)
+            while has_next:
+                print(f"\n🚀 Launching batch: Pages {page_number} to {page_number + CONCURRENCY_LIMIT - 1}")
+                tasks = [scrape_page(context, term, pn, semaphore) for pn in range(page_number, page_number + CONCURRENCY_LIMIT)]
+                results = await asyncio.gather(*tasks)
 
-    #             for result in results:
-    #                 all_items.update(result["items"])
+                for result in results:
+                    all_items.update(result["items"])
 
-    #             has_next = any(res["has_next"] for res in results)
-    #             page_number += CONCURRENCY_LIMIT
+                has_next = any(res["has_next"] for res in results)
+                page_number += CONCURRENCY_LIMIT
 
-    #         await browser.close()
+            await browser.close()
 
-    #         print(f"\n🎉 Total unique items found: {len(all_items)}")
-    #         for item in sorted(all_items):
-    #             print(f" - {item}")
+            print(f"\n🎉 Total unique items found: {len(all_items)}")
+            for item in sorted(all_items):
+                print(f" - {item}")
 
-    #         df = pd.DataFrame(sorted(all_items), columns=["Item Number"])
+            df = pd.DataFrame(sorted(all_items), columns=["Item Number"])
 
-    #         output_dir = os.getenv("CATALOG_JSON_OUTPUT_DIR", "/var/www/html/supplier_ds/importdemo/storage/catalog_json")
-    #         output_path = f"{output_dir}/staples_items.xlsx"
+            output_dir = os.getenv("CATALOG_JSON_OUTPUT_DIR", "/var/www/html/supplier_ds/importdemo/storage/catalog_json")
+            output_path = f"{output_dir}/staples_items.xlsx"
 
-    #         df.to_excel(output_path, index=False)
-    #         print("\n📁 Saved to 'staples_items.xlsx'")
+            df.to_excel(output_path, index=False)
+            print("\n📁 Saved to 'staples_items.xlsx'")
 
-    # if __name__ == "__main__":
-    #     asyncio.run(scrape_items())
-    # Load .env variables
-    # load_dotenv()
-
-    # uploaded_file_path = os.getenv("DESTINATION_PATH","/var/www/html/supplier_ds/importdemo/public/excel_sheets")
+    if __name__ == "__main__":
+        asyncio.run(scrape_items())
+   
     output_dir = os.getenv("CATALOG_JSON_OUTPUT_DIR", "/var/www/html/supplier_ds/importdemo/storage/catalog_json")
 
     f1_output_path = f"{output_dir}/staples_item_numbers.xlsx"
-    # f2_output_path = file_path
     f3_output_path = f"{output_dir}/staples_items.xlsx"
 
     # Step 1: Define file paths
     file1 = f1_output_path  # df1
-    # file2 = f2_output_path  # df2
     file3 = f3_output_path  # df3 <-- Replace this with the actual filename
 
-    # print(uploaded_file_path, output_dir, file3)
-    # exit()
+  
 
     # Step 2: Load the files
     df1 = pd.read_excel(file1)
-    # df2 = pd.read_excel(file2)
     df3 = pd.read_excel(file3)
 
     # Step 3: Clean column names
-    # df2.columns = df2.columns.str.strip()
     df3.columns = df3.columns.str.strip()
 
     # Step 4: Merge df1 and df2
@@ -1565,7 +1557,7 @@ if file_value:
                 print("Missing 'sku' in result:", result)
                 log_to_laravel(f"Missing 'sku' in result: {result}")
                 continue
-            
+
             # Select the row where 'sku' matches the search term
             record = df.loc[df["sku"] == sku_result]
 
