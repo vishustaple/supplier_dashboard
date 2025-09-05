@@ -33,7 +33,7 @@ class NewUserMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to Centerpoint Group Portal',
+            subject: 'Welcome to Centerpoint Group Database Portal',
         );
     }
 
@@ -42,7 +42,7 @@ class NewUserMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Welcome to Centerpoint Group Portal')
+        return $this->subject('Welcome to Centerpoint Group Database Portal')
                     ->view('mail.new_user') // Blade view path: resources/views/mail/new_user.blade.php
                     ->with(['user' => $this->user, 'password' => $this->password]);
     }

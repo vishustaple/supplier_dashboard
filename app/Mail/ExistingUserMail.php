@@ -31,7 +31,7 @@ class ExistingUserMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Centerpoint Group Portal Credentials',
+            subject: 'Password Reset - Centerpoint Group Database Portal',
         );
     }
 
@@ -47,7 +47,7 @@ class ExistingUserMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Centerpoint Group Portal Credentials')
+        return $this->subject('Password Reset - Centerpoint Group Database Portal')
                     ->view('mail.existing_user')
                     ->with(['user' => $this->user, 'password' => $this->password]);
     }

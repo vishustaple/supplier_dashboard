@@ -8,7 +8,7 @@
                     <h3 class="mb-0 ">{{ $pageTitle }}</h3>
                 </div>
                 <div class="row align-items-end border-bottom pb-3 mb-4">
-                    <iframe id="ayd-chat" width="80%" height="600" frameborder="0"  src="https://www.askyourdatabase.com/chatbot/{{ env('AYD_CHATBOT_ID') }}"></iframe></iframe>
+                    <iframe id="ayd-chat" width="80%" height="600" frameborder="0"  src="https://www.askyourdatabase.com/chatbot/{{ env('AYD_CHATBOT_ID') }}"></iframe>
                 </div>
             </div>
         </div>

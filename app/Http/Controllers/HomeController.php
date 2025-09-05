@@ -125,6 +125,7 @@ class HomeController extends Controller
                                 'last_name' => $request->last_name,
                                 'first_name' => $request->first_name,
                                 'password' => bcrypt($password),
+                                'needs_password_change' => true,
                             ];
                         } else {
                             $userData = [
@@ -133,9 +134,11 @@ class HomeController extends Controller
                                 'last_name' => $request->last_name,
                                 'first_name' => $request->first_name,
                                 'password' => bcrypt($password),
+                                'needs_password_change' => true,
                             ];
                         }
                         $user = User::create($userData);
+                        unset($userData['needs_password_change']);
                         DB::connection('second_db')
                             ->table('users')
                             ->insert($userData);
@@ -259,6 +262,11 @@ class HomeController extends Controller
 
                 return redirect()->route('login')->withErrors(['email' => 'Your account is inactive. Please contact the administrator.']);
             }
+
+            if ($user->needs_password_change) {
+                return redirect()->route('admin.changePasswordView');
+            }
+
             /** Connection could not be established with host "mailpit:1025": stream_socket_client(): php_network_getaddresses: getaddrinfo for mailpit failed: Name or service not known */
             /** Log::info('Email sent successfully'); */
             return redirect()->intended('/admin/upload-sheet');
@@ -300,56 +308,81 @@ class HomeController extends Controller
         }
     }
 
-    public function UpdateUserData(Request $request)
-    {
+    public function UpdateUserData(Request $request) {
         /** Validating the request data */
         $validator = Validator::make($request->all(), [
             'update_user_role' => 'required',
             'first_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . Crypt::decryptString($request->update_user_id),
+            'reset_password_option' => 'nullable|in:yes,no',
+            'password' => 'nullable|string|min:8', // Optional: enforce minimum length if provided
         ]);
 
-        /** If faild to validate then redirect back with error message into the response */
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 200);
-        } else {
-            try {
-                $user = User::find(Crypt::decryptString($request->update_user_id));
-                $user1 = Auth::user();
-                if ($user) {
-                    $userType = ($request->update_user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
-                    if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
-                        if ($user1->user_type == 1) {
-                            $user->update([
-                                'user_type' => $userType,
-                                'email' => $request->email,
-                                'status' => $request->update_user_status,
-                                'last_name' => $request->last_name,
-                                'first_name' => $request->first_name,
-                            ]);
-                        } else {
-                            $user->update([
-                                'user_type' => $userType,
-                                'email' => $request->email,
-                                'last_name' => $request->last_name,
-                                'first_name' => $request->first_name,
-                            ]);
-                        }
+        }
 
-                        /** Sync user permissions */
-                        $user->permissions()->sync($request->input('permissions'));
-                        
-                    } else {
-                        return response()->json(['error' => 'You do not have permission to update this user'], 200);
+        try {
+            $user = User::find(Crypt::decryptString($request->update_user_id));
+            $user1 = Auth::user();
+
+            if (!$user) {
+                return response()->json(['error' => 'User not found.'], 404);
+            }
+
+            $userType = ($request->update_user_role == 2) ? User::USER_TYPE_ADMIN : User::USER_TYPE_USER;
+
+            if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
+                $updateData = [
+                    'user_type' => $userType,
+                    'email' => $request->email,
+                    'last_name' => $request->last_name,
+                    'first_name' => $request->first_name,
+                    'needs_password_change' => true,
+                ];
+
+                if ($user1->user_type == 1) {
+                    $updateData['status'] = $request->update_user_status;
+                }
+
+                // Handle password reset if radio is "yes" and password is provided
+                if ($request->reset_password_option === 'yes' && !empty($request->password)) {
+                    $updateData['password'] = bcrypt($request->password);
+                }
+
+                // Update user
+                $user->update($updateData);
+                unset($updateData['needs_password_change']);
+                DB::connection('second_db')
+                            ->table('users')
+                            ->where('id', Crypt::decryptString($request->update_user_id))
+                            ->update($updateData);
+
+                // Sync permissions
+                if ($request->has('permissions')) {
+                    $user->permissions()->sync($request->input('permissions'));
+                }
+
+                // Handle password reset if radio is "yes" and password is provided
+                if ($request->reset_password_option === 'yes' && !empty($request->password)) {
+                    // Send email
+                    try {
+                        Mail::to($request->email)->send(new ExistingUserMail($user, $request->password));
+                    } catch (Exception $e) {
+                        Log::error('Failed to send existing user email: ' . $e->getMessage());
+                        return response()->json(['error' => 'Failed to send existing user email: ' . $e->getMessage()], 200);
                     }
                 }
 
                 return response()->json(['success' => 'Update User Successfully!'], 200);
-            } catch (Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 200);
+            } else {
+                return response()->json(['error' => 'You do not have permission to update this user'], 200);
             }
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 200);
         }
     }
+
 
     public function UserRemove(Request $request)
     {
@@ -434,8 +467,20 @@ class HomeController extends Controller
             /** Find the user */
             $user = User::findOrFail($request->user_id);
             if ($user->user_type == User::USER_TYPE_SUPERADMIN) {
+
+                if ($user->needs_password_change == true) {
+                    $user->update(['password' => bcrypt($request->password), 'needs_password_change' => false]);
+                    /** Logout the user from website */
+                    Auth::logout();
+
+                    /** Redirect user to back to the login page */
+                    return redirect('/')->with('success', 'Your Password updated successfully.');
+                    // return redirect()->back()->with('success', 'Your Password updated successfully.');
+                }
+
                 $user->update(['password' => bcrypt($request->password)]);
-                Log::info('Admin Password has been updated.');
+
+                Log::info('Password has been updated.');
                 return redirect()->back()->with('success', 'Your Password updated successfully.');
             }
             /** Verify the token */
@@ -444,7 +489,7 @@ class HomeController extends Controller
                 /** Update the user's password */
                 $user->password = bcrypt($request->password);
                 $user->save();
-                $user->update(['remember_token' => null]);
+                $user->update(['remember_token' => null, 'needs_password_change' => false]);
 
                 /** Redirect to the login route */
                 return redirect()->route('login')->with('success', 'Password updated successfully. Please log in with your new password.');

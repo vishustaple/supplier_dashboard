@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         // Other middleware...
         'permission' => \App\Http\Middleware\CheckPermission::class,
         'user.type' => \App\Http\Middleware\RedirectIfUserTypeIsUser::class,
+        'force.password.change' => \App\Http\Middleware\ForcePasswordChange::class,
     ];
 }

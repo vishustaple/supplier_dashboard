@@ -34,7 +34,7 @@ Route::post('/user-register', [HomeController::class, 'userRegister'])->name('us
 Route::post('/user-resend', [HomeController::class, 'resendUserEmail'])->name('user.resend');
 
 Route::group(['prefix' => 'admin'], function () {
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth', 'force.password.change'])->group(function () {
         Route::get('/queries', [SavedQueryController::class, 'index'])->name('queries.index');
         Route::get('/queries/create', [SavedQueryController::class, 'create'])->name('queries.create');
         Route::post('/queries', [SavedQueryController::class, 'store'])->name('queries.store');

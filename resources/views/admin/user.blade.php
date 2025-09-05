@@ -218,6 +218,30 @@
                                     </div>
                                 </div>
                                 <div class="form-group mb-3">
+                                    <label>Reset Password?</label><br>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="reset_password_option" id="resetPasswordYes" value="yes">
+                                        <label class="form-check-label" for="resetPasswordYes">Yes</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="reset_password_option" id="resetPasswordNo" value="no" checked>
+                                        <label class="form-check-label" for="resetPasswordNo">No</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3 d-none" id="passwordFieldWrapper">
+                                    <label for="updatePassword">Password</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="updatePassword" name="password" type="password" />
+                                        <div class="input-group-append">
+                                            <button type="button" id="generatePasswordUpdate" class="btn btn-secondary">Generate</button>
+                                            <button type="button" id="togglePasswordUpdate" class="btn btn-outline-secondary">
+                                                <i class="fa fa-eye-slash" id="toggleIconUpdate"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
                                     <label for="inputEmail">Email address*</label>
                                     <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
                                 </div>
@@ -274,6 +298,33 @@
     }
 
     $(document).ready(function() {
+        // Show/hide password input based on radio selection
+        $('input[name="reset_password_option"]').on('change', function () {
+            if ($('#resetPasswordYes').is(':checked')) {
+                $('#passwordFieldWrapper').removeClass('d-none');
+            } else {
+                $('#passwordFieldWrapper').addClass('d-none');
+                $('#updatePassword').val('');
+            }
+        });
+
+        $('#generatePasswordUpdate').on('click', function() {
+            const newPassword = generateStrongPassword(14); // You can change length here
+            $('#updatePassword').val(newPassword);
+        });
+
+         // Toggle password visibility
+        $('#togglePasswordUpdate').on('click', function () {
+            const passwordField = $('#updatePassword');
+            const icon = $('#toggleIconUpdate');
+
+            const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+            passwordField.attr('type', type);
+
+            icon.toggleClass('fa-eye fa-eye-slash');
+        });
+
+
         $('#generatePassword').on('click', function() {
             const newPassword = generateStrongPassword(14); // You can change length here
             $('#inputPassword').val(newPassword);
