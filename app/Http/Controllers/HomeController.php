@@ -466,24 +466,21 @@ class HomeController extends Controller
         } else {
             /** Find the user */
             $user = User::findOrFail($request->user_id);
-            dd($user);
-            if ($user->user_type == User::USER_TYPE_SUPERADMIN) {
+            
+            if ($user->needs_password_change == true) {
+                $user->update(['password' => bcrypt($request->password), 'needs_password_change' => false]);
+                /** Logout the user from website */
+                Auth::logout();
 
-                if ($user->needs_password_change == true) {
-                    $user->update(['password' => bcrypt($request->password), 'needs_password_change' => false]);
-                    /** Logout the user from website */
-                    Auth::logout();
-
-                    /** Redirect user to back to the login page */
-                    return redirect('/')->with('success', 'Your Password updated successfully.');
-                    // return redirect()->back()->with('success', 'Your Password updated successfully.');
-                }
-
-                $user->update(['password' => bcrypt($request->password)]);
-
-                Log::info('Password has been updated.');
-                return redirect()->back()->with('success', 'Your Password updated successfully.');
+                /** Redirect user to back to the login page */
+                return redirect('/')->with('success', 'Your Password updated successfully.');
             }
+
+            $user->update(['password' => bcrypt($request->password)]);
+
+            Log::info('Password has been updated.');
+            return redirect()->back()->with('success', 'Your Password updated successfully.');
+
             /** Verify the token */
 
             if ($user->remember_token === $request->token) {
@@ -504,8 +501,8 @@ class HomeController extends Controller
 
     public function changePasswordView()
     {
-        $adminUser = User::where('user_type', User::USER_TYPE_SUPERADMIN)->first();
-        return view('admin.profile', compact('adminUser'));
+        $user = Auth::user();
+        return view('admin.profile', compact('user'));
     }
 
     public function userForgetPassword(Request $request)
