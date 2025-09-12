@@ -466,6 +466,7 @@ class HomeController extends Controller
         } else {
             /** Find the user */
             $user = User::findOrFail($request->user_id);
+            dd($user);
             if ($user->user_type == User::USER_TYPE_SUPERADMIN) {
 
                 if ($user->needs_password_change == true) {
