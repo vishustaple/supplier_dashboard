@@ -2400,7 +2400,7 @@ class Order extends Model
                         foreach ($workSheetArray as $key => $value) {
                             if ($value[0] == "Rebate Amount") {
                                 if (!isset($fileRebate)) {
-                                    $fileRebate += $value[1];
+                                    $fileRebate = $value[1];
                                 } elseif(isset($fileRebate)) {
                                     $fileRebate += $value[1];   
                                 }
