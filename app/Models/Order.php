@@ -2240,9 +2240,7 @@ class Order extends Model
         
                 /** Loading excel file using path and name of file from table "uploaded_file" */
                 $spreadSheet = $reader->load($file, 2);    
-                
-                $fileTotal = 0;
-                $fileRebate = 0;
+
                 if ($filter['supplier'] == 2) {
                     $workSheetArray = $spreadSheet->getSheet(0)->toArray();
 
@@ -2388,15 +2386,34 @@ class Order extends Model
                         }
                     }
                 } elseif($filter['supplier'] == 4) {
+                    $originalName = $file->getClientOriginalName(); // gets 'CENTERPOINT_Diversity_Rebate_May_2025 (1).xlsx'
                     $workSheetArray = $spreadSheet->getSheet(1)->toArray();
-                    
-                    foreach ($workSheetArray as $key => $value) {
-                        if ($value[0] == "Rebate Amount") {
-                            $fileRebate += $value[1];
+                    if (stripos($originalName, 'CENTERPOINT_Diversity_Rebate') !== false) {
+                        if (!isset($fileTotal) && !isset($fileRebate)) {
+                            $fileTotal = $workSheetArray[29][1];
+                            $fileRebate = $workSheetArray[32][1];
+                        } elseif(isset($fileTotal) && isset($fileRebate)) {
+                            $fileTotal += $workSheetArray[29][1];
+                            $fileRebate += $workSheetArray[32][1];
                         }
+                    } else {
+                        foreach ($workSheetArray as $key => $value) {
+                            if ($value[0] == "Rebate Amount") {
+                                if (!isset($fileRebate)) {
+                                    $fileRebate += $value[1];
+                                } elseif(isset($fileRebate)) {
+                                    $fileRebate += $value[1];   
+                                }
+                            }
 
-                        if ($value[0] == "Rebate Sales" || $value[0] == "Rebate Eligible Net Sales") {
-                            $fileTotal += $value[1];
+                            if ($value[0] == "Rebate Sales" || $value[0] == "Rebate Eligible Net Sales") {
+                                if (!isset($fileTotal)) {
+                                    $fileTotal = $value[1];
+                                } elseif(isset($fileTotal)) {
+                                    $fileTotal += $value[1];
+                                }
+                                
+                            }
                         }
                     }
                 } elseif($filter['supplier'] == 6) {
