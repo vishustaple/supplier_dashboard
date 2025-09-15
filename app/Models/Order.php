@@ -2406,13 +2406,18 @@ class Order extends Model
                                 }
                             }
 
-                            if ($value[0] == "Rebate Sales" || $value[0] == "Rebate Eligible Net Sales") {
+                            if ($value[0] == "Rebate Sales") {
                                 if (!isset($fileTotal)) {
                                     $fileTotal = $value[1];
                                 } elseif(isset($fileTotal)) {
                                     $fileTotal += $value[1];
                                 }
-                                
+                            }
+
+                            if ($value[0] == "Net Sales Deductions") {
+                               if(isset($fileTotal)) {
+                                    $fileTotal -= $value[1];
+                                }
                             }
                         }
                     }

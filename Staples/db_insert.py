@@ -591,6 +591,7 @@ def adding_record_into_database(scrap_data, year, month_column, supplier_id, ind
 # ──────────────────────────────────────────────────────────────────────────────
 def final_insert(df, boot):
     sku_len = len(df)
+    sku_data = boot["sku_data"]
     processed_sku_count = 0
     last_written_percent = -1
     for result in df:
@@ -606,6 +607,36 @@ def final_insert(df, boot):
             print("Missing 'CPG Price' in result:", result)
             log_to_laravel(f"Missing 'CPG Price' in result: {result}")
             continue
+
+        # Match row from merged sku_data for DB insert values
+        record = sku_data.loc[sku_data["sku"] == sku_result]
+        record = record.dropna(axis=1, how="all")
+        record = record.loc[:, ~record.columns.astype(str).str.contains("^None$", na=False)]
+
+        if not record.empty:
+            matched_row = record.to_dict(orient="records")[0]
+
+            if not matched_row.get("value"):
+                web_price = result.get("web_price")
+                
+                if web_price is not None:
+                    result["value"] = round(web_price * (1 - 0.02), 2)
+                else:
+                    result["value"] = 0
+                    print(f"Missing web_price for SKU: {result.get('sku')}")
+                    log_to_laravel(f"Missing web_price for SKU: {result.get('sku')}")
+                    continue
+            else:
+                result["value"] = matched_row.get("value")
+        else:
+            web_price = result.get("web_price")
+            if web_price is not None:
+                result["value"] = round(web_price * (1 - 0.02), 2)
+            else:
+                result["value"] = 0
+                print(f"Missing web_price for SKU: {result.get('sku')}")
+                log_to_laravel(f"Missing web_price for SKU: {result.get('sku')}")
+                continue
 
         # ODP category mapping (unchanged)
         try:

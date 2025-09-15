@@ -112,67 +112,34 @@ class HomeController extends Controller
             return response()->json(['error' => $validator->errors()], 200);
         } else {
             try {
-                $user1 = Auth::user();
+                $userInfoEditer = Auth::user();
                 $userType = $request->user_role;
                 $password = $request->password;
               
-                if (($userType == 3 && $user1->user_type == 2) || $user1->user_type == 1) {
-                        if ($user1->user_type == 1) {
-                            $userData = [
-                                'user_type' => $userType,
-                                'email' => $request->email,
-                                'status' => $request->user_status,
-                                'last_name' => $request->last_name,
-                                'first_name' => $request->first_name,
-                                'password' => bcrypt($password),
-                                'needs_password_change' => true,
-                            ];
-                        } else {
-                            $userData = [
-                                'user_type' => $userType,
-                                'email' => $request->email,
-                                'last_name' => $request->last_name,
-                                'first_name' => $request->first_name,
-                                'password' => bcrypt($password),
-                                'needs_password_change' => true,
-                            ];
-                        }
-                        $user = User::create($userData);
-                        unset($userData['needs_password_change']);
-                        DB::connection('second_db')
-                            ->table('users')
-                            ->insert($userData);
-                    // }
-                    //  else {
-                    //     $token = Str::random(40);
-                    //     if ($user1->user_type == 1) {
-                    //         $userData = [
-                    //             'user_type' => $userType,
-                    //             'email' => $request->email,
-                    //             'remember_token' => $token,
-                    //             'status' => $request->user_status,
-                    //             'last_name' => $request->last_name,
-                    //             'first_name' => $request->first_name,
-                    //         ];
-                    //     } else {
-                    //         $userData = [
-                    //             'user_type' => $userType,
-                    //             'email' => $request->email,
-                    //             'remember_token' => $token,
-                    //             'last_name' => $request->last_name,
-                    //             'first_name' => $request->first_name,
-                    //         ];
-                    //     }
+                if (($userType == 3 && $userInfoEditer->user_type == 2) || $userInfoEditer->user_type == 1) {
+                    $userData = [
+                        'user_type' => $userType,
+                        'email' => $request->email,
+                        'last_name' => $request->last_name,
+                        'first_name' => $request->first_name,
+                        'password' => bcrypt($password),
+                        'needs_password_change' => true,
+                    ];
 
-                    //     $user = User::create($userData);
-                    //     DB::connection('second_db')
-                    //         ->table('users')
-                    //         ->insert($userData);
-                    // }
+                    if ($userInfoEditer->user_type == 1) {
+                        $userData['status'] = $request->user_status;
+                    }
+
+                    $user = User::create($userData);
+
+                    unset($userData['needs_password_change']);
+                    
+                    DB::connection('second_db')
+                        ->table('users')
+                        ->insert($userData);
     
                     /** Sync permissions for the user */
                     $user->permissions()->sync($request->input('permissions'));
-
                     $email = $request->email;
 
                     try {
@@ -180,27 +147,8 @@ class HomeController extends Controller
                     } catch (Exception $e) {
                         Log::error('Failed to send new user email: ' . $e->getMessage());
                     }
-                        // $key = env('APP_KEY');
-                        // $salt = openssl_random_pseudo_bytes(16);
-                        // /** Generate salt */
-                        // $data = '' . $user->id . '|' . $user->remember_token . '';
-    
-                        // try {
-                        //     Log::info('Attempting to send email...');
-                        //     Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function ($message) use ($email) {
-                        //         $message->to($email)
-                        //             ->subject('Password Creation Form');
-                        //     });
-    
-                        //     Log::info('Email sent successfully');
-                        // } catch (Exception $e) {
-                        //     /** Handle the exception here */
-                        //     Log::error('Email sending failed: ' . $e->getMessage());
-                        // }
-                    
 
                     return response()->json(['success' => 'Add User Successfully!'], 200);
-
                 } else {
                     return response()->json(['error' => 'You do not have permission to add user'], 200);
                 }
@@ -324,15 +272,16 @@ class HomeController extends Controller
 
         try {
             $user = User::find(Crypt::decryptString($request->update_user_id));
-            $user1 = Auth::user();
-
+            
             if (!$user) {
                 return response()->json(['error' => 'User not found.'], 404);
             }
 
-            $userType = ($request->update_user_role == 2) ? User::USER_TYPE_ADMIN : User::USER_TYPE_USER;
+            $userInfoEditer = Auth::user();
 
-            if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
+            $userType = $request->update_user_role;
+
+            if (($userType == 3 && $userInfoEditer->user_type == 2) || $userInfoEditer->user_type == 1) {
                 $updateData = [
                     'user_type' => $userType,
                     'email' => $request->email,
@@ -341,7 +290,7 @@ class HomeController extends Controller
                     'needs_password_change' => true,
                 ];
 
-                if ($user1->user_type == 1) {
+                if ($userInfoEditer->user_type == 1) {
                     $updateData['status'] = $request->update_user_status;
                 }
 
@@ -466,7 +415,7 @@ class HomeController extends Controller
         } else {
             /** Find the user */
             $user = User::findOrFail($request->user_id);
-            
+
             if ($user->needs_password_change == true) {
                 $user->update(['password' => bcrypt($request->password), 'needs_password_change' => false]);
                 /** Logout the user from website */

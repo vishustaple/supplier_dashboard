@@ -168,7 +168,7 @@ def extract_product_info(items):
         "unit_of_measure": product.get("unitOfMeasureComposite", {}).get("unitOfMeasure"),
         "quantity_per_unit": product.get("unitOfMeasureComposite", {}).get("unitOfMeasureQty"),
         "specifications": specs,
-        "value": final_price,
+        # "value": final_price,
         "web_price": web_price,
         "url": product.get("productURL"),
         "Contract Flag": contract_flag,
