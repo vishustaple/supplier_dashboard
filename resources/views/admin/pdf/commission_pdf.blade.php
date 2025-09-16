@@ -172,7 +172,7 @@
                                     <th class="border-top border-bottom" colspan="2">{{ $commissions['account_name'] }} Subtotal</th>
                                     <th class="border-top border-bottom">${{ number_format($cost, 2) }}</th>
                                     <th class="border-top border-bottom">${{ number_format($rebate, 2) }}</th>
-                                    <th class="border-top border-bottom">${{ number_format($commission_total, 2); }}</th>
+                                    <th class="border-top border-bottom">${{ number_format($commission_total, 2) }}</th>
                                 </tr>
                             @endforeach
                         @endif
