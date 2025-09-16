@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
 
 class ProductDetailsCommonValue extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'product_details_common_values';
+
+    protected $fillable = [
+        'value',
+        'catalog_item_id',
+        'common_attribute_id',
+    ];
 }

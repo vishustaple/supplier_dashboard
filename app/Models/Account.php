@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\{Carbon, Facades\DB};
+use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
+use Illuminate\Support\Facades\Auth;
 
 class Account extends Model
 {
@@ -185,8 +184,17 @@ class Account extends Model
                 $formatuserdata[$key]['customer_name'] = $data->customer_name;
                 $formatuserdata[$key]['customer_number'] = $data->customer_number;
                 $formatuserdata[$key]['date'] = date_format(date_create($data->date), 'm/d/Y');
-                $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" data-parent_name="'.$data->parent_name.'" data-parent_number="'.$data->parent_id.'"data-customer_id="'.$data->customer_id.'" data-customer_name="'.$data->customer_name.'" data-category_name="'.$data->record_type.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit
-              </a></div></div>';
+
+                $user = Auth::user();
+                
+                if ($user) {
+                    $userType = $user->user_type; // Assuming your users table has a 'type' column
+                    if (auth()->user()->can('Rebate Edit') || $userType == 1) {
+                        $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a><a title="Edit Account" class="" id="edit_account" data-id="'.$data->id.'" data-name="'.$data->account_name.'" data-parent_name="'.$data->parent_name.'" data-parent_number="'.$data->parent_id.'"data-customer_id="'.$data->customer_id.'" data-customer_name="'.$data->customer_name.'" data-category_name="'.$data->record_type.'" href="#" data-bs-toggle="modal" data-bs-target="#editAccountModal"><i class="fa-regular fa-pen-to-square"></i>Edit</a></div></div>';
+                    } else {
+                        $formatuserdata[$key]['id'] = '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a class=" " title="View Details" href= '.route('account', ['id' => $data->id]).'><i class="fa-regular  fa-eye"></i>View</a></div></div>';
+                    }
+                }
             }
         }
 
@@ -230,7 +238,7 @@ class Account extends Model
 
         /** Group by with account name */
         if (isset($filter['account_name']) && !empty($filter['account_name'])) {
-            $query->where('master_account_detail.account_name', $filter['account_name']);
+            $query->where('master_account_detail.account_name', html_entity_decode($filter['account_name']));
         }
 
         /** Get total records count (without filtering) */
@@ -277,6 +285,10 @@ class Account extends Model
     }
 
     public static function getSearchCustomerData($search='', $supplier='', $supplierArray=[], $check=false, $allSupplier=false){
+        $allSupplierIdsArray = DB::table('suppliers')
+                        ->where('show', 0)
+                        ->pluck('id')
+                        ->toArray();
         if (!empty($search)) {
             $query = self::query()
             ->select(
@@ -290,12 +302,13 @@ class Account extends Model
                     $query->where('master_account_detail.supplier_id', $supplier);
                 } else if (!empty($supplierArray)) {
                     if ($supplierArray[0] == 'all') {
-                        $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                        
+                        $query->whereIn('master_account_detail.supplier_id', $allSupplierIdsArray);
                     } else {
                         $query->whereIn('master_account_detail.supplier_id', $supplierArray);
                     }
                 } else if ($allSupplier) {
-                    $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5, 6, 7]);
+                    $query->whereIn('master_account_detail.supplier_id', $allSupplierIdsArray);
                 } else {
                     return [];
                 }
@@ -327,7 +340,11 @@ class Account extends Model
             ->where('master_account_detail.account_name', 'LIKE', '%' . $search['account_name'] . '%');
 
             if (isset($search['check']) && $search['check'] == "true") {
-                $query->whereIn('master_account_detail.supplier_id', [1, 2, 3, 4, 5]);
+                $allSupplierIdsArray = DB::table('suppliers')
+                ->where('show', 0)
+                ->pluck('id')
+                ->toArray();
+                $query->whereIn('master_account_detail.supplier_id', $allSupplierIdsArray);
                 $query->groupBy('master_account_detail.supplier_id');
                 $results = $query->get();
             } else {
@@ -335,10 +352,16 @@ class Account extends Model
             }
 
             $finalArray = [];
+
             if ($results !== null) {
                 if (isset($search['check']) && $search['check'] == "true") {
                     foreach ($results as $value) {
                         $finalArray[] = ['supplier' => $value->supplier_name, 'id' => $value->id];
+                    }
+
+                    if ($search['account_name'] == "Victoria's Secret") {
+                        $finalArray[1]['id'] = 14;
+                        $finalArray[1]['supplier'] = 'Staples Diversity';
                     }
                 } else {
                     $finalArray[] = ['supplier' => $results->supplier_name, 'id' => $results->id];
@@ -370,7 +393,7 @@ class Account extends Model
         }
     }
 
-    public static function getFilterdUpdateRebateData($filter = [], $csv=false){
+    public static function getFilterdUpdateRebateData($filter = [], $csv=false) {
         $orderColumnArray = [
             0 => 'master_account_detail.account_number',
             1 => 'customers.customer_name',
@@ -450,15 +473,29 @@ class Account extends Model
             $formatuserdata[$key]['customer_name'] = $data->customer_name;
             $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
             $formatuserdata[$key]['account_number'] = $data->account_number;
-            $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
-           
-            if ($data->supplier_id == 3) {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
-            } else {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' disabled value='0'  required/>";
+
+            $user = Auth::user(); // Get the logged-in user
+
+            if ($user) {
+                $userType = $user->user_type; // Assuming your users table has a 'type' column
+                if (auth()->user()->can('Rebate Edit') || $userType == 1) {
+                    $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
+                
+                    if ($data->supplier_id == 3) {
+                        $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                    } elseif ($data->supplier_id == 6) {
+                        $formatuserdata[$key]['incentive_rebate'] = "<input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                    } else {
+                        $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".htmlspecialchars($data->account_name, ENT_QUOTES)."' class='account_name'><input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' disabled value='0'  required/>";
+                    }
+                    
+                    $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
+                } else {
+                    $formatuserdata[$key]['volume_rebate'] = "<input type='text' disabled class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>";
+                    $formatuserdata[$key]['incentive_rebate'] = "<input type='text' disabled class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                    $formatuserdata[$key]['id'] = '<button disabled class="btn btn-success"> Save </button>';
+                } 
             }
-            
-            $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Save </button></form>';
         }
 
         /** Return the result along with total and filtered counts */
@@ -479,8 +516,11 @@ class Account extends Model
             1 => 'customers.customer_name',
             2 => 'master_account_detail.account_name',
             3 => 'suppliers.supplier_name',
+            4 => 'rebate.volume_rebate',
+            5 => 'rebate.incentive_rebate',
         ];
 
+        
         $query = self::query() /** Eager load relationships */
         ->select(
             'master_account_detail.id as id',
@@ -503,7 +543,11 @@ class Account extends Model
         ->whereNotNull('master_account_detail.account_name')
         ->where('master_account_detail.account_name', '!=', '');
         $query->whereNotNull('rebate.volume_rebate');
-         
+        
+        if (isset($filter['supplier_id']) && !empty($filter['supplier_id'])) {
+            $query->where('suppliers.id', $filter['supplier_id']);
+        }
+
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
@@ -517,8 +561,14 @@ class Account extends Model
         }
        
         /** Get total records count (without filtering) */
-        $query->groupBy('master_account_detail.account_name');
-        $query->groupBy('suppliers.supplier_name');
+        if ($csv) {
+            $query->groupBy('suppliers.supplier_name');
+            $query->groupBy('master_account_detail.account_number');
+        } else {
+            $query->groupBy('suppliers.supplier_name');
+            $query->groupBy('master_account_detail.account_name');
+        }
+
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Order by column and direction */
@@ -540,23 +590,56 @@ class Account extends Model
         
         $formatuserdata=[];
         foreach ($filteredData as $key => $data) {
-            $formatuserdata[$key]['account_name'] = $data->account_name;
-            $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
-            $formatuserdata[$key]['customer_name'] = $data->customer_name;
-            $formatuserdata[$key]['account_number'] = $data->account_number;
-            $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
-
-            if ($data->supplier_id == 3) {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+            if ($csv) {
+                $formatuserdata[] = [
+                    'supplier_name' => $data->supplier_name,
+                    'account_name' => $data->account_name,
+                    'account_number' => $data->account_number,
+                    'customer_name' => $data->customer_name,
+                    'volume_rebate' => $data->volume_rebate,
+                    'incentive_rebate' => ($data->supplier_id == 3) ? ($data->incentive_rebate) : (''),
+                ];
             } else {
-                $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='0' required/>";
-            }
+                $formatuserdata[$key]['account_name'] = $data->account_name;
+                $formatuserdata[$key]['supplier_name'] = $data->supplier_name;
+                $formatuserdata[$key]['customer_name'] = $data->customer_name;
+                $formatuserdata[$key]['account_number'] = $data->account_number;
+                $user = Auth::user(); // Get the logged-in user
 
-            $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';
+                if ($user) {
+                    $userType = $user->user_type; // Assuming your users table has a 'type' column
+                    if (auth()->user()->can('Rebate Edit') || $userType == 1) {
+                        $formatuserdata[$key]['volume_rebate'] = "<form action='' method='post'><input type='text' class='form-control form-control-sm volume_rebate' name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
+            
+                        if ($data->supplier_id == 3) {
+                            $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                        } elseif ($data->supplier_id == 6) {
+                            $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm incentive_rebate' disabled name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                        } else {
+                            $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='hidden' value='".$data->account_name."' class='account_name'><input type='text' class='form-control form-control-sm' disabled value='0' required/>";
+                        }
+            
+                        $formatuserdata[$key]['id'] = '<button type="button" class="save_rebate btn btn-success"> Update </button></form>';
+                    } else {
+                        $formatuserdata[$key]['volume_rebate'] = "<input type='text' class='form-control form-control-sm volume_rebate' disabled name='volume_rebate[]' value='".$data->volume_rebate."' required/>" ;
+                        $formatuserdata[$key]['incentive_rebate'] = "<input type='hidden' value='".$data->supplier_id."' class='supplier_id'><input type='text' disabled class='form-control form-control-sm incentive_rebate' name='incentive_rebate[]' value='".$data->incentive_rebate."'  required/>";
+                        $formatuserdata[$key]['id'] = '<button class="disabled btn btn-success"> Update </button>';
+                    }       
+                }
+            }
         }
-       
-          
+
+
         if ($csv == true) {
+            /** Defining heading array for csv genration */
+            $formatuserdata['heading'] = [
+                'Supplier',
+                'Account Name',
+                'Account Number',
+                'Customer Name',
+                'Volume Rebate',
+                'Incentive Rebate',
+            ];
             return $formatuserdata;
         } else {
             /** Return the result along with total and filtered counts */

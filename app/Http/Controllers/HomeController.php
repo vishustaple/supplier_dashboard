@@ -2,36 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\TestJob;
 use Exception;
-use Illuminate\Support\{
-    Str,
-    Carbon,
-};
 use Illuminate\Http\Request;
-use App\Models\{
-    User,
-    Permission,
-    ShowPowerBi
-};
-use Illuminate\Support\Facades\{
-    DB,
-    Log,
-    Auth,
-    Mail,
-    Http,
-    Crypt,
-    Session,
-    Validator,
-};
+use Illuminate\Support\{Str, Carbon};
 use Illuminate\Database\QueryException;
-
+use App\Mail\{NewUserMail, ExistingUserMail};
+use App\Models\{User, Permission, ShowPowerBi};
+use Illuminate\Support\Facades\{DB, Log, Auth, Mail, Http, Crypt, Session, Validator};
 
 class HomeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:PowerBi Reports')->only(['powerBiReport']);
+        // $this->middleware('permission:PowerBi Reports')->only(['powerBiReport']);
         $this->middleware('permission:Manage Users')->only(['userview', 'UserRemove', 'UpdateUser', 'UpdateUserData']);
         $this->middleware('permission:Manage Power BI Reports')->only(['showPowerBi', 'powerBiAdd', 'powerBiEdit', 'powerBiDelete', '']);
     }
@@ -63,16 +46,34 @@ class HomeController extends Controller
 
     public function userview()
     {
-        $userdata = User::where('user_type', '!=', User::USER_TYPE_SUPERADMIN)->orderBy('id', 'desc')->get();
+        $userdata = User::orderBy('id', 'desc')->get();
         $formatuserdata = [];
         $i = 1;
         $userInfo = Auth::user();
         foreach ($userdata as $data) {
             $formatuserdata[] = [
                 $data->first_name . ' ' . $data->last_name,
-                ($data->user_type == 3) ? 'User' : 'Admin',
+                ($data->user_type == 3) ? 'User' : (($data->user_type == 1) ? 'Super Admin' : 'Admin'),
                 ($data->status == 1) ? 'Active' : 'In-Active',
-                (($data->user_type != 2 && $userInfo->user_type == 2) || $userInfo->user_type == 1 || (!in_array($data->user_type, [2, 3]) && $userInfo->user_type == 3)) ? ('<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser" data-userid="' . Crypt::encryptString($data->id) . '"><i class="fa-regular fa-pen-to-square"></i></button><button data-id="' . Crypt::encryptString($data->id) . '" class="btn btn-danger btn-xs remove" title="Remove User"><i class="fa-solid fa-trash"></i></button>') : (''),
+                (($data->user_type == 3 && $userInfo->user_type == 2) || $userInfo->user_type == 1) 
+                ? 
+                    '<button style="cursor:pointer" title="Edit User" class="btn btn-primary btn-xs updateuser" data-userid="' . Crypt::encryptString($data->id) . '">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    <button data-id="' . Crypt::encryptString($data->id) . '" class="btn btn-danger btn-xs remove" title="Remove User">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>' 
+                    . 
+                    (($data->remember_token != '') 
+                        ? 
+                        '<button data-email="' . $data->email . '" class="btn btn-success btn-xs resend" title="Resend mail to user">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                        </button>' 
+                        : 
+                        ''
+                    )
+                : 
+                ''
             ];
             $i++;
         }
@@ -101,68 +102,85 @@ class HomeController extends Controller
     public function userRegister(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'user_role' => 'required',
             'first_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'user_role' => 'required',
-            // 'user_status' => 'required',
+            'password' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 200);
         } else {
             try {
-                $user1 = Auth::user();
-                $userType = ($request->user_role == USER::USER_TYPE_ADMIN) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
-                if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
-                    $token = Str::random(40);
-                    if ($user1->user_type == 1) {
-                        $user = User::create([
-                            'user_type' => $userType,
-                            'email' => $request->email,
-                            'remember_token' => $token,
-                            'status' => $request->user_status,
-                            'last_name' => $request->last_name,
-                            'first_name' => $request->first_name,
-                        ]);
-                    } else {
-                        $user = User::create([
-                            'user_type' => $userType,
-                            'email' => $request->email,
-                            'remember_token' => $token,
-                            'last_name' => $request->last_name,
-                            'first_name' => $request->first_name,
-                        ]);
+                $userInfoEditer = Auth::user();
+                $userType = $request->user_role;
+                $password = $request->password;
+              
+                if (($userType == 3 && $userInfoEditer->user_type == 2) || $userInfoEditer->user_type == 1) {
+                    $userData = [
+                        'user_type' => $userType,
+                        'email' => $request->email,
+                        'last_name' => $request->last_name,
+                        'first_name' => $request->first_name,
+                        'password' => bcrypt($password),
+                        'needs_password_change' => true,
+                    ];
+
+                    if ($userInfoEditer->user_type == 1) {
+                        $userData['status'] = $request->user_status;
                     }
 
+                    $user = User::create($userData);
+
+                    unset($userData['needs_password_change']);
+                    
+                    DB::connection('second_db')
+                        ->table('users')
+                        ->insert($userData);
+    
                     /** Sync permissions for the user */
                     $user->permissions()->sync($request->input('permissions'));
-
                     $email = $request->email;
-                    $key = env('APP_KEY');
-                    $salt = openssl_random_pseudo_bytes(16);
-                    /** Generate salt */
-                    $data = '' . $user->id . '|' . $user->remember_token . '';
 
                     try {
-                        Log::info('Attempting to send email...');
-                        Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function ($message) use ($email) {
-                            $message->to($email)
-                                ->subject('Password Creation Form');
-                        });
-
-                        Log::info('Email sent successfully');
-                    } catch (\Exception $e) {
-                        /** Handle the exception here */
-                        Log::error('Email sending failed: ' . $e->getMessage());
+                        Mail::to($email)->send(new NewUserMail($user, $password)); // Replace with actual if generated
+                    } catch (Exception $e) {
+                        Log::error('Failed to send new user email: ' . $e->getMessage());
                     }
+
                     return response()->json(['success' => 'Add User Successfully!'], 200);
                 } else {
                     return response()->json(['error' => 'You do not have permission to add user'], 200);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return response()->json(['error' => $e->getMessage()], 200);
             }
         }
+    }
+
+    public function resendUserEmail(Request $request) {
+        $email = $request->email;
+        $user = User::where('email', $email)->first();
+        $key = env('APP_KEY');
+        $salt = openssl_random_pseudo_bytes(16);
+        /** Generate salt */
+        $data = '' . $user->id . '|' . $user->remember_token . '';
+
+        try {
+            Log::info('Attempting to send email...');
+            Mail::send('mail.updatepassword', ['data' => encryptData($data, $key, $salt)], function ($message) use ($email) {
+                $message->to($email)
+                    ->subject('Password Creation Form');
+            });
+
+            Log::info('Email sent successfully');
+            return response()->json(['success' => true, 'msg' => 'Email sent successfully'], 200);
+        } catch (Exception $e) {
+            /** Handle the exception here */
+            Log::error('Email sending failed: ' . $e->getMessage());
+            return response()->json(['error' => true, 'msg' => 'Email sending failed: ' . $e->getMessage()], 200);
+        }
+        
     }
 
     public function userLogin(Request $request)
@@ -192,6 +210,11 @@ class HomeController extends Controller
 
                 return redirect()->route('login')->withErrors(['email' => 'Your account is inactive. Please contact the administrator.']);
             }
+
+            if ($user->needs_password_change) {
+                return redirect()->route('admin.changePasswordView');
+            }
+
             /** Connection could not be established with host "mailpit:1025": stream_socket_client(): php_network_getaddresses: getaddrinfo for mailpit failed: Name or service not known */
             /** Log::info('Email sent successfully'); */
             return redirect()->intended('/admin/upload-sheet');
@@ -233,62 +256,107 @@ class HomeController extends Controller
         }
     }
 
-    public function UpdateUserData(Request $request)
-    {
+    public function UpdateUserData(Request $request) {
         /** Validating the request data */
         $validator = Validator::make($request->all(), [
+            'update_user_role' => 'required',
             'first_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . Crypt::decryptString($request->update_user_id),
-            'update_user_role' => 'required',
-            // 'update_user_status' => 'required',
+            'reset_password_option' => 'nullable|in:yes,no',
+            'password' => 'nullable|string|min:8', // Optional: enforce minimum length if provided
         ]);
 
-        /** If faild to validate then redirect back with error message into the response */
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 200);
-        } else {
-            try {
-                $user = User::find(Crypt::decryptString($request->update_user_id));
-                $user1 = Auth::user();
-                if ($user) {
-                    $userType = ($request->update_user_role == 2) ? USER::USER_TYPE_ADMIN : USER::USER_TYPE_USER;
-                    if (($userType != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($userType, [2, 3]) && $user1->user_type == 3)) {
-                        if ($user1->user_type == 1) {
-                            $user->update([
-                                'user_type' => $userType,
-                                'email' => $request->email,
-                                'status' => $request->update_user_status,
-                                'last_name' => $request->last_name,
-                                'first_name' => $request->first_name,
-                            ]);
-                        } else {
-                            $user->update([
-                                'user_type' => $userType,
-                                'email' => $request->email,
-                                'last_name' => $request->last_name,
-                                'first_name' => $request->first_name,
-                            ]);
-                        }
+        }
 
-                        /** Sync user permissions */
-                        $user->permissions()->sync($request->input('permissions'));
-                    } else {
-                        return response()->json(['error' => 'You do not have permission to update this user'], 200);
+        try {
+            $user = User::find(Crypt::decryptString($request->update_user_id));
+            
+            if (!$user) {
+                return response()->json(['error' => 'User not found.'], 404);
+            }
+
+            $userInfoEditer = Auth::user();
+
+            $userType = $request->update_user_role;
+
+            if (($userType == 3 && $userInfoEditer->user_type == 2) || $userInfoEditer->user_type == 1) {
+                $updateData = [
+                    'user_type' => $userType,
+                    'email' => $request->email,
+                    'last_name' => $request->last_name,
+                    'first_name' => $request->first_name,
+                    'needs_password_change' => true,
+                ];
+
+                if ($userInfoEditer->user_type == 1) {
+                    $updateData['status'] = $request->update_user_status;
+                }
+
+                // Handle password reset if radio is "yes" and password is provided
+                if ($request->reset_password_option === 'yes' && !empty($request->password)) {
+                    $updateData['password'] = bcrypt($request->password);
+                }
+
+                // Update user
+                $user->update($updateData);
+                unset($updateData['needs_password_change']);
+                DB::connection('second_db')
+                            ->table('users')
+                            ->where('id', Crypt::decryptString($request->update_user_id))
+                            ->update($updateData);
+
+                // Sync permissions
+                if ($request->has('permissions')) {
+                    $user->permissions()->sync($request->input('permissions'));
+                }
+
+                // Handle password reset if radio is "yes" and password is provided
+                if ($request->reset_password_option === 'yes' && !empty($request->password)) {
+                    // Send email
+                    try {
+                        Mail::to($request->email)->send(new ExistingUserMail($user, $request->password));
+                    } catch (Exception $e) {
+                        Log::error('Failed to send existing user email: ' . $e->getMessage());
+                        return response()->json(['error' => 'Failed to send existing user email: ' . $e->getMessage()], 200);
                     }
                 }
 
                 return response()->json(['success' => 'Update User Successfully!'], 200);
-            } catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 200);
+            } else {
+                return response()->json(['error' => 'You do not have permission to update this user'], 200);
             }
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 200);
         }
     }
+
 
     public function UserRemove(Request $request)
     {
         $user = User::find(Crypt::decryptString($request->id));
         $user1 = Auth::user();
         if (($user->user_type != 2 && $user1->user_type == 2) || $user1->user_type == 1 || (!in_array($user->user_type, [2, 3]) && $user1->user_type == 3)) {
+            DB::connection('second_db')->beginTransaction();
+
+            try {
+                DB::connection('second_db')->statement('SET FOREIGN_KEY_CHECKS=0');
+
+                DB::connection('second_db')
+                    ->table('users')
+                    ->where('id', Crypt::decryptString($request->id))
+                    ->delete();
+
+                DB::connection('second_db')->statement('SET FOREIGN_KEY_CHECKS=1');
+
+                DB::connection('second_db')->commit();
+            } catch (Exception $e) {
+                DB::connection('second_db')->rollBack();
+                Log::error('User deletion failed: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to delete user.'], 500);
+            }
+
             /** Disable foreign key checks */
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
@@ -296,6 +364,7 @@ class HomeController extends Controller
 
             /** Re-enable foreign key checks */
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
             return response()->json(['success' => true]);
         } else {
             return response()->json(['success' => false]);
@@ -346,33 +415,43 @@ class HomeController extends Controller
         } else {
             /** Find the user */
             $user = User::findOrFail($request->user_id);
-            if ($user->user_type == User::USER_TYPE_SUPERADMIN) {
-                $user->update(['password' => bcrypt($request->password)]);
-                Log::info('Admin Password has been updated.');
-                return redirect()->back()->with('success', 'Your Password updated successfully.');
+
+            if ($user->needs_password_change == true) {
+                $user->update(['password' => bcrypt($request->password), 'needs_password_change' => false]);
+                /** Logout the user from website */
+                Auth::logout();
+
+                /** Redirect user to back to the login page */
+                return redirect('/')->with('success', 'Your Password updated successfully.');
             }
+
+            $user->update(['password' => bcrypt($request->password)]);
+
+            Log::info('Password has been updated.');
+            return redirect()->back()->with('success', 'Your Password updated successfully.');
+
             /** Verify the token */
 
             if ($user->remember_token === $request->token) {
                 /** Update the user's password */
                 $user->password = bcrypt($request->password);
                 $user->save();
-                $user->update(['remember_token' => null]);
+                $user->update(['remember_token' => null, 'needs_password_change' => false]);
 
                 /** Redirect to the login route */
                 return redirect()->route('login')->with('success', 'Password updated successfully. Please log in with your new password.');
             } else {
                 return view('admin.linkexpire');
                 /** Token does not match, return error or redirect back */
-                return redirect()->back()->with('error', 'Invalid token.');
+                // return redirect()->back()->with('error', 'Invalid token.');
             }
         }
     }
 
     public function changePasswordView()
     {
-        $adminUser = User::where('user_type', User::USER_TYPE_SUPERADMIN)->first();
-        return view('admin.profile', compact('adminUser'));
+        $user = Auth::user();
+        return view('admin.profile', compact('user'));
     }
 
     public function userForgetPassword(Request $request)
@@ -412,7 +491,7 @@ class HomeController extends Controller
                         });
 
                         Log::info('Email sent successfully');
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         /** Handle the exception here */
                         Log::error('Email sending failed: ' . $e->getMessage());
                     }
@@ -422,7 +501,7 @@ class HomeController extends Controller
                 } else {
                     session()->flash('error', 'Please enter valid account email.');
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 session()->flash('error', $e->getMessage());
             }
         }
@@ -451,8 +530,8 @@ class HomeController extends Controller
                 ]);
 
             return redirect()->route('power_bi.show');
-        } catch (\Exception $e) {
-            Log::error('error', $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('error', [$e->getMessage()]);
         }
     }
 
@@ -489,8 +568,8 @@ class HomeController extends Controller
                 ]);
 
             return redirect()->route('power_bi.show');
-        } catch (\Exception $e) {
-            Log::error('error', $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('error', [$e->getMessage()]);
         }
     }
 
@@ -521,7 +600,7 @@ class HomeController extends Controller
 
             return redirect()->route('power_bi.show');
         } catch (QueryException $e) {
-            Log::error('error', $e->getMessage());
+            Log::error('error', [$e->getMessage()]);
         }
     }
 
@@ -560,16 +639,57 @@ class HomeController extends Controller
 
                 /** Generate the HTML content */
                 $data = '
-                    <a class="nav-link ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'active' : '') . '" data-toggle="collapse" href="#subMenuPowerBi">
-                        <div class="sb-nav-link-icon"><i class="fa fa-th-list" aria-hidden="true"></i></div>
+                    <a class="nav-link ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles) || $pageTitleCheck == 'Power Bi') ? 'active' : '') . '" data-toggle="collapse" href="#subMenuPowerBi">
+                        <div class="sb-nav-link-icon">
+                            <i class="fa fa-th-list" aria-hidden="true"></i>
+                        </div>
                         PowerBi Reports<i class="fas fa-caret-down"></i>
                     </a>
-                    <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'show' : '') . '" id="subMenuPowerBi">';
+                    <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles) || $pageTitleCheck == 'Power Bi') ? 'show' : '') . '" id="subMenuPowerBi">';
+
+                if (
+                    in_array('Manage Power BI Reports', auth()->user()->permissions->pluck('name')->toArray()) ||
+                    auth()->user()->user_type != User::USER_TYPE_USER
+                ) {
+                    $data .= '
+                        <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == 'Power Bi') ? 'active' : '') . '" href="' . route('power_bi.show') . '">
+                            Manage Power BI Reports
+                        </a>';
+                }
 
                 foreach ($record as $value) {
                     $data .= '
                         <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == $value->title) ? 'active' : '') . '" href="' . route('powerbi_report.type', ['id' => $value->id, 'reportType' => $value->title]) . '">' . htmlspecialchars($value->title, ENT_QUOTES, 'UTF-8') . '</a>';
                 }
+
+                $data .= '</div>';
+
+                return response()->json([
+                    'data' => $data,
+                    'success' => true,
+                ]);
+            } else if (
+                in_array('Manage Power BI Reports', auth()->user()->permissions->pluck('name')->toArray()) ||
+                auth()->user()->user_type != User::USER_TYPE_USER
+            ) {
+
+                $titles = ['Power Bi'];
+                $pageTitleCheck = 'Power Bi';
+
+                /** Generate the HTML content */
+                $data = '
+                    <a class="nav-link ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'active' : '') . '" data-toggle="collapse" href="#subMenuPowerBi">
+                        <div class="sb-nav-link-icon">
+                            <i class="fa fa-th-list" aria-hidden="true"></i>
+                        </div>
+                        PowerBi Reports<i class="fas fa-caret-down"></i>
+                    </a>
+                    <div class="collapse ' . ((isset($pageTitleCheck) && in_array($pageTitleCheck, $titles)) ? 'show' : '') . '" id="subMenuPowerBi">';
+
+                $data .= '
+                    <a class="nav-link ml-3 ' . ((isset($pageTitleCheck) && $pageTitleCheck == 'Power Bi') ? 'active' : '') . '" href="' . route('power_bi.show') . '">
+                        Manage Power BI Reports
+                    </a>';
 
                 $data .= '</div>';
 

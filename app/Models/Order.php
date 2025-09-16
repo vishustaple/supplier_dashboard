@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use League\Csv\Writer;
+use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use Illuminate\Support\{Carbon, Facades\DB};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class Order extends Model
 {
@@ -327,7 +328,7 @@ class Order extends Model
                 SUM(total_spend) as total_spend'
             )
             ->groupBy('product');
-            $query->whereIn('sold_to_account', $accountNumber);
+            $query->whereIn('sold_toaccount', $accountNumber);
 
             if (isset($filter['year'])) {
                 $query->whereYear('date', $filter['year']);
@@ -471,6 +472,7 @@ class Order extends Model
                 `orders`.`date` AS `date`,
                 SUM(`orders`.`cost`) AS `cost`, 
                 `m2`.`account_name` AS `account_name`,
+                 `m2`.`account_number` AS `account_number`,
                 `rebate`.`volume_rebate` AS `volume_rebates`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
                 ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
@@ -480,6 +482,7 @@ class Order extends Model
                 `orders`.`date` AS `date`,
                 SUM(`orders`.`cost`) AS `cost`, 
                 `m2`.`account_name` AS `account_name`,
+                `m2`.`account_number` AS `account_number`,
                 `suppliers`.`supplier_name` AS `supplier_name`, 
                 `rebate`.`incentive_rebate` AS `incentive_rebates`,
                 ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`
@@ -495,19 +498,19 @@ class Order extends Model
                 $query1->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
             }
 
-            $totalAmount1 = 0;
-            foreach ($query1->get() as $key => $value) {
-                $totalAmount1 += $value->cost;
-            }
+            $totalAmount1 = $query1->first()->cost;
         }
 
-        $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number')
-        ->leftJoin('rebate', function($join) {
-            $join->on('m2.account_name', '=', 'rebate.account_name');
-            // ->on('m2.category_supplier', '=', 'rebate.supplier');
-        })
+        $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number');
 
-        ->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->leftJoin('rebate', function ($join) use ($filter) {
+                $join->on('m2.account_name', '=', 'rebate.account_name')
+                     ->where('rebate.supplier', '=', $filter['supplier']);
+            });
+        }
+
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
         
         if (isset($filter['supplier']) && $filter['supplier'] == 4){
             $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
@@ -521,13 +524,11 @@ class Order extends Model
                 $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
             }
 
-
             if ($filter['supplier'] == 3) {   
                 if ($filter['rebate_check'] == 2) {
                     $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
                     $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
                     $query->where('order_details.supplier_field_id', 50);
-                    // $query->whereNotIn('order_details.value', ['NON CODE', 'IMPULSE BUYS', 'MANAGE PRINT SERVICE', 'CUSTOM BUS  ESSTLS', 'CUSTOM OUTSOURC PRNT', 'PRODUCT ASSEMBLY', 'MARKETNG/VISUAL SRVC', 'OD ADVERT. GIVEAWAYS']);
                     $query->whereNotIn(
                         'order_details.value',
                         [
@@ -542,8 +543,7 @@ class Order extends Model
                         ]
                     );
                 }
-            } 
-           
+            }
 
             if ($filter['supplier'] == 4) {
                 $query->whereRaw("
@@ -594,8 +594,13 @@ class Order extends Model
             }
         }
         
-        /** Group by with account name */
-        $query->groupBy('m2.account_name');
+        if (isset($filter['group_by']) && $filter['group_by'] == 1) {
+            /** Group by with account name */
+            $query->groupBy('m2.account_name');
+        } else {
+            $query->groupBy('m2.account_number');
+        }
+
         $totalRecords = $query->getQuery()->getCountForPagination();
 
         /** Get total records count (without filtering) */
@@ -625,7 +630,7 @@ class Order extends Model
         $totalAmount = number_format($totalAmount, 2);
         $totalVolumeRebate = number_format($totalVolumeRebate, 2);
         $totalIncentiveRebate = number_format($totalIncentiveRebate, 2);
-
+        // dd($totalVolumeRebate);
         // dd($query->limit(100)->get());
 
         $formatuserdata = $query->when(isset($filter['start']) && isset($filter['length']), function ($query) use ($filter) {
@@ -638,6 +643,7 @@ class Order extends Model
             foreach ($formatuserdata as $key => $value) {
                 if ($csv) {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
+                    $finalArray[$key]['account_number'] = $value->account_number;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['cost'] = number_format($value->cost, 2, '.', false);
                     if ($filter['rebate_check'] == 1) {
@@ -648,6 +654,7 @@ class Order extends Model
                     }
                 } else {
                     $finalArray[$key]['supplier'] = $value->supplier_name;
+                    $finalArray[$key]['account_number'] = $value->account_number;
                     $finalArray[$key]['account_name'] = $value->account_name;
                     $finalArray[$key]['cost'] = '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($value->cost, 2);
                     $finalArray[$key]['volume_rebate'] = '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.number_format($value->volume_rebate, 2).' ('.(!empty($value->volume_rebates) ? ($value->volume_rebates.'%') : ('N/A')).')';
@@ -656,7 +663,7 @@ class Order extends Model
             }
         } 
     
-        if(!$csv && isset($finalArray[0]) && $totalAmount1 != 0) {
+        if(!$csv && isset($finalArray[0]) && isset($totalAmount1)) {
             $finalArray[0]['account_name'] .= '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount1, 2) . '">';
         }
 
@@ -668,6 +675,7 @@ class Order extends Model
                 /** Defining heading array for csv genration */
                 $finalArray['heading'] = [
                     'Supplier',
+                    'Account_number',
                     'Account_name',
                     'Amount',
                     'Incentive Rebate',
@@ -687,6 +695,7 @@ class Order extends Model
                 /** Defining heading array for csv genration */
                 $finalArray['heading'] = [
                     'Supplier',
+                    'Account_number',
                     'Account_name',
                     'Amount',
                     'Volume Rebate',
@@ -1108,7 +1117,7 @@ class Order extends Model
         }
     }
 
-    public static function getAllCommission($filter = []){
+    public static function getAllCommission($filter = []) {
         /** Initialize the query on the CommissionRebateDetail model, selecting the sum of commissionss and the paid date */
         $query = CommissionRebateDetail::query()->selectRaw(
             "SUM(`commissions_rebate_detail`.`commissions`) AS `commissionss`,
@@ -1291,7 +1300,7 @@ class Order extends Model
                 /** Prepare the final array for non-CSV */
                 $finalArray[$key]['account_name'] = "
                 <div class='form-check'>
-                    <input class='form-check-input' type='checkbox'>
+                    <input class='form-check-input checkbox-trigger' type='checkbox'>
                     <input class='form-check-input' type='hidden' value='".$value->supplier_id."'>
                     <label class='form-check-label'>
                         ".$value->account_name."
@@ -1327,7 +1336,7 @@ class Order extends Model
         }
     }
 
-    public static function getConsolidatedDownloadData($filter=[]) {
+    public static function getConsolidatedDownloadData($filter=[], $checkDataCount=false) {
         /** Increasing the memory limit becouse memory limit issue */
         // ini_set('memory_limit', '25024M');
         $query = self::query()
@@ -1376,6 +1385,11 @@ class Order extends Model
             }
         } else {
 
+        }
+
+        if (isset($checkDataCount) && $checkDataCount == true) {
+            // dd($query->count());
+            return $query->count();
         }
 
         $queryData = $query->get();
@@ -1469,8 +1483,7 @@ class Order extends Model
         return $finalArray;
     }
 
-    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath = null)
-    {
+    public static function getConsolidatedDownloadDataSecond($filter = [], $filePath = null) {
         /** Increasing the memory limit becouse memory limit issue */
         ini_set('memory_limit', '7024M');
 
@@ -1807,5 +1820,1178 @@ class Order extends Model
             'recordsTotal' => count($finalArray),
             'recordsFiltered' => count($finalArray),
         ];
+    }
+
+    public static function importRelevantSheets($filter) {
+        /** Remove limits for large Excel processing */
+        set_time_limit(0); /** Unlimited execution time */
+        ini_set('memory_limit', '1024M'); /** Increase memory if needed */
+
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+            $rebate = 'volume_rebate';
+        } else {
+            $rebate = 'incentive_rebate';
+        }
+
+        $mainResult = [];
+        foreach ($filter['files'] as $file) {
+            $reader = new Xlsx();
+            $reader->setReadDataOnly(true); /** Ignore formatting, speeds up processing */
+        
+            $spreadsheet = $reader->load($file);
+            $finalData = [];
+        
+            foreach ($spreadsheet->getWorksheetIterator() as $sheet) {
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+                $sheetTitle = $sheet->getTitle();
+                // Supplier 6 logic
+                if ($filter['supplier'] ==  6) {
+                    $highestRow = $sheet->getHighestDataRow();
+                    $highestColumn = $sheet->getHighestDataColumn();
+                    // dd($highestRow, $highestColumn);
+                    $workSheetArray = $sheet->toArray();
+                    // Define the target strings (trimmed)
+                    $normalize = function ($str) {
+                        return trim(preg_replace('/\s+/', ' ', $str)); // Replace multiple whitespace (incl. \n) with single space
+                    };
+                    
+                    // Normalized target strings
+                    $targets = [
+                        $normalize("CRL Volume rebate:\n\n4% on TO min PPE"),
+                        $normalize("CRL Volume rebate:\n\n2% on TO PPE"),
+                        $normalize("BONY Volume rebate:\n\n2% on TO min PPE"),
+                    ];
+                    
+                    $newArray = [];                    
+
+                    foreach ($workSheetArray as $key => $value) {
+                        $filteredRow = array_filter($value, fn($val) => !is_null($val));
+                    
+                        if (isset($filteredRow[1])) {
+                            $normalized = $normalize($filteredRow[1]);
+                            if (in_array($normalized, $targets)) {
+                                $data = array_values($filteredRow); // Reindex for clean output
+                                // print_r($data);
+                                if (!empty($data)) {
+                                    $first = reset($data);             // First element
+                                    $last = end($data);                // Last element
+                                   
+                                    $newArray[] = [
+                                        'cost' => $last,
+                                        'account_name' => $first,
+                                    ];
+                                }            
+                            }
+                        }
+                    }
+
+                    // Extract percentage (e.g., 2%, 4%)
+                    $updated = collect($newArray)->map(function ($item) use ($filter, $rebate) {
+                    preg_match('/(\d+)%/', $item['account_name'], $matches);
+                        $percentage = $matches[1] ?? null;
+                    
+                        // Split by line and clean the first line
+                        $lines = preg_split('/\r\n|\r|\n/', $item['account_name']);
+                        $account_name_raw = trim($lines[0]);
+                        $account_name = str_replace(':', '', $account_name_raw);
+                        $account_name = str_replace('CRL Volume rebate', 'Charles River Laboratories', $account_name);
+                        $account_name = str_replace('BONY Volume rebate', 'BONY', $account_name);
+
+                        // Determine account number
+                        // if (str_contains($account_name_raw, 'CRL Volume rebate')) {
+                        //     // $account_number = 81093059;
+                        //     $account_number = 5092432;
+                        // } elseif (str_contains($account_name_raw, 'BONY Volume rebate')) {
+                        //     $account_number = 0;
+                        // } else {
+                        //     $account_number = null; // fallback if needed
+                        // }
+                    
+                        $onePercentAmount = round($item['cost']/$percentage, 2);
+                        $totalAmount = round(($onePercentAmount * 100) * $filter['rate'], 2);
+
+                        return [
+                            'account_number' => '',
+                            'cost' => $totalAmount,
+                            'account_name' => $account_name,
+                            'rebate_percent' => $percentage,
+                            // 'account_number' => $account_number,
+                            $rebate => round($item['cost'] * $filter['rate'], 2),
+                        ];
+                    })->toArray();
+
+                    $grouped = collect($updated)
+                        ->groupBy('account_name')
+                        ->map(function ($items, $account_name) {
+                            return [
+                                'account_name'   => $account_name,
+                                'cost'           => $items->sum('cost'),
+                                'volume_rebate'  => $items->sum('volume_rebate'),
+                                'rebate_percent' => $items->first()['rebate_percent'], // or max(), or average
+                                'account_number' => $items->first()['account_number'], // assumes same
+                            ];
+                        })
+                        ->values() // optional: to reset keys
+                        ->toArray();
+                    // dd($grouped);
+
+                    // $updated[0]['account_number'] = 5092432;
+
+                    return $grouped;
+
+                    continue; // move to next sheet if only one relevant
+                }
+
+                if ($filter['supplier'] == 4 && $sheetTitle != "ShipTo Level Sales Details") {
+                    continue;
+                }
+
+                $headersFound = false;
+                $headerMap = [];
+                
+                /** Try to detect headers in the first 10 rows only */
+                for ($rowIndex = 1; $rowIndex <= min($highestRow, 20); $rowIndex++) {
+                    $row = $sheet->rangeToArray("A{$rowIndex}:{$highestColumn}{$rowIndex}", null, true, false)[0];
+                    $headers = array_map(function ($val) {
+                        return strtolower(trim((string)$val));
+                    }, $row);
+        
+                    if ($filter['supplier'] == 3 && in_array('customer account id', $headers) && in_array('customer account name', $headers)) {
+                        $headersFound = true;
+                        foreach ($headers as $index => $header) {
+                            if ($rebate == 'incentive_rebate') {
+                                if ($header =='net sales') $headerMap[$index] = 'cost';
+                                if ($header == '5% rebate') $headerMap[$index] = $rebate;
+                                if ($header == 'rebate_percent') $headerMap[$index] = 'rebate_percent';
+                                if ($header == 'customer account id') $headerMap[$index] = 'account_number';
+                                if ($header == 'customer account name') $headerMap[$index] = 'account_name';
+                            } else {
+                                if ($header =='net sales') $headerMap[$index] = 'cost';
+                                if ($header =='Net Sales') $headerMap[$index] = 'cost';
+                                if ($header == 'rebate @ 8%') $headerMap[$index] = $rebate;
+                                if ($header == 'base rebate $') $headerMap[$index] = $rebate;
+                                if ($header == 'base rebate %') $headerMap[$index] = 'rebate_percent';
+                                if ($header == 'customer account id') $headerMap[$index] = 'account_number';
+                                if ($header == 'customer account name') $headerMap[$index] = 'account_name';
+                            }
+                        }
+
+                        /** Start processing data rows after header */
+                        for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
+                            $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                            $dataRow = [];
+        
+                            foreach ($headerMap as $colIndex => $field) {
+                                $value = $rowData[$colIndex] ?? null;
+    
+                                if (is_string($value)) {
+                                    $value = str_replace(['$', ',', '%'], '', $value);
+                                }
+    
+                                if ($field === 'rebate_percent') {
+                                    $value = is_numeric($value) ? (float)$value : 0.0;
+
+                                    if ($value > 0 && $value < 1) {
+                                        $value *= 100;
+                                    } elseif ($value > 100) {
+                                        $value = 100; /** cap at 100% */
+                                    }
+
+                                    $value = round($value, 2); /** clean to 2 decimals */
+                                }
+    
+                                $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                            }
+        
+                            if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                                $finalData[] = $dataRow;
+                            }
+                        }
+                        break; /** Stop checking more rows/sheets */
+                    }
+    
+                    if ($filter['supplier'] == 2 && in_array('account number', $headers) && in_array('account name', $headers)) {
+                        $headersFound = true;
+                        foreach ($headers as $index => $header) {
+                            if ($rebate == 'volume_rebate') {
+                                if ($header =='$ total revenue') $headerMap[$index] = 'cost';
+                                if ($header == 'account number') $headerMap[$index] = 'account_number';
+                                if ($header == 'account name') $headerMap[$index] = 'account_name';
+                            } else {
+    
+                            }
+                        }
+        
+                        /** Start processing data rows after header */
+                        for ($i = $rowIndex + 2; $i <= $highestRow; $i++) {
+                            $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                            $dataRow = [];
+        
+                            foreach ($headerMap as $colIndex => $field) {
+                                $value = $rowData[$colIndex] ?? null;
+    
+                                if (is_string($value)) {
+                                    $value = str_replace(['$', ',', '%'], '', $value);
+                                }
+    
+                                if ($field === 'rebate_percent') {
+                                    $value = is_numeric($value) ? (float)$value : 0.0;
+                                    if ($value > 0 && $value < 1) {
+                                        $value *= 100;
+                                    } elseif ($value > 100) {
+                                        $value = 100; /** cap at 100% */
+                                    }
+                                    $value = round($value, 2); /** clean to 2 decimals */
+                                }
+    
+                                $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                            }
+        
+                            if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                                $finalData[] = $dataRow;
+                            }
+                        }
+        
+                        break; /** Stop checking more rows/sheets */
+                    }
+    
+                    if ($filter['supplier'] == 5 && in_array('rebate %', $headers)) {
+                        $headersFound = true;
+                        foreach ($headers as $index => $header) {
+                            if ($rebate == 'volume_rebate') {
+                                if ($header =='rebate due') $headerMap[$index] = $rebate;
+                                if ($header =='sum of sales') $headerMap[$index] = 'cost';
+                                if ($header =='rebate %') $headerMap[$index] = 'rebate_percent';
+                                if ($header == 'account#') $headerMap[$index] = 'account_number';
+                                if ($header == 'account name') $headerMap[$index] = 'account_name';
+                            } else {
+    
+                            }
+                        }
+        
+                        /** Start processing data rows after header */
+                        for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
+                            $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                            $dataRow = [];
+        
+                            foreach ($headerMap as $colIndex => $field) {
+                                $value = $rowData[$colIndex] ?? null;
+    
+                                if (is_string($value)) {
+                                    $value = str_replace(['$', ',', '%'], '', $value);
+                                }
+    
+                                if ($field === 'rebate_percent') {
+                                    $value = is_numeric($value) ? (float)$value : 0.0;
+                                    if ($value > 0 && $value < 1) {
+                                        $value *= 100;
+                                    } elseif ($value > 100) {
+                                        $value = 100; /** cap at 100% */
+                                    }
+                                    $value = round($value, 2); /** clean to 2 decimals */
+                                }
+    
+                                $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                            }
+        
+                            if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                                $finalData[] = $dataRow;
+                            }
+                        }
+        
+                        break; /** Stop checking more rows/sheets */
+                    }
+
+                    if ($filter['supplier'] == 4 && in_array('master customer number', $headers)) {
+                        $headersFound = true;
+                        foreach ($headers as $index => $header) {
+                            if ($rebate == 'volume_rebate') {
+                                if ($header == '5% fee') $headerMap[$index] = 'cost';
+                                if ($header == 'existing 2.5% fee') $headerMap[$index] = 'cost1';
+                                if ($header == 'centerpoint existing 2.5% fee') $headerMap[$index] = 'cost1';
+                                if ($header == 'new to staples 5% fee') $headerMap[$index] = 'cost';
+                                if ($header == 'centerpoint new - 5% fee') $headerMap[$index] = 'cost';
+                                if ($header == 'master customer name') $headerMap[$index] = 'account_name';
+                                if ($header == 'master customer number') $headerMap[$index] = 'account_number';
+                            }
+                        }
+        
+                        /** Start processing data rows after header */
+                        for ($i = $rowIndex + 1; $i <= $highestRow; $i++) {
+                            $rowData = $sheet->rangeToArray("A{$i}:{$highestColumn}{$i}", null, true, false)[0];
+                            $dataRow = [];
+        
+                            foreach ($headerMap as $colIndex => $field) {
+                                $value = $rowData[$colIndex] ?? null;
+    
+                                if (is_string($value)) {
+                                    $value = str_replace(['$', ',', '%'], '', $value);
+                                }
+    
+                                if ($field === 'rebate_percent') {
+                                    $value = is_numeric($value) ? (float)$value : 0.0;
+                                    if ($value > 0 && $value < 1) {
+                                        $value *= 100;
+                                    } elseif ($value > 100) {
+                                        $value = 100; /** cap at 100% */
+                                    }
+                                    $value = round($value, 2); /** clean to 2 decimals */
+                                }
+    
+                                $dataRow[$field] = is_numeric($value) ? $value : trim((string) $value);
+                            }
+        
+                            if (!empty($dataRow['account_number']) && !empty($dataRow['account_name'])) {
+                                $finalData[] = $dataRow;
+                            }
+                        }
+        
+                        break; /** Stop checking more rows/sheets */
+                    }
+                }
+        
+                if (!$headersFound) {
+                    continue; /** Go to next sheet if headers were not found in first 10 rows */
+                }
+            }
+    
+            // dd($finalData);
+            if (!empty($mainResult)) {
+                $mainResult = array_merge_recursive($mainResult, $finalData);
+            } else {
+                $mainResult = $finalData;
+            }
+        }
+
+        $result = [];
+
+        foreach ($mainResult as $item) {
+            $id = ltrim($item['account_number'], '0');
+
+            if (!isset($result[$id])) {
+                /** Initialize if not already set */
+                $result[$id]['account_number'] = $id;
+                $result[$id]['account_name'] = $item['account_name'];
+                
+                if ($filter['supplier'] == 2) {
+                    $result[$id]['cost'] = (float) $item['cost'];
+                    $result[$id]['rebate_percent'] = 3;
+                    $rebateAmount = (3 / 100) * (float) $item['cost'];
+                    $result[$id][$rebate] = (float) $rebateAmount;
+                } elseif ($filter['supplier'] == 3) {
+                    $result[$id]['cost'] = (float) $item['cost'];
+                    $result[$id][$rebate] = (float) $item[$rebate];
+                    if ($filter['rebate_check'] == 1) {
+                        $result[$id]['rebate_percent'] = (isset($item['rebate_percent'])) ? ($item['rebate_percent']) : (8);
+                    } else {
+                        $result[$id]['rebate_percent'] = 5;
+                    }
+                } elseif ($filter['supplier'] == 5) {
+                    $result[$id]['cost'] = (float) $item['cost'];
+                    $result[$id][$rebate] = (float) $item[$rebate];
+                    $result[$id]['rebate_percent'] = $item['rebate_percent'];
+                } elseif ($filter['supplier'] == 4) {
+                    if (isset($item['cost']) && $item['cost'] != NULL) {
+                        $result[$id]['rebate_percent'] = 5;
+                        $result[$id]['cost'] = (float) $item['cost'];
+                        $rebateAmount = (5 / 100) * (float) $item['cost'];
+                        $result[$id][$rebate] = (float) $rebateAmount;
+                    } elseif (isset($item['cost1']) && $item['cost1'] != NULL) {
+                        $result[$id]['rebate_percent'] = 2.5;
+                        $result[$id]['cost'] = (float) $item['cost1'];
+                        $rebateAmount = (2.5 / 100) * (float) $item['cost1'];
+                        $result[$id][$rebate] = (float) $rebateAmount;   
+                    }
+                }
+            } else {
+                /** Add to existing */
+                if ($filter['supplier'] == 3 || $filter['supplier'] == 5) {
+                    $result[$id][$rebate] += (float) $item[$rebate];
+                    $result[$id]['cost'] += (float) $item['cost'];
+                } elseif ($filter['supplier'] == 2) {
+                    $result[$id]['cost'] += (float) $item['cost'];
+                    $rebateAmount = (3 / 100) * (float) $item['cost'];
+                    $result[$id][$rebate] += (float) $rebateAmount;
+                } elseif ($filter['supplier'] == 4) {
+                    if (isset($item['cost']) && $item['cost'] != NULL) {
+                        $result[$id]['cost'] += (float) $item['cost'];
+                        $rebateAmount = (5 / 100) * (float) $item['cost'];
+                        $result[$id][$rebate] += (float) $rebateAmount;
+                    } elseif (isset($item['cost1']) && $item['cost1'] != NULL) {
+                        $result[$id]['cost'] += (float) $item['cost1'];
+                        $rebateAmount = (2.5 / 100) * (float) $item['cost1'];
+                        $result[$id][$rebate] += (float) $rebateAmount;   
+                    }
+                }
+            }
+        }
+
+        /** If you want a zero-based indexed array */
+        $result = array_values($result);
+        // dd($result);
+        return $result;
+    }
+
+    public static function getSupplierValidationReportFilterdData($filter=[]) {
+        if (isset($filter['files'])) {
+            foreach ($filter['files'] as $key => $file) {  
+                $reader = new Xlsx(); /** Creating object of php excel library class */
+        
+                /** Loading excel file using path and name of file from table "uploaded_file" */
+                $spreadSheet = $reader->load($file, 2);    
+
+                if ($filter['supplier'] == 2) {
+                    $workSheetArray = $spreadSheet->getSheet(0)->toArray();
+
+                    foreach ($workSheetArray as $key => $row) {
+                        if ($key == 9) {
+                            $fileTotal = $row[2];
+                        }
+            
+                        if ($key == 13) {
+                            $fileRebate = $row[2];
+                        }
+                    }
+                } elseif ($filter['supplier'] == 5) {
+                    /** File name */
+                    $sheetName = 'Summary';
+
+                    /** Check if sheet exists */
+                    if (!$spreadSheet->sheetNameExists($sheetName)) {
+                        die("Error: Sheet '$sheetName' not found!");
+                    }
+
+                    /** Load the specific sheet */
+                    $worksheet = $spreadSheet->getSheetByName($sheetName);
+            
+                    /** Get the highest row number that contains data */
+                    $highestRow = $worksheet->getHighestDataRow();
+                    $highestColumn = $worksheet->getHighestDataColumn();
+
+                    $lastRow = null;
+
+                    /** Find the last non-empty row dynamically */
+                    for ($row = $highestRow; $row >= 1; $row--) {
+                        $rowData = $worksheet->rangeToArray("A$row:{$highestColumn}$row", null, true, true, true)[$row];
+                        
+                        if (array_filter($rowData)) { // Check if the row has any non-empty values
+                            $lastRow = $row;
+                            break;
+                        }
+                    }
+
+                    if (!$lastRow) {
+                        die("No non-empty rows found!");
+                    }
+
+                    /** Read the last non-empty row data */
+                    $lastRowData = $worksheet->rangeToArray("A$lastRow:{$highestColumn}$lastRow", null, true, true, true);
+                    
+                    foreach($lastRowData as $key => $value) {
+                        if (isset($value['G'])) {
+                            $fileTotal = $value['G'];
+                        }
+            
+                        if (isset($value['I'])) {
+                            $fileRebate = $value['I'];
+                        }
+                    }
+                } elseif($filter['supplier'] == 3 && isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+                    /** File name */
+                    $sheetName = 'Accounting use only';
+
+                    /** Check if sheet exists */
+                    if (!$spreadSheet->sheetNameExists($sheetName)) {
+                        die("Error: Sheet '$sheetName' not found!");
+                    }
+
+                    /** Load the specific sheet */
+                    $worksheet = $spreadSheet->getSheetByName($sheetName);
+
+                    /** Get the highest row number that contains data */
+                    $highestRow = $worksheet->getHighestDataRow();
+                    $highestColumn = $worksheet->getHighestDataColumn();
+
+                    $lastRow = null;
+
+                    /** Find the last non-empty row dynamically */
+                    for ($row = $highestRow; $row >= 1; $row--) {
+                        $rowData = $worksheet->rangeToArray("A$row:{$highestColumn}$row", null, true, true, true)[$row];
+                        
+                        if (array_filter($rowData)) { // Check if the row has any non-empty values
+                            $lastRow = $row;
+                            break;
+                        }
+                    }
+
+                    if (!$lastRow) {
+                        die("No non-empty rows found!");
+                    }
+
+                    /** Read the last non-empty row data */
+                    $lastRowData = $worksheet->rangeToArray("A$lastRow:{$highestColumn}$lastRow", null, true, true, true);
+
+                    foreach($lastRowData as $key => $value) {
+                        if (isset($value['D'])) {
+                            $fileTotal = $value['D'];
+                        }
+            
+                        if (isset($value['G'])) {
+                            $fileRebate = $value['G'];
+                        }
+                    }
+                } elseif($filter['supplier'] == 3 && isset($filter['rebate_check']) && $filter['rebate_check'] == 2) {
+                    /** File name */
+                    $sheetName = 'Calc Summary';
+
+                    /** Check if sheet exists */
+                    if (!$spreadSheet->sheetNameExists($sheetName)) {
+                        die("Error: Sheet '$sheetName' not found!");
+                    }
+
+                    /** Load the specific sheet */
+                    $worksheet = $spreadSheet->getSheetByName($sheetName);
+
+                    /** Get the highest row number that contains data */
+                    $highestRow = $worksheet->getHighestDataRow();
+                    $highestColumn = $worksheet->getHighestDataColumn();
+
+                    $lastRow = null;
+
+                    /** Find the last non-empty row dynamically */
+                    for ($row = $highestRow; $row >= 1; $row--) {
+                        $rowData = $worksheet->rangeToArray("A$row:{$highestColumn}$row", null, true, true, true)[$row];
+                        
+                        if (array_filter($rowData)) { // Check if the row has any non-empty values
+                            $lastRow = $row;
+                            break;
+                        }
+                    }
+
+                    if (!$lastRow) {
+                        die("No non-empty rows found!");
+                    }
+
+                    /** Read the last non-empty row data */
+                    $lastRowData = $worksheet->rangeToArray("A$lastRow:{$highestColumn}$lastRow", null, true, true, true);
+
+                    foreach($lastRowData as $key => $value) {
+                        if (isset($value['C'])) {
+                            $fileTotal = $value['C'];
+                        }
+            
+                        if (isset($value['D'])) {
+                            $fileRebate = $value['D'];
+                        }
+                    }
+                } elseif($filter['supplier'] == 4) {
+                    $originalName = $file->getClientOriginalName(); // gets 'CENTERPOINT_Diversity_Rebate_May_2025 (1).xlsx'
+                    $workSheetArray = $spreadSheet->getSheet(1)->toArray();
+                    if (stripos($originalName, 'CENTERPOINT_Diversity_Rebate') !== false) {
+                        if (!isset($fileTotal) && !isset($fileRebate)) {
+                            $fileTotal = $workSheetArray[29][1];
+                            $fileRebate = $workSheetArray[32][1];
+                        } elseif(isset($fileTotal) && isset($fileRebate)) {
+                            $fileTotal += $workSheetArray[29][1];
+                            $fileRebate += $workSheetArray[32][1];
+                        }
+                    } else {
+                        foreach ($workSheetArray as $key => $value) {
+                            if ($value[0] == "Rebate Amount") {
+                                if (!isset($fileRebate)) {
+                                    $fileRebate = $value[1];
+                                } elseif(isset($fileRebate)) {
+                                    $fileRebate += $value[1];   
+                                }
+                            }
+
+                            if ($value[0] == "Rebate Sales") {
+                                if (!isset($fileTotal)) {
+                                    $fileTotal = $value[1];
+                                } elseif(isset($fileTotal)) {
+                                    $fileTotal += $value[1];
+                                }
+                            }
+
+                            if ($value[0] == "Net Sales Deductions") {
+                               if(isset($fileTotal)) {
+                                    $fileTotal -= $value[1];
+                                }
+                            }
+                        }
+                    }
+                } elseif($filter['supplier'] == 6) {
+                    $workSheetArray = $spreadSheet->getSheet(0)->toArray();
+
+                    if (!isset($fileRebate)) {
+                        $fileRebate = round((int) $workSheetArray[15][27] * $filter['rate'], 2);
+                    }
+
+                    $fileTotal = 0.0;
+                }
+            }
+        } else {
+            $fileTotal = 0.0;
+            $fileRebate = 0.0;
+        }
+
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+            $orderColumnArray[3] = 'volume_rebate';
+        } else {
+            $orderColumnArray[3] = 'incentive_rebate';
+        }
+
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+            if ($filter['supplier'] == 6) {
+                $query = self::query()->selectRaw("
+                    `orders`.`date` AS `date`,
+                    SUM(`orders`.`cost`) AS `cost`,
+                    `suppliers`.`supplier_name` AS `supplier_name`,
+                    SUM(
+                        CASE 
+                            WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
+                                THEN ((`orders`.`cost` * ?) * 0.02)
+                            ELSE ((`orders`.`cost` * ?) * 0.04)
+                        END
+                    ) AS `volume_rebate`
+                ", [
+                    $filter['rate'],  // conversion rate for PPE
+                    $filter['rate'],  // conversion rate for non-PPE
+                ]);
+
+                $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+                $query->where('order_details.supplier_field_id', 413);
+            } else {
+                $query = self::query()->selectRaw("
+                    `orders`.`date` AS `date`,
+                    SUM(`orders`.`cost`) AS `cost`,
+                    `suppliers`.`supplier_name` AS `supplier_name`, 
+                    ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
+                ");
+            }
+        } else {
+            // `rebate`.`incentive_rebate` AS `incentive_rebates`,
+            $query = self::query()->selectRaw("
+                `orders`.`date` AS `date`,
+                SUM(`orders`.`cost`) AS `cost`,
+                `suppliers`.`supplier_name` AS `supplier_name`, 
+                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`
+            ");
+        }
+
+        $query1 = self::query()->selectRaw("SUM(`orders`.`cost`) AS `cost`");
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query1->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query1->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            $totalAmount1 = $query1->first()->cost;
+        }
+
+        $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number');
+
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->leftJoin('rebate', function ($join) use ($filter) {
+                $join->on('m2.account_name', '=', 'rebate.account_name')
+                     ->where('rebate.supplier', '=', $filter['supplier']);
+            });
+        }
+
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+        
+        if (isset($filter['supplier']) && $filter['supplier'] == 4){
+            $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+        }
+        
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            if ($filter['supplier'] == 3) {   
+                if ($filter['rebate_check'] == 2) {
+                    $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+                    $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
+                    $query->where('order_details.supplier_field_id', 50);
+                    $query->whereNotIn(
+                        'order_details.value',
+                        [
+                            'NON CODE',
+                            'IMPULSE BUYS',
+                            'MANAGE PRINT SERVICE',
+                            'custom bus essentials',
+                            'CUSTOM OUTSOURC PRNT',
+                            'PRODUCT ASSEMBLY',
+                            'MARKETNG/VISUAL SRVC',
+                            'OD ADVERT. GIVEAWAYS'
+                        ]
+                    );
+                }
+            }
+
+            if ($filter['supplier'] == 4) {
+                $query->whereRaw("
+                    (
+                        CASE 
+                            WHEN order_details.supplier_field_id = 98 
+                                THEN 
+                                    CASE 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            WHEN order_details.supplier_field_id = 532
+                                THEN 
+                                    CASE 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            ELSE 0
+                        END
+                    ) = 1
+                ");
+            }
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
+
+        $query->groupBy('m2.account_name');
+        $totalRecords = 1;
+
+        /** Calculating total volume rebate, total incentive rebate and total cost */
+        $totalAmount = $totalVolumeRebate = $totalIncentiveRebate = 0;
+        $formatuserdata = $query->get();
+
+        if (!$formatuserdata->isEmpty()) {
+            foreach ($formatuserdata as $key => $value) {
+                $totalAmount += $value->cost;
+                $totalVolumeRebate += $value->volume_rebate;
+                $totalIncentiveRebate += $value->incentive_rebate;
+            }
+
+            /** Formatting this */
+            $totalAmounts = number_format($totalAmount, 2);
+            $totalVolumeRebates = number_format($totalVolumeRebate, 2);
+            $totalIncentiveRebates = number_format($totalIncentiveRebate, 2);
+        } else {
+            $totalAmounts = $totalAmount = 0.00;
+            $totalVolumeRebates = $totalVolumeRebate = 0.00;
+            $totalIncentiveRebates = $totalIncentiveRebate = 0.00;
+        }
+
+        // dd($formatuserdata);
+
+        /** For debug query */
+        // dd($query->toSql(), $query->getBindings());
+
+        /** Making final array */
+        $finalArray=[];
+        if (isset($formatuserdata) && !$formatuserdata->isEmpty()) {
+            if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+                if ($filter['supplier'] == 2) {
+                    $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $totalVolumeRebate);
+                    $percentage = round(($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100, 2); /** Round to 2 decimal places */
+                } elseif($filter['supplier'] == 5 || $filter['supplier'] == 3 || $filter['supplier'] == 4) {
+                    $difference = (int) $fileRebate - (int) $totalVolumeRebate;
+                    $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
+                    $fileTotal = "$" . number_format($fileTotal, 2);
+                    $fileRebate = "$" . number_format($fileRebate, 2);
+                } elseif ($filter['supplier'] == 6) {
+                    $difference = (int) $fileRebate - (int) $totalVolumeRebate;
+                    $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
+                    $totalAmount = round($totalAmount * (float) $filter['rate'], 2); 
+                    $fileTotal = "$" . number_format($fileTotal, 2);
+                    $fileRebate = "$" . number_format($fileRebate, 2);
+                }
+
+                $finalArray[] = [
+                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount, 2) . '">'. (!$formatuserdata->isEmpty()) ? ($formatuserdata[0]->supplier_name) : (''),
+                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.number_format($totalAmount, 2),
+                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebate.'"class="input_volume_rebate"> $'.$totalVolumeRebates,
+                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebate.'" class="input_incentive_rebate"> $'.$totalIncentiveRebates,
+                    'sfs' => $fileTotal,
+                    'sb' => $fileRebate,
+                    'df' => '$'.number_format($difference, 2).'('.$percentage.'%)'
+                ];
+            } else {
+                if ($filter['supplier'] == 2) {
+                    $difference = floatval(str_replace([',', '$'], '', $fileRebate) - (int) $totalIncentiveRebate);
+                    $percentage = round(($difference / floatval(str_replace([',', '$'], '', $fileRebate))) * 100, 2); /** Round to 2 decimal places */
+                } elseif($filter['supplier'] == 5 || $filter['supplier'] == 3) {
+                    $difference = (int) $fileRebate - (int) $totalIncentiveRebate;
+                    $percentage = round(($difference / (int) $fileRebate) * 100, 2); /** Round to 2 decimal places */
+                    $fileTotal = "$" . number_format($fileTotal, 2);
+                    $fileRebate = "$" . number_format($fileRebate, 2);
+                }
+                
+                $finalArray[] = [
+                    'supplier' => '<input type="hidden" class="total_amount" value="$' . number_format($totalAmount, 2) . '">'.$formatuserdata[0]->supplier_name,
+                    'cost' => '<input type="hidden" value="'.$totalAmount.'"class="qualified_spend"> $'.$totalAmounts,
+                    'volume_rebate' => '<input type="hidden" value="'.$totalVolumeRebates.'"class="input_volume_rebate"> $'.$totalVolumeRebates,
+                    'incentive_rebate' => '<input type="hidden" value="'.$totalIncentiveRebates.'" class="input_incentive_rebate"> $'.$totalIncentiveRebates,
+                    'sfs' => $fileTotal,
+                    'sb' => $fileRebate,
+                    'df' => '$'.number_format($difference, 2).'('.$percentage.'%)'
+                ];
+            }
+        } 
+        // dd($finalArray);
+        /** Defining final array for datatable */
+        return [
+            'data' => $finalArray,
+            'recordsTotal' => $totalRecords, /** Use count of formatted data for total records */
+            'recordsFiltered' => $totalRecords, /** Use total records from the query */
+        ];
+    }
+
+    public static function getAccountValidationReportFilterdData($filter=[]) {
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+            $orderColumnArray[3] = 'volume_rebate';
+        } elseif (isset($filter['rebate_check']) && $filter['rebate_check'] == 2) {
+            $orderColumnArray[3] = 'incentive_rebate';
+        } else {
+            return [
+                'data' => 0,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
+
+        if (isset($filter['rebate_check']) && $filter['rebate_check'] == 1) {
+            if ($filter['supplier'] == 6) {
+                $query = self::query()->selectRaw("
+                    `orders`.`date` AS `date`,
+                    SUM(`orders`.`cost`) AS `cost`,
+                    m2.account_number AS account_number,
+                    m2.account_name AS account_name,
+                    CASE 
+                        WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
+                            THEN 2
+                        ELSE 4
+                    END AS `rebate_percent`,
+                    SUM(
+                        CASE 
+                            WHEN order_details.value = '003 PPE & WORKPLACE SAFETY'
+                                THEN ((`orders`.`cost` * ?) * 0.02)
+                            ELSE ((`orders`.`cost` * ?) * 0.04)
+                        END
+                    ) AS `volume_rebate`
+                ", [
+                    $filter['rate'],  // conversion rate for PPE
+                    $filter['rate'],  // conversion rate for non-PPE
+                ]);
+                $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+                $query->where('order_details.supplier_field_id', 413);
+            } else {
+                $query = self::query()->selectRaw("
+                    `orders`.`date` AS `date`,
+                    SUM(`orders`.`cost`) AS `cost`,
+                    m2.account_number AS account_number,
+                    customers.customer_name AS account_name,
+                    rebate.volume_rebate AS `rebate_percent`,
+                    ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`volume_rebate`) AS `volume_rebate`
+                ");
+            }
+        } else {
+            $query = self::query()->selectRaw("
+                `orders`.`date` AS `date`,
+                SUM(`orders`.`cost`) AS `cost`,
+                m2.account_number AS account_number,
+                customers.customer_name AS account_name,
+                rebate.incentive_rebate AS `rebate_percent`,
+                ((SUM(`orders`.`cost`)) / 100) * MAX(`rebate`.`incentive_rebate`) AS `incentive_rebate`
+            ");
+        }
+
+        $query->leftJoin('master_account_detail as m2', 'orders.customer_number', '=', 'm2.account_number');
+
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->leftJoin('rebate', function ($join) use ($filter) {
+                $join->on('m2.account_name', '=', 'rebate.account_name')
+                     ->where('rebate.supplier', '=', $filter['supplier']);
+            });
+        }
+
+        $query->leftJoin('suppliers', 'suppliers.id', '=', 'orders.supplier_id');
+        $query->leftJoin('customers', 'm2.customer_id', '=', 'customers.id');
+        
+        if (isset($filter['supplier']) && $filter['supplier'] == 4){
+            $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+        }
+        
+        if (isset($filter['supplier']) && !empty($filter['supplier'])) {
+            $query->where('orders.supplier_id', $filter['supplier']);
+
+            /** Year and quarter filter here */
+            if (isset($filter['end_date']) && isset($filter['start_date'])) {
+                $query->whereBetween('orders.date', [$filter['start_date'], $filter['end_date']]);
+            }
+
+            if ($filter['supplier'] == 3) {   
+                if ($filter['rebate_check'] == 2) {
+                    $query->leftJoin('order_details', 'order_details.order_id', '=', 'orders.id');
+                    $query->whereIn('m2.grandparent_id', ["1637", "1718", "2140"]);
+                    $query->where('order_details.supplier_field_id', 50);
+                    $query->whereNotIn(
+                        'order_details.value',
+                        [
+                            'NON CODE',
+                            'IMPULSE BUYS',
+                            'MANAGE PRINT SERVICE',
+                            'custom bus essentials',
+                            'CUSTOM OUTSOURC PRNT',
+                            'PRODUCT ASSEMBLY',
+                            'MARKETNG/VISUAL SRVC',
+                            'OD ADVERT. GIVEAWAYS'
+                        ]
+                    );
+                }
+            }
+
+            if ($filter['supplier'] == 4) {
+                $query->whereRaw("
+                    (
+                        CASE 
+                            WHEN order_details.supplier_field_id = 98 
+                                THEN 
+                                    CASE 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            WHEN order_details.supplier_field_id = 532
+                                THEN 
+                                    CASE 
+                                        WHEN order_details.value NOT IN ('Staples Technology Solutions', 'Staples Promotional Products USA') THEN 1 
+                                        ELSE 0 
+                                    END
+                            ELSE 0
+                        END
+                    ) = 1
+                ");
+            }
+        } else {
+            return [
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+            ];
+        }
+
+        if ($filter['supplier'] == 6) {
+            $query->groupByRaw("m2.account_name");
+        } else {
+            $query->groupByRaw("m2.account_number");
+        }
+    
+
+        $totalRecords = 1;
+
+        $firstArray = $query->get()->toArray(); /** Your first array (37 items) */
+        // dd($firstArray);
+        $secondArray = Order::importRelevantSheets($filter); /** Your second array (103 items) */
+        // dd($secondArray);
+        /** Index both arrays by account number */
+        $firstMap = [];
+        if ($filter['supplier'] == 6) {
+            foreach ($firstArray as $item) {
+                $firstMap[$item['account_name']] = $item;
+            }
+    
+            $secondMap = [];
+            foreach ($secondArray as $item) {
+                $secondMap[$item['account_name']] = $item;
+            }
+        } else {
+            foreach ($firstArray as $item) {
+                $firstMap[$item['account_number']] = $item;
+            }
+    
+            $secondMap = [];
+            foreach ($secondArray as $item) {
+                $secondMap[$item['account_number']] = $item;
+            }
+        }
+
+        /** Get all unique account numbers from both arrays */
+        $allAccountNumbers = array_unique(array_merge(
+            array_keys($firstMap),
+            array_keys($secondMap)
+        ));
+
+        $mergedArray = [];
+        foreach ($allAccountNumbers as $accountNumber) {
+            $item1 = $firstMap[$accountNumber] ?? null;
+            $item2 = $secondMap[$accountNumber] ?? null;
+        
+            $dbCost = isset($item1['cost']) ? "$" . number_format((float) $item1['cost'], 2) : "$0";
+            $dbVolumeRebate = isset($item1[$orderColumnArray[3]]) ? "$" . number_format((float) $item1[$orderColumnArray[3]], 2) : "$0";
+            $fileCost = isset($item2['cost']) ? "$" . number_format((float) $item2['cost'], 2) : "$0";
+            $fileVolumeRebate = isset($item2[$orderColumnArray[3]]) ? "$" . number_format((float) $item2[$orderColumnArray[3]], 2) : "$0";
+
+            $dbVolumeRebateForCal = isset($item1[$orderColumnArray[3]]) ? (float) $item1[$orderColumnArray[3]] : 0;
+            $fileVolumeRebateForCal = isset($item2[$orderColumnArray[3]]) ? (float) $item2[$orderColumnArray[3]] : 0;
+
+            $val1 = (float) ($item1[$orderColumnArray[3]] ?? 0);
+            $val2 = (float) ($item2[$orderColumnArray[3]] ?? 0);
+
+            $account_number = $item1['account_number'] ?? ($item2['account_number'] ?? NULL);
+            if ($filter['supplier'] == 4 && $account_number == "27373825") {
+                foreach ($filter['files'] as $file) {
+                    // Check if the file name contains 'CENTERPOINT_Diversity_Rebate'
+                    $originalName = $file->getClientOriginalName(); // gets 'CENTERPOINT_Diversity_Rebate_May_2025 (1).xlsx'
+                    if (stripos($originalName, 'CENTERPOINT_Diversity_Rebate') !== false) {
+                        $reader = new Xlsx();
+                        $reader->setReadDataOnly(true); // Ignore formatting, speeds up processing
+
+                        $spreadsheet = $reader->load($file);
+
+                        // Try to get the sheet named 'Rebate Calculation'
+                        $sheet = $spreadsheet->getSheetByName('Rebate Calculation');
+
+                        if ($sheet !== null) {
+                            $workSheetArray = $spreadsheet->getSheet(1)->toArray();
+                            $mainRebat = (5 / 100) * (float) $workSheetArray[28][1];
+                            $deducation = $mainRebat - $workSheetArray[32][1];
+                            $val2 =  $val2 - $deducation;
+
+                            $fileVolumeRebate = floatval(str_replace(['$', ','], '', $fileVolumeRebate)) - $deducation;
+                            $fileVolumeRebateForCal = $fileVolumeRebateForCal - $deducation;
+                            $fileCost = floatval(str_replace(['$', ','], '', $fileCost)) - $workSheetArray[29][1];
+
+                            $fileVolumeRebate = "$" . number_format((float) $fileVolumeRebate, 2);
+                            $fileCost = "$" . number_format((float) $fileCost, 2);
+                        }
+                    }
+                }
+            }
+            
+            $difference = $fileVolumeRebateForCal - $dbVolumeRebateForCal;
+
+            if ($fileVolumeRebateForCal != 0 && $difference != 0) {
+                $percentage = round(($difference / $fileVolumeRebateForCal) * 100, 2);
+            } else {
+                $percentage = 0; /** or null, or any fallback value you prefer */
+            }
+            
+            $df = "$" . number_format($val2 - $val1, 2);
+            // dd($val2);
+            $mergedArray[] = [
+                'df' => $df . ' (' . $percentage . '%)',
+                'db_cost' => $dbCost,
+                'file_cost' => $fileCost,
+                'db_volume_rebate' => $dbVolumeRebate,
+                'file_volume_rebate' => $fileVolumeRebate,
+                'account_name' => $item1['account_name'] ?? ($item2['account_name'] ?? NULL),
+                'account_number' => $item1['account_number'] ?? ($item2['account_number'] ?? NULL),
+                'rebate_percent' => ($filter['supplier'] == 6) ? ("4 % non PPE, 2 % PPE") : (isset($item1['rebate_percent']) ? $item1['rebate_percent'] . '%' : "0%"),
+                'file_rebate_percent' => ($filter['supplier'] == 6) ? ("4 % non PPE, 2 % PPE") : (isset($item2['rebate_percent']) ? $item2['rebate_percent'] . '%' : "0%"),
+            ];
+        }
+
+        $finalArray = $mergedArray;       
+        // dd($finalArray);
+        /** Defining final array for datatable */
+        return [
+            'data' => $finalArray,
+            'recordsTotal' => $totalRecords, /** Use count of formatted data for total records */
+            'recordsFiltered' => $totalRecords, /** Use total records from the query */
+        ];
+    }
+
+    public static function getQueryTypeFilteredData($filter = [], $csv = false)
+    {
+        $orderColumnArray = [
+            0 => 'event_time',
+            1 => 'user_host',
+            2 => 'argument',
+        ];
+    
+        // Start base query
+        $query = DB::connection('log_db')
+        ->table('custom_query_log')
+            ->select('event_time', 'user_host', 'argument');
+    
+        // Filter by query_type
+        if (!empty($filter['query_type'])) {
+            $types = [
+                1 => 'DELETE',
+                2 => 'UPDATE',
+                3 => 'INSERT',
+            ];
+            $sqlType = $types[$filter['query_type']] ?? null;
+    
+            if ($sqlType) {
+                $query->where('query_type', $sqlType);
+            }
+        } else {
+            // Default: filter all DML queries
+            $query->whereIn('query_type', ['INSERT', 'UPDATE', 'DELETE']);
+        }
+    
+        // Filter by date range
+        if (!empty($filter['start_date']) && !empty($filter['end_date'])) {
+            $query->whereBetween(DB::raw('DATE(event_time)'), [
+                $filter['start_date'],
+                $filter['end_date']
+            ]);
+        }
+    
+        // Search functionality
+        if (!empty($filter['search']['value'])) {
+            $searchTerm = $filter['search']['value'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->orWhere('user_host', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('argument', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+    
+        // Total records (after filtering)
+        $totalRecords = $query->count();
+    
+        // Ordering
+        if (isset($filter['order'][0]['column']) && isset($orderColumnArray[$filter['order'][0]['column']])) {
+            $query->orderBy($orderColumnArray[$filter['order'][0]['column']], $filter['order'][0]['dir'] ?? 'asc');
+        } else {
+            $query->orderBy('event_time', 'desc');
+        }
+    
+        // Pagination
+        if (!$csv && isset($filter['start']) && isset($filter['length'])) {
+            $query->skip($filter['start'])->take($filter['length']);
+        }
+    
+        $filteredData = $query->get();
+    
+        // Format the results
+        $formattedData = [];
+        foreach ($filteredData as $item) {
+            $formattedData[] = [
+                'event_time' => date('Y-m-d H:i:s', strtotime($item->event_time)),
+                'user_host' => $item->user_host,
+                'query' => $item->argument,
+            ];
+        }
+    
+        // Return based on CSV or DataTables
+        if ($csv) {
+            $formattedData['heading'] = ['Event Time', 'User Host', 'Query'];
+            return $formattedData;
+        } else {
+            return [
+                'data' => $formattedData,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+            ];
+        }
     }
 }

@@ -5,6 +5,46 @@
  <div id="layoutSidenav">
     @include('layout.sidenavbar', ['pageTitleCheck' => 'User Data'])
     <div id="layoutSidenav_content">
+        <style>
+    .inactive-user {
+        background-color: #f8d7da !important; /* Light red background for inactive users */
+        color: #721c24 !important; /* Dark red text color */
+    }
+
+    div#updateuserModal button.close.updatemodal,div#userModal button.close{
+        align-items: center;
+    }
+
+    .permission-group {
+        margin-bottom: 30px;
+    }
+
+    .permission-heading {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+
+    .permission-items-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Two columns */
+        gap: 10px 30px; /* row-gap and column-gap */
+    }
+
+    .permission-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .permission-item input {
+        margin-right: 8px;
+    }
+    
+    label {
+        display: inline-block;
+        margin-bottom: -0.0rem;
+    }
+</style>
         <div class="m-1 px-2 d-md-flex border-bottom pb-3 mb-3 flex-md-row align-items-center justify-content-between">
             <h3 class="mb-0 ps-2">Manage Users</h3>
             <!-- Button trigger modal -->
@@ -35,25 +75,37 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3 mb-md-0">
-                                            <label for="inputFirstName">First name</label>
+                                            <label for="inputFirstName">First name*</label>
                                             <input class="form-control" id="inputFirstName" name="first_name" type="text" placeholder="Enter your first name" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="inputLastName">Last name</label>
+                                            <label for="inputLastName">Last name*</label>
                                             <input class="form-control" id="inputLastName" name="last_name"type="text" placeholder="Enter your last name" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="inputEmail">Email address</label>
+                                    <label for="inputPassword">Password</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="inputPassword" name="password" type="password" />
+                                        <div class="input-group-append">
+                                            <button type="button" id="generatePassword" class="btn btn-secondary">Generate</button>
+                                            <button type="button" id="togglePassword" class="btn btn-outline-secondary">
+                                                <i class="fa fa-eye-slash" id="toggleIcon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="inputEmail">Email address*</label>
                                     <input class="form-control" id="inputEmail" name="email" type="email" placeholder="name@example.com" />
                                 </div>
                                 @auth
                                     @if (Auth::user()->user_type == 1)
                                         <div class="form-group mb-3">
-                                            <label for="userrole">User Status</label>
+                                            <label for="userrole">User Status*</label>
                                             <select id="user_status" name="user_status" class="form-control"> 
                                                 <option value="" selected>--Select--</option>
                                                 <option value="1">Active</option>
@@ -63,39 +115,64 @@
                                     @endif
                                 @endauth
                                 <div class="form-group mb-3">
-                                    <label for="userrole">User Role</label>
+                                    <label for="userrole">User Role*</label>
                                     <select id="user_role" name="user_role" class="form-control"> 
                                         <option value="" selected>--Select--</option>
-                                        <option value="2">Admin</option>
+                                        @if (auth()->user()->user_type == 1)
+                                            <option value="1">Super Admin</option>
+                                            <option value="2">Admin</option>
+                                        @endif
                                         <option value="3">User</option>
                                     </select>
                                 </div>
+                                @php
+                                    $reportPermissions = $permissions->where('report_type', 1);
+                                    $powerBiPermissions = $permissions->where('report_type', 2);
+                                    $userPagePermissions = $permissions->where('report_type', 3);
+                                @endphp
+
                                 <div class="permissions" id="add_permissions">
-                                    <p id="permission_heading">Permissions:</p>
-                                    <?php $count_report = $count_power_bi_report = 0; ?>
-                                    @foreach($permissions as $permission)
-                                        <?php 
-                                            if ($permission->report_type == 1) {
-                                                $count_report = $count_report + 1;
-                                            }
-
-                                            if ($permission->report_type == 2) {
-                                                $count_power_bi_report = $count_power_bi_report + 1;
-                                            }
-
-                                            if ($count_report == 1) {
-                                                echo '<p id="report_permission_heading">Report:</p>';
-                                            }
-
-                                            if ($count_power_bi_report == 1) {
-                                                echo '<p id="power_bi_report_permission_heading">Power Bi Report:</p>';
-                                            }
-                                        ?>
-                                        <div>
-                                            <input type="checkbox" name="permissions[]" value="{{ $permission->id }}">
-                                            <label>{{ $permission->name }}</label>
+                                    @if($userPagePermissions->count())
+                                        <div class="permission_headings permission-group">
+                                            <p class="permission-heading">Page Permissions:</p>
+                                            <div class="permission-items-grid">
+                                                @foreach($userPagePermissions as $permission)
+                                                    <div class="permission-item">
+                                                        <input type="checkbox" name="permissions[]" value="{{ $permission->id }}">
+                                                        <label>{{ $permission->name }}</label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         </div>
-                                    @endforeach
+                                    @endif
+
+                                    @if($reportPermissions->count())
+                                        <div class=" report_permission_headings permission-group">
+                                            <p class="permission-heading">Report:</p>
+                                            <div class="permission-items-grid">
+                                                @foreach($reportPermissions as $permission)
+                                                    <div class="permission-item">
+                                                        <input type="checkbox" name="permissions[]" value="{{ $permission->id }}">
+                                                        <label>{{ $permission->name }}</label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if($powerBiPermissions->count())
+                                        <div class="power_bi_report_permission_headings permission-group">
+                                            <p class="permission-heading">Power BI Report:</p>
+                                            <div class="permission-items-grid">
+                                                @foreach($powerBiPermissions as $permission)
+                                                    <div class="permission-item">
+                                                        <input type="checkbox" name="permissions[]" value="{{ $permission->id }}">
+                                                        <label>{{ $permission->name }}</label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="mt-4 mb-0">
                                     <div class="d-grid">
@@ -129,25 +206,49 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3 mb-md-0">
-                                            <label for="inputFirstName">First name</label>
+                                            <label for="inputFirstName">First name*</label>
                                             <input class="form-control" id="updateFirstName" name="first_name" type="text" placeholder="Enter your first name" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="inputLastName">Last name</label>
+                                            <label for="inputLastName">Last name*</label>
                                             <input class="form-control" id="updateLastName" name="last_name"type="text" placeholder="Enter your last name" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="inputEmail">Email address</label>
+                                    <label>Reset Password?</label><br>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="reset_password_option" id="resetPasswordYes" value="yes">
+                                        <label class="form-check-label" for="resetPasswordYes">Yes</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="reset_password_option" id="resetPasswordNo" value="no" checked>
+                                        <label class="form-check-label" for="resetPasswordNo">No</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3 d-none" id="passwordFieldWrapper">
+                                    <label for="updatePassword">Password</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="updatePassword" name="password" type="password" />
+                                        <div class="input-group-append">
+                                            <button type="button" id="generatePasswordUpdate" class="btn btn-secondary">Generate</button>
+                                            <button type="button" id="togglePasswordUpdate" class="btn btn-outline-secondary">
+                                                <i class="fa fa-eye-slash" id="toggleIconUpdate"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="inputEmail">Email address*</label>
                                     <input class="form-control" id="updateinputEmail" name="email" type="email" placeholder="name@example.com" />
                                 </div>
                                 @auth
                                     @if (Auth::user()->user_type == 1)
                                         <div class="form-group mb-3">
-                                            <label for="userrole">User Status</label>
+                                            <label for="userrole">User Status*</label>
                                             <select id="updateinputStatus" name="update_user_status" class="form-control"> 
                                                 <option value="" selected>--Select--</option>
                                                 <option value="0">In-Active</option>
@@ -157,10 +258,13 @@
                                     @endif
                                 @endauth
                                 <div class="form-group mb-3">
-                                    <label for="userrole">User Role</label>
+                                    <label for="userrole">User Role*</label>
                                         <select id="update_user_role" name="update_user_role" class="form-control"> 
                                         <option value="" selected>--Select--</option>
-                                        <option value="2">Admin</option>
+                                        @if (auth()->user()->user_type == 1)
+                                            <option value="1">Super Admin</option>
+                                            <option value="2">Admin</option>
+                                        @endif
                                         <option value="3">User</option>
                                         </select>
                                 </div>
@@ -178,44 +282,65 @@
             </div>
         </div>
         <div class="container">
-            <table id="user_data" class="data_table_files">
-            <!-- Your table content goes here -->
-            </table>
+            <table id="user_data" class="data_table_files"></table>
         </div>
     </div>
 </div>
-<style>
-    .inactive-user {
-        background-color: #f8d7da !important; /* Light red background for inactive users */
-        color: #721c24 !important; /* Dark red text color */
-    }
-    
-    .permissions>p {
-        width: 100%;
-    }
 
-    .permissions {
-        display: flex;
-        flex-wrap: wrap;
-    }
-
-    .permissions>div {
-        width: 50%;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .permissions>div input[type="checkbox"] {
-        vertical-align: middle;
-        margin-top: -9px;
-    }
-    div#updateuserModal button.close.updatemodal,div#userModal button.close{
-        align-items: center;
-    }
-</style>
 <script type="text/javascript">
+    function generateStrongPassword(length = 12) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?';
+        let password = '';
+        for (let i = 0; i < length; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
+    }
+
     $(document).ready(function() {
+        // Show/hide password input based on radio selection
+        $('input[name="reset_password_option"]').on('change', function () {
+            if ($('#resetPasswordYes').is(':checked')) {
+                $('#passwordFieldWrapper').removeClass('d-none');
+            } else {
+                $('#passwordFieldWrapper').addClass('d-none');
+                $('#updatePassword').val('');
+            }
+        });
+
+        $('#generatePasswordUpdate').on('click', function() {
+            const newPassword = generateStrongPassword(14); // You can change length here
+            $('#updatePassword').val(newPassword);
+        });
+
+         // Toggle password visibility
+        $('#togglePasswordUpdate').on('click', function () {
+            const passwordField = $('#updatePassword');
+            const icon = $('#toggleIconUpdate');
+
+            const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+            passwordField.attr('type', type);
+
+            icon.toggleClass('fa-eye fa-eye-slash');
+        });
+
+
+        $('#generatePassword').on('click', function() {
+            const newPassword = generateStrongPassword(14); // You can change length here
+            $('#inputPassword').val(newPassword);
+        });
+
+         // Toggle password visibility
+        $('#togglePassword').on('click', function () {
+            const passwordField = $('#inputPassword');
+            const icon = $('#toggleIcon');
+
+            const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+            passwordField.attr('type', type);
+
+            icon.toggleClass('fa-eye fa-eye-slash');
+        });
+
         var userTable = $('#user_data').DataTable({
             "paging": true,   // Enable pagination
             "ordering": false, // Enable sorting
@@ -240,6 +365,41 @@
         });
 
         $('#userModal').on('show.bs.modal', function (e) {
+            if ($(this).val() == 2) {
+                $('.permission_heading').show();
+                $('.report_permission_heading').hide();
+                $('.power_bi_report_permission_heading').hide();
+
+                $('.permission_headings').show();
+                $('.report_permission_headings').hide();
+                $('.power_bi_report_permission_headings').hide();
+
+                $('input[type="checkbox"]').prop('checked', false);
+                $('input[type="checkbox"]').parent().hide();
+                $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
+            } else if ($(this).val() == 3) {
+                $('.permission_heading').show();
+                $('.report_permission_heading').show();
+                $('.power_bi_report_permission_heading').show();
+
+                $('.permission_headings').show();
+                $('.report_permission_headings').show();
+                $('.power_bi_report_permission_headings').show();
+
+                $('input[type="checkbox"]').prop('checked', false);
+                $('input[type="checkbox"]').parent().show();
+            } else {
+                $('.permission_heading').hide();
+                $('.report_permission_heading').hide();
+                $('.power_bi_report_permission_heading').hide();
+
+                $('.permission_headings').hide();
+                $('.report_permission_headings').hide();
+                $('.power_bi_report_permission_headings').hide();
+
+                $('input[type="checkbox"]').parent().hide();
+            }
+    
             $('#errorMessage').fadeOut();
             $('#successMessage').fadeOut();
             $("#add_user")[0].reset();
@@ -269,75 +429,85 @@
         async function renderPermissions(user, permissions) {
             var permissionsContainer = $('#permissions-container');
             permissionsContainer.empty();
-            permissionsContainer.append('<p id="permission_headings">Permissions:</p>');
-            var count_report = count_power_bi_report = 0;
+
+            // Create grouped containers
+            var reportContainer = $('<div class="report_permission_headings permission-group" id="report_permissions"></div>'),
+                powerBIContainer = $('<div class="power_bi_report_permission_headings permission-group" id="power_bi_permissions"></div>'),
+                userPermissionContainer = $('<div class="permission_headings permission-group" id="user_permissions"></div>');
+
+            // Add section headings
+            reportContainer.append('<p class="permission-heading">Report:</p>');
+            powerBIContainer.append('<p class="permission-heading">Power BI Report:</p>');
+            userPermissionContainer.append('<p class="permission-heading">Page Permissions:</p>');
+
+            // Add inner grids for each section
+            var reportGrid = $('<div class="permission-items-grid"></div>'),
+                powerBIGrid = $('<div class="permission-items-grid"></div>'),
+                userPermissionGrid = $('<div class="permission-items-grid"></div>');
+
             permissions.forEach(function(permission) {
-                var checkbox = $('<input>', { type: 'checkbox', name: 'permissions[]', value: permission.id }); 
-                if (permission.report_type == 1) {
-                    count_report = count_report + 1;
-                }
-
-                if (permission.report_type == 2) {
-                    count_power_bi_report = count_power_bi_report + 1;
-                }
-
-                if (count_report == 1) {
-                    permissionsContainer.append('<p id="report_permission_headings">Report:</p>')
-                }
-
-                if (count_power_bi_report == 1) {
-                    permissionsContainer.append('<p id="power_bi_report_permission_headings">Power Bi Report:</p>')
-                }
-
-                // Check if the permission ID exists in the user's permissions array
+                var checkbox = $('<input>', { type: 'checkbox', name: 'permissions[]', value: permission.id });
                 var isPermissionChecked = user.permissions.some(function(userPermission) {
                     return userPermission.id === permission.id;
                 });
-
-                if (isPermissionChecked) {
-                    checkbox.prop('checked', true);
-                }
+                if (isPermissionChecked) checkbox.prop('checked', true);
 
                 var label = $('<label>').text(permission.name);
+                var wrapper = $('<div class="permission-item"></div>').append(checkbox, label);
 
-                permissionsContainer.append($('<div>').append(checkbox, label));
+                if (permission.report_type == 1) {
+                    reportGrid.append(wrapper);
+                } else if (permission.report_type == 2) {
+                    powerBIGrid.append(wrapper);
+                } else if (permission.report_type == 3) {
+                    userPermissionGrid.append(wrapper);
+                }
             });
 
+            // Append grids to containers
+            reportContainer.append(reportGrid);
+            powerBIContainer.append(powerBIGrid);
+            userPermissionContainer.append(userPermissionGrid);
+
+            // Append everything to the main container
+            permissionsContainer.append(reportContainer, powerBIContainer, userPermissionContainer);
+
             if ($('#update_user_role').val() == 2) {
-                $('#permission_headings').show();
-                $('#report_permission_headings').hide();
-                $('#power_bi_report_permission_headings').hide();
+                $('.permission_headings').show();
+                $('.report_permission_headings').hide();
+                $('.power_bi_report_permission_headings').hide();
             } else if ($('#update_user_role').val() == 3) {
-                $('#permission_headings').show();
-                $('#report_permission_headings').show();
-                $('#power_bi_report_permission_headings').show();
+                $('.permission_headings').show();
+                $('.report_permission_headings').show();
+                $('.power_bi_report_permission_headings').show();
             } else {
-                $('#permission_headings').hide();
-                $('#report_permission_headings').hide();
-                $('#power_bi_report_permission_headings').hide();
+                $('.permission_headings').hide();
+                $('.report_permission_headings').hide();
+                $('.power_bi_report_permission_headings').hide();
             }
         }
 
         $('input[type="checkbox"]').parent().hide();
         if ($('#user_role').val() == 2) {
-            $('#permission_heading').show();
-            $('#report_permission_heading').hide();
-            $('#power_bi_report_permission_heading').hide();
+            $('.permission_heading').show();
+            $('.report_permission_heading').hide();
+            $('.power_bi_report_permission_heading').hide();
 
             $('input[type="checkbox"]').parent().hide();
             $('input[type="checkbox"]').prop('checked', false);
-            $('input[type="checkbox"][value="4"]').parent().show();
+            $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
+
         } else if ($('#user_role').val() == 3) {
-            $('#permission_heading').show();
-            $('#report_permission_heading').show();
-            $('#power_bi_report_permission_heading').show();
+            $('.permission_heading').show();
+            $('.report_permission_heading').show();
+            $('.power_bi_report_permission_heading').show();
 
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"]').parent().show();
         } else {
-            $('#permission_heading').hide();
-            $('#report_permission_heading').hide();
-            $('#power_bi_report_permission_heading').hide();
+            $('.permission_heading').hide();
+            $('.report_permission_heading').hide();
+            $('.power_bi_report_permission_heading').hide();
 
             $('input[type="checkbox"]').prop('checked', false);
             $('input[type="checkbox"]').parent().hide();
@@ -345,36 +515,38 @@
 
         $('#user_role, #update_user_role').on('change', function(){
             if ($(this).val() == 2) {
-                $('#permission_heading').show();
-                $('#report_permission_heading').hide();
-                $('#power_bi_report_permission_heading').hide();
+                $('.permission_heading').show();
+                $('.report_permission_heading').hide();
+                $('.power_bi_report_permission_heading').hide();
 
-                $('#permission_headings').show();
-                $('#report_permission_headings').hide();
-                $('#power_bi_report_permission_headings').hide();
+                $('.permission_headings').show();
+                $('.report_permission_headings').hide();
+                $('.power_bi_report_permission_headings').hide();
 
                 $('input[type="checkbox"]').prop('checked', false);
                 $('input[type="checkbox"]').parent().hide();
-                $('input[type="checkbox"][value="4"]').parent().show();
-            } else if ($(this).val() == 3) {
-                $('#permission_heading').show();
-                $('#report_permission_heading').show();
-                $('#power_bi_report_permission_heading').show();
+                $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
 
-                $('#permission_headings').show();
-                $('#report_permission_headings').show();
-                $('#power_bi_report_permission_headings').show();
+                // $('input[type="checkbox"][value="4"]').parent().show();
+            } else if ($(this).val() == 3) {
+                $('.permission_heading').show();
+                $('.report_permission_heading').show();
+                $('.power_bi_report_permission_heading').show();
+
+                $('.permission_headings').show();
+                $('.report_permission_headings').show();
+                $('.power_bi_report_permission_headings').show();
 
                 $('input[type="checkbox"]').prop('checked', false);
                 $('input[type="checkbox"]').parent().show();
             } else {
-                $('#permission_heading').hide();
-                $('#report_permission_heading').hide();
-                $('#power_bi_report_permission_heading').hide();
+                $('.permission_heading').hide();
+                $('.report_permission_heading').hide();
+                $('.power_bi_report_permission_heading').hide();
 
-                $('#permission_headings').hide();
-                $('#report_permission_headings').hide();
-                $('#power_bi_report_permission_headings').hide();
+                $('.permission_headings').hide();
+                $('.report_permission_headings').hide();
+                $('.power_bi_report_permission_headings').hide();
 
                 $('input[type="checkbox"]').parent().hide();
             }
@@ -414,16 +586,18 @@
                         $('#successMessage').append('<div class="alert alert-success alert-dismissible fade show" role="alert">' + response.success + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                         $("form")[0].reset();
                         if ($('#user_role').val() == 2) {
-                            $('#permission_heading').show();
+                            $('.permission_heading').show();
                             $('input[type="checkbox"]').parent().hide();
                             $('input[type="checkbox"]').prop('checked', false);
-                            $('input[type="checkbox"][value="4"]').parent().show();
+                            $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
+
+                            // $('input[type="checkbox"][value="4"]').parent().show();
                         } else if ($('#user_role').val() == 3) {
-                            $('#permission_heading').show();
+                            $('.permission_heading').show();
                             $('input[type="checkbox"]').prop('checked', false);
                             $('input[type="checkbox"]').parent().show();
                         } else {
-                            $('#permission_heading').hide();
+                            $('.permission_heading').hide();
                             $('input[type="checkbox"]').prop('checked', false);
                             $('input[type="checkbox"]').parent().hide();
                         }
@@ -462,11 +636,11 @@
 
                     $('#updateuserModal').modal('show');
                     const responses = await fetchUserPermissions(id);
-
+                    
                     await renderPermissions(responses.user, responses.permissions);
                     if ($('#update_user_role').val() == 2) {
                         $('input[type="checkbox"]').parent().hide();
-                        $('input[type="checkbox"][value="4"]').parent().show();
+                        $('input[type="checkbox"]').filter('[value="4"], [value="42"], [value="43"]').parent().show();
                     }                    
                 }
             } catch (error) {
@@ -545,17 +719,45 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url:"{{route('user.remove')}}",
                         data:{id:id},
+                        url:"{{route('user.remove')}}",
                         success:function(data){
                             $('#user_del_success').html('');
                             $('#user_del_success').css('display','block');
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
                             $('#user_del_success').append('<div class="alert alert-success alert-dismissible fade show m-3" role="alert"> User Delete Successfully! <button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
                         },
                         error:function(error){
                             console.log(error);
                         }
                     });
+                }
+            });
+        });
+
+         //to resend email to user 
+        $(document).on('click','.resend',function(){               
+            var email = $(this).attr('data-email');
+            $.ajax({
+                type: 'POST',
+                data:{email:email},
+                url:"{{route('user.resend')}}",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                success:function(data){
+                    if (data.success) {
+                        $('#user_del_success').html('');
+                        $('#user_del_success').css('display','block');
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        $('#user_del_success').append('<div class="alert alert-success alert-dismissible fade show m-3" role="alert">' + data.msg + '<button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
+                    } else {
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        $('#user_del_success').html('');
+                        $('#user_del_success').css('display','block');
+                        $('#user_del_success').append('<div class="alert alert-danger alert-dismissible fade show m-3" role="alert">' + data.msg + '<button type="button" class="close deletemodal" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');  
+                    }
+                },
+                error:function(error){
+                    console.log(error);
                 }
             });
         });

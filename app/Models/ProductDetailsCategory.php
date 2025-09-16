@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
 
 class ProductDetailsCategory extends Model
 {
     use HasFactory;
 
+    protected $connection = 'second_db';
     protected $table = 'product_details_category';
+
+    protected $fillable = [
+        'category_name',
+    ];
 }

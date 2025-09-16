@@ -2,15 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Carbon;
+
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Database\QueryException;
-use PhpOffice\PhpSpreadsheet\Reader\Xls;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use App\Models\{Order, ManageColumns};
+use DateTime;
+use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use Illuminate\Support\{Carbon, Facades\Log, Facades\DB};
 
 class validateUploadedFile extends Command
 {
@@ -86,8 +84,6 @@ class validateUploadedFile extends Command
                     
                     die('Staple file is Ok');
                 }
-
-                
             }
 
             /** Getting the file extension for process file according to the extension */
@@ -118,7 +114,7 @@ class validateUploadedFile extends Command
             foreach ($columnValues as $key => $value) {
                 $columnArray[$value->supplier_id]['invoice_date'] = $value->label;
             }
-
+            
             /** Checking the all sheets of excel using loop */
             foreach ($spreadSheet->getAllSheets() as $spreadSheets) {
                 /** Compairing date of excel sheet data using loop */
@@ -204,7 +200,11 @@ class validateUploadedFile extends Command
                                         $dates[] = date_format(date_create($row[$keyInvoiceDate]),'Y-m-d');
                                     }
                                 } else {
-                                    $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                                    if (str_contains($row[$keyInvoiceDate], '/')) {
+                                        $dates[] = DateTime::createFromFormat('d/m/Y', $row[$keyInvoiceDate])->format('Y-m-d');
+                                    } else {
+                                        $dates[] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d');
+                                    }
                                 }
                                 
                                 if ($chunkSize == 1000) {

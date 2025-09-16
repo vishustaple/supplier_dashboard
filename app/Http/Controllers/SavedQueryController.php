@@ -59,6 +59,5 @@ class SavedQueryController extends Controller
         $query->delete();
 
         return response()->json(['success' => 'Query deleted successfully'], 200);
-        // return redirect()->route('queries.index');
     }
 }

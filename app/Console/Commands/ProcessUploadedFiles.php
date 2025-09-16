@@ -2,13 +2,15 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Http\Controllers\AccountController;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\{DB, File, Log};
+use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\{DB, File, Log, Mail};
 use PhpOffice\PhpSpreadsheet\Reader\{Xls, Xlsx};
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use App\Models\{Order, Account, OrderDetails, UploadedFiles, ManageColumns};
+use App\Models\{Order, Account, UploadedFiles, ManageColumns};
+use DateTime;
 
 class ProcessUploadedFiles extends Command
 {
@@ -17,6 +19,7 @@ class ProcessUploadedFiles extends Command
      *
      * @var string
      */
+    
     protected $signature = 'app:process-uploaded-files';
 
     /**
@@ -32,9 +35,9 @@ class ProcessUploadedFiles extends Command
     public function handle()
     {
         $userFileExist = DB::table('consolidated_file')
-        ->select('id', 'file_name')
-        ->where('delete_check', 1)
-        ->get();
+            ->select('id', 'file_name')
+            ->where('delete_check', 1)
+            ->get();
 
         if ($userFileExist->isNotEmpty()) {
             foreach ($userFileExist as $key => $value) {
@@ -61,10 +64,10 @@ class ProcessUploadedFiles extends Command
         try {
             /** Select those file name where re_upload is 1 */
             $fileValue = DB::table('attachments')
-            ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
-            ->where('re_upload', '=', 1)
-            ->whereNull('deleted_by')
-            ->first();
+                ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
+                ->where('re_upload', '=', 1)
+                ->whereNull('deleted_by')
+                ->first();
 
             if ($fileValue !== null) {
                 $reUpload = true;
@@ -75,24 +78,21 @@ class ProcessUploadedFiles extends Command
             /** Select those file name where cron is 11 */
             if ($fileValue == null) {
                 $fileValue = DB::table('attachments')
-                ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
-                ->where('cron', '=', 11)
-                ->whereNull('deleted_by')
-                ->first();
+                    ->select('id', 'supplier_id', 'file_name', 'created_by', 'conversion_rate')
+                    ->where('cron', '=', 11)
+                    ->whereNull('deleted_by')
+                    ->first();
             }
-            
             
             $suppliers = ManageColumns::getRequiredColumns();
 
             if ($fileValue !== null && $fileValue->supplier_id != 15) {
-                DB::table('operational_anomaly_report')->delete();
-
                 /** Update cron two means start processing data into excel */
                 DB::table('attachments')
-                ->where('id', $fileValue->id)
-                ->update([
-                    'cron' => UploadedFiles::CRON
-                ]);
+                    ->where('id', $fileValue->id)
+                    ->update([
+                        'cron' => UploadedFiles::CRON
+                    ]);
 
                 /** Add column name here those row you want to skip */
                 $skipRowArray = ["Shipto Location Total", "Shipto & Location Total", "TOTAL FOR ALL LOCATIONS", "Total"];
@@ -164,13 +164,6 @@ class ProcessUploadedFiles extends Command
                         $sheetCount = ($sheetCount > 1) ? $sheetCount - 1 : $sheetCount;
                     }
 
-                    // /** Updating the file upload status */
-                    // DB::table('attachments')
-                    // ->where('id', $fileValue->id)
-                    // ->update([
-                    //     'cron' => 4
-                    // ]);
-
                     /** Run the for loop for excel sheets */
                     for ($i = 0; $i <= $sheetCount; $i++) {
                         $count = $maxNonEmptyCount = 0;
@@ -230,19 +223,6 @@ class ProcessUploadedFiles extends Command
                             continue;
                         }
 
-                        // if ($fileValue->supplier_id == 7) {
-                        //     $supplierYear = substr($maxNonEmptyValue[7], 0, 4);
-                        //     if (!empty($supplierYear)) {
-                        //         $dataIdForDeleteDuplicateData = DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->select('attachment_id')->first();
-                        //         if (isset($dataIdForDeleteDuplicateData->attachment_id) && !empty($dataIdForDeleteDuplicateData->attachment_id)) {
-                        //             DB::table(DB::table('supplier_tables')->select('table_name')->where('supplier_id', $fileValue->supplier_id)->first()->table_name)->where('year', $supplierYear)->delete();
-                        //             // DB::table('order_product_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                        //             DB::table('order_details')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                        //             DB::table('orders')->where('attachment_id', $dataIdForDeleteDuplicateData->attachment_id)->delete();
-                        //         }
-                        //     }
-                        // }
-
                         if ($fileValue->supplier_id == 4) {
                             $columnArray2[$fileValue->supplier_id]["Group ID1"] = 'group_id';
                             $columnArray2[$fileValue->supplier_id]["Payment Method Code1"] = 'payment_method_code';
@@ -263,7 +243,6 @@ class ProcessUploadedFiles extends Command
                             $maxNonEmptyValue[44] = "Transaction Source System1";
                             $maxNonEmptyValue[45] = "Transaction Source System";
                         }
-
 
                         foreach ($workSheetArray as $key=>$value) {
                             $finalExcelKeyArray1 = array_values(array_filter($value, function ($item) {
@@ -405,10 +384,10 @@ class ProcessUploadedFiles extends Command
                                          */
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
 
-                                        if (empty($customers)) {
+                                        if (!$customers) {
                                             $data = DB::table('customers')
-                                            ->where('customer_name', $row[$keyCustomerName])
-                                            ->first();
+                                                ->where('customer_name', $row[$keyCustomerName])
+                                                ->first();
 
                                             if (!$data) {
                                                 $insertId = DB::table('customers')
@@ -466,8 +445,7 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             }
 
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
-                                            ->update([
+                                            $data = [
                                                 'customer_id' => $insertId,
                                                 'parent_id' => (!empty($keyParent)) ? ($row[$keyParent]) : (''),
                                                 'parent_name' => (!empty($keyParentName)) ? ($row[$keyParentName]) : (''),
@@ -475,7 +453,16 @@ class ProcessUploadedFiles extends Command
                                                 'grandparent_name' => (!empty($keyGrandParentName)) ? ($row[$keyGrandParentName]) : (''),
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
-                                            ]);
+                                            ];
+                                            
+                                            /** Remove empty values */
+                                            $accountData = array_filter($data, function ($value) {
+                                                return $value !== '' && $value !== null;
+                                            });
+
+                                            Account::where('id', $customers->id)
+                                            ->update($accountData);
+                                            $accountData = [];
                                         }
                                     }
                                 }
@@ -485,7 +472,7 @@ class ProcessUploadedFiles extends Command
                                      * condition for insert and update into account table */
                                     if (isset($row[$keyCustomer]) && !empty($row[$keyCustomer])) {
                                         $customers = Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')->first();
-                                        if (empty($customers)) {
+                                        if (!$customers) {
                                             $data = DB::table('customers')
                                             ->where('customer_name', $row[$keyCustomerName])
                                             ->first();
@@ -527,12 +514,22 @@ class ProcessUploadedFiles extends Command
                                                 ]);
                                             }
 
-                                            Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
-                                            ->update([
+                                            $data = [
                                                 'customer_id' => $insertId,
                                                 'account_number' => ltrim($row[$keyCustomer], '0'),
                                                 'supplier_id' => $fileValue->supplier_id,
-                                            ]);
+                                            ];
+                                            
+                                            /** Remove empty values */
+                                            $accountData = array_filter($data, function ($value) {
+                                                return $value !== '' && $value !== null;
+                                            });
+
+                                            // Account::where('account_number', 'LIKE', '%' . ltrim($row[$keyCustomer], '0') . '%')
+                                            Account::where('id', $customers->id)
+                                            ->update($accountData);
+
+                                            $accountData = [];
                                         }
                                     }
                                 }
@@ -570,10 +567,19 @@ class ProcessUploadedFiles extends Command
                                                     /** Creating the excel insert array for supplier table insert using date column conditions */
                                                     if ($fileValue->supplier_id != 7) {
                                                         if ($columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])] == $date) {
-                                                            $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] =  (!empty($value)) ? Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s') : ('');
+                                                            if (str_contains($value, '/')) {
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = (!empty($value)) ? DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d H:i:s') : ('');
+                                                            } else {
+                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] =  (!empty($value)) ? Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s') : ('');
+                                                            }
                                                         } else {
-                                                            if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1])  && !empty($value)) { 
-                                                                $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
+                                                            if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1])  && !empty($value)) {
+                                                                if (str_contains($value, '/')) {
+                                                                    $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d H:i:s');
+                                                                } else {
+                                                                    $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
+                                                                } 
+                                                                
                                                             } else {
                                                                 if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1])  && !empty($value)) { 
                                                                     $excelInsertArray[$key][$columnArray2[$fileValue->supplier_id][trim($maxNonEmptyValue[$key1])]] = Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s');
@@ -613,6 +619,32 @@ class ProcessUploadedFiles extends Command
                                                     }
                                                 }
 
+                                                /** We also need to add attachment id, converted_price, created_at and updated at keys into the excel insert array */
+                                                if ($fileValue->supplier_id == 16) {
+                                                    if (!empty($fileValue->conversion_rate) && isset($row[$keyAmount])) {
+                                                        $amount = $row[$keyAmount];
+
+                                                        $newKey = $keyAmount + 2;
+                                                        $newKey1 = $keyAmount - 1;
+
+                                                        $thridAmount = $row[$newKey];
+                                                        $secondAmount = $row[$newKey1];
+
+                                                        $convertedPrice = (float) $fileValue->conversion_rate; /** Cast to float */
+                                                        $calculatedAmount = round($amount * $convertedPrice, 2); /** Perform the calculation */
+                                                        $calculatedAmount2 = round($secondAmount * $convertedPrice, 2); /** Perform the calculation */
+                                                        $calculatedAmount3 = round($thridAmount * $convertedPrice, 2); /** Perform the calculation */
+                                                        
+                                                        $excelInsertArray[$key]['converted_sales'] = $calculatedAmount;
+                                                        $excelInsertArray[$key]['converted_unit_price'] = $calculatedAmount2;
+                                                        $excelInsertArray[$key]['converted_web_price'] = $calculatedAmount3;
+                                                    } else {
+                                                        $excelInsertArray[$key]['converted_unit_price'] = 0;
+                                                        $excelInsertArray[$key]['converted_sales'] = 0;
+                                                        $excelInsertArray[$key]['converted_web_price'] = 0;
+                                                    }
+                                                }
+
                                                 $excelInsertArray[$key]['attachment_id'] = $fileValue->id;
                                                 $excelInsertArray[$key]['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
                                                 $excelInsertArray[$key]['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
@@ -624,7 +656,7 @@ class ProcessUploadedFiles extends Command
                                                  */
                                                 if (preg_match('/\bdate\b/i', $maxNonEmptyValue[$key1]) && !empty($value)) {
                                                     $finalInsertArray[] = [
-                                                        'value' => Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s'),
+                                                        'value' => (isset($value) && !empty($value)) ? ((str_contains($value, '/')) ? (DateTime::createFromFormat('d/m/Y', $value)->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($value))->format('Y-m-d H:i:s'))) : (''),
                                                         'attachment_id' => $fileValue->id,
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         // 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -646,6 +678,7 @@ class ProcessUploadedFiles extends Command
                                             foreach ($weeklyPriceColumnArray as $key => $value) {
                                                 if (!empty($row[$key])) {                                                    
                                                     $date = explode("-", $workSheetArray[6][$key]);
+                                                    
                                                     /** Inserting the excel data into the orders table and getting the last 
                                                      * insert id  for further insertion */
                                                     $orderLastInsertId = Order::create([
@@ -653,7 +686,7 @@ class ProcessUploadedFiles extends Command
                                                         'created_by' => $fileValue->created_by,
                                                         'supplier_id' => (($fileValue->supplier_id == 7) ? (3) : ($fileValue->supplier_id)),
                                                         'cost' => str_replace(",", "", number_format($row[$key], 2, '.')),
-                                                        'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : (''),
+                                                        'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : (''),
                                                         'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
                                                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -664,20 +697,38 @@ class ProcessUploadedFiles extends Command
                                         } else {
                                             if ($fileValue->supplier_id == 6) {
                                                 $customerNumber = explode(" ", $row[$keyCustomerNumber]);
+                                                $convertedPrice = (float) $fileValue->conversion_rate; /** Cast to float */
+
                                                 /** Inserting the excel data into the orders table and getting the last 
                                                  * insert id  for further insertion */
                                                 $orderLastInsertId = Order::create([
                                                     'attachment_id' => $fileValue->id,
                                                     'created_by' => $fileValue->created_by,
                                                     'supplier_id' => $fileValue->supplier_id,
-                                                    'cost' => $row[$keyAmount],
+                                                    'cost' => round($row[$keyAmount] * $convertedPrice, 2),
                                                     'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
-                                                    'date' =>  (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (($row[$keyInvoiceDate] && $fileValue->supplier_id == 4) ? (Carbon::createFromFormat('Y-m-d H:i:s', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : (''),
+                                                    'date' =>  (!empty($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? ((str_contains($row[$keyInvoiceDate], '/')) ? (DateTime::createFromFormat('d/m/Y', $row[$keyInvoiceDate])->format('Y-m-d H:i:s')) : (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s'))) : (''),
                                                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                                     'customer_number' => $customerNumber[0],
                                                 ]);
-                                            } else {
+                                            } else if ($fileValue->supplier_id == 16) {
+                                                $convertedPrice = (float) $fileValue->conversion_rate; /** Cast to float */
+
+                                                /** Inserting the excel data into the orders table and getting the last 
+                                                 * insert id  for further insertion */
+                                                $orderLastInsertId = Order::create([
+                                                    'attachment_id' => $fileValue->id,
+                                                    'created_by' => $fileValue->created_by,
+                                                    'supplier_id' => $fileValue->supplier_id,
+                                                    'cost' => round($row[$keyAmount] * $convertedPrice, 2),
+                                                    'invoice_number' => (!empty($keyInvoiceNumber) && !empty($row[$keyInvoiceNumber])) ? ($row[$keyInvoiceNumber]) : (''),
+                                                    'date' => (isset($keyInvoiceDate) && !empty($row[$keyInvoiceDate])) ? (Carbon::createFromTimestamp(ExcelDate::excelToTimestamp($row[$keyInvoiceDate]))->format('Y-m-d H:i:s')) : (''),
+                                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                    'customer_number' => ltrim($row[$keyCustomerNumber], '0'),
+                                                ]);
+                                            } else  {
                                                 /** Inserting the excel data into the orders table and getting the last 
                                                  * insert id  for further insertion */
                                                 $orderLastInsertId = Order::create([
@@ -807,6 +858,48 @@ class ProcessUploadedFiles extends Command
                                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                                 ]);
                             }
+                        }
+
+                        /** We use try catch to handle errors during email send */
+                        try {
+                            Log::info('Attempting to send email...');
+                            echo "Attempting to send email...";
+
+                            $countAccount = Account::whereNull('account_name')
+                            ->orWhere('account_name', '')
+                            ->count();
+                            
+                            if ($countAccount > 0) {
+                                /** Setting the email where we want to send email */
+                                $emails = [
+                                    'vishustaple.in@gmail.com',
+                                    'anurag@centerpointgroup.com',
+                                    'santosh@centerpointgroup.com',
+                                    'mgaballa@centerpointgroup.com',
+                                ];
+                                // $emails = [
+                                //     'vishustaple.in@gmail.com',
+                                //     'kekohokubri-2165@yopmail.com',
+                                // ];
+                    
+                                $data = [
+                                    'link' => url('admin/accounts/customer-edit'),
+                                    'body' => 'A new account has been added to the database. Please check the link below.',
+                                ];
+                    
+                                /** Sending email here */
+                                Mail::send('mail.newaccount', $data, function($message) use ($emails) {
+                                    $message->to($emails)
+                                            ->subject('New Account in Database');
+                                });
+                    
+                                echo "Email sent successfully";
+                                Log::info('Email sent successfully');
+                            }
+                        } catch (\Exception $e) {
+                            /** Handle the exception here */
+                            Log::error('Email sending failed: ' . $e->getMessage());
+                            echo "Email sending failed: " . $e->getMessage();
                         }
 
                         $this->info('Uploaded files processed successfully.');
@@ -1063,6 +1156,47 @@ class ProcessUploadedFiles extends Command
                         DB::table('attachments')
                         ->where('id', $fileValue->id)
                         ->update(['cron' => 6]);
+
+                        /** We use try catch to handle errors during email send */
+                        try {
+                            Log::info('Attempting to send email...');
+                            echo "Attempting to send email...";
+                            $countAccount = Account::whereNull('account_name')
+                            ->orWhere('account_name', '')
+                            ->count();
+                            
+                            if ($countAccount > 0) {
+                                /** Setting the email where we want to send email */
+                                $emails = [
+                                    'vishustaple.in@gmail.com',
+                                    'anurag@centerpointgroup.com',
+                                    'santosh@centerpointgroup.com',
+                                    'mgaballa@centerpointgroup.com',
+                                ];
+                                // $emails = [
+                                //     'vishustaple.in@gmail.com',
+                                //     'kekohokubri-2165@yopmail.com',
+                                // ];
+                    
+                                $data = [
+                                    'link' => url('admin/accounts/customer-edit'),
+                                    'body' => 'A new account has been added to the database. Please check the link below.',
+                                ];
+                    
+                                /** Sending email here */
+                                Mail::send('mail.newaccount', $data, function($message) use ($emails) {
+                                    $message->to($emails)
+                                            ->subject('New Account in Database');
+                                });
+                    
+                                echo "Email sent successfully";
+                                Log::info('Email sent successfully');
+                            }
+                        } catch (\Exception $e) {
+                            /** Handle the exception here */
+                            Log::error('Email sending failed: ' . $e->getMessage());
+                            echo "Email sending failed: " . $e->getMessage();
+                        }
 
                         $this->info('Uploaded files processed successfully.');
                     } catch (QueryException $e) {

@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
@@ -32,7 +31,7 @@ class BackupDatabase extends Command
      * Execute the console command.
      */
     public function handle() {
-        $filename = 'backup_' . Carbon::now()->format('Y_m_d') . '.sql';
+        $filename = 'backup_usage_db_' . Carbon::now()->format('Y_m_d') . '.sql';
         $path = storage_path("app/backups/{$filename}");
 
         $process = new Process([
@@ -57,7 +56,35 @@ class BackupDatabase extends Command
             // $this->info('Backup file deleted from the server.');
 
         } catch (ProcessFailedException $exception) {
-            $this->error('The backup process has failed.');
+            $this->error('The backup 1 process has failed.');
+        }
+
+        $filename = 'backup_catalog_db_' . Carbon::now()->format('Y_m_d') . '.sql';
+        $path = storage_path("app/backups/{$filename}");
+
+        $process = new Process([
+            'mysqldump',
+            '-u', env('DB_USERNAME'),
+            '-p' . env('DB_PASSWORD'),
+            env('DB_SECOND_DATABASE'),
+            '--result-file=' . $path,
+        ]);
+
+        $process->setTimeout(3600);
+
+        try {
+            $process->mustRun();
+            $this->info('Database backup created successfully.');
+            
+            /** Optionally, download the backup to your local system */
+            // $this->downloadBackup($filename);
+            
+            /** Delete the backup file from the server */
+            // unlink($path);
+            // $this->info('Backup file deleted from the server.');
+
+        } catch (ProcessFailedException $exception) {
+            $this->error('The backup2 process has failed.');
         }
     }
 

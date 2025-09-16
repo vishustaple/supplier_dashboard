@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\{Model, Factories\HasFactory};
 
 class CategorySupplier extends Model
 {
     use HasFactory;
+
+    protected $connection = 'second_db';
 
     protected $table = 'suppliers';
 
@@ -19,62 +20,37 @@ class CategorySupplier extends Model
         'supplier_name',
     ];
 
-    static function supplierShowDataTable($filter=[]) {
+    static function supplierCatalogShowDataTable($filter=[]) {
         $supplierColumnArray = [
             'suppliers.supplier_name',
-            'department.department',
-            'name',
-            'supplier_contacts.email',
-            'supplier_contacts.phone',
             'suppliers.category',
-            'supplier_contacts.status',
         ];
 
         $query = self::select([
             'suppliers.id as id',
-            'suppliers.show as show',
             'suppliers.category as category',
-            'suppliers.hide_show as hide_show',
-            'supplier_contacts.email as email',
-            'supplier_contacts.phone as phone',
-            'supplier_contacts.status as status',
-            'department.department as department',
             'suppliers.supplier_name as supplier_name',
-            'supplier_fields.id as manage_columns_id',
-            DB::raw("CONCAT(supplier_contacts.first_name, ' ', supplier_contacts.last_name) as name"),
+            'catalog_supplier_fields.id as manage_columns_id',
         ])
-        ->leftJoin('supplier_contacts', function($join) {
-            $join->on('supplier_contacts.supplier', '=', 'suppliers.id')
-                 ->where('supplier_contacts.main', '=', 1);
-        })
-        ->leftJoin('department', 'department.id', '=', 'supplier_contacts.department_id')
-        ->leftJoin('supplier_fields', function($join) {
-            $join->on('supplier_fields.supplier_id', '=', 'suppliers.id')
-                 ->where('supplier_fields.deleted', '=', 0);
+        ->leftJoin('catalog_supplier_fields', function($join) {
+            $join->on('catalog_supplier_fields.supplier_id', '=', 'suppliers.id')
+                 ->where('catalog_supplier_fields.deleted', '=', 0);
         });
+
         /** Getting total records before adding filter */
         $totalRecords = $query->getQuery()->getCountForPagination();
-
-        /** Add filter using by show column */
-        if (isset($filter['show']) && $filter['show'] != 'all') {
-            $query->where('suppliers.hide_show', $filter['show']);
-        }
 
         /** Search functionality */
         if (isset($filter['search']['value']) && !empty($filter['search']['value'])) {
             $searchTerm = $filter['search']['value'];
             $query->where(function ($q) use ($searchTerm, $supplierColumnArray) {
                 foreach ($supplierColumnArray as $column) {
-                    if ($column == 'name') {
-                        $q->orWhere(DB::raw("CONCAT(supplier_contacts.first_name, ' ', supplier_contacts.last_name)"), 'LIKE', '%' . $searchTerm . '%');
-                    } else {
-                        $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
-                    }
+                    $q->orWhere($column, 'LIKE', '%' . $searchTerm . '%');
                 }
             });
         }
 
-        $query->groupBy('suppliers.id');
+        $query->groupBy(['suppliers.id']);
         
         $filteredRecords = $query->getQuery()->getCountForPagination();
 
@@ -96,15 +72,9 @@ class CategorySupplier extends Model
         $formattedData = [];
         foreach ($categorySuppliers as $suppliers) {
             $formattedData[] = [
-                'supplier_name' => '<a class="dots" href="'.route('supplier.show', ['id' => $suppliers->id]).'">'.$suppliers->supplier_name.'</a>',
-                'department' => $suppliers->department,
-                'name' => $suppliers->name,
-                'email' => $suppliers->email,
-                'phone' => $suppliers->phone,
+                'supplier_name' => $suppliers->supplier_name,
                 'category' => $suppliers->category,
-                'status' => (($suppliers->status == 1) ? ('Active') : ((isset($suppliers->status)) ? ('In-active') : (''))),
-                'show' => '<div class="form-check"><input data-id="'.$suppliers->id.'" class="form-check-input checkboxMain" type="checkbox" value="1" aria-label="..." '.(($suppliers->hide_show == 1) ? ('checked') : ('')).'></div>',
-                'edit' => '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a title="Edit Account" class="" id="edit_account" data-id="'.$suppliers->id.'" data-supplier_name="'.$suppliers->supplier_name.'" data-category="'.$suppliers->category.'" data-hide_show="'.$suppliers->hide_show.'" data-show="'.$suppliers->show.'" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal"><i class="fa-regular fa-pen-to-square"></i>Edit Supplier</a><a title="Edit File Format" class="" id="edit_format" data-id="'.$suppliers->id.'" href="#" data-bs-toggle="modal" data-bs-target="'.(!empty(($suppliers->manage_columns_id)) ? ('#editSupplierFileFormatModal') : ('#addSupplierFileFormatModal')).'"><i class="fa fa-file-excel" aria-hidden="true"></i>'.(!empty(($suppliers->manage_columns_id)) ? ('Edit') : ('Add')).' File Format </a>'.
+                'edit' => '<div class="dropdown custom_drop_down"><a class="dots" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical"></i></a> <div class="dropdown-menu"><a title="Edit File Format" class="" id="edit_format" data-id="'.$suppliers->id.'" href="#" data-bs-toggle="modal" data-bs-target="'.(!empty(($suppliers->manage_columns_id)) ? ('#editSupplierFileFormatModal') : ('#addSupplierFileFormatModal')).'"><i class="fa fa-file-excel" aria-hidden="true"></i>'.(!empty(($suppliers->manage_columns_id)) ? ('Edit') : ('Add')).' File Format </a>'.
                 (!empty(($suppliers->manage_columns_id)) ? ('<a title="Delete File Format" class="delete_format" data-id="'.$suppliers->id.'" href="#"><i class="fa fa-trash" aria-hidden="true"></i>Delete File Format </a>') : ('')).'</div></div>'
             ];
         }

@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use League\Csv\Writer;
 use App\Models\SalesTeam;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{DB, Validator};
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\{Http\Request, Database\QueryException};
 
 class SalesTeamController extends Controller
 {

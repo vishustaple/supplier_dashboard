@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use DateTime;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use League\Csv\Writer;
@@ -16,13 +15,14 @@ class ReportController extends Controller
 {
     public function __construct(Request $request) {
         $setPageTitleArray = [
-            'business_report' => 'Business Report',
+            // 'business_report' => 'Business Report',
             'commission_report' => 'Commission Report',
             'supplier_report' => 'Supplier Rebate Report',
             'optimization_report' => 'Quarter Report',
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
-            'operational_anomaly_report' => 'Operational Anomaly Report',
+            // 'operational_anomaly_report' => 'Operational Anomaly Report',
+            'account_validation_rebate_report' => 'Account Validation Rebate Report',
         ];
 
         $reportType = $request->route('reportType');
@@ -30,7 +30,7 @@ class ReportController extends Controller
             $this->middleware('permission:'.$setPageTitleArray[$request->route('reportType')])->only(['index']);
         }
 
-        $this->middleware('permission:Business Report')->only(['dataFilter', 'exportCsv']);
+        // $this->middleware('permission:Business Report')->only(['dataFilter', 'exportCsv']);
         $this->middleware('permission:Commission Report')->only(['getCommissionsWithAjax', 'commissionReportFilter', 'commissionReportExportCsv', 'approvedUpdate', 'paidUpdate', 'downloadSampleCommissionFile']);
         $this->middleware('permission:Supplier Rebate Report')->only(['supplierReportFilter', 'supplierReportExportCsv']);
         $this->middleware('permission:Consolidated Supplier Report')->only(['consolidatedReportFilter', 'exportConsolidatedCsv', 'exportConsolidatedDownload']);
@@ -42,13 +42,14 @@ class ReportController extends Controller
         }
         
         $setPageTitleArray = [
-            'business_report' => 'Business Report',
+            // 'business_report' => 'Business Report',
             'commission_report' => 'Commission Report',
             'supplier_report' => 'Supplier Rebate Report',
             'optimization_report' => 'Quarter Report',
             'consolidated_report' => 'Consolidated Supplier Report',
             'validation_rebate_report' => 'Validation Rebate Report',
-            'operational_anomaly_report' => 'Operational Anomaly Report',
+            // 'operational_anomaly_report' => 'Operational Anomaly Report',
+            'account_validation_rebate_report' => 'Account Validation Rebate Report',
         ];
 
         if(isset($id) && isset($reportType)){
@@ -172,6 +173,67 @@ class ReportController extends Controller
             $formatuserdata = Order::getSupplierReportFilterdData($request->all());
             return response()->json($formatuserdata);
         }
+    }
+
+    public function supplierValidationReportFilter(Request $request) {
+        if ($request->ajax()) {
+            $formatuserdata = Order::getSupplierValidationReportFilterdData($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
+
+    public function accountValidationReportFilter(Request $request) {
+        if ($request->ajax()) {
+            $formatuserdata = Order::getAccountValidationReportFilterdData($request->all());
+            return response()->json($formatuserdata);
+        }
+    }
+
+    public function accountReportExportCsv(Request $request) {
+        /** Retrieve data based on the provided parameters */
+        $filter['order'][0]['column'] = $request->input('column');
+        $filter['order'][0]['dir'] = $request->input('order');
+        $filter['start_date'] = $request->input('start_date');
+        $filter['end_date'] = $request->input('end_date');
+        $filter['supplier'] = $request->input('supplier');
+        $filter['rebate_check'] = $request->input('rebate_check');
+
+        // dd($filter);
+        $csv = true;
+
+        /** Fetch data using the parameters and transform it into CSV format */
+        /** Replace this with your actual data fetching logic */
+        $data = Order::getSupplierReportFilterdData($filter, $csv);
+
+        /** Create a stream for output */
+        $stream = fopen('php://temp', 'w+');
+
+        /** Create a new CSV writer instance */
+        $csvWriter = Writer::createFromStream($stream);
+        
+        $heading = $data['heading'];
+        unset($data['heading']);
+
+        /** Add column headings */
+        $csvWriter->insertOne($heading);
+
+        /** Insert the data into the CSV */
+        $csvWriter->insertAll($data);
+
+        /** Rewind the stream pointer */
+        rewind($stream);
+
+        /** Create a streamed response with the CSV data */
+        $response = new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+        });
+
+        /** Set headers for CSV download */
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="supplierRebateReport_'.now()->format('YmdHis').'.csv"');
+  
+        /** return $csvResponse; */
+        return $response;
     }
 
     public function getCommissionsWithAjax(Request $request) {
@@ -921,6 +983,16 @@ class ReportController extends Controller
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date')
         ];
+
+        $checkRowsData = $request->input('check_rows');
+
+        if (isset($checkRowsData) && $checkRowsData == 1) {
+            /** Increasing the memory limit becouse memory limit issue */
+            ini_set('memory_limit', '1024M');
+
+            $rowsCount = Order::getConsolidatedDownloadData($filter, true);
+            return response()->json(['count' => $rowsCount]);
+        }
 
         $smallDataCheck = $request->input('small_data');
 
