@@ -589,12 +589,37 @@ def adding_record_into_database(scrap_data, year, month_column, supplier_id, ind
 # ──────────────────────────────────────────────────────────────────────────────
 # DB Insert helpers
 # ──────────────────────────────────────────────────────────────────────────────
-def final_insert(df, boot):
-    sku_len = len(df)
+def final_insert(records, boot):
+    """
+    Insert scraped product records into the database.
+
+    Parameters
+    ----------
+    records : list[dict] | pandas.DataFrame
+        The scraped product records. Can be a list of dicts (json_records)
+        or a pandas DataFrame.
+    boot : dict
+        Context/bootstrapping values for DB inserts.
+    """
+
+    # --- Normalize records to list[dict] ---
+    if isinstance(records, pd.DataFrame):
+        records = records.to_dict(orient="records")
+    elif not isinstance(records, list):
+        raise TypeError(f"Unsupported type for records: {type(records)}")
+    else:
+        # If it's a list, make sure all items are dicts
+        bad_items = [r for r in records if not isinstance(r, dict)]
+        if bad_items:
+            print(f"[WARN] Non-dict records found: {bad_items[:3]} (showing up to 3)")
+            records = [r for r in records if isinstance(r, dict)]
+
+    sku_len = len(records)
     sku_data = boot["sku_data"]
     processed_sku_count = 0
     last_written_percent = -1
-    for result in df:
+
+    for result in records:
         processed_sku_count += 1
 
         sku_result = result.get("sku")
@@ -602,13 +627,13 @@ def final_insert(df, boot):
             print("Missing 'sku' in result:", result)
             log_to_laravel(f"Missing 'sku' in result: {result}")
             continue
-        
-        if not result.get("value"):
-            print("Missing 'CPG Price' in result:", result)
-            log_to_laravel(f"Missing 'CPG Price' in result: {result}")
-            continue
 
-        # Match row from merged sku_data for DB insert values
+        # if not result.get("value"):
+        #     print("Missing 'CPG Price' in result:", result)
+        #     log_to_laravel(f"Missing 'CPG Price' in result: {result}")
+        #     continue
+
+        # --- Match row from merged sku_data for DB insert values ---
         record = sku_data.loc[sku_data["sku"] == sku_result]
         record = record.dropna(axis=1, how="all")
         record = record.loc[:, ~record.columns.astype(str).str.contains("^None$", na=False)]
@@ -618,7 +643,6 @@ def final_insert(df, boot):
 
             if not matched_row.get("value"):
                 web_price = result.get("web_price")
-                
                 if web_price is not None:
                     result["value"] = round(web_price * (1 - 0.02), 2)
                 else:
@@ -638,7 +662,7 @@ def final_insert(df, boot):
                 log_to_laravel(f"Missing web_price for SKU: {result.get('sku')}")
                 continue
 
-        # ODP category mapping (unchanged)
+        # --- ODP category mapping (unchanged logic) ---
         try:
             conn5 = mysql.connector.connect(
                 host=os.getenv("DB_HOST", "127.0.0.1"),
@@ -684,14 +708,14 @@ def final_insert(df, boot):
             except Exception:
                 pass
 
-        # Required fields
+        # --- Required fields ---
         required_fields = ["category", "sub_category"]
         if any(not result.get(f) for f in required_fields):
             print(f"Missing fields {required_fields} for SKU {result.get('sku')}")
             log_to_laravel(f"Missing fields {required_fields} for SKU {result.get('sku')}")
             continue
 
-        # Write all DB tables for this item
+        # --- Write all DB tables for this item ---
         adding_record_into_database(
             scrap_data=result,
             year=boot["year"],
@@ -702,11 +726,12 @@ def final_insert(df, boot):
             date=boot["date"],
             greater_date_file_exist=boot["greater_date_file_exist"],
         )
-        
+
+        # --- Progress tracking ---
         if sku_len > 0:
             new_percent = int((processed_sku_count / sku_len) * 100)
         else:
-            new_percent = 0  # Or handle appropriately if zero total SKUs
+            new_percent = 0
 
         if new_percent > last_written_percent:
             progress_percent_db = new_percent
@@ -718,7 +743,6 @@ def final_insert(df, boot):
                     password=os.getenv("DB_PASSWORD", "Password123#@!"),
                     database=os.getenv("DB_SECOND_DATABASE", "sp16")
                 )
-
                 cursor1 = conn1.cursor()
                 cursor1.execute(
                     "UPDATE catalog_attachments SET file_upload_percent = %s WHERE id = %s",
@@ -734,6 +758,7 @@ def final_insert(df, boot):
                 cursor1.close()
                 conn1.close()
 
+    # --- Mark cron completion ---
     try:
         conn4 = mysql.connector.connect(
             host=os.getenv("DB_HOST", "127.0.0.1"),
@@ -742,14 +767,12 @@ def final_insert(df, boot):
             database=os.getenv("DB_SECOND_DATABASE", "sp16")
         )
         cursor4 = conn4.cursor()
-        
-        # Update cron status to indicate completion
         cursor4.execute("UPDATE catalog_attachments SET cron = 6 WHERE id = %s", (boot["file_id"],))
         conn4.commit()
-
     except mysql.connector.Error as err:
         print(f"❌ DB Error: {err}")
         log_to_laravel(f"❌ DB Error during cron update: {err}")
     finally:
         cursor4.close()
         conn4.close()
+

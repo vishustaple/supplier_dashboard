@@ -523,6 +523,26 @@
             // Get the selected value
             var selectedValue = $(this).val(),
             inputContainer = $('#additional-inputs'); // Target container
+
+            // Define supplier download links
+            var supplierLinks = {
+                // 1: "{{ asset('excel_sheets/sample.pdf') }}",
+                2: "{{ asset('excel_sheets/Grainger Volume Rebate Template.xlsx') }}",
+                3: "{{ asset('excel_sheets/Office Depot Volume Rebate.xlsx') }}",
+                4: "{{ asset('excel_sheets/sample.pdf') }}",
+                5: "{{ asset('excel_sheets/WB Mason Volume Rebate.xlsx') }}",
+            };
+
+            // Check if selected supplier has a download link
+            if (supplierLinks[selectedValue]) {
+                inputContainer.append(`
+                    <div class="mb-2">
+                        <label>Download Sample File:</label><br/>
+                        <a href="${supplierLinks[selectedValue]}" target="_blank" class="btn btn-sm btn-primary">Download Sample File</a>
+                    </div>
+                `);
+            }
+
             const filesInput = document.getElementById('file'),
             selectedFilesDiv = document.getElementById('selected_files');
 

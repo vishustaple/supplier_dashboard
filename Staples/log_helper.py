@@ -1,22 +1,6 @@
 import os
-import re
-import time
-import html
-import json
-import random
-import asyncio
-import requests
-import threading
-import pandas as pd
-from tqdm import tqdm
-import mysql.connector
-from bs4 import BeautifulSoup
 from datetime import datetime
 from dotenv import load_dotenv
-from threading import Lock, Event
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from playwright.sync_api import sync_playwright
-from playwright.async_api import async_playwright
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Environment & constants

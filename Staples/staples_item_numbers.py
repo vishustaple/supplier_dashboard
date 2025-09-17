@@ -20,18 +20,18 @@ STATE_PATH = "staples_storage_state.json"  # session handoff file
 
 # ------------------------- Category crawl targets -------------------------
 TARGET_URLS = [
-    # "https://www.staplesadvantage.com/office-supplies/cat_SC273214",
-    # "https://www.staplesadvantage.com/coffee-water-snacks/cat_SC215",
-    # "https://www.staplesadvantage.com/paper/cat_SC204",
-    # "https://www.staplesadvantage.com/cleaning-supplies/cat_SC213",
-    # "https://www.staplesadvantage.com/education/cat_SC208",
-    # "https://www.staplesadvantage.com/furniture/cat_SC212",
-    # "https://www.staplesadvantage.com/computers-accessories/cat_SC202",
-    # "https://www.staplesadvantage.com/phones-cameras-electronics/cat_SC285699",
-    # "https://www.staplesadvantage.com/printers-scanners/cat_SC216",
-    # "https://www.staplesadvantage.com/shipping-packing-mailing-supplies/cat_SC211",
-    # "https://www.staplesadvantage.com/facilities/cat_SC400125",
-    # "https://www.staplesadvantage.com/safety-supplies/cat_SC90229",
+    "https://www.staplesadvantage.com/office-supplies/cat_SC273214",
+    "https://www.staplesadvantage.com/coffee-water-snacks/cat_SC215",
+    "https://www.staplesadvantage.com/paper/cat_SC204",
+    "https://www.staplesadvantage.com/cleaning-supplies/cat_SC213",
+    "https://www.staplesadvantage.com/education/cat_SC208",
+    "https://www.staplesadvantage.com/furniture/cat_SC212",
+    "https://www.staplesadvantage.com/computers-accessories/cat_SC202",
+    "https://www.staplesadvantage.com/phones-cameras-electronics/cat_SC285699",
+    "https://www.staplesadvantage.com/printers-scanners/cat_SC216",
+    "https://www.staplesadvantage.com/shipping-packing-mailing-supplies/cat_SC211",
+    "https://www.staplesadvantage.com/facilities/cat_SC400125",
+    "https://www.staplesadvantage.com/safety-supplies/cat_SC90229",
 ]
 
 # ------------------------- Search crawl config (your provided code integrated) -------------------------
@@ -407,7 +407,7 @@ async def run_async_crawl(storage_state_path: str, category_urls: List[str], sea
             await work_q.put({"type": "search", "term": term, "page_number": pn})
 
     async with async_playwright() as ap:
-        browser = await ap.chromium.launch(headless=False, args=["--disable-blink-features=AutomationControlled"])
+        browser = await ap.chromium.launch(headless=True, args=["--disable-blink-features=AutomationControlled"])
         context = await browser.new_context(storage_state=storage_state_path, locale="en-US")
 
         # Each worker owns ONE tab and stays busy until no tasks remain (no idle tabs)
@@ -501,7 +501,7 @@ def get_item_numbers():
         print("\n📄 Matched category listing URLs:")
         for url in matched_urls:
             print(url)
-
+        
         print("\n📝 Total unique item numbers extracted:", len(item_numbers))
         df = pd.DataFrame(sorted(item_numbers), columns=["Item Number"])
         output_path = "staples_item_numbers.xlsx"

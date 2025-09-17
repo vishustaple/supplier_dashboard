@@ -48,7 +48,7 @@ result_list = (
 
 df, json_records = get_product_data(result_list)
 
-final_insert(df=df, boot=boot)
+final_insert(records=json_records, boot=boot)
 
 # If you also want a JSON string:
 json_str = json.dumps(json_records, ensure_ascii=False)

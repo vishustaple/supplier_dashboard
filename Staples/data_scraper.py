@@ -1,13 +1,13 @@
-import requests
-import pandas as pd
 import time
 import json
 import random
-from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import requests
+import pandas as pd
 from tqdm import tqdm
+from pathlib import Path
 from threading import Lock, Event
 from requests.exceptions import HTTPError, RequestException
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # -------------------------
 # Config
@@ -197,22 +197,22 @@ shared_cookies = {}
 
 def fetch_product_data(item_number, retries=2):
     global processed_count, shared_cookies
-
+ 
     result = {"SKU": str(item_number), "Error": "Unknown error"}
     for attempt in range(retries + 1):
         try:
             local_session = requests.Session()
-
+ 
             # Thread-safe copy of shared cookies
             with cookies_lock:
                 cookies_copy = shared_cookies.copy()
-
+ 
             # API URL
             api_url = f"{BASE_URL}product_{item_number}?pgIntlO=Y"
-
+ 
             # Request
             r = local_session.get(api_url, headers=HEADERS, cookies=cookies_copy, timeout=20)
-
+ 
             # Handle redirect w/ JSON 'path'
             if r.status_code in (301, 302):
                 try:
@@ -223,19 +223,19 @@ def fetch_product_data(item_number, retries=2):
                 except ValueError:
                     # Not JSON, proceed to raise_for_status below
                     pass
-
+ 
             r.raise_for_status()
-
+ 
             data = r.json()
             items = data.get("SBASkuState", {}).get("skuData", {}).get("items", [])
             parsed = extract_product_info(items)
-
-            if not parsed.get("SKU"):
+ 
+            if not parsed.get("sku"):
                 raise ValueError("Empty or missing SKU in response.")
-
+ 
             result = parsed
             break  # success
-
+ 
         except HTTPError as e:
             status = getattr(e.response, "status_code", None)
             # If unauthorized/forbidden, refresh cookies once and retry
@@ -254,7 +254,7 @@ def fetch_product_data(item_number, retries=2):
                     time.sleep(2 + attempt)
                     continue
                 break
-
+ 
         except RequestException as e:
             result = {"SKU": str(item_number), "Error": f"RequestException: {str(e)}"}
             if attempt < retries:
@@ -262,36 +262,24 @@ def fetch_product_data(item_number, retries=2):
                 time.sleep(1.5 + attempt + random.random())
                 continue
             break
-
+ 
         except Exception as e:
             result = {"SKU": str(item_number), "Error": str(e)}
             if attempt < retries:
                 time.sleep(2 + attempt)
                 continue
             break
-
+ 
     # Progress + periodic sleep/refresh
     with count_lock:
         processed_count += 1
-
+ 
         if processed_count % 500 == 0 or processed_count == 1:
             print(f"\nProcessed {processed_count} items. Sleeping for 10 seconds...")
             print(result)
             time.sleep(10)
 
-        # Every 5000 processed, refresh cookies (anonymous fallback)
-        if processed_count % 5000 == 0 and not refresh_event.is_set():
-            refresh_event.set()
-            try:
-                new_cookies = get_fresh_cookies()
-                with cookies_lock:
-                    shared_cookies = new_cookies
-                print(f"🔄 Refreshed all cookies at count {processed_count}")
-            finally:
-                refresh_event.clear()
-
     return result
-
 
 # -------------------------
 # Public runner (module entry point)
@@ -320,12 +308,20 @@ def get_product_data(sku_list):
         shared_cookies = get_fresh_cookies()
 
     results = []
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(fetch_product_data, sku) for sku in sku_list]
         for future in tqdm(as_completed(futures), total=len(futures), desc="Processing items"):
             results.append(future.result())
 
     output_df = pd.DataFrame(results)
+
+    # file_path = "staples_product_data.xlsx"
+    # try:
+    #     # read a small window to detect header row
+    #     output_df = pd.read_excel(file_path, dtype=str)
+    # except Exception as e:
+    #     raise SystemExit(1)
+
     output_df.to_excel(OUTPUT_EXCEL_PATH, index=False)
     print(f"✅ All data saved to '{OUTPUT_EXCEL_PATH}'")
 
@@ -337,5 +333,5 @@ def get_product_data(sku_list):
 # Optional: keep a tiny demo for direct execution (safe, takes only one input)
 if __name__ == "__main__":
     # Example usage (replace with your own test SKUs):
-    demo_skus = ["123456", "789012"]
+    demo_skus = ["2317935", "24434798"]
     get_product_data(demo_skus)

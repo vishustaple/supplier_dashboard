@@ -525,25 +525,23 @@
             inputContainer.empty();
 
             // Define supplier download links
-            // var supplierLinks = {
-            //     1: "https://example.com/download1",
-            //     2: "https://example.com/download2",
-            //     3: "https://example.com/download3",
-            //     4: "https://example.com/download4",
-            //     5: "https://example.com/download5",
-            //     6: "https://example.com/download6",
-            //     7: "https://example.com/download7"
-            // };
+            var supplierLinks = {
+                // 1: "{{ asset('excel_sheets/sample.pdf') }}",
+                2: "{{ asset('excel_sheets/Grainger Volume Rebate Template.xlsx') }}",
+                3: "{{ asset('excel_sheets/Office Depot Volume Rebate.xlsx') }}",
+                4: "{{ asset('excel_sheets/sample.pdf') }}",
+                5: "{{ asset('excel_sheets/WB Mason Volume Rebate.xlsx') }}",
+            };
 
-            // // Check if selected supplier has a download link
-            // if (supplierLinks[selectedValue]) {
-            //     inputContainer.append(`
-            //         <div class="mb-2">
-            //             <label>Download Sample File:</label><br/>
-            //             <a href="${supplierLinks[selectedValue]}" target="_blank" class="btn btn-sm btn-primary">Download Sample File</a>
-            //         </div>
-            //     `);
-            // }
+            // Check if selected supplier has a download link
+            if (supplierLinks[selectedValue]) {
+                inputContainer.append(`
+                    <div class="mb-2">
+                        <label>Download Sample File:</label><br/>
+                        <a href="${supplierLinks[selectedValue]}" target="_blank" class="btn btn-sm btn-primary">Download Sample File</a>
+                    </div>
+                `);
+            }
 
             // Check if "Lyreco" (value 6) is selected
             if (selectedValue === '6') {
