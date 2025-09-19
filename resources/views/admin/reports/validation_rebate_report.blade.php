@@ -532,9 +532,9 @@
                     "{{ asset('excel_sheets/Office Depot Renewal Incentive Rebate.xlsx') }}"
                 ],
                 4: [
-                    "{{ asset('RTF-1-2025.xlsx') }}",
-                    "{{ asset('RTF-2-2025.xlsx') }}",
-                    "{{ asset('RTF-3-2025.xlsx') }}"
+                    "{{ asset('excel_sheets/RTF-1-2025.xlsx') }}",
+                    "{{ asset('excel_sheets/RTF-2-2025.xlsx') }}",
+                    "{{ asset('excel_sheets/RTF-3-2025.xlsx') }}"
                 ],
                 5: ["{{ asset('excel_sheets/WB Mason Volume Rebate.xlsx') }}"],
             };
